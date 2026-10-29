@@ -57,6 +57,10 @@ Results from the [2026-10-29 experiment](experiments/2026-10-29-full-calls-sortf
 - Whisper Large v3 through MLX ran at about 0.12–0.14× real time with 2.6–3.6 GB peak memory.
 - Breeze writes Traditional characters (0.1% of CJK characters change under OpenCC `s2tw`); Whisper's output had 14% that change, so it still needs conversion.
 
+## `experiments/hushscribe-harness/`
+
+Patch for HushScribe `51103f0c8f97344ec7ecdf6480a2ee53cd9a0e92` that runs one file import unattended with the language override and saves the diarizer's raw segments. Build and run steps are in its [README](../experiments/hushscribe-harness/README.md).
+
 ## `experiments/transcription/`
 
 - `run_variants.sh` (env `WHISPERKIT_CLI`, `WHISPER_MODEL_DIR`, `AUDIO`, `OUT`): WhisperKit with Chinese forced vs. detection, VAD vs. none, SpeakerKit, and Turbo. Optional prompt runs read `MEETING_RECAP_CONTEXT_PROMPT` and `MEETING_RECAP_NAME_PROMPT`; keep those values out of the repository.

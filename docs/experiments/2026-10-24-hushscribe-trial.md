@@ -14,7 +14,7 @@ The first 10:00 of an online design-review call among three people (Speakers A, 
 
 | Component | Version | Settings |
 | --- | --- | --- |
-| HushScribe | 3.5.0, `51103f0c8f97344ec7ecdf6480a2ee53cd9a0e92`, plus a test harness patch | **Transcribe File** path; `detectLanguage: true`; silence timeout raised to one hour so a model download cannot end the session |
+| HushScribe | 3.5.0, `51103f0c8f97344ec7ecdf6480a2ee53cd9a0e92`, plus the [trial harness patch](../../experiments/hushscribe-harness/) | **Transcribe File** path; `detectLanguage: true`; silence timeout raised to one hour so a model download cannot end the session |
 | WhisperKit | 0.18.0, `e2adabbe7d98dc4d0ab9a5b75424ecc42a9cdbef` | as pinned by HushScribe |
 | Whisper model | `argmaxinc/whisperkit-coreml/openai_whisper-large-v3` (2.9 GB); `TextDecoder.mlmodelc/weights/weight.bin` SHA-256 `680f398925225a313c62da0221aa0a58c9f1bffac5c36f20c449a70a7c9b1e55` | language detected per chunk |
 | FluidAudio | `ea500621819cadc46d6212af44624f2b45ab3240` | `OfflineDiarizerManager()` defaults: clustering threshold 0.6, no speaker count |

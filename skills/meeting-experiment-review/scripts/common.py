@@ -1,0 +1,130 @@
+"""Private dataset IO shared by the standalone skill helpers (standard library only)."""
+from __future__ import annotations
+
+import hashlib
+import json
+import math
+import re
+from datetime import datetime, timezone
+from pathlib import Path
+
+FORMAT = "meeting-review-dataset"
+VERSION = 1
+
+
+def now():
+    return datetime.now(timezone.utc).isoformat(timespec="milliseconds")
+
+
+def identifier(value):
+    if not isinstance(value, str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]{0,63}", value):
+        raise ValueError("IDs must contain 1–64 letters, digits, underscores, or hyphens")
+    return value
+
+
+def read_json(path):
+    return json.loads(Path(path).read_text(encoding="utf-8"),
+                      parse_constant=lambda value: (_ for _ in ()).throw(ValueError(f"invalid number: {value}")))
+
+
+def write_new(path, data):
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("x", encoding="utf-8") as handle:
+        json.dump(data, handle, ensure_ascii=False, indent=2, allow_nan=False)
+        handle.write("\n")
+
+
+def digest(path):
+    with Path(path).open("rb") as handle:
+        return hashlib.file_digest(handle, "sha256").hexdigest()
+
+
+def fingerprint(data):
+    return hashlib.sha256(json.dumps(data, sort_keys=True, ensure_ascii=False,
+                                    allow_nan=False, separators=(",", ":")).encode()).hexdigest()
+
+
+def number(value, name, minimum=0):
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or value < minimum:
+        raise ValueError(f"{name} must be a finite number >= {minimum}")
+    return value
+
+
+def span(start, end):
+    number(start, "start_seconds")
+    number(end, "end_seconds")
+    if end <= start:
+        raise ValueError("end_seconds must be after start_seconds")
+
+
+def inside(root, relative):
+    root = Path(root).resolve()
+    if not isinstance(relative, str) or Path(relative).is_absolute():
+        raise ValueError("dataset artifact paths must be relative")
+    target = (root / relative).resolve()
+    if not target.is_relative_to(root):
+        raise ValueError("artifact path escapes the dataset")
+    return target
+
+
+def dataset(path):
+    root = Path(path).expanduser().resolve()
+    info = read_json(root / "dataset.json")
+    if info.get("format") != FORMAT or info.get("version") != VERSION:
+        raise ValueError("unsupported review dataset")
+    return root
+
+
+def recording(root, recording_id):
+    info = read_json(root / "recordings" / identifier(recording_id) / "recording.json")
+    inside(root, info["media"])
+    return info
+
+
+def run(root, run_id):
+    return read_json(root / "runs" / identifier(run_id) / "run.json")
+
+
+def session(root, session_id):
+    return read_json(root / "sessions" / identifier(session_id) / "session.json")
+
+
+def events(root, session_id):
+    path = root / "sessions" / identifier(session_id) / "events.jsonl"
+    if not path.exists():
+        return []
+    rows = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line]
+    if [row["seq"] for row in rows] != list(range(1, len(rows) + 1)):
+        raise ValueError("review event sequence has a gap")
+    return rows
+
+
+def append_event(root, session_id, event, expected_revision=None):
+    # A file lock also serializes writes from the server and CLI. The app is local-only.
+    import fcntl
+    directory = root / "sessions" / identifier(session_id)
+    with (directory / ".lock").open("a") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        rows = events(root, session_id)
+        if expected_revision is not None and expected_revision != len(rows):
+            raise ValueError("review changed; reload before saving this answer")
+        row = {**event, "seq": len(rows) + 1, "at": now()}
+        with (directory / "events.jsonl").open("a", encoding="utf-8") as handle:
+            handle.write(json.dumps(row, ensure_ascii=False, allow_nan=False) + "\n")
+        return row
+
+
+def answers(root, session_id, until=None):
+    return {event["item_id"]: event for event in events(root, session_id)
+            if event["type"] == "answer" and (until is None or event["seq"] <= until)}
+
+
+def segments(data):
+    if not isinstance(data, list):
+        raise ValueError("segments must be an array")
+    for item in data:
+        span(item["start_seconds"], item["end_seconds"])
+        if not isinstance(item["speaker_id"], str) or not item["speaker_id"]:
+            raise ValueError("segment speaker_id must be a nonempty string")
+    return data

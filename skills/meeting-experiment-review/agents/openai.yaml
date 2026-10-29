@@ -1,0 +1,3 @@
+interface:
+  display_name: "Meeting Experiment Review"
+  short_description: "Run private audio experiments and listening reviews"

@@ -10,7 +10,8 @@
 - State: the user recorded a ~48.5 min two-person call with headphones (in the dataset's `raw/`, with a meeting app's transcript whose speaker labels are wrong: it shows three speakers). A dry run of `tracks.py` on it in scratch took 2 s and found ~15 min of A, ~11 min of B, 91 s overlapping; at the default 30 s window that is 86 clips of ~31 s. Nothing is registered in the dataset yet.
 - Verification: 81 skill tests pass (the three new ones fail without the fixes); `swiftc -typecheck experiments/capture/record.swift` passes; the documented `amix` command makes a 16 kHz mono mix of the full call length. Diffs scanned for names and private paths.
 - Experiment: [docs/experiments/2026-10-30-two-track-call.md](docs/experiments/2026-10-30-two-track-call.md) is committed (status planned), with run, session, reference and evaluation IDs; skill snapshot `cc24865f…` taken at ``, after two review fixes: artifacts are digest-checked on every read (R-05) and references take answers and revision from one event read (R-06).
-- Next action: while #19 is in review, follow the experiment plan: make the scratch WAVs and AAC mix, register `two-track-call`, register the track-activity run, run Sortformer (timed, nothing else running), build the track reference, then prepare the 10-clip check session for the user.
+- Experiment state: recording `two-track-call`, runs `tracks-two-track-call` and `sortformer-two-track-call`, reference `tracks-two-track-call` (86 clips), evaluation `eval-two-track-call` (Sortformer 528/629 turns, 39/86 clips, provisional), and session `check-two-track-call` (10 clips) are in the dataset; scratch WAVs are in a session scratchpad and can be remade from the plan.
+- Next action: the user listens to `check-two-track-call` (command in the experiment summary); then freeze `ref-check-two-track-call`, run `eval-check-two-track-call` on both runs, write the private report, and finish the summary.
 
 ## Ranked work
 

@@ -21,8 +21,8 @@ from collections import Counter
 from common import dataset, identifier, inside, read_json, recording, run, snapshot, write_new
 
 DEFAULTS = {"window_seconds": 15, "lead_seconds": 4, "min_overlap": 0.3, "min_turns": 2, "max_turns": 5,
-            "min_gap_seconds": 20, "transcript_gap_seconds": 60, "min_characters": 30,
-            "normalize": "both"}
+            "min_gap_seconds": 20, "transcript_gap_seconds": 60, "min_characters": 30}
+REQUIRED = {"id", "question", "seed", "recordings"}
 
 
 def artifact(root, run_id, name):
@@ -46,6 +46,10 @@ def words(asr, start, end, convert):
 
 
 def select(root, config):
+    unknown = set(config) - set(DEFAULTS) - REQUIRED
+    if unknown:
+        # Options used only by old experiments live in their code snapshots, not here.
+        raise ValueError(f"unknown config keys {sorted(unknown)}; rerun an old config with its code snapshot")
     o = {**DEFAULTS, **config}
     rng = random.Random(o["seed"])
     window = o["window_seconds"]
@@ -107,13 +111,9 @@ def select(root, config):
                 if info["recording_id"] != rec_id:
                     raise ValueError("transcript run names a different recording")
                 texts.append(asr)
-            if o["normalize"] not in {"both", "first"}:
-                raise ValueError("normalize must be both or first")
-            # "first" converts only the first run, as the 2026-10-29 session did.
-            keep = (lambda text: text) if o["normalize"] == "first" else convert
             ranked = []
             for a in range(int(skip), int(duration) - window, window):
-                x, y = words(texts[0], a, a + window, convert), words(texts[1], a, a + window, keep)
+                x, y = (words(asr, a, a + window, convert) for asr in texts)
                 if len(x) + len(y) > o["min_characters"]:
                     ranked.append((1 - difflib.SequenceMatcher(None, x, y).ratio(), a))
             ranked.sort(reverse=True)

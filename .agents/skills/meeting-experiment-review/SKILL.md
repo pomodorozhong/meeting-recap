@@ -86,7 +86,7 @@ Pick clips that answer the user's question and give each a reason:
 `scripts/pick_clips.py` applies the speaker-order and transcript rules above from registered runs, with a fixed seed, and writes a plan. It needs OpenCC for transcript clips, so run it with `uv run`:
 
 ```json
-{"id": "full-calls-2026-10-29", "question": "Does Sortformer keep the speakers apart?", "seed": 20261029,
+{"id": "full-calls", "question": "Does Sortformer keep the speakers apart?", "seed": 20261029,
  "recordings": [{"recording_id": "part1", "skip_before": 600,
                  "diarization_run": "sortformer-part1", "speaker_clips": 4,
                  "speaker_show_runs": ["sortformer-part1", "whisper-sortformer-part1"],
@@ -97,7 +97,7 @@ Pick clips that answer the user's question and give each a reason:
 uv run scripts/pick_clips.py ~/Documents/meeting-review-data --config select.json --out plan.json
 ```
 
-Optional keys and defaults: `window_seconds` 15, `lead_seconds` 4, `min_overlap` 0.3, `min_turns` 2, `max_turns` 5, `min_gap_seconds` 20, `transcript_gap_seconds` 60, `min_characters` 30, `normalize` `both` (`first` converts only the first transcript run, as the 2026-10-29 session did). Save the config next to the private report so the selection can be rerun; the plan records it under `selector.method`. If a time bin has no turn-change window that avoids the other clips, or there are too few transcript windows far enough apart, the plan has fewer items than asked and the command prints them under `shortfall` (also kept in `selector.shortfall`). A bin crowded by an earlier pick still gets a clip, as long as it does not overlap one. Review the plan and add or replace items by hand when the question needs clips the rules miss.
+Optional keys and defaults: `window_seconds` 15, `lead_seconds` 4, `min_overlap` 0.3, `min_turns` 2, `max_turns` 5, `min_gap_seconds` 20, `transcript_gap_seconds` 60, `min_characters` 30. Save the config next to the private report so the selection can be rerun; the plan records it under `selector.method`. If a time bin has no turn-change window that avoids the other clips, or there are too few transcript windows far enough apart, the plan has fewer items than asked and the command prints them under `shortfall` (also kept in `selector.shortfall`). A bin crowded by an earlier pick still gets a clip, as long as it does not overlap one. Review the plan and add or replace items by hand when the question needs clips the rules miss.
 
 A hand-written plan records how the clips were chosen in `selector` (extra fields such as `method` and `seed` are kept):
 

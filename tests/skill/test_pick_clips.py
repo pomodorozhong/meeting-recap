@@ -115,11 +115,9 @@ class PickTranscriptClips(DatasetCase):
         # Windows start every 15 s up to 90 s; none is more than 60 s from the top pick at 30 s.
         self.assertEqual([s["missing"] for s in plan["selector"]["shortfall"]], [4])
 
-    def test_normalize_first_leaves_the_second_run_unconverted(self):
-        items = pick_clips.select(self.root, self.config(normalize="first"))["items"]
-        self.assertIn("Typical disagreement (100%)", items[1]["reason"])
+    def test_rejects_unknown_config_keys(self):
         with self.assertRaises(ValueError):
-            pick_clips.select(self.root, self.config(normalize="none"))
+            pick_clips.select(self.root, self.config(normalize="first"))
 
 
 if __name__ == "__main__":

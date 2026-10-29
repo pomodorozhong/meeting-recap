@@ -2,6 +2,15 @@
 
 ## In progress
 
+### build/lock-uv-scripts
+
+- Task: make every Python tool folder a uv project with a committed lock (no issue); stacked on `docs/repository-layout`, which now holds the merged #12.
+- PR: none yet; awaiting the user's approval to open it.
+- Code checkpoint: see `git log`. `pyproject.toml` (`package = false`) and `uv.lock` in `experiments/breeze/`, `experiments/mlx/`, `experiments/pyannote/`, `experiments/transcription/` and the skill folder; the scripts lost their inline headers. `AGENTS.md`, `docs/runners.md` and `SKILL.md` describe running with `uv run --project <folder>`.
+- Verification: each project installs with `uv run --locked`, and each script gets past its imports. The MLX Whisper runner ran on the synthetic call, and `metrics.py` read its output (same results as before). `pick_clips.py --help` runs in the skill project. 70 skill tests pass.
+- Checks not run: the Breeze and pyannote runners past startup (pyannote needs the user's Hugging Face token).
+- Next action: open the PR once the user approves it, based on `docs/repository-layout`.
+
 ### docs/repository-layout
 
 - Task: decide the repository layout (closes #8); also carries the handoff layout commit from the merged foundation branch.
@@ -12,18 +21,9 @@
 - Next action: open the PR with the `open-pr` skill once the user approves it.
 - Avoid: branching from local `main`, which is still at the initial commit; base new branches on `origin/main`.
 
-### feat/synthetic-call
-
-- Task: shareable synthetic test recording (advances #4); stacked on `docs/repository-layout`.
-- PR: https://github.com/pomodorozhong/meeting-recap/pull/12 (open, base `docs/repository-layout`; awaiting review)
-- Code checkpoint: 1a9b303. It holds `generate.py` (Qwen3-TTS CustomVoice only) as a uv project (`pyproject.toml`, `uv.lock`), the 73-turn `script.json` (5.5 min; A `vivian`, B `dylan`, C `ryan`, `aiden` spare), `reference/` from the seed-7 run, and the skill's `review.py known`.
-- State: awaiting review. The user has not said whether the full call sounds right. Audio is not committed: seed 7 reproduces the same `call_sha256` on this machine, also in the locked environment. 70 skill tests pass. End to end on the call: Sortformer recovered 67/72 turns and got 7/10 clips fully right.
-- Next action: the user reviews #12 after the layout branch's PR. #4 stays open: its done-when says "each runner", but only Sortformer and the MLX Whisper runner have run on the call.
-- Avoid: Kokoro and CosyVoice voices; cloning; using `review.py known` for a real call.
-
 ## Ranked work
 
-1. #4 Add a shareable synthetic test recording (in progress on `feat/synthetic-call`)
+1. #4 Add a shareable synthetic test recording (the call, its reference and `review.py known` merged into `docs/repository-layout` with #12; still open because its done-when says "each runner", and only Sortformer and the MLX Whisper runner have run on the call)
 2. #1 Evaluate Desert Ant Labs Who for on-device speaker diarization (next, as the user asked; its issue still cites `experiments/diarization/score.py`, now the skill's `evaluate.py`)
 3. #11 Compare Breeze-ASR-25 and Whisper Large v3 transcript accuracy (blocks choosing the pipeline's ASR model)
 4. #9 Choose a license

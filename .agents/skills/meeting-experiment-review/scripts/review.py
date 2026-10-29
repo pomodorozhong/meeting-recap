@@ -103,7 +103,7 @@ def make_reference(root, session_id, reference_id):
     identifier(reference_id)
     plan = session(root, session_id)
     rows = events(root, session_id)
-    latest = answers(root, session_id)
+    latest = answers(root, session_id, rows=rows)
     clips, excluded = [], []
     for item in plan["items"]:
         answer = latest.get(item["id"])
@@ -229,7 +229,7 @@ def make_handler(root, session_id, token):
                     self.send_data(html, "text/html; charset=utf-8")
                 elif path == "/api/session":
                     rows = events(root, session_id)
-                    self.send_data({"session": plan, "answers": answers(root, session_id), "revision": len(rows),
+                    self.send_data({"session": plan, "answers": answers(root, session_id, rows=rows), "revision": len(rows),
                                     "closed": any(row["type"] == "close" for row in rows)})
                 elif path.startswith("/api/prediction/"):
                     self.send_data(prediction(root, items[path.rsplit("/", 1)[1]]))

@@ -164,8 +164,10 @@ def append_event(root, session_id, event, expected_revision=None):
         return row
 
 
-def answers(root, session_id, until=None):
-    return {event["item_id"]: event for event in events(root, session_id)
+def answers(root, session_id, until=None, rows=None):
+    """Latest answer per item; pass `rows` from one events() read so answers and revision agree."""
+    rows = events(root, session_id) if rows is None else rows
+    return {event["item_id"]: event for event in rows
             if event["type"] == "answer" and (until is None or event["seq"] <= until)}
 
 

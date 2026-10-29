@@ -140,6 +140,22 @@ class Answers(ReviewCase):
         self.assertEqual(ref["excluded"], [{"item_id": "c2", "state": "unsure"}])
         self.assertEqual(ref["revision"], 4)
 
+    def test_reference_reads_answers_and_revision_once(self):
+        self.save(annotation={"speaker_order": ["A"]})
+        read = review.events
+
+        def save_right_after_the_read(root, session_id):
+            rows = read(root, session_id)
+            self.save(annotation={"speaker_order": ["A", "B"]})
+            return rows
+        review.events = save_right_after_the_read
+        try:
+            ref = review.make_reference(self.root, "s1", "ref-race")
+        finally:
+            review.events = read
+        self.assertEqual(ref["revision"], 1)
+        self.assertEqual([(c["answer_seq"], c["speaker_order"]) for c in ref["clips"]], [(1, ["A"])])
+
     def test_prediction_filters_to_the_clip(self):
         item = self.item(start_seconds=6, end_seconds=9)
         self.assertEqual(review.prediction(self.root, item)["dia1"], segs(("y", 5, 10)))

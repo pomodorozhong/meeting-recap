@@ -58,6 +58,28 @@ class PickClips(DatasetCase):
         self.assertTrue(all(i["start_seconds"] >= 70 for i in plan["items"]))
         self.assertTrue(all(i["end_seconds"] - i["start_seconds"] == 10 for i in plan["items"]))
 
+    def test_fills_a_bin_crowded_by_the_rare_clip_without_overlap(self):
+        # In 120 s with 4 clips, every candidate in one bin is within 20 s of the rare-label clip.
+        self.add_recording("short", 120)
+        self.add_run("dia-short", recording_id="short", artifacts={"segments": alternating(120)})
+        plan = pick_clips.select(self.root, self.config(rec={"recording_id": "short", "diarization_run": "dia-short"}))
+        starts = sorted(i["start_seconds"] for i in plan["items"])
+        self.assertEqual((len(starts), plan["selector"]["shortfall"]), (4, []))
+        self.assertTrue(all(b - a >= 15 for a, b in zip(starts, starts[1:])), starts)
+
+    def test_reports_bins_with_no_candidates(self):
+        self.add_recording("quiet", 240)
+        self.add_run("dia-quiet", recording_id="quiet", artifacts={"segments": alternating(60, rare=(30, 31))})
+        plan = pick_clips.select(self.root, self.config(rec={"recording_id": "quiet", "diarization_run": "dia-quiet"}))
+        self.assertEqual(len(plan["items"]) + len(plan["selector"]["shortfall"]), 4)
+        self.assertTrue(plan["selector"]["shortfall"])
+        self.assertTrue(all(s["bin_seconds"][0] >= 60 for s in plan["selector"]["shortfall"]))
+
+    def test_a_single_clip_is_the_rare_one(self):
+        items = pick_clips.select(self.root, self.config(rec={"speaker_clips": 1}))["items"]
+        self.assertEqual(len(items), 1)
+        self.assertTrue(items[0]["reason"].startswith("Rarest diarization label"))
+
     def test_rejects_unfinished_or_mismatched_runs(self):
         self.add_recording("rec2", 240)
         self.add_run("dia2", recording_id="rec2", artifacts={"segments": alternating()})
@@ -86,6 +108,12 @@ class PickTranscriptClips(DatasetCase):
         self.assertEqual(len(items), 2)
         self.assertIn("Typical disagreement (0%)", items[1]["reason"])
         self.assertEqual(items[0]["run_ids"], ["asr1", "asr2"])
+
+    def test_reports_missing_transcript_clips(self):
+        plan = pick_clips.select(self.root, self.config(recordings=[
+            {"recording_id": "rec1", "transcript_runs": ["asr1", "asr2"], "transcript_clips": 5}]))
+        # Windows start every 15 s up to 90 s; none is more than 60 s from the top pick at 30 s.
+        self.assertEqual([s["missing"] for s in plan["selector"]["shortfall"]], [4])
 
     def test_normalize_first_leaves_the_second_run_unconverted(self):
         items = pick_clips.select(self.root, self.config(normalize="first"))["items"]

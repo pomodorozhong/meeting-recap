@@ -49,7 +49,7 @@ def select(root, config):
     o = {**DEFAULTS, **config}
     rng = random.Random(o["seed"])
     window = o["window_seconds"]
-    speaker_items, transcript_items = [], []
+    speaker_items, transcript_items, shortfall = [], [], []
     convert = None
     for rec in o["recordings"]:
         rec_id = rec["recording_id"]
@@ -74,13 +74,19 @@ def select(root, config):
             rare = [c for c in cands if rarest in c[1]]
             pick = [rng.choice(rare)] if rare else []
             bins = rec["speaker_clips"] - len(pick)
-            width = (duration - skip) / bins
+            width = (duration - skip) / bins if bins else 0
             for i in range(bins):
-                inbin = [c for c in cands if skip + i * width <= c[0] < skip + (i + 1) * width
-                         and all(abs(c[0] - p[0]) > o["min_gap_seconds"] for p in pick)]
-                multi = [c for c in inbin if len(set(c[1])) >= 2]
-                if multi:
-                    pick.append(rng.choice(multi))
+                start, end = skip + i * width, skip + (i + 1) * width
+                inbin = [c for c in cands if start <= c[0] < end and len(set(c[1])) >= 2]
+                spaced = [c for c in inbin if all(abs(c[0] - p[0]) > o["min_gap_seconds"] for p in pick)]
+                # When every candidate is near an earlier pick, take one that at least does not overlap it.
+                apart = [c for c in inbin if all(abs(c[0] - p[0]) >= window for p in pick)]
+                if spaced or apart:
+                    pick.append(rng.choice(spaced or apart))
+                else:
+                    shortfall.append({"recording_id": rec_id, "task": "speaker_order",
+                                      "bin_seconds": [round(start, 2), round(end, 2)],
+                                      "why": "no turn-change window in this bin that does not overlap another clip"})
             for a, seq in sorted(pick):
                 reason = (f"Rarest diarization label ({totals[rarest]:.0f} s in all; possible split voice)" if rarest in seq
                           else f"Turn change, time bin sample ({len(seq)} predicted turns)")
@@ -117,6 +123,9 @@ def select(root, config):
             for d, a in ranked:
                 if len(chosen) < rec["transcript_clips"] and all(abs(a - b) > o["transcript_gap_seconds"] for _, b in chosen):
                     chosen.append((d, a))
+            if len(chosen) < rec["transcript_clips"]:
+                shortfall.append({"recording_id": rec_id, "task": "transcript", "missing": rec["transcript_clips"] - len(chosen),
+                                  "why": "not enough windows with speech spaced transcript_gap_seconds apart"})
             entries = [(a, f"Transcript runs disagree most here ({d:.0%} different after s2tw)") for d, a in chosen]
             median = ranked[len(ranked) // 2]
             entries.append((median[1], f"Typical disagreement ({median[0]:.0%}) for a fair comparison"))
@@ -127,7 +136,8 @@ def select(root, config):
     items = [{"id": f"c{n:02d}", **item} for n, item in enumerate(speaker_items + transcript_items, 1)]
     method = {k: o[k] for k in DEFAULTS} | {"recordings": o["recordings"]}
     return {"id": identifier(o["id"]), "question": o["question"],
-            "selector": {"name": "pick_clips.py", "version": "1", "seed": o["seed"], "method": method}, "items": items}
+            "selector": {"name": "pick_clips.py", "version": "1", "seed": o["seed"], "method": method,
+                         "shortfall": shortfall}, "items": items}
 
 
 def main():
@@ -138,7 +148,8 @@ def main():
     args = parser.parse_args()
     plan = select(dataset(args.dataset), read_json(args.config))
     write_new(args.out, plan)
-    print(json.dumps({"plan": args.out, "items": len(plan["items"])}, indent=2))
+    print(json.dumps({"plan": args.out, "items": len(plan["items"]), "shortfall": plan["selector"]["shortfall"]},
+                     ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":

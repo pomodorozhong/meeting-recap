@@ -30,7 +30,7 @@ Parts of one call share a `--group`. The media is copied into the dataset. Model
 
 ### 2. Produce and register runs
 
-Use the runners in `scripts/runners/` (see [references/runners.md](references/runners.md)) or any other tool, writing output to a scratch directory. Then register each output with a run spec:
+Runs can come from any tool that writes the formats in [references/formats.md](references/formats.md); this repository's runners are described in `docs/runners.md`. Write raw output to a scratch directory, then register each output with a run spec:
 
 ```json
 {"id": "sortformer-part1", "recording_id": "part1", "model": "fluidaudio-sortformer",
@@ -106,5 +106,4 @@ Lead with the decision the user asked about. Give the table, the number of exclu
 
 ## Other checks
 
-- `scripts/runners/transcription/metrics.py` gives proxy transcript checks without a reference: foreign-script lines, stock hallucination phrases, Simplified-character share, and optional expected terms from `MEETING_RECAP_EXPECTED_TERMS` (pipe-separated, kept out of the repo). Run with `uv run`.
-- `python3 scripts/dataset.py validate <dataset>` rechecks every digest and the event logs.
+`python3 scripts/dataset.py validate <dataset>` rechecks every digest and the event logs.

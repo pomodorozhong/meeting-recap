@@ -1,6 +1,3 @@
-# /// script
-# dependencies = ["opencc-python-reimplemented"]
-# ///
 """Proxy transcript checks without a reference transcript.
 
 - hallucination markers: Hangul, kana, Latin-script lines in other languages, stock phrases

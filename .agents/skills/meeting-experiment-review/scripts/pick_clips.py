@@ -1,8 +1,4 @@
 #!/usr/bin/env python3
-# /// script
-# requires-python = ">=3.11"
-# dependencies = ["opencc-python-reimplemented"]
-# ///
 """Choose review clips from registered runs and write a session plan (seeded and repeatable).
 
 Speaker-order clips: windows starting `lead_seconds` before a predicted turn change, one per
@@ -102,7 +98,7 @@ def select(root, config):
                 try:
                     from opencc import OpenCC
                 except ImportError:
-                    raise ValueError("transcript selection needs opencc; run with `uv run pick_clips.py ...`")
+                    raise ValueError("transcript selection needs opencc; run with `uv run scripts/pick_clips.py ...` from the skill folder")
                 convert = OpenCC("s2tw").convert
             first, second = rec["transcript_runs"]
             texts = []

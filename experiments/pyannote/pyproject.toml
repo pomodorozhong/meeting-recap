@@ -1,0 +1,9 @@
+[project]
+name = "pyannote-runner"
+version = "0.1.0"
+description = "pyannote speaker diarization"
+requires-python = ">=3.11,<3.13"
+dependencies = ["pyannote.audio>=4.0", "torch", "torchaudio"]
+
+[tool.uv]
+package = false

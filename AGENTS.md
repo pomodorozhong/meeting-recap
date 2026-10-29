@@ -29,7 +29,7 @@ Private material lives in the review dataset outside the checkout, at `$MEETING_
 - Record each decision as a numbered entry in `docs/decisions.md`.
 - Conventional Commits.
 - Pin models and dependencies by revision or hash.
-- Python tools run with `uv` or the standard library.
+- Python tools run with `uv` or the standard library. A folder whose Python needs packages is its own uv project: a `pyproject.toml` (`package = false`) and a committed `uv.lock` beside its scripts, run with `uv run --project <folder>` from the repository root or `uv run` inside it. Rerun `uv lock` there after changing its dependencies. Never add a `pyproject.toml` at the repository root; `app/` will be its own project too.
 - After changing the skill, run its tests from the repository root (they use generated audio only):
 
   ```bash

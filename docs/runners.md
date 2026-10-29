@@ -15,6 +15,8 @@ All runs so far used macOS 26.6.2, Apple M2 Pro, 16 GB, Swift 6.3.3.
 | MLX Breeze model | `eoleedi/Breeze-ASR-25-mlx` at `172151e3fd93ab6dc841d639f23dd48b24bc8301` |
 | Breeze-ASR-25 (transformers) | `MediaTek-Research/Breeze-ASR-25` at `cffe7ccb404d025296a00758d0a33468bec3a9d0` |
 
+Each Python runner's folder is a uv project, with a `pyproject.toml` and a committed `uv.lock`; run it from the repository root with `uv run --project <folder>`. The locks were made on 2026-10-29, after the 2026-10-24 experiments, so they don't record the package versions those runs used.
+
 Input audio for all runners is 16 kHz mono WAV:
 
 ```bash
@@ -40,11 +42,11 @@ AUDIO=recording-16k.wav OUT=/scratch/dia ./run_sweep.sh
 
 ## `experiments/mlx/run.py`
 
-Whisper-format models through `mlx-whisper`, writing WhisperKit-shaped JSON with word timestamps. It is a `uv run` script with inline dependencies.
+Whisper-format models through `mlx-whisper`, writing WhisperKit-shaped JSON with word timestamps. Its folder is a uv project.
 
 ```bash
-uv run experiments/mlx/run.py recording-16k.wav whisper.json mlx-community/whisper-large-v3-mlx zh
-uv run experiments/mlx/run.py recording-16k.wav breeze.json eoleedi/Breeze-ASR-25-mlx zh
+uv run --project experiments/mlx experiments/mlx/run.py recording-16k.wav whisper.json mlx-community/whisper-large-v3-mlx zh
+uv run --project experiments/mlx experiments/mlx/run.py recording-16k.wav breeze.json eoleedi/Breeze-ASR-25-mlx zh
 ```
 
 - Arguments: WAV, output path, Hugging Face repo, language (default `zh`). Decoding uses `condition_on_previous_text=False` to limit repetition loops.
@@ -64,7 +66,7 @@ Patch for HushScribe `51103f0c8f97344ec7ecdf6480a2ee53cd9a0e92` that runs one fi
 ## `experiments/transcription/`
 
 - `run_variants.sh` (env `WHISPERKIT_CLI`, `WHISPER_MODEL_DIR`, `AUDIO`, `OUT`): WhisperKit with Chinese forced vs. detection, VAD vs. none, SpeakerKit, and Turbo. Optional prompt runs read `MEETING_RECAP_CONTEXT_PROMPT` and `MEETING_RECAP_NAME_PROMPT`; keep those values out of the repository.
-- `metrics.py <transcript.json>...`: proxy checks without a reference transcript. It counts Hangul or kana, segments with no CJK, stock hallucination phrases, the share of characters that change under `s2tw`, and optional expected terms from `MEETING_RECAP_EXPECTED_TERMS` (pipe-separated, kept private). Run with `uv run`.
+- `metrics.py <transcript.json>...`: proxy checks without a reference transcript. It counts Hangul or kana, segments with no CJK, stock hallucination phrases, the share of characters that change under `s2tw`, and optional expected terms from `MEETING_RECAP_EXPECTED_TERMS` (pipe-separated, kept private). Run with `uv run --project experiments/transcription`; the folder is a uv project.
 
 ## `experiments/full-recordings/run_full.sh`
 
@@ -72,7 +74,7 @@ Sortformer and WhisperKit Whisper Large v3 (Chinese forced, VAD, word timestamps
 
 ## `experiments/breeze/run.py` and `experiments/pyannote/run.py`
 
-`uv run` scripts with inline dependencies.
+Each folder is a uv project; run them with `uv run --project experiments/breeze` or `--project experiments/pyannote`.
 
 - `breeze/run.py <wav> <out.json>` runs Breeze-ASR-25 through transformers and writes WhisperKit-shaped JSON. It is slow on the M2 Pro; prefer the MLX runner.
 - `pyannote/run.py <wav> <out.json> [num_speakers]` writes `segments`. It needs the Hugging Face terms accepted for `pyannote/speaker-diarization-community-1` and a logged-in token.

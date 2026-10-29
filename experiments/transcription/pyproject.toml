@@ -1,0 +1,9 @@
+[project]
+name = "transcription-metrics"
+version = "0.1.0"
+description = "Proxy checks for transcripts without a reference"
+requires-python = ">=3.11"
+dependencies = ["opencc-python-reimplemented"]
+
+[tool.uv]
+package = false

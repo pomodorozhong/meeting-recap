@@ -5,12 +5,12 @@
 ### feat/two-track-capture
 
 - Task: record calls as two aligned tracks and use a two-person call's tracks as its speaker reference; [#18](https://github.com/pomodorozhong/meeting-recap/issues/18). Based on `main`, unlinked. The PR does not finish #18 (its experiment has not run), so it says `Related to #18`.
-- PR: none yet. P-01: open the PR "feat: record calls on two tracks and build speaker references from them" (base `main`, ready for review, `Related to #18`); the user asked to open it and is approving the title and body.
+- PR: https://github.com/pomodorozhong/meeting-recap/pull/19 (open, base `main`, ready for review; `Related to #18`, closes nothing).
 - Code checkpoint: see `git log`. `feat:` adds `experiments/capture/` (`record.swift`, ScreenCaptureKit, `mic.m4a` + `system.m4a` + `timing.json`); `docs:` adds decision 6; `feat(skill)` adds `scripts/tracks.py` and `review.py tracks` (reference from two tracks' activity, source kind `two_tracks`), documented in SKILL.md.
 - State: the user recorded a ~48.5 min two-person call with headphones (in the dataset's `raw/`, with a meeting app's transcript whose speaker labels are wrong: it shows three speakers). A dry run of `tracks.py` on it in scratch took 2 s and found ~15 min of A, ~11 min of B, 91 s overlapping; at the default 30 s window that is 86 clips of ~31 s. Nothing is registered in the dataset yet.
 - Verification: 81 skill tests pass (the three new ones fail without the fixes); `swiftc -typecheck experiments/capture/record.swift` passes; the documented `amix` command makes a 16 kHz mono mix of the full call length. Diffs scanned for names and private paths.
 - Experiment: [docs/experiments/2026-10-30-two-track-call.md](docs/experiments/2026-10-30-two-track-call.md) is committed (status planned), with run, session, reference and evaluation IDs; skill snapshot `cc24865f…` taken at ``, after two review fixes: artifacts are digest-checked on every read (R-05) and references take answers and revision from one event read (R-06).
-- Next action: follow its plan: make the scratch WAVs and AAC mix, register `two-track-call`, register the track-activity run, run Sortformer (timed, nothing else running), build the track reference, then prepare the 10-clip check session for the user.
+- Next action: while #19 is in review, follow the experiment plan: make the scratch WAVs and AAC mix, register `two-track-call`, register the track-activity run, run Sortformer (timed, nothing else running), build the track reference, then prepare the 10-clip check session for the user.
 
 ## Ranked work
 

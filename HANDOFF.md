@@ -17,9 +17,9 @@
 - Task: shareable synthetic test recording (advances #4); stacked on `docs/repository-layout`.
 - PR: none
 - Code checkpoint: see `git log`; the experiment commit holds `generate.py` (Qwen3-TTS CustomVoice only), the 73-turn `script.json` (5.5 min; A `vivian`, B `dylan`, C `ryan`, `aiden` spare), and `reference/` from the seed-7 run.
-- State: the user approved the four Qwen3 voices and asked for the full-length script; they have not yet listened to the full call. Audio is not committed: seed 7 reproduces the same `call_sha256` on this machine. Whisper heard it at 5.9% character error rate. CosyVoice code and caches are deleted; Kokoro caches from before this project remain.
-- Next action: the user listens to `out/script/call.wav`; then turn `reference/segments.json` into a skill reference (the skill's references come from listening sessions, so this needs a converter or a documented path) and run a runner and the skill end to end on the call, which is #4's done-when.
-- Avoid: Kokoro and CosyVoice voices; cloning.
+- State: the user approved the four Qwen3 voices and the full-length script; they have not said whether the full call sounds right. Audio is not committed: seed 7 reproduces the same `call_sha256` on this machine. The skill gained `review.py known`, which builds a reference from known segments (tests added; 70 skill tests pass). End to end on the call: Sortformer recovered 67/72 turns and got 7/10 clips fully right.
+- Next action: the user listens to the call; then open a PR for #4 (stacked on `docs/repository-layout`, or after it merges). #4's done-when says "each runner", but only Sortformer has run so far; the ASR runners have nothing to score against except `reference/transcript.json` by hand.
+- Avoid: Kokoro and CosyVoice voices; cloning; using `review.py known` for a real call.
 
 ## Ranked work
 

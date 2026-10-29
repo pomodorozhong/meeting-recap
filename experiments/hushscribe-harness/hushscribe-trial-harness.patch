@@ -1,0 +1,244 @@
+diff --git a/HushScribe/Sources/HushScribe/Transcription/TranscriptionEngine.swift b/HushScribe/Sources/HushScribe/Transcription/TranscriptionEngine.swift
+index 96acd1a..60e2246 100644
+--- a/HushScribe/Sources/HushScribe/Transcription/TranscriptionEngine.swift
++++ b/HushScribe/Sources/HushScribe/Transcription/TranscriptionEngine.swift
+@@ -5,11 +5,18 @@ import Observation
+ import WhisperKit
+ import os
+ 
+-// Writes to /tmp/hushscribe.log
++// Writes to /tmp/hushscribe.log in debug builds. A trial runner can opt into
++// the same diagnostics in a release build with HUSHSCRIBE_TRIAL_LOG.
+ func diagLog(_ msg: String) {
++    let path: String
+     #if DEBUG
++    path = ProcessInfo.processInfo.environment["HUSHSCRIBE_TRIAL_LOG"] ?? "/tmp/hushscribe.log"
++    #else
++    guard let trialPath = ProcessInfo.processInfo.environment["HUSHSCRIBE_TRIAL_LOG"] else { return }
++    path = trialPath
++    #endif
++
+     let line = "\(Date()): \(msg)\n"
+-    let path = "/tmp/hushscribe.log"
+     if let fh = FileHandle(forWritingAtPath: path) {
+         fh.seekToEndOfFile()
+         fh.write(line.data(using: .utf8)!)
+@@ -17,7 +24,6 @@ func diagLog(_ msg: String) {
+     } else {
+         FileManager.default.createFile(atPath: path, contents: line.data(using: .utf8))
+     }
+-    #endif
+ }
+ 
+ enum ModelDownloadState {
+diff --git a/HushScribe/Sources/HushScribe/Transcription/WhisperKitBackend.swift b/HushScribe/Sources/HushScribe/Transcription/WhisperKitBackend.swift
+index af5ac17..9526f20 100644
+--- a/HushScribe/Sources/HushScribe/Transcription/WhisperKitBackend.swift
++++ b/HushScribe/Sources/HushScribe/Transcription/WhisperKitBackend.swift
+@@ -10,7 +10,15 @@ final class WhisperKitASRBackend: @unchecked Sendable, ASRBackend {
+     }
+ 
+     func transcribe(_ samples: [Float], source: AudioSource, onPartial: (@Sendable (String) -> Void)?) async throws -> String {
+-        let results = try await whisperKit.transcribe(audioArray: samples)
++        let options = DecodingOptions(
++            task: .transcribe,
++            language: nil,
++            detectLanguage: true
++        )
++        let results = try await whisperKit.transcribe(
++            audioArray: samples,
++            decodeOptions: options
++        )
+         return results.map(\.text).joined(separator: " ").trimmingCharacters(in: .whitespacesAndNewlines)
+     }
+ }
+diff --git a/HushScribe/Sources/HushScribe/Views/ContentView.swift b/HushScribe/Sources/HushScribe/Views/ContentView.swift
+index 7ef9c29..813e5ef 100644
+--- a/HushScribe/Sources/HushScribe/Views/ContentView.swift
++++ b/HushScribe/Sources/HushScribe/Views/ContentView.swift
+@@ -49,6 +49,13 @@ struct ContentView: View {
+     @State private var speakerPreviewsForNaming: [String: [String]] = [:]
+     @State private var speakerNamingContinuation: CheckedContinuation<[String: String], Never>?
+     @State private var showFilePicker = false
++    @State private var automatedTrialStarted = false
++    @State private var automatedTrialStartedAt: Date?
++    @State private var automatedTrialFileSessionStartedAt: Date?
++    @State private var automatedTrialTranscriptionFinishedAt: Date?
++    @State private var automatedTrialDiarizationSucceeded: Bool?
++    @State private var automatedTrialDiarizationSegmentCount: Int?
++    @State private var automatedTrialDiarizationSpeakerCount: Int?
+ 
+     var body: some View {
+         coreContent
+@@ -122,6 +129,7 @@ struct ContentView: View {
+                 NSApp.mainWindow?.makeKeyAndOrderFront(nil)
+             }
+         }
++        .task { await startAutomatedTrialIfRequested() }
+     }
+ 
+     @ViewBuilder
+@@ -663,7 +671,105 @@ struct ContentView: View {
+             recordingState.isRecording = true
+             recordingState.isPaused = false
+             await transcriptionEngine.startFileTranscription(url: url, locale: settings.locale)
++
++            if isAutomatedTrial && !transcriptionEngine.isRunning {
++                activeSessionType = nil
++                recordingState.isRecording = false
++                await sessionStore.endSession()
++                await transcriptLogger.endSession()
++                let savedPath = await transcriptLogger.finalizeFrontmatter()
++                finishAutomatedTrial(savedPath: savedPath)
++            }
++        }
++    }
++
++    private var isAutomatedTrial: Bool {
++        ProcessInfo.processInfo.environment["HUSHSCRIBE_TRIAL_FILE"] != nil
++    }
++
++    private func startAutomatedTrialIfRequested() async {
++        let environment = ProcessInfo.processInfo.environment
++        guard !automatedTrialStarted,
++              let inputPath = environment["HUSHSCRIBE_TRIAL_FILE"] else { return }
++
++        automatedTrialStarted = true
++        automatedTrialStartedAt = Date()
++        hasCompletedOnboarding = true
++        showOnboarding = false
++        settings.hasAcknowledgedDisclaimer = true
++        settings.notificationSoundEnabled = false
++        // File import should not be stopped by the live-session silence timer
++        // while first-run model assets are still downloading.
++        settings.silenceTimeoutSeconds = 3_600
++        settings.transcriptionModel = .whisperLargeV3
++        transcriptionEngine.setModel(.whisperLargeV3)
++        if let outputPath = environment["HUSHSCRIBE_TRIAL_OUTPUT"] {
++            settings.vaultVoicePath = outputPath
++        }
++
++        diagLog("[TRIAL] Preparing Whisper Large v3 before the file session")
++        await transcriptionEngine.downloadModel(.whisperLargeV3)
++        if transcriptionEngine.lastError != nil {
++            finishAutomatedTrial(savedPath: nil)
++            return
++        }
++
++        automatedTrialFileSessionStartedAt = Date()
++        diagLog("[TRIAL] Starting automated file trial: \(inputPath)")
++        startFileSession(url: URL(fileURLWithPath: inputPath))
++    }
++
++    private func writeAutomatedDiarization(
++        _ segments: [(speakerId: String, startTime: Float, endTime: Float)]
++    ) {
++        guard let outputPath = ProcessInfo.processInfo.environment["HUSHSCRIBE_TRIAL_OUTPUT"] else { return }
++        let records: [[String: Any]] = segments.map {
++            ["speaker_id": $0.speakerId, "start_seconds": $0.startTime, "end_seconds": $0.endTime]
+         }
++        guard let data = try? JSONSerialization.data(withJSONObject: records, options: [.prettyPrinted, .sortedKeys]) else { return }
++        let url = URL(fileURLWithPath: outputPath).appendingPathComponent("diarization.json")
++        try? FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
++        try? data.write(to: url, options: .atomic)
++    }
++
++    private func finishAutomatedTrial(savedPath: URL?) {
++        let environment = ProcessInfo.processInfo.environment
++        let finishedAt = Date()
++        let completed = savedPath != nil
++            && transcriptionEngine.lastError == nil
++            && !transcriptStore.utterances.isEmpty
++            && automatedTrialDiarizationSucceeded != false
++        var result: [String: Any] = [
++            "status": completed ? "completed" : "failed",
++            "model": "openai_whisper-large-v3",
++            "detect_language": true,
++            "utterance_count": transcriptStore.utterances.count,
++            "finished_at": ISO8601DateFormatter().string(from: finishedAt)
++        ]
++        if let startedAt = automatedTrialStartedAt {
++            result["total_seconds"] = finishedAt.timeIntervalSince(startedAt)
++        }
++        if let fileSessionStartedAt = automatedTrialFileSessionStartedAt,
++           let startedAt = automatedTrialStartedAt {
++            result["preparation_seconds"] = fileSessionStartedAt.timeIntervalSince(startedAt)
++        }
++        if let transcriptionFinishedAt = automatedTrialTranscriptionFinishedAt,
++           let fileSessionStartedAt = automatedTrialFileSessionStartedAt {
++            result["transcription_seconds"] = transcriptionFinishedAt.timeIntervalSince(fileSessionStartedAt)
++            result["diarization_and_finalize_seconds"] = finishedAt.timeIntervalSince(transcriptionFinishedAt)
++        }
++        if let savedPath { result["transcript_path"] = savedPath.path }
++        if let error = transcriptionEngine.lastError { result["error"] = error }
++        if let value = automatedTrialDiarizationSucceeded { result["diarization_succeeded"] = value }
++        if let value = automatedTrialDiarizationSegmentCount { result["diarization_segment_count"] = value }
++        if let value = automatedTrialDiarizationSpeakerCount { result["diarization_speaker_count"] = value }
++
++        if let resultPath = environment["HUSHSCRIBE_TRIAL_RESULT"],
++           let data = try? JSONSerialization.data(withJSONObject: result, options: [.prettyPrinted, .sortedKeys]) {
++            try? data.write(to: URL(fileURLWithPath: resultPath), options: .atomic)
++        }
++        diagLog("[TRIAL] Finished automated trial: \(result)")
++        NSApp.terminate(nil)
+     }
+ 
+     private func pauseFromMenu() {
+@@ -685,6 +791,7 @@ struct ContentView: View {
+         silenceSeconds = 0
+         recordingState.isRecording = false
+         recordingState.isPaused = false
++        if isAutomatedTrial { automatedTrialTranscriptionFinishedAt = Date() }
+ 
+         Task {
+             await transcriptionEngine.stop()
+@@ -700,6 +807,13 @@ struct ContentView: View {
+                     segments = await transcriptionEngine.runFileTranscriptionDiarization()
+                 }
+ 
++                if isAutomatedTrial {
++                    automatedTrialDiarizationSucceeded = segments != nil
++                    automatedTrialDiarizationSegmentCount = segments?.count
++                    automatedTrialDiarizationSpeakerCount = segments.map { Set($0.map(\.speakerId)).count }
++                    if let segments { writeAutomatedDiarization(segments) }
++                }
++
+                 if let segments {
+                     transcriptionEngine.assetStatus = "Rewriting transcript..."
+                     let speakerMap: [String: String]
+@@ -717,14 +831,18 @@ struct ContentView: View {
+                     if !genericLabels.isEmpty {
+                         transcriptionEngine.assetStatus = "Ready"
+ 
+-                        let previews = await transcriptLogger.speakerExcerpts(for: genericLabels)
+-
+-                        let mapping: [String: String] = await withCheckedContinuation { continuation in
+-                            speakerLabelsForNaming = genericLabels
+-                            speakerPreviewsForNaming = previews
+-                            speakerNamingContinuation = continuation
+-                            withAnimation(.easeInOut(duration: 0.25)) {
+-                                showSpeakerNaming = true
++                        let mapping: [String: String]
++                        if isAutomatedTrial {
++                            mapping = [:]
++                        } else {
++                            let previews = await transcriptLogger.speakerExcerpts(for: genericLabels)
++                            mapping = await withCheckedContinuation { continuation in
++                                speakerLabelsForNaming = genericLabels
++                                speakerPreviewsForNaming = previews
++                                speakerNamingContinuation = continuation
++                                withAnimation(.easeInOut(duration: 0.25)) {
++                                    showSpeakerNaming = true
++                                }
+                             }
+                         }
+ 
+@@ -749,6 +867,8 @@ struct ContentView: View {
+                     if !Task.isCancelled { savedFileURL = nil }
+                 }
+             }
++
++            if isAutomatedTrial { finishAutomatedTrial(savedPath: savedPath) }
+         }
+     }
+ 

@@ -1,0 +1,15 @@
+.DS_Store
+.private/
+recordings/
+results/
+out/
+.build/
+.swiftpm/
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+experiments/review/
+
+# Real review datasets belong outside the source checkout.
+*.review.db

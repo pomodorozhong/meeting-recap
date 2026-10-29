@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Listening review</title>
+<style>
+:root{font:16px system-ui,sans-serif;color:#e8efe9;background:#111c19;color-scheme:dark}
+*{box-sizing:border-box}body{margin:0}header,main{max-width:960px;margin:auto;padding:24px}
+header{border-bottom:1px solid #3b5146}h1{font-size:26px;margin:8px 0}h2{font-size:20px}
+.muted{color:#adbeaf;font-size:14px}.card{background:#1b2b24;border:1px solid #3b5146;border-radius:12px;padding:20px;margin-bottom:18px}
+label{display:block;margin:14px 0 7px}input[type=text],textarea{display:block;width:100%;border:1px solid #67806e;border-radius:6px;padding:10px;background:#101c16;color:inherit;font:inherit}
+textarea{min-height:85px}button{border:1px solid #6a826e;border-radius:7px;padding:10px 14px;background:#293e2f;color:inherit;font:inherit;cursor:pointer;display:inline-block}
+button:hover{background:#385440}button:disabled{opacity:.5;cursor:default}.primary{background:#c1dba9;color:#152212;font-weight:650}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.row label{margin:0}.wide{flex:1}
+audio{width:100%;margin:12px 0}progress{width:100%;height:9px;accent-color:#c1dba9}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;max-height:260px;overflow:auto}
+#message{min-height:24px;white-space:pre-wrap;color:#efd99d}.badge{display:inline-block;background:#314b3b;padding:4px 10px;border-radius:20px;font-size:13px}
+.check{display:flex;gap:8px;align-items:center}.check input{width:18px;height:18px}button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #efd99d;outline-offset:2px}
+@media(max-width:600px){header,main{padding:16px}button{min-height:44px}.card{padding:15px}}
+</style>
+<header>
+  <div class="muted">Private dataset · local listening review</div>
+  <h1 id="question">Loading review…</h1>
+  <div class="row"><span id="progress" class="wide"></span><span id="state" class="badge"></span></div>
+  <progress id="bar" value="0" max="1"></progress>
+</header>
+<main>
+  <div class="card">
+    <div class="row"><button id="previous">← Previous</button><button id="next">Next →</button><span id="range" class="muted"></span></div>
+    <h2 id="prompt"></h2>
+    <p class="muted">Listen first. Expand playback context when needed; the evaluated range stays fixed.</p>
+    <audio id="audio" controls preload="metadata"></audio>
+    <div class="row"><button id="play" class="primary">Play clip</button><button id="context5">+5 s context</button><button id="context15">+15 s context</button><button id="reset">Reset context</button></div>
+    <p id="context" class="muted"></p>
+    <div id="speakers">
+      <label for="order">Speakers in order (comma-separated IDs)</label>
+      <input id="order" type="text" autocomplete="off" placeholder="speaker_a, speaker_b, speaker_a">
+      <label class="check"><input id="extra" type="checkbox"> Additional short exchanges were heard</label>
+    </div>
+    <div id="transcription" hidden><label for="text">Words you heard</label><textarea id="text"></textarea></div>
+    <label class="check"><input id="silence" type="checkbox"> No speech in this range</label>
+    <label for="feedback">Feedback or uncertainty (optional)</label>
+    <textarea id="feedback" placeholder="For example: I need more context to identify the second voice."></textarea>
+    <div class="row">
+      <button id="confirm" class="primary">Save confirmed</button><button id="unsure">Save unsure</button>
+      <button id="skip">Skip</button><button id="unusable">Mark unusable</button>
+    </div>
+  </div>
+  <div class="card">
+    <button id="reveal">Show prediction and selection reason</button>
+    <div id="prediction" hidden><p id="reason"></p><pre id="predicted"></pre></div>
+  </div>
+  <p id="message" role="status" aria-live="polite"></p>
+  <div class="row"><button id="finish">Finish session</button><span class="muted">Unresolved answers stay unresolved. Confirmed references are exported separately.</span></div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const token=new URLSearchParams(location.search).get('token');
+let data,index=0,padding=1,dirty=false,busy=false,stopAt=null;
+const item=()=>data.session.items[index];
+async function api(path,body){
+  const response=await fetch(path,{method:body?'POST':'GET',headers:{'X-Review-Token':token,...(body?{'Content-Type':'application/json'}:{})},body:body?JSON.stringify(body):undefined});
+  const result=await response.json();if(!response.ok)throw Error(result.error||'Request failed');return result;
+}
+function message(text){$('message').textContent=text;}
+function blocked(){if(busy){message('Finish the current save first.');return true}if(dirty){message('Save your answer or mark it unsure before moving on.');return true}return false}
+function bounds(){const c=item();return [Math.max(0,c.start_seconds-padding),c.end_seconds+padding]}
+function showContext(){const [a,b]=bounds();$('context').textContent=`Playback ${a.toFixed(1)}–${b.toFixed(1)} s · ${padding} s surrounding context`}
+async function play(){const [start,end]=bounds();$('audio').currentTime=start;stopAt=end;await $('audio').play();}
+$('audio').ontimeupdate=()=>{if(stopAt!==null&&$('audio').currentTime>=stopAt){$('audio').pause();stopAt=null}};
+function render(){
+  const c=item(),answer=data.answers[c.id];padding=c.padding_seconds??1;dirty=false;stopAt=null;
+  $('audio').pause();$('audio').src=`/media/${encodeURIComponent(c.id)}?token=${encodeURIComponent(token)}`;
+  $('question').textContent=data.session.question;
+  $('prompt').textContent=c.task==='speaker_order'?'Who speaks, and in what order?':'What words are spoken?';
+  const confirmed=Object.values(data.answers).filter(a=>a.state==='confirmed').length;
+  $('progress').textContent=`Item ${index+1} of ${data.session.items.length} · ${confirmed} confirmed${data.closed?' · session finished; later edits are saved as new events':''}`;
+  $('bar').max=data.session.items.length;$('bar').value=Object.keys(data.answers).length;
+  $('state').textContent=answer?.state??'Unreviewed';
+  $('range').textContent=`${c.recording_id} · ${c.start_seconds.toFixed(1)}–${c.end_seconds.toFixed(1)} s`;
+  $('order').value=(answer?.annotation.speaker_order??[]).join(', ');$('extra').checked=answer?.annotation.allow_extra_turns??false;
+  $('text').value=answer?.annotation.text??'';$('feedback').value=answer?.feedback_text??'';
+  $('silence').checked=answer?.state==='confirmed'&&(c.task==='speaker_order'?answer.annotation.speaker_order.length===0:answer.annotation.text==='');
+  $('speakers').hidden=c.task!=='speaker_order';$('transcription').hidden=c.task!=='transcript';
+  $('prediction').hidden=true;$('reveal').hidden=false;$('predicted').textContent='';
+  $('previous').disabled=index===0;$('next').disabled=index===data.session.items.length-1;
+  showContext();message('');
+}
+async function save(state){
+  if(busy){message('Finish the current save first.');return}
+  const c=item();const order=$('order').value.split(',').map(s=>s.trim()).filter(Boolean);
+  if(state==='confirmed'&&!$('silence').checked&&(c.task==='speaker_order'?!order.length:!$('text').value.trim())){message('Enter your answer, or explicitly select No speech.');return}
+  if(state==='confirmed'&&$('silence').checked&&(c.task==='speaker_order'?order.length:$('text').value.trim())){message('Clear the answer or uncheck No speech.');return}
+  const annotation=c.task==='speaker_order'?{speaker_order:order,allow_extra_turns:$('extra').checked}:{text:$('text').value};
+  busy=true;try{const result=await api('/api/answer',{item_id:c.id,state,annotation,feedback_text:$('feedback').value,expected_revision:data.revision});
+    data.answers[c.id]=result;data.revision=result.seq;dirty=false;$('state').textContent=state;
+    if(index<data.session.items.length-1){index++;render()}else{render();message('Saved. You can revisit answers or finish this session.')}}catch(e){message(e.message)}finally{busy=false}
+}
+for(const id of ['order','extra','text','feedback','silence'])$(id).addEventListener('input',()=>{dirty=true});
+$('previous').onclick=()=>{if(!blocked()){index--;render()}};$('next').onclick=()=>{if(!blocked()){index++;render()}};
+$('play').onclick=()=>play().catch(e=>message(e.message));
+for(const [id,extra]of [['context5',5],['context15',15]])$(id).onclick=()=>{padding+=extra;showContext();play().catch(e=>message(e.message))};
+$('reset').onclick=()=>{padding=item().padding_seconds??1;showContext()};
+for(const [id,state]of [['confirm','confirmed'],['unsure','unsure'],['skip','skipped'],['unusable','unusable']])$(id).onclick=()=>save(state);
+$('reveal').onclick=async()=>{const id=item().id;try{const value=await api(`/api/prediction/${encodeURIComponent(id)}`);if(item().id!==id)return;$('predicted').textContent=JSON.stringify(value,null,2);$('reason').textContent=item().reason;$('prediction').hidden=false;$('reveal').hidden=true}catch(e){message(e.message)}};
+$('finish').onclick=async()=>{if(blocked())return;busy=true;try{const result=await api('/api/close',{});data.revision=result.seq;data.closed=true;message(`Session finished: ${JSON.stringify(result.counts)}. Return to the agent to snapshot confirmed references.`)}catch(e){message(e.message)}finally{busy=false}};
+window.addEventListener('beforeunload',event=>{if(dirty||busy){event.preventDefault();event.returnValue=''}});
+api('/api/session').then(result=>{data=result;render()}).catch(e=>message(e.message));
+</script>
+</html>

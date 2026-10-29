@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Freeze agent-selected questions, collect local feedback, and snapshot confirmed references."""
+"""Freeze agent-selected questions, collect local feedback, and snapshot confirmed references.
+
+For a recording whose speaker turns are already known (a synthetic call), `known` builds the
+reference straight from those segments, with no listening session.
+"""
 from __future__ import annotations
 
 import argparse
@@ -11,8 +15,8 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
-from common import (answers, append_event, dataset, events, fingerprint, identifier, inside, snapshot,
-                    now, number, read_json, recording, run, session, span, write_new)
+from common import (answers, append_event, dataset, digest, events, fingerprint, identifier, inside, snapshot,
+                    now, number, read_json, recording, run, segments, session, span, write_new)
 
 TASKS = {"speaker_order", "transcript"}
 STATES = {"confirmed", "unsure", "skipped", "unusable"}
@@ -109,6 +113,37 @@ def make_reference(root, session_id, reference_id):
             "session_id": session_id, "session_sha256": fingerprint(plan),
             "events_sha256": fingerprint(rows), "revision": len(rows), "created_at": now(), "code": snapshot(root),
             "clips": clips, "excluded": excluded}
+    result = {**info, "sha256": fingerprint(info)}
+    write_new(root / "references" / (reference_id + ".json"), result)
+    return result
+
+
+def known_reference(root, recording_id, segments_path, reference_id, window=30.0):
+    """Cut known segments into clips of about `window` seconds, ending each at a gap between turns."""
+    identifier(reference_id)
+    number(window, "window", minimum=1)
+    rec = recording(root, recording_id)
+    rows = sorted(segments(read_json(segments_path)), key=lambda s: s["start_seconds"])
+    if not rows:
+        raise ValueError("known segments are empty")
+    if max(s["end_seconds"] for s in rows) > rec["duration_seconds"]:
+        raise ValueError("known segments exceed recording duration")
+    groups = []
+    for seg in rows:
+        # A clip closes only at a gap, so no turn (or overlap) is split between two clips.
+        if not groups or (seg["start_seconds"] >= groups[-1]["end"] and groups[-1]["end"] - groups[-1]["start"] >= window):
+            groups.append({"start": seg["start_seconds"], "end": seg["end_seconds"], "order": []})
+        group = groups[-1]
+        group["end"] = max(group["end"], seg["end_seconds"])
+        if not group["order"] or group["order"][-1] != seg["speaker_id"]:
+            group["order"].append(seg["speaker_id"])
+    clips = [{"id": f"k{i + 1:03d}", "task": "speaker_order", "recording_id": recording_id,
+              "start_seconds": g["start"], "end_seconds": g["end"], "padding_seconds": 0,
+              "reason": "known segments", "speaker_order": g["order"], "allow_extra_turns": False}
+             for i, g in enumerate(groups)]
+    info = {"format": "meeting-review-reference", "version": 1, "id": reference_id,
+            "source": {"kind": "known_segments", "segments_sha256": digest(segments_path), "window_seconds": window},
+            "created_at": now(), "code": snapshot(root), "clips": clips, "excluded": []}
     result = {**info, "sha256": fingerprint(info)}
     write_new(root / "references" / (reference_id + ".json"), result)
     return result
@@ -257,6 +292,12 @@ def make_handler(root, session_id, token):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
+    known = sub.add_parser("known", help="reference from known speaker turns, such as a synthetic call's")
+    known.add_argument("dataset")
+    known.add_argument("--recording", required=True)
+    known.add_argument("--segments", required=True, help="segments JSON with the true speaker turns")
+    known.add_argument("--id", required=True)
+    known.add_argument("--window", type=float, default=30.0, help="target clip length in seconds")
     for name in ("prepare", "serve", "answer", "reference", "close"):
         cmd = sub.add_parser(name)
         cmd.add_argument("dataset")
@@ -272,7 +313,9 @@ def main():
             cmd.add_argument("--id", required=True)
     args = parser.parse_args()
     root = dataset(args.dataset)
-    if args.command == "prepare":
+    if args.command == "known":
+        result = known_reference(root, args.recording, args.segments, args.id, args.window)
+    elif args.command == "prepare":
         result = prepare(root, args.plan)
     elif args.command == "answer":
         result = save_answer(root, args.session, read_json(args.file))

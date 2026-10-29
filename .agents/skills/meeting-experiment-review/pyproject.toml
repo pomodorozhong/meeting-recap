@@ -1,0 +1,9 @@
+[project]
+name = "meeting-experiment-review"
+version = "0.1.0"
+description = "Helpers of the meeting-experiment-review skill (only pick_clips.py needs a package)"
+requires-python = ">=3.11"
+dependencies = ["opencc-python-reimplemented"]
+
+[tool.uv]
+package = false

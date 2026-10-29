@@ -1,7 +1,7 @@
 import importlib.util
 import unittest
 
-from helpers import DatasetCase, segs, transcript
+from helpers import DatasetCase, segs, transcript, write_json
 
 import pick_clips
 
@@ -37,6 +37,11 @@ class PickClips(DatasetCase):
         rec = {"recording_id": "rec1", "diarization_run": "dia1", "speaker_clips": 4,
                "speaker_show_runs": ["dia1"], **extra.pop("rec", {})}
         return {"id": "s1", "question": "Who speaks?", "seed": 7, "recordings": [rec], **extra}
+
+    def test_refuses_a_run_changed_after_registration(self):
+        write_json(self.root / "runs" / "dia1" / "segments.json", alternating(rare=(100, 101)))
+        with self.assertRaises(ValueError):
+            pick_clips.select(self.root, self.config())
 
     def test_speaker_clips_are_seeded_binned_and_include_the_rarest_label(self):
         plan = pick_clips.select(self.root, self.config())

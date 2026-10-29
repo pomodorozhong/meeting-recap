@@ -89,6 +89,14 @@ class KnownReference(ReviewCase):
             self.known(window=0)
 
 
+class Predictions(ReviewCase):
+    def test_refuses_a_prediction_changed_after_registration(self):
+        self.assertEqual([s["speaker_id"] for s in review.prediction(self.root, self.item())["dia1"]], ["x", "y", "x"])
+        write_json(self.root / "runs" / "dia1" / "segments.json", segs(("z", 0, 15)))
+        with self.assertRaises(ValueError):
+            review.prediction(self.root, self.item())
+
+
 class Answers(ReviewCase):
     def setUp(self):
         super().setUp()

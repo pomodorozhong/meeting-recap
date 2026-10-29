@@ -14,18 +14,18 @@ import re
 import sys
 from collections import Counter
 
-from common import dataset, identifier, inside, read_json, recording, run, snapshot, write_new
+from common import artifact, dataset, identifier, read_json, recording, run, snapshot, write_new
 
 DEFAULTS = {"window_seconds": 15, "lead_seconds": 4, "min_overlap": 0.3, "min_turns": 2, "max_turns": 5,
             "min_gap_seconds": 20, "transcript_gap_seconds": 60, "min_characters": 30}
 REQUIRED = {"id", "question", "seed", "recordings"}
 
 
-def artifact(root, run_id, name):
+def completed(root, run_id, name):
     info = run(root, run_id)
     if info["status"] != "completed":
         raise ValueError(f"run {run_id} is {info['status']}")
-    return info, read_json(inside(root, info["artifacts"][name]["path"]))
+    return info, artifact(root, info, name)
 
 
 def turns(segs, start, end, min_overlap):
@@ -56,7 +56,7 @@ def select(root, config):
         duration = recording(root, rec_id)["duration_seconds"]
         skip = rec.get("skip_before", 0)
         if rec.get("speaker_clips"):
-            info, segs = artifact(root, rec["diarization_run"], "segments")
+            info, segs = completed(root, rec["diarization_run"], "segments")
             if info["recording_id"] != rec_id:
                 raise ValueError("diarization run names a different recording")
             cands = []
@@ -103,7 +103,7 @@ def select(root, config):
             first, second = rec["transcript_runs"]
             texts = []
             for run_id in (first, second):
-                info, asr = artifact(root, run_id, "transcript")
+                info, asr = completed(root, run_id, "transcript")
                 if info["recording_id"] != rec_id:
                     raise ValueError("transcript run names a different recording")
                 texts.append(asr)

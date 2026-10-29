@@ -16,7 +16,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
-from common import (answers, append_event, dataset, digest, events, fingerprint, identifier, inside, snapshot,
+from common import (answers, append_event, artifact, dataset, digest, events, fingerprint, identifier, inside, snapshot,
                     now, number, read_json, recording, run, segments, session, span, write_new)
 import tracks
 
@@ -180,11 +180,11 @@ def prediction(root, item):
     result = {}
     for run_id in item.get("run_ids", []):
         info = run(root, run_id)
-        artifact = info["artifacts"].get("segments" if item["task"] == "speaker_order" else "transcript")
-        if not artifact:
+        name = "segments" if item["task"] == "speaker_order" else "transcript"
+        if name not in info["artifacts"]:
             result[run_id] = "No compatible prediction artifact"
             continue
-        data = read_json(inside(root, artifact["path"]))
+        data = artifact(root, info, name)
         if item["task"] == "speaker_order":
             data = [{"speaker_id": s["speaker_id"], "start_seconds": s["start_seconds"], "end_seconds": s["end_seconds"]}
                     for s in data if s["start_seconds"] < item["end_seconds"] and s["end_seconds"] > item["start_seconds"]]

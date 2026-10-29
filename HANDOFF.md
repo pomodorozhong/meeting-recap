@@ -6,10 +6,10 @@
 
 - Task: record calls as two aligned tracks and use a two-person call's tracks as its speaker reference; [#18](https://github.com/pomodorozhong/meeting-recap/issues/18). Based on `main`; GitHub cannot link an existing branch, so the PR body must say `Closes #18`.
 - PR: none
-- Code checkpoint: 2d915a4. `feat:` adds `experiments/capture/` (`record.swift`, ScreenCaptureKit, `mic.m4a` + `system.m4a` + `timing.json`); `docs:` adds decision 6.
-- State: the user recorded a ~48.5 min two-person call with headphones (in the dataset's `raw/`, with a meeting app's transcript whose speaker labels are wrong: it shows three speakers). Nothing has run on it yet.
-- Verification: `swiftc -typecheck experiments/capture/record.swift` passes; the user's recording shows both tracks written and aligned within 0.2 s. Diffs scanned for names and private paths.
-- Next action: add a skill command that builds a reference from two tracks' voice activity (with tests on generated audio), then write the experiment summary in `docs/experiments/` and register the mixed recording.
+- Code checkpoint: see `git log`. `feat:` adds `experiments/capture/` (`record.swift`, ScreenCaptureKit, `mic.m4a` + `system.m4a` + `timing.json`); `docs:` adds decision 6; `feat(skill)` adds `scripts/tracks.py` and `review.py tracks` (reference from two tracks' activity, source kind `two_tracks`), documented in SKILL.md.
+- State: the user recorded a ~48.5 min two-person call with headphones (in the dataset's `raw/`, with a meeting app's transcript whose speaker labels are wrong: it shows three speakers). A dry run of `tracks.py` on it in scratch took 2 s and found ~15 min of A, ~11 min of B, 91 s overlapping; at the default 30 s window that is 86 clips of ~31 s. Nothing is registered in the dataset yet.
+- Verification: 78 skill tests pass; `swiftc -typecheck experiments/capture/record.swift` passes; the documented `amix` command makes a 16 kHz mono mix of the full call length. Diffs scanned for names and private paths.
+- Next action: write the experiment summary in `docs/experiments/` (Sortformer on the two-track call, reference from `review.py tracks`, a few listened clips around overlaps to check the activity), commit it, then register the mix and run.
 
 ## Ranked work
 

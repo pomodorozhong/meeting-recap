@@ -80,7 +80,7 @@ If the private data for this experiment is lost: register the recording again un
 | Track activity (`tracks.py`, both tracks) | 2 s | not measured | |
 | Sortformer on the 48:30 mix | 19:52 (0.41× real time) | 1.41 GB resident, 1.21 GB footprint | nothing else running |
 
-Sortformer took longer than on the 2026-10-24 recordings (12:01 for 64:49 while sharing the machine); the cause is not known.
+That is in line with the 2026-10-24 recordings (0.54× and 0.47× real time, while sharing the machine with transcription runs), and memory stays under 1.5 GB.
 
 ## Results
 

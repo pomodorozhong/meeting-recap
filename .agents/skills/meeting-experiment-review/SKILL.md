@@ -5,7 +5,7 @@ description: Run local speech experiments (transcription, speaker diarization, l
 
 # Meeting Experiment Review
 
-Recordings, transcripts, and the user's answers are private. Every artifact lives in a **private dataset directory outside any Git checkout**; the scripts refuse to create one inside a repository. Never copy audio, transcript text, speaker names, or answers into a repo, issue, PR, commit, or chat summary beyond what the user asks for.
+Recordings, transcripts, and the user's answers are private. Every artifact lives in a **private dataset directory outside any Git checkout**; the scripts refuse to create one inside a repository. Never copy audio, transcript text, speaker names, or answers into a repo, issue, PR, commit, or chat summary beyond what the user asks for. The only output that goes into a repository is the public summary in step 6.
 
 All helpers are standard-library Python 3.11+ in `scripts/`. Run them as `python3 <skill>/scripts/<name>.py`. Every command prints JSON; failures exit nonzero with a one-line reason.
 
@@ -21,12 +21,12 @@ All helpers are standard-library Python 3.11+ in `scripts/`. Run them as `python
 ### 1. Create the dataset and add recordings
 
 ```bash
-python3 scripts/dataset.py init ~/meeting-review-data
+python3 scripts/dataset.py init ~/Documents/meeting-review-data
 ffprobe -v error -show_entries format=duration -of csv=p=0 call-part1.mp4
-python3 scripts/dataset.py add-recording ~/meeting-review-data --id part1 --audio call-part1.mp4 --duration 1343.2 --group call-2026-10-22
+python3 scripts/dataset.py add-recording ~/Documents/meeting-review-data --id part1 --audio call-part1.mp4 --duration 1343.317 --group call-2026-10-22
 ```
 
-Parts of one call share a `--group`. The media is copied into the dataset. Models usually want 16 kHz mono WAV; convert with `ffmpeg -i in.mp4 -ac 1 -ar 16000 -c:a pcm_f32le out.wav` and register the WAV if runs use its time origin.
+Register the **original, browser-playable media** (MP4, M4A, MP3), not a converted float WAV: the review page plays the registered file, and browsers do not reliably play 32-bit float WAV. Models usually want 16 kHz mono WAV; convert a scratch copy with `ffmpeg -i in.mp4 -ac 1 -ar 16000 -c:a pcm_f32le out.wav` for the runners. The conversion keeps the time origin, so run timestamps line up with the registered media. Parts of one call share a `--group`. The media is copied into the dataset.
 
 ### 2. Produce and register runs
 
@@ -34,49 +34,64 @@ Runs can come from any tool that writes the formats in [references/formats.md](r
 
 ```json
 {"id": "sortformer-part1", "recording_id": "part1", "model": "fluidaudio-sortformer",
- "status": "completed", "artifacts": {"segments": "sortformer_seg.json"},
- "config": {}, "runtime": {"wall_seconds": 1560, "peak_rss_mb": 1500}, "notes": ""}
+ "status": "completed", "artifacts": {"segments": "sortformer_seg.json", "raw": "sortformer.json"},
+ "config": {"fluidaudio": "ea50062…", "input": "16 kHz mono WAV from source.mp4"},
+ "runtime": {"wall_seconds": 721, "peak_rss_mb": 1061, "host": "M2 Pro 16 GB"}, "notes": ""}
 ```
 
 ```bash
-python3 scripts/dataset.py add-run ~/meeting-review-data --spec run.json
+python3 scripts/dataset.py add-run ~/Documents/meeting-review-data --spec run.json
 ```
 
-Artifact paths are relative to the spec file. Use `segments` for diarization output and `transcript` for WhisperKit-shaped ASR JSON; formats are in [references/formats.md](references/formats.md). Record failed or partial runs too, with `status` `failed` or `incomplete`.
+- Artifact paths are relative to the spec file. Use `segments` for diarization output and `transcript` for WhisperKit-shaped ASR JSON; other names (such as `raw`) are stored but not read.
+- Put pinned versions and every non-default setting in `config`; the public summary is written from it.
+- Measure wall time and peak memory with `/usr/bin/time -l`. Runs that share the machine slow each other down; run timed jobs one at a time, or say in `notes` which runs overlapped.
+- Record failed or partial runs too, with `status` `failed` or `incomplete`.
 
 To label transcript text with diarization speakers, derive a new run:
 
 ```bash
-python3 scripts/attach.py ~/meeting-review-data --asr-run whisper-part1 --diarization-run sortformer-part1 --id attached-part1 --method word
+python3 scripts/attach.py ~/Documents/meeting-review-data --asr-run whisper-part1 --diarization-run sortformer-part1 --id whisper-sortformer-part1 --method word
 ```
 
 `word` (default) needs word timestamps; `seg` attaches whole ASR segments by overlap; `line` reproduces HushScribe's single-point lookup for comparison.
 
 ### 3. Choose clips and prepare a session
 
-Pick clips that answer the user's question: speaker changes, overlaps, short interjections, places where runs disagree, unclear words, and names or technical terms. Give each clip a reason. Keep clips short (5–30 s) and the session small enough to finish in one sitting (about 10–20 items).
+Pick clips that answer the user's question and give each a reason:
+
+- **Speaker order:** windows of 10–15 s starting a few seconds before a predicted turn change, spread across the recording (for example one per equal time bin), plus places where runs disagree, overlaps, short interjections, and rarely used labels (a voice split across two labels shows up there).
+- **Transcript:** windows where runs disagree most, plus one or two typical windows so the comparison is fair. Normalize script first (OpenCC `s2tw`) so Simplified vs. Traditional differences do not dominate. Keep these clips short (5–10 s): the user has to type what they hear.
+- Skip ranges the user already reviewed in an earlier session unless you are checking repeatability.
+- Keep the session to what one sitting allows (about 10–20 items).
+
+Record how the clips were chosen in `selector` (extra fields such as `method` and `seed` are kept), so the selection can be repeated:
 
 ```json
 {"id": "turns-part1", "question": "Which diarizer keeps three speakers apart?",
- "selector": {"name": "agent-selected", "version": "1"},
+ "selector": {"name": "agent-selected", "version": "1", "seed": 20261029, "method": "one 15 s window per time bin…"},
  "items": [{"id": "c01", "task": "speaker_order", "recording_id": "part1",
-            "start_seconds": 312.0, "end_seconds": 327.5, "padding_seconds": 1,
+            "start_seconds": 312.0, "end_seconds": 327.0, "padding_seconds": 1,
             "reason": "Runs disagree on a quick hand-off", "run_ids": ["sortformer-part1", "community1-part1"]}]}
 ```
 
 `task` is `speaker_order` (who speaks, in order) or `transcript` (what was said). `run_ids` choose which predictions the page can show next to the clip.
 
 ```bash
-python3 scripts/review.py prepare ~/meeting-review-data --plan plan.json
+python3 scripts/review.py prepare ~/Documents/meeting-review-data --plan plan.json
 ```
 
 ### 4. Collect the user's answers
 
 ```bash
-python3 scripts/review.py serve ~/meeting-review-data --session turns-part1
+python3 scripts/review.py serve ~/Documents/meeting-review-data --session turns-part1 --port 8770
 ```
 
-Run it in the background and give the user the printed `http://127.0.0.1:…/?token=…` URL; do not log or repeat the token elsewhere. The page plays each clip, shows predictions, and saves answers, notes, and optional voice feedback to the dataset. Speaker IDs in answers are the user's own stable names or initials for each person, used consistently across the session. Stop the server when the user is done.
+- Run it in the background and give the user the printed `http://127.0.0.1:…/?token=…` URL (opening it in the built-in browser pane works). Do not log or repeat the token elsewhere.
+- The server serves `assets/review.html` from the skill on each request, so moving or editing the skill breaks a running server. Restarting prints a new token; saved answers are kept.
+- Before the user starts, tell them to use the same speaker IDs for each person throughout (names or initials); these become the reference. Names stay in the dataset.
+- For a transcript clip that is too long to type, the user can save `unsure` and say in the feedback which run is closer. That answer is not a reference, but it can be reported as a preference.
+- The page plays each clip, can reveal predictions, and saves answers, notes, and optional voice feedback to the dataset. Stop the server when the user finishes.
 
 If the user answers in chat instead, write their exact answer to a JSON file outside the repo and save it:
 
@@ -85,7 +100,7 @@ If the user answers in chat instead, write their exact answer to a JSON file out
 ```
 
 ```bash
-python3 scripts/review.py answer ~/meeting-review-data --session turns-part1 --file answer.json
+python3 scripts/review.py answer ~/Documents/meeting-review-data --session turns-part1 --file answer.json
 ```
 
 States are `confirmed`, `unsure`, `skipped`, `unusable`. A confirmed `speaker_order` needs an explicit list (empty for no speech); set `"allow_extra_turns": true` when the user says brief extra turns are acceptable. A confirmed `transcript` needs `text`.
@@ -93,16 +108,32 @@ States are `confirmed`, `unsure`, `skipped`, `unusable`. A confirmed `speaker_or
 ### 5. Freeze a reference and evaluate
 
 ```bash
-python3 scripts/review.py close ~/meeting-review-data --session turns-part1
-python3 scripts/review.py reference ~/meeting-review-data --session turns-part1 --id ref-part1
-python3 scripts/evaluate.py ~/meeting-review-data --reference ref-part1 --runs sortformer-part1 community1-part1 --id eval-part1
+python3 scripts/review.py close ~/Documents/meeting-review-data --session turns-part1
+python3 scripts/review.py reference ~/Documents/meeting-review-data --session turns-part1 --id ref-part1
+python3 scripts/evaluate.py ~/Documents/meeting-review-data --reference ref-part1 --runs sortformer-part1 community1-part1 --id eval-part1
 ```
 
-The reference keeps only confirmed items and lists the rest as excluded. The evaluation writes `evaluations/<id>/evaluation.json` and `report.md` with turns recovered and clips correct per run. By default each run's labels are mapped to people in whichever way scores best, which flatters runs; pass `--mappings mappings.json` (`{"run-id": {"label": "A"}}`) to test a fixed naming. Only completed runs can be scored.
+- The reference keeps only confirmed items and lists the rest as excluded.
+- `evaluate.py` scores `speaker_order` items only, one recording per evaluation; run it once per recording. It writes `evaluations/<id>/evaluation.json` and `report.md` with turns recovered and clips correct per run.
+- By default each run's labels are mapped to people in whichever way scores best, which flatters runs; pass `--mappings mappings.json` (`{"run-id": {"label": "A"}}`) to test a fixed naming. Only completed runs can be scored.
+- Confirmed `transcript` items are not scored by a script. Compare them with each run's text yourself in the private report (exact wording, dropped or invented words, names and terms).
 
-### 6. Report
+### 6. Report in two parts
 
-Lead with the decision the user asked about. Give the table, the number of excluded items, the mapping method, and the limit stated in the report. Separate what was measured from what was only listened to. Note anything unresolved as an open question rather than a conclusion.
+**Full report, private:** `<dataset>/reports/<id>.md`, where `<id>` matches the session or evaluation. It may include names, quoted transcript text, and timestamps. Link the session, reference, and evaluation IDs and the run IDs it draws on. Cover per-clip results, what the user heard that the scores miss, and transcript comparisons. Create the `reports/` folder if needed. Unlike the dataset's other artifacts, reports are prose and may be revised; the evaluation and reference files they cite stay fixed.
+
+**Public summary, in the repository:** `docs/experiments/YYYY-MM-DD-<topic>.md`, containing:
+
+- the question;
+- models, pinned versions, and settings;
+- runtime and peak memory per run, with any overlap noted;
+- scores, excluded-item count, and mapping method;
+- the metric's limits;
+- the decision, and open questions.
+
+It must never contain participant names, transcript text, audio paths, or dataset paths. Refer to people as Speaker A/B/C and to recordings by duration. Before committing, grep the summary for every participant name and for a few distinctive transcript phrases.
+
+In both, lead with the decision the user asked about, separate what was measured from what was only listened to, and keep anything unresolved as an open question. If the listening review is still pending, write both reports now with the run results and mark scores and decision as pending, then update them once the review finishes.
 
 ## Other checks
 

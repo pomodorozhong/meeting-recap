@@ -1,6 +1,6 @@
 # Synthetic call
 
-A short, shareable three-person call for running the runners, the pipeline, and the review skill without private data ([#4](https://github.com/pomodorozhong/meeting-recap/issues/4)). Status: the call is written and generated; a skill reference built from it comes next.
+A short, shareable three-person call for running the runners, the pipeline, and the review skill without private data ([#4](https://github.com/pomodorozhong/meeting-recap/issues/4)). Status: generated, and scored end to end with Sortformer and the review skill.
 
 ## What it makes
 
@@ -35,6 +35,21 @@ uv run experiments/synthetic-call/generate.py
 ```
 
 Further arguments set the script, the output folder and the seed (default 7). The first run downloads the model (about 4 GB). The call takes about four minutes on an M2 Pro.
+
+## Use with the review skill
+
+Keep the dataset outside the checkout (the skill refuses one inside it). From the repository root, with `DATASET` set to a new folder:
+
+```bash
+SKILL=.agents/skills/meeting-experiment-review/scripts
+python3 $SKILL/dataset.py init "$DATASET"
+python3 $SKILL/dataset.py add-recording "$DATASET" --id synthetic --audio experiments/synthetic-call/out/script/call.wav --duration 329.88
+python3 $SKILL/review.py known "$DATASET" --recording synthetic --segments experiments/synthetic-call/reference/segments.json --id truth
+```
+
+Then run a diarization runner from [docs/runners.md](../../docs/runners.md) on `call.wav`, register its `segments` with `dataset.py add-run`, and score it with `evaluate.py --reference truth`. `review.py known` cuts the call into 10 clips of about 30 seconds with 72 reference turns.
+
+Smoke test, 2026-10-29: Sortformer (FluidAudio, as pinned in docs/runners.md) recovered 67 of 72 turns and got 7 of 10 clips fully right, with the best-fitting label mapping. The misses were in clips 1, 7 and 10: two short B turns and an A turn went unnoticed, and near the end one C turn went to a fourth label that Sortformer used for only 0.6 s.
 
 ## Pins and licenses
 

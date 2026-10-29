@@ -38,10 +38,12 @@ Commit it under the same privacy rules as the final summary. When the plan chang
 
 ### 1. Create the dataset and add recordings
 
+Commands below use `$MEETING_REVIEW_DATA` for the dataset folder. Ask the user where it should live (outside any Git checkout), and have them set the variable in their shell profile.
+
 ```bash
-python3 scripts/dataset.py init ~/Documents/meeting-review-data
+python3 scripts/dataset.py init "$MEETING_REVIEW_DATA"
 ffprobe -v error -show_entries format=duration -of csv=p=0 call-part1.mp4
-python3 scripts/dataset.py add-recording ~/Documents/meeting-review-data --id part1 --audio call-part1.mp4 --duration 1343.317 --group call-2026-10-22
+python3 scripts/dataset.py add-recording "$MEETING_REVIEW_DATA" --id part1 --audio call-part1.mp4 --duration 1343.317 --group call-2026-10-22
 ```
 
 Register the **original, browser-playable media** (MP4, M4A, MP3), not a converted float WAV: the review page plays the registered file, and browsers do not reliably play 32-bit float WAV. Models usually want 16 kHz mono WAV; convert a scratch copy with `ffmpeg -i in.mp4 -ac 1 -ar 16000 -c:a pcm_f32le out.wav` for the runners. The conversion keeps the time origin, so run timestamps line up with the registered media. Parts of one call share a `--group`. The media is copied into the dataset.
@@ -58,7 +60,7 @@ Runs can come from any tool that writes the formats in [references/formats.md](r
 ```
 
 ```bash
-python3 scripts/dataset.py add-run ~/Documents/meeting-review-data --spec run.json
+python3 scripts/dataset.py add-run "$MEETING_REVIEW_DATA" --spec run.json
 ```
 
 - Artifact paths are relative to the spec file. Use `segments` for diarization output and `transcript` for WhisperKit-shaped ASR JSON; other names (such as `raw`) are stored but not read.
@@ -69,7 +71,7 @@ python3 scripts/dataset.py add-run ~/Documents/meeting-review-data --spec run.js
 To label transcript text with diarization speakers, derive a new run:
 
 ```bash
-python3 scripts/attach.py ~/Documents/meeting-review-data --asr-run whisper-part1 --diarization-run sortformer-part1 --id whisper-sortformer-part1 --method word
+python3 scripts/attach.py "$MEETING_REVIEW_DATA" --asr-run whisper-part1 --diarization-run sortformer-part1 --id whisper-sortformer-part1 --method word
 ```
 
 `word` (default) needs word timestamps; `seg` attaches whole ASR segments by overlap; `line` reproduces HushScribe's single-point lookup for comparison.
@@ -94,7 +96,7 @@ Pick clips that answer the user's question and give each a reason:
 ```
 
 ```bash
-uv run scripts/pick_clips.py ~/Documents/meeting-review-data --config select.json --out plan.json
+uv run scripts/pick_clips.py "$MEETING_REVIEW_DATA" --config select.json --out plan.json
 ```
 
 Optional keys and defaults: `window_seconds` 15, `lead_seconds` 4, `min_overlap` 0.3, `min_turns` 2, `max_turns` 5, `min_gap_seconds` 20, `transcript_gap_seconds` 60, `min_characters` 30. Save the config next to the private report so the selection can be rerun; the plan records it under `selector.method`. If a time bin has no turn-change window that avoids the other clips, or there are too few transcript windows far enough apart, the plan has fewer items than asked and the command prints them under `shortfall` (also kept in `selector.shortfall`). A bin crowded by an earlier pick still gets a clip, as long as it does not overlap one. Review the plan and add or replace items by hand when the question needs clips the rules miss.
@@ -112,13 +114,13 @@ A hand-written plan records how the clips were chosen in `selector` (extra field
 `task` is `speaker_order` (who speaks, in order) or `transcript` (what was said). `run_ids` choose which predictions the page can show next to the clip.
 
 ```bash
-python3 scripts/review.py prepare ~/Documents/meeting-review-data --plan plan.json
+python3 scripts/review.py prepare "$MEETING_REVIEW_DATA" --plan plan.json
 ```
 
 ### 4. Collect the user's answers
 
 ```bash
-python3 scripts/review.py serve ~/Documents/meeting-review-data --session turns-part1 --port 8770
+python3 scripts/review.py serve "$MEETING_REVIEW_DATA" --session turns-part1 --port 8770
 ```
 
 - Run it in the background and give the user the printed `http://127.0.0.1:…/?token=…` URL (opening it in the built-in browser pane works). Do not log or repeat the token elsewhere.
@@ -134,7 +136,7 @@ If the user answers in chat instead, write their exact answer to a JSON file out
 ```
 
 ```bash
-python3 scripts/review.py answer ~/Documents/meeting-review-data --session turns-part1 --file answer.json
+python3 scripts/review.py answer "$MEETING_REVIEW_DATA" --session turns-part1 --file answer.json
 ```
 
 States are `confirmed`, `unsure`, `skipped`, `unusable`. A confirmed `speaker_order` needs an explicit list (empty for no speech); set `"allow_extra_turns": true` when the user says brief extra turns are acceptable. A confirmed `transcript` needs `text`.
@@ -142,9 +144,9 @@ States are `confirmed`, `unsure`, `skipped`, `unusable`. A confirmed `speaker_or
 ### 5. Freeze a reference and evaluate
 
 ```bash
-python3 scripts/review.py close ~/Documents/meeting-review-data --session turns-part1
-python3 scripts/review.py reference ~/Documents/meeting-review-data --session turns-part1 --id ref-part1
-python3 scripts/evaluate.py ~/Documents/meeting-review-data --reference ref-part1 --runs sortformer-part1 community1-part1 --id eval-part1
+python3 scripts/review.py close "$MEETING_REVIEW_DATA" --session turns-part1
+python3 scripts/review.py reference "$MEETING_REVIEW_DATA" --session turns-part1 --id ref-part1
+python3 scripts/evaluate.py "$MEETING_REVIEW_DATA" --reference ref-part1 --runs sortformer-part1 community1-part1 --id eval-part1
 ```
 
 - The reference keeps only confirmed items and lists the rest as excluded.

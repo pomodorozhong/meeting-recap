@@ -92,7 +92,7 @@ def select(root, config):
                 try:
                     from opencc import OpenCC
                 except ImportError:
-                    raise ValueError("transcript selection needs opencc; run with `uv run select.py ...`")
+                    raise ValueError("transcript selection needs opencc; run with `uv run pick_clips.py ...`")
                 convert = OpenCC("s2tw").convert
             first, second = rec["transcript_runs"]
             texts = []
@@ -127,7 +127,7 @@ def select(root, config):
     items = [{"id": f"c{n:02d}", **item} for n, item in enumerate(speaker_items + transcript_items, 1)]
     method = {k: o[k] for k in DEFAULTS} | {"recordings": o["recordings"]}
     return {"id": identifier(o["id"]), "question": o["question"],
-            "selector": {"name": "select.py", "version": "1", "seed": o["seed"], "method": method}, "items": items}
+            "selector": {"name": "pick_clips.py", "version": "1", "seed": o["seed"], "method": method}, "items": items}
 
 
 def main():

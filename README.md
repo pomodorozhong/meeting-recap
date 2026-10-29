@@ -4,7 +4,7 @@ A fully local AI meeting assistant that records, transcribes, and summarizes mee
 
 ## Status
 
-Research and experiments. On an M2 Pro / 16 GB Mac, Whisper Large v3 with Chinese forced plus FluidAudio's Sortformer diarizer produced a usable transcript and kept the speakers apart on a three-person Chinese + English call. The next step is a pipeline for saved recordings. See [HANDOFF.md](HANDOFF.md) for the plan and [docs/experiments/](docs/experiments/) for every experiment.
+Research and experiments. On an M2 Pro / 16 GB Mac, Whisper Large v3 with Chinese forced plus FluidAudio's Sortformer diarizer produced a usable transcript and kept the speakers apart on a three-person Chinese + English call. The next step is a pipeline for saved recordings. See [docs/README.md](docs/README.md) for status and decisions, [HANDOFF.md](HANDOFF.md) for what to work on next, and [docs/experiments/](docs/experiments/) for every experiment.
 
 ## Setup
 
@@ -21,7 +21,7 @@ Pick any folder outside a repository. If it does not exist yet, create the datas
 | Path | Holds |
 | --- | --- |
 | [docs/experiments/](docs/experiments/) | Public summary of each experiment: question, pinned setup, runtime, scores, decision, open questions. |
-| [docs/](docs/) | [Investigation plan](docs/investigation-plan.md), [review guide](docs/review-guide.md), [runner guide](docs/runners.md). |
+| [docs/](docs/) | [Status and decisions](docs/README.md), [investigation plan](docs/investigation-plan.md), [review guide](docs/review-guide.md), [runner guide](docs/runners.md). |
 | [experiments/](experiments/) | Model runners used by the experiments. |
 | [.agents/skills/meeting-experiment-review/](.agents/skills/meeting-experiment-review/) | Agent skill for running experiments on private recordings, listening reviews, and scoring. |
 

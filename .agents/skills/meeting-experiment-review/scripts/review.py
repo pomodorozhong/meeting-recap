@@ -2,7 +2,8 @@
 """Freeze agent-selected questions, collect local feedback, and snapshot confirmed references.
 
 For a recording whose speaker turns are already known (a synthetic call), `known` builds the
-reference straight from those segments, with no listening session.
+reference straight from those segments, with no listening session; for a two-person call recorded
+on two tracks, `tracks` builds it from each track's activity.
 """
 from __future__ import annotations
 
@@ -17,6 +18,7 @@ from urllib.parse import parse_qs, urlparse
 
 from common import (answers, append_event, dataset, digest, events, fingerprint, identifier, inside, snapshot,
                     now, number, read_json, recording, run, segments, session, span, write_new)
+import tracks
 
 TASKS = {"speaker_order", "transcript"}
 STATES = {"confirmed", "unsure", "skipped", "unusable"}
@@ -120,10 +122,26 @@ def make_reference(root, session_id, reference_id):
 
 def known_reference(root, recording_id, segments_path, reference_id, window=30.0):
     """Cut known segments into clips of about `window` seconds, ending each at a gap between turns."""
+    rows = segments(read_json(segments_path))
+    source = {"kind": "known_segments", "segments_sha256": digest(segments_path)}
+    return segments_reference(root, recording_id, rows, reference_id, window, source)
+
+
+def track_reference(root, recording_id, track_paths, reference_id, window=30.0, settings=tracks.SETTINGS):
+    """Build the reference from per-speaker tracks' activity, for a two-person call recorded on two tracks."""
+    rows, duration = tracks.track_segments(track_paths, settings)
+    if abs(duration - recording(root, recording_id)["duration_seconds"]) > 1:
+        raise ValueError("tracks and recording differ in length; mix the recording from these tracks")
+    source = {"kind": "two_tracks", "tracks": {speaker: {"sha256": digest(path)} for speaker, path in track_paths.items()},
+              "activity": dict(settings)}
+    return segments_reference(root, recording_id, rows, reference_id, window, source)
+
+
+def segments_reference(root, recording_id, rows, reference_id, window, source):
     identifier(reference_id)
     number(window, "window", minimum=1)
     rec = recording(root, recording_id)
-    rows = sorted(segments(read_json(segments_path)), key=lambda s: s["start_seconds"])
+    rows = sorted(rows, key=lambda s: s["start_seconds"])
     if not rows:
         raise ValueError("known segments are empty")
     if max(s["end_seconds"] for s in rows) > rec["duration_seconds"]:
@@ -139,10 +157,10 @@ def known_reference(root, recording_id, segments_path, reference_id, window=30.0
             group["order"].append(seg["speaker_id"])
     clips = [{"id": f"k{i + 1:03d}", "task": "speaker_order", "recording_id": recording_id,
               "start_seconds": g["start"], "end_seconds": g["end"], "padding_seconds": 0,
-              "reason": "known segments", "speaker_order": g["order"], "allow_extra_turns": False}
+              "reason": source["kind"].replace("_", " "), "speaker_order": g["order"], "allow_extra_turns": False}
              for i, g in enumerate(groups)]
     info = {"format": "meeting-review-reference", "version": 1, "id": reference_id,
-            "source": {"kind": "known_segments", "segments_sha256": digest(segments_path), "window_seconds": window},
+            "source": {**source, "window_seconds": window},
             "created_at": now(), "code": snapshot(root), "clips": clips, "excluded": []}
     result = {**info, "sha256": fingerprint(info)}
     write_new(root / "references" / (reference_id + ".json"), result)
@@ -298,6 +316,12 @@ def main():
     known.add_argument("--segments", required=True, help="segments JSON with the true speaker turns")
     known.add_argument("--id", required=True)
     known.add_argument("--window", type=float, default=30.0, help="target clip length in seconds")
+    two = sub.add_parser("tracks", help="reference from a two-person call's per-speaker tracks")
+    two.add_argument("dataset")
+    two.add_argument("--recording", required=True, help="the recording mixed from these tracks")
+    two.add_argument("--track", action="append", required=True, help="SPEAKER=path.wav, once per track")
+    two.add_argument("--id", required=True)
+    two.add_argument("--window", type=float, default=30.0, help="target clip length in seconds")
     for name in ("prepare", "serve", "answer", "reference", "close"):
         cmd = sub.add_parser(name)
         cmd.add_argument("dataset")
@@ -315,6 +339,8 @@ def main():
     root = dataset(args.dataset)
     if args.command == "known":
         result = known_reference(root, args.recording, args.segments, args.id, args.window)
+    elif args.command == "tracks":
+        result = track_reference(root, args.recording, tracks.parse_tracks(args.track), args.id, args.window)
     elif args.command == "prepare":
         result = prepare(root, args.plan)
     elif args.command == "answer":

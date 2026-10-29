@@ -162,6 +162,18 @@ python3 scripts/review.py known "$DATASET" --recording synthetic --segments expe
 
 It cuts the recording into clips of about `--window` seconds (default 30), each ending at a gap between turns, with padding 0. The reference records `source.kind: known_segments` and the segments' SHA-256 instead of a session. Use it only for generated audio whose script is the ground truth, never for a real call.
 
+**Two tracks.** A real call recorded with `experiments/capture/` that has exactly two speakers, the local one on headphones, has its turns in its tracks: `mic.m4a` is Speaker A and `system.m4a` is Speaker B. Ask the user to confirm both conditions first; a meeting app's speaker labels are no evidence of who was there. Convert each track to WAV, register a mono mix of the two as the recording, and build the reference from the tracks:
+
+```bash
+ffmpeg -i mic.m4a -ac 1 -ar 16000 mic.wav
+ffmpeg -i system.m4a -ac 1 -ar 16000 system.wav
+ffmpeg -i mic.wav -i system.wav -filter_complex amix=inputs=2:normalize=0 call.wav
+python3 scripts/tracks.py --track A=mic.wav --track B=system.wav --out segments.json
+python3 scripts/review.py tracks "$DATASET" --recording call --track A=mic.wav --track B=system.wav --id tracks
+```
+
+Keep the WAVs in scratch or the dataset, never in a checkout. `tracks.py` writes the per-track activity on its own, to inspect or to pick clips from; `review.py tracks` computes the same activity and cuts it into clips like `known`, recording `source.kind: two_tracks`, each track's SHA-256, and the activity settings. Activity is a level gate per track, not speech detection: overlaps and short sounds (laughs, backchannels) are where it is least certain, so before trusting it, prepare a few `speaker_order` clips around overlaps and have the user check them. A call with more than one remote speaker cannot use this.
+
 ### 6. Report in two parts
 
 **Full report, private:** `<dataset>/reports/<id>.md`, where `<id>` matches the session or evaluation. It may include names, quoted transcript text, and timestamps. Link the session, reference, and evaluation IDs and the run IDs it draws on. Cover per-clip results, what the user heard that the scores miss, and transcript comparisons. Create the `reports/` folder if needed. Unlike the dataset's other artifacts, reports are prose and may be revised; the evaluation and reference files they cite stay fixed.

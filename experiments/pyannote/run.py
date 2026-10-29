@@ -1,7 +1,3 @@
-# /// script
-# requires-python = ">=3.11,<3.13"
-# dependencies = ["pyannote.audio>=4.0", "torch", "torchaudio"]
-# ///
 """Run pyannote speaker-diarization-community-1 on a WAV and write segments JSON."""
 import json, sys, time
 import torch

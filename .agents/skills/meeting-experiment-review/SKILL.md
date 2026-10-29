@@ -85,7 +85,7 @@ Pick clips that answer the user's question and give each a reason:
 - Skip ranges the user already reviewed in an earlier session unless you are checking repeatability.
 - Keep the session to what one sitting allows (about 10–20 items).
 
-`scripts/pick_clips.py` applies the speaker-order and transcript rules above from registered runs, with a fixed seed, and writes a plan. It needs OpenCC for transcript clips, so run it with `uv run`:
+`scripts/pick_clips.py` applies the speaker-order and transcript rules above from registered runs, with a fixed seed, and writes a plan. It needs OpenCC for transcript clips, so run it with `uv run` from the skill folder, which is a uv project (`pyproject.toml` and `uv.lock`):
 
 ```json
 {"id": "full-calls", "question": "Does Sortformer keep the speakers apart?", "seed": 20261029,

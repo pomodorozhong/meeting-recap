@@ -1,7 +1,3 @@
-# /// script
-# requires-python = ">=3.11,<3.13"
-# dependencies = ["transformers>=4.48,<5", "torch", "accelerate", "soundfile", "numpy"]
-# ///
 """Transcribe a 16 kHz WAV with Breeze-ASR-25 and write WhisperKit-shaped JSON."""
 import json, sys, time
 import numpy as np, soundfile as sf, torch

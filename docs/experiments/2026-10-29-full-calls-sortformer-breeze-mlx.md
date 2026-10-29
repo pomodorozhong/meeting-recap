@@ -15,9 +15,9 @@ One online Chinese + English call among three people, recorded as one mono track
 
 | Run | Model and version | Settings |
 | --- | --- | --- |
-| Sortformer | FluidAudio `ea500621819cadc46d6212af44624f2b45ab3240`, `fluidaudiocli sortformer` | defaults |
-| Whisper | `mlx-community/whisper-large-v3-mlx`, mlx-whisper 0.4.2 | `language=zh`, word timestamps, `condition_on_previous_text=False` |
-| Breeze | `eoleedi/Breeze-ASR-25-mlx`, mlx-whisper 0.4.2 | same as Whisper |
+| Sortformer | FluidAudio `ea500621819cadc46d6212af44624f2b45ab3240`, `fluidaudiocli sortformer`; model `Sortformer_v2.1` (weight hashes in [docs/runners.md](../runners.md)) | defaults |
+| Whisper | `mlx-community/whisper-large-v3-mlx` at `49e6aa286ad60c14352c404340ded53710378a11`, mlx-whisper 0.4.2 | `language=zh`, word timestamps, `condition_on_previous_text=False` |
+| Breeze | `eoleedi/Breeze-ASR-25-mlx` at `172151e3fd93ab6dc841d639f23dd48b24bc8301`, mlx-whisper 0.4.2 | same as Whisper |
 | Attachment | `attach.py --method word` | Sortformer labels attached to each ASR run per word |
 
 Host: Apple M2 Pro, 16 GB, macOS 26.6.2. Runners are described in [docs/runners.md](../runners.md).

@@ -9,9 +9,10 @@ All runs so far used macOS 26.6.2, Apple M2 Pro, 16 GB, Swift 6.3.3.
 | WhisperKit / `whisperkit-cli` | 0.18.0, `e2adabbe7d98dc4d0ab9a5b75424ecc42a9cdbef` |
 | FluidAudio / `fluidaudiocli` | `ea500621819cadc46d6212af44624f2b45ab3240` |
 | WhisperKit Whisper model | `argmaxinc/whisperkit-coreml/openai_whisper-large-v3` |
+| Sortformer model (downloaded by FluidAudio) | `Sortformer_v2.1.mlmodelc`; SHA-256 of `model0/weights/0-weight.bin` `88a98803e35186b1dfb41d7f748f7cee5093bb6efeb117f56953c17549792fa4`, `model1/weights/1-weight.bin` `4c85926af77684bce762b355a2b162df557d832444fbeb79ee195113a4bbf1db` |
 | `mlx-whisper` | 0.4.2 |
-| MLX Whisper model | `mlx-community/whisper-large-v3-mlx` |
-| MLX Breeze model | `eoleedi/Breeze-ASR-25-mlx` |
+| MLX Whisper model | `mlx-community/whisper-large-v3-mlx` at `49e6aa286ad60c14352c404340ded53710378a11` |
+| MLX Breeze model | `eoleedi/Breeze-ASR-25-mlx` at `172151e3fd93ab6dc841d639f23dd48b24bc8301` |
 | Breeze-ASR-25 (transformers) | `MediaTek-Research/Breeze-ASR-25` at `cffe7ccb404d025296a00758d0a33468bec3a9d0` |
 
 Input audio for all runners is 16 kHz mono WAV:
@@ -47,7 +48,7 @@ uv run experiments/mlx/run.py recording-16k.wav breeze.json eoleedi/Breeze-ASR-2
 ```
 
 - Arguments: WAV, output path, Hugging Face repo, language (default `zh`). Decoding uses `condition_on_previous_text=False` to limit repetition loops.
-- Set `HF_HUB_OFFLINE=1` when the models are already cached.
+- Set `HF_HUB_OFFLINE=1` when the models are already cached. The runner takes a repo name, not a revision; to match the pinned snapshots above, download them first with `hf download <repo> --revision <commit>`, or check `~/.cache/huggingface/hub/models--<org>--<name>/snapshots/`.
 - Wrap in `/usr/bin/time -l` to record wall time and peak memory for the run spec.
 
 Results from the [2026-10-29 experiment](experiments/2026-10-29-full-calls-sortformer-breeze-mlx.md) on 87 minutes of audio:

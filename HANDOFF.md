@@ -1,44 +1,35 @@
 # Handoff
 
-Updated 2026-10-29. Read [AGENTS.md](AGENTS.md) first: this repository is public, and meeting material never enters it.
+## In progress
 
-## Where things stand
+### docs/repository-layout
 
-The goal is meeting notes produced locally on a MacBook Pro with an M2 Pro and 16 GB of memory, covering the 22 behaviors in the [feature catalogue](https://github.com/pomodorozhong/rabbit-holes/blob/master/topics/ai_meeting_notes/feature-catalogue.md) (`MN-01`–`MN-22`). Research phases 1–3 ran in [rabbit-holes](https://github.com/pomodorozhong/rabbit-holes/issues/167); building continues here.
+- Task: decide the repository layout (closes #8); also carries the handoff layout commit from the merged foundation branch.
+- PR: none yet; drafted for the user's approval, against `main`. It is the bottom of a stack: `feat/synthetic-call` builds on it, and `build/uv-projects` on that. Merge bottom-up into `main`; never merge a PR into a branch that has no PR to `main`.
+- Code checkpoint: d232880
+- State: complete for review. `docs/decisions.md` holds all decisions, including the layout: self-contained `experiments/<name>/`, candidate pipelines in `experiments/pipelines/<name>/`, and `app/` for the final app with its own copy of the chosen pipeline. README.md and AGENTS.md updated.
+- Verification: docs only; diff scanned for names and private paths.
+- Next action: open the PR once the user approves it.
+- Avoid: branching from local `main`, which is still at the initial commit; base new branches on `origin/main`.
 
-| Phase | Status |
-| --- | --- |
-| 1. Feature catalogue | Done, in rabbit-holes |
-| 2. Review of open-source local pipelines | Done, in rabbit-holes |
-| 3. Recording trial and follow-up experiments | Done: [docs/experiments/](docs/experiments/README.md) |
-| 4. Pipeline for saved recordings | Not started |
-| 5. App prototype, then the app | Not started |
+### feat/synthetic-call
 
-For a three-person online Chinese + English call on one mono track, Whisper Large v3 with Chinese forced plus FluidAudio's Sortformer kept the speakers apart (29 of 30 reference turns) and ran faster than real time in under 1.6 GB. HushScribe's Community-1 diarizer did not. Breeze-ASR-25 through MLX now runs at about 0.25× real time with Traditional output; whether its text beats Whisper's is not yet tested.
+- Task: shareable synthetic test recording (advances #4); stacked on `docs/repository-layout`.
+- PR: none
+- State: `experiments/synthetic-call/` holds `script.json`, `generate.py` (CosyVoice 2, voices bootstrapped from CosyVoice-300M-SFT), and a README; not committed. The user listens to `out/call.wav` before deciding on the voices, the script, and whether to commit audio.
+- Next action: apply the user's listening feedback, then commit and add a skill reference built from `segments.json`.
 
-## Decisions
+## Ranked work
 
-1. Stop testing models for this kind of call.
-2. Pipeline candidate: Whisper Large v3 (Chinese forced) or Breeze-ASR-25, Sortformer, labels attached by overlap per word, a naming step that can merge labels, Traditional script output.
-3. Summaries and the other catalogue features are separate questions.
-4. Experiments run through the `meeting-experiment-review` skill: private dataset outside Git, public summary in `docs/experiments/`.
+1. #4 Add a shareable synthetic test recording (in progress on `feat/synthetic-call`)
+2. #1 Evaluate Desert Ant Labs Who for on-device speaker diarization (next, as the user asked; its issue still cites `experiments/diarization/score.py`, now the skill's `evaluate.py`)
+3. #11 Compare Breeze-ASR-25 and Whisper Large v3 transcript accuracy (blocks choosing the pipeline's ASR model)
+4. #9 Choose a license
+5. #7 Decide where private experiment data is backed up
+6. #5 Add a Reproduce section to public experiment summaries
+7. #3 Migrate the 2026-10-24 experiment results into the private review dataset
+8. Build the minimal pipeline for saved recordings in `experiments/pipelines/`: ASR and Sortformer, attachment, naming, Markdown transcript (no issue yet)
 
-## Next steps
+## Pending
 
-1. **Compare Breeze-ASR-25 and Whisper Large v3 text** as a new experiment from `docs/experiments/TEMPLATE.md`, with short transcript clips. The MLX transcription and Sortformer runs of both full recordings are already registered in the private dataset and can be reused.
-2. **Settle the foundation issues:** [layout for pipeline and app](https://github.com/pomodorozhong/meeting-recap/issues/8), [license](https://github.com/pomodorozhong/meeting-recap/issues/9), [private data backup](https://github.com/pomodorozhong/meeting-recap/issues/7).
-3. **Make experiments reproducible without the original call:** [synthetic test recording](https://github.com/pomodorozhong/meeting-recap/issues/4), [Reproduce sections](https://github.com/pomodorozhong/meeting-recap/issues/5), [skill smoke test](https://github.com/pomodorozhong/meeting-recap/issues/6), [migrate the 2026-10-24 results into the dataset](https://github.com/pomodorozhong/meeting-recap/issues/3).
-4. **Build the minimal pipeline:** recording in; ASR and Sortformer; attachment; naming; Markdown transcript with times and labels out.
-5. **Then summaries, decisions, and action items** (`MN-08`–`MN-10`).
-
-## Open questions
-
-- Does a recording with the presenter's microphone on its own track remove the remaining presenter errors?
-- How does the original pyannote Community-1 pipeline compare? It needs the Hugging Face terms accepted for `pyannote/speaker-diarization-community-1`.
-- How does Sortformer behave with more than four people, or several people in one room?
-- Is a few minutes of hand-made reference transcript worth making, to measure character error rate?
-- Should [Who](https://github.com/pomodorozhong/meeting-recap/issues/1) be evaluated for on-device diarization?
-
-## Pending outside this repository
-
-- [rabbit-holes#226](https://github.com/pomodorozhong/rabbit-holes/pull/226) concludes the research topic and points here. It says "Refs #194"; changing it to close rabbit-holes#194 on merge is undecided.
+None.

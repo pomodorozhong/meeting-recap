@@ -7,6 +7,7 @@ from http.server import ThreadingHTTPServer
 
 from helpers import DatasetCase, segs, transcript, write_json
 
+import evaluate
 import review
 
 DIARIZATION = segs(("x", 0, 5), ("y", 5, 10), ("x", 10, 15))
@@ -55,6 +56,37 @@ class ValidatePlan(ReviewCase):
         for name, plan in cases.items():
             with self.subTest(name), self.assertRaises((ValueError, OSError)):
                 review.validate_plan(self.root, plan)
+
+
+class KnownReference(ReviewCase):
+    TRUTH = segs(("A", 0, 4), ("B", 4.2, 6), ("A", 6.3, 12), ("C", 11.5, 13), ("B", 14, 20), ("B", 20.5, 22))
+
+    def known(self, rows=None, reference_id="known1", **extra):
+        path = write_json(self.tmp / "truth.json", self.TRUTH if rows is None else rows)
+        return review.known_reference(self.root, "rec1", path, reference_id, **extra)
+
+    def test_cuts_clips_at_gaps_and_collapses_turns(self):
+        ref = self.known(window=10)
+        # The A/C overlap keeps the first clip open until 13 s, where the next gap is.
+        self.assertEqual([(c["start_seconds"], c["end_seconds"], c["speaker_order"]) for c in ref["clips"]],
+                         [(0, 13, ["A", "B", "A", "C"]), (14, 22, ["B"])])
+        self.assertEqual({c["padding_seconds"] for c in ref["clips"]}, {0})
+        self.assertEqual((ref["source"]["kind"], ref["excluded"]), ("known_segments", []))
+        with self.assertRaises(FileExistsError):
+            self.known(window=10)
+
+    def test_scores_a_perfect_run_as_perfect(self):
+        self.add_run("truth", artifacts={"segments": self.TRUTH})
+        self.known(window=5)
+        result = evaluate.evaluate(self.root, "known1", ["truth"], "ev1")["results"][0]
+        self.assertEqual((result["turns_recovered"], result["clips_correct"]), (result["reference_turns"], result["clips"]))
+
+    def test_rejects_bad_segments(self):
+        for name, rows in {"empty": [], "past the end": segs(("A", 0, 31)), "blank speaker": segs(("", 0, 1))}.items():
+            with self.subTest(name), self.assertRaises(ValueError):
+                self.known(rows, reference_id=f"bad{len(name)}")
+        with self.assertRaises(ValueError):
+            self.known(window=0)
 
 
 class Answers(ReviewCase):

@@ -5,7 +5,7 @@
 ### docs/repository-layout
 
 - Task: decide the repository layout (closes #8); also carries the handoff layout commit from the merged foundation branch.
-- PR: none yet; branch is linked to #8 and pushed without these commits
+- PR: none yet; branch is linked to #8 and pushed
 - Code checkpoint: d232880
 - State: complete for review. `docs/decisions.md` holds all decisions, including the layout: self-contained `experiments/<name>/`, candidate pipelines in `experiments/pipelines/<name>/`, and `app/` for the final app with its own copy of the chosen pipeline. README.md and AGENTS.md updated.
 - Verification: docs only; diff scanned for names and private paths.
@@ -15,9 +15,11 @@
 ### feat/synthetic-call
 
 - Task: shareable synthetic test recording (advances #4); stacked on `docs/repository-layout`.
-- PR: none
-- State: `experiments/synthetic-call/` holds `script.json`, `generate.py` (CosyVoice 2, voices bootstrapped from CosyVoice-300M-SFT), and a README; not committed. The user listens to `out/call.wav` before deciding on the voices, the script, and whether to commit audio.
-- Next action: apply the user's listening feedback, then commit and add a skill reference built from `segments.json`.
+- PR: https://github.com/pomodorozhong/meeting-recap/pull/12 (open, base `docs/repository-layout`; awaiting review)
+- Code checkpoint: 1a9b303. It holds `generate.py` (Qwen3-TTS CustomVoice only) as a uv project (`pyproject.toml`, `uv.lock`), the 73-turn `script.json` (5.5 min; A `vivian`, B `dylan`, C `ryan`, `aiden` spare), `reference/` from the seed-7 run, and the skill's `review.py known`.
+- State: awaiting review. The user has not said whether the full call sounds right. Audio is not committed: seed 7 reproduces the same `call_sha256` on this machine, also in the locked environment. 70 skill tests pass. End to end on the call: Sortformer recovered 67/72 turns and got 7/10 clips fully right.
+- Next action: the user reviews #12 after the layout branch's PR. #4 stays open: its done-when says "each runner", but only Sortformer and the MLX Whisper runner have run on the call.
+- Avoid: Kokoro and CosyVoice voices; cloning; using `review.py known` for a real call.
 
 ## Ranked work
 

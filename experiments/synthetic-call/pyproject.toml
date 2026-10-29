@@ -1,0 +1,9 @@
+[project]
+name = "synthetic-call"
+version = "0.1.0"
+description = "Generate a shareable synthetic three-person call with ground truth"
+requires-python = ">=3.12,<3.13"
+dependencies = ["mlx-audio==0.6.1", "mlx==0.32.4", "soundfile==0.12.1", "numpy<2.3", "scipy==1.18.1"]
+
+[tool.uv]
+package = false

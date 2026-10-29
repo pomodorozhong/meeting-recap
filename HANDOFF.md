@@ -5,7 +5,7 @@
 ### docs/repository-layout
 
 - Task: decide the repository layout (closes #8); also carries the handoff layout commit from the merged foundation branch.
-- PR: none yet; branch is linked to #8 and pushed without these commits
+- PR: none yet; branch is linked to #8 and pushed
 - Code checkpoint: d232880
 - State: complete for review. `docs/decisions.md` holds all decisions, including the layout: self-contained `experiments/<name>/`, candidate pipelines in `experiments/pipelines/<name>/`, and `app/` for the final app with its own copy of the chosen pipeline. README.md and AGENTS.md updated.
 - Verification: docs only; diff scanned for names and private paths.
@@ -16,8 +16,10 @@
 
 - Task: shareable synthetic test recording (advances #4); stacked on `docs/repository-layout`.
 - PR: none
-- State: `experiments/synthetic-call/` holds `script.json`, `generate.py` (CosyVoice 2, voices bootstrapped from CosyVoice-300M-SFT), and a README; not committed. The user listens to `out/call.wav` before deciding on the voices, the script, and whether to commit audio.
-- Next action: apply the user's listening feedback, then commit and add a skill reference built from `segments.json`.
+- Code checkpoint: see `git log`; the experiment commit holds `generate.py` (Qwen3-TTS CustomVoice only), the 73-turn `script.json` (5.5 min; A `vivian`, B `dylan`, C `ryan`, `aiden` spare), and `reference/` from the seed-7 run.
+- State: the user approved the four Qwen3 voices and asked for the full-length script; they have not yet listened to the full call. Audio is not committed: seed 7 reproduces the same `call_sha256` on this machine. Whisper heard it at 5.9% character error rate. CosyVoice code and caches are deleted; Kokoro caches from before this project remain.
+- Next action: the user listens to `out/script/call.wav`; then turn `reference/segments.json` into a skill reference (the skill's references come from listening sessions, so this needs a converter or a documented path) and run a runner and the skill end to end on the call, which is #4's done-when.
+- Avoid: Kokoro and CosyVoice voices; cloning.
 
 ## Ranked work
 

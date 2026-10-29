@@ -5,11 +5,11 @@
 ### docs/repository-layout
 
 - Task: decide the repository layout (closes #8); also carries the handoff layout commit from the merged foundation branch.
-- PR: none yet; branch is linked to #8 and pushed without these commits
+- PR: none yet; drafted for the user's approval, against `main`. It is the bottom of a stack: `feat/synthetic-call` builds on it, and `build/uv-projects` on that. Merge bottom-up into `main`; never merge a PR into a branch that has no PR to `main`.
 - Code checkpoint: d232880
 - State: complete for review. `docs/decisions.md` holds all decisions, including the layout: self-contained `experiments/<name>/`, candidate pipelines in `experiments/pipelines/<name>/`, and `app/` for the final app with its own copy of the chosen pipeline. README.md and AGENTS.md updated.
 - Verification: docs only; diff scanned for names and private paths.
-- Next action: open the PR with the `open-pr` skill once the user approves it.
+- Next action: open the PR once the user approves it.
 - Avoid: branching from local `main`, which is still at the initial commit; base new branches on `origin/main`.
 
 ### feat/synthetic-call

@@ -31,8 +31,10 @@ Rejected on 2026-10-29: Qwen3-TTS's other presets; Kokoro-82M's eight Mandarin v
 ## Run
 
 ```bash
-uv run experiments/synthetic-call/generate.py
+uv run --project experiments/synthetic-call experiments/synthetic-call/generate.py
 ```
+
+From this folder, `uv run generate.py` is enough.
 
 Further arguments set the script, the output folder and the seed (default 7). The first run downloads the model (about 4 GB). The call takes about four minutes on an M2 Pro.
 
@@ -57,7 +59,7 @@ Smoke test, 2026-10-29: Sortformer (FluidAudio, as pinned in docs/runners.md) re
 | --- | --- | --- |
 | [mlx-community/Qwen3-TTS-12Hz-1.7B-CustomVoice-bf16](https://huggingface.co/mlx-community/Qwen3-TTS-12Hz-1.7B-CustomVoice-bf16), MLX port of [Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice](https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice) | `52f4770fd9726457eae3d3b6aa92047a25a10776` | Apache-2.0 |
 
-Python dependencies are pinned in the script header, and every transitive package in [`generate.py.lock`](generate.py.lock) (`uv lock --script`), which `uv run` uses automatically. The locked environment reproduced the seed-7 `call_sha256`.
+Dependencies are declared in [`pyproject.toml`](pyproject.toml) and every package is pinned in [`uv.lock`](uv.lock); `uv run` uses both when it runs in this folder or with `--project`. The locked environment reproduced the seed-7 `call_sha256`.
 
 ## Input profile for comparable real recordings
 

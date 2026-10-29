@@ -1,15 +1,6 @@
 version = 1
 revision = 5
-requires-python = ">=3.12, <3.13"
-
-[manifest]
-requirements = [
-    { name = "mlx", specifier = "==0.32.4" },
-    { name = "mlx-audio", specifier = "==0.6.1" },
-    { name = "numpy", specifier = "<2.3" },
-    { name = "scipy", specifier = "==1.18.1" },
-    { name = "soundfile", specifier = "==0.12.1" },
-]
+requires-python = "==3.12.*"
 
 [[package]]
 name = "annotated-doc"
@@ -471,6 +462,27 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/c1/07/7591f4efd29e65071c3a61b53725036ea8f73366a4920a481ebddaf8d0ca/soundfile-0.12.1-py2.py3-none-manylinux_2_31_x86_64.whl", hash = "sha256:074247b771a181859d2bc1f98b5ebf6d5153d2c397b86ee9e29ba602a8dfe2a6", size = 1174746, upload-time = "2023-02-15T15:37:24.771Z" },
     { url = "https://files.pythonhosted.org/packages/03/0f/49941ed8a2d94e5b36ea94346fb1d2b22e847fede902e05be4c96f26be7d/soundfile-0.12.1-py2.py3-none-win32.whl", hash = "sha256:59dfd88c79b48f441bbf6994142a19ab1de3b9bb7c12863402c2bc621e49091a", size = 888234, upload-time = "2023-02-15T15:37:27.078Z" },
     { url = "https://files.pythonhosted.org/packages/50/ff/26a4ee48d0b66625a4e4028a055b9f25bc9d7c7b2d17d21a45137621a50d/soundfile-0.12.1-py2.py3-none-win_amd64.whl", hash = "sha256:0d86924c00b62552b650ddd28af426e3ff2d4dc2e9047dae5b3d8452e0a49a77", size = 1009109, upload-time = "2023-02-15T15:37:29.41Z" },
+]
+
+[[package]]
+name = "synthetic-call"
+version = "0.1.0"
+source = { virtual = "." }
+dependencies = [
+    { name = "mlx" },
+    { name = "mlx-audio" },
+    { name = "numpy" },
+    { name = "scipy" },
+    { name = "soundfile" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "mlx", specifier = "==0.32.4" },
+    { name = "mlx-audio", specifier = "==0.6.1" },
+    { name = "numpy", specifier = "<2.3" },
+    { name = "scipy", specifier = "==1.18.1" },
+    { name = "soundfile", specifier = "==0.12.1" },
 ]
 
 [[package]]

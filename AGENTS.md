@@ -9,7 +9,7 @@ Local meeting assistant for an M2 Pro / 16 GB Mac. Status and next steps: [HANDO
 - Tests and examples use synthetic or redistributable audio, never a real call.
 - Before committing, search the diff for participant names and transcript phrases.
 
-Private material lives in the review dataset outside the checkout. Run experiments on real recordings with the `meeting-experiment-review` skill; it ends with a public summary in `docs/experiments/`.
+Private material lives in the review dataset outside the checkout, at `$MEETING_REVIEW_DATA`. Run experiments on real recordings with the `meeting-experiment-review` skill. Commit each experiment's summary in `docs/experiments/` (from `TEMPLATE.md`) before its first run.
 
 ## Conventions
 

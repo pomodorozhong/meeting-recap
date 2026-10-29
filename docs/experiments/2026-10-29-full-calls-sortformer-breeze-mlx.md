@@ -1,11 +1,20 @@
 # 2026-10-29: Sortformer on full calls, Breeze-ASR-25 vs. Whisper through MLX
 
-**Status:** runs complete; listening review pending, so scores and the decision are not final.
+**Status:** review pending. Runs are complete; scores and the decision wait for the listening review.
+
+This experiment ran before summaries were registered ahead of time; the goal, plan, and review sections were added afterwards in the same form.
 
 ## Question
 
 1. Does Sortformer keep three speakers apart across two full recordings of one call, beyond the 10-minute excerpt reviewed in the 2026-10-24 trial?
 2. Is Breeze-ASR-25 through MLX fast enough, and more accurate than Whisper Large v3 through MLX?
+
+## Goal and assumptions
+
+- **Decision it informs:** whether Sortformer stays the diarizer for saved recordings, and whether the pipeline candidate uses Breeze-ASR-25 or Whisper Large v3 for transcription.
+- **Builds on:** the [diarizer comparison](2026-10-24-diarizer-comparison.md) (Sortformer 29 of 30 turns on the first 10 minutes), the [full-recording run](2026-10-24-full-recordings.md) (one voice split across two labels), and the [transcription variants](2026-10-24-transcription-variants.md) (Breeze cleanest, but about 8× real time through transformers).
+- **Assumptions:** the same kind of call as before (three people, Chinese + English, one mono track, online); the listener names speakers consistently across both parts; MLX models are cached; Whisper and Breeze through MLX decode like their WhisperKit and transformers counterparts.
+- **Expected result:** Sortformer keeps most turns past the first 10 minutes, with one voice still split; Breeze runs near real time or faster through MLX and is at least as accurate as Whisper. Sortformer missing many turns later in the call, or Breeze transcribing worse than Whisper in the listened clips, would change the decision.
 
 ## Input
 
@@ -21,6 +30,45 @@ One online Chinese + English call among three people, recorded as one mono track
 | Attachment | `attach.py --method word` | Sortformer labels attached to each ASR run per word |
 
 Host: Apple M2 Pro, 16 GB, macOS 26.6.2. Runners are described in [docs/runners.md](../runners.md).
+
+## Plan
+
+| Run ID | Model and pinned version | Command (from the repository root; WAVs in a scratch folder) |
+| --- | --- | --- |
+| `sortformer-part1`, `sortformer-part2` | Sortformer, see above | `experiments/diarization/.build/release/fluidaudiocli sortformer part1.wav --output sortformer_part1.json`, then `python3 experiments/diarization/sortformer_to_segments.py sortformer_part1.json sortformer_part1_seg.json` |
+| `whisper-mlx-part1`, `whisper-mlx-part2` | Whisper Large v3 (MLX), see above | `HF_HUB_OFFLINE=1 /usr/bin/time -l uv run experiments/mlx/run.py part1.wav whisper_part1.json mlx-community/whisper-large-v3-mlx zh` |
+| `breeze-mlx-part1`, `breeze-mlx-part2` | Breeze-ASR-25 (MLX), see above | `HF_HUB_OFFLINE=1 /usr/bin/time -l uv run experiments/mlx/run.py part1.wav breeze_part1.json eoleedi/Breeze-ASR-25-mlx zh` |
+| `whisper-sortformer-part1`, `breeze-sortformer-part1`, and the same for part 2 | `attach.py --method word` | `python3 .agents/skills/meeting-experiment-review/scripts/attach.py "$MEETING_REVIEW_DATA" --asr-run whisper-mlx-part1 --diarization-run sortformer-part1 --id whisper-sortformer-part1` |
+
+Recording IDs `part1` (22:23) and `part2` (64:49), group `call-2026-10-22`. Each output is registered with `dataset.py add-run` under the run ID shown.
+
+Clip selection (`uv run .agents/skills/meeting-experiment-review/scripts/pick_clips.py "$MEETING_REVIEW_DATA" --config select.json --out plan.json`):
+
+```json
+{"id": "full-calls-2026-10-29", "seed": 20261029, "normalize": "first",
+ "question": "Does Sortformer keep the three speakers apart across both full recordings, and is Breeze-ASR-25 (MLX) more accurate than Whisper Large v3 (MLX)?",
+ "recordings": [
+  {"recording_id": "part1", "skip_before": 600, "diarization_run": "sortformer-part1", "speaker_clips": 4,
+   "speaker_show_runs": ["sortformer-part1", "whisper-sortformer-part1"],
+   "transcript_runs": ["whisper-mlx-part1", "breeze-mlx-part1"], "transcript_clips": 2},
+  {"recording_id": "part2", "diarization_run": "sortformer-part2", "speaker_clips": 7,
+   "speaker_show_runs": ["sortformer-part2", "whisper-sortformer-part2"],
+   "transcript_runs": ["whisper-mlx-part2", "breeze-mlx-part2"], "transcript_clips": 3}]}
+```
+
+Review session ID: `full-calls-2026-10-29`. Reference ID: `ref-full-calls-2026-10-29`. Evaluation IDs: `eval-full-calls-2026-10-29-part1`, `eval-full-calls-2026-10-29-part2`.
+
+## Run the review
+
+```bash
+python3 .agents/skills/meeting-experiment-review/scripts/review.py serve "$MEETING_REVIEW_DATA" --session full-calls-2026-10-29 --port 8770
+```
+
+Run from the repository root with `MEETING_REVIEW_DATA` set to the private dataset. Open the `http://127.0.0.1:8770/?token=…` URL it prints; answers save as you go, and Ctrl-C stops the server. Use the same speaker IDs for each person in every clip. For the 15 s transcript clips, saving **unsure** with a note on which run is closer is fine. Click **Finish session** when done.
+
+## Restart from scratch
+
+If the private data is lost: register both recordings again as `part1` and `part2`, convert them to 16 kHz mono WAV, rerun the commands in the plan, register the runs under the same IDs, and rerun `pick_clips.py` with the config above. The same seed gives the same 18 clips only if the runs reproduce the same segments and text; otherwise review the new plan before preparing the session.
 
 ## Runtime and memory
 

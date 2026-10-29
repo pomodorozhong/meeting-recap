@@ -18,6 +18,23 @@ All helpers are standard-library Python 3.11+ in `scripts/`. Run them as `python
 
 ## Workflow
 
+### 0. Register the experiment in the repository before any run
+
+Copy `docs/experiments/TEMPLATE.md` to `docs/experiments/YYYY-MM-DD-<topic>.md`, fill in everything above **Runtime and memory**, add it to `docs/experiments/README.md`, and commit it before the first run. It is the public summary from then on; step 6 completes it. It must state:
+
+- the question, the decision it informs, the experiments it builds on, the assumptions (input, models, machine), and the expected result, so the experiment can be restarted if private data is lost;
+- the input profile, never its name or path;
+- the planned run IDs with pinned models, settings, and commands; the `pick_clips.py` config; and the session, reference, and evaluation IDs, chosen now;
+- the exact command that starts the review server, so the user can run it without an agent:
+
+  ```bash
+  python3 .agents/skills/meeting-experiment-review/scripts/review.py serve "$MEETING_REVIEW_DATA" --session <session-id> --port 8770
+  ```
+
+  Use the `$MEETING_REVIEW_DATA` variable, never the dataset path. Tell the user to set it in their shell profile if it is not set.
+
+Commit it under the same privacy rules as the final summary. When the plan changes during the experiment (another run, a different config), update the file and commit again before acting on the change, and say why in the file.
+
 ### 1. Create the dataset and add recordings
 
 ```bash
@@ -138,18 +155,17 @@ python3 scripts/evaluate.py ~/Documents/meeting-review-data --reference ref-part
 
 **Full report, private:** `<dataset>/reports/<id>.md`, where `<id>` matches the session or evaluation. It may include names, quoted transcript text, and timestamps. Link the session, reference, and evaluation IDs and the run IDs it draws on. Cover per-clip results, what the user heard that the scores miss, and transcript comparisons. Create the `reports/` folder if needed. Unlike the dataset's other artifacts, reports are prose and may be revised; the evaluation and reference files they cite stay fixed.
 
-**Public summary, in the repository:** `docs/experiments/YYYY-MM-DD-<topic>.md`, containing:
+**Public summary, in the repository:** complete the file registered in step 0. Set its status, and fill in:
 
-- the question;
-- models, pinned versions, and settings;
 - runtime and peak memory per run, with any overlap noted;
 - scores, excluded-item count, and mapping method;
 - the metric's limits;
-- the decision, and open questions.
+- the decision, and open questions;
+- any departure from the plan and why.
 
 It must never contain participant names, transcript text, audio paths, or dataset paths. Refer to people as Speaker A/B/C and to recordings by duration. Before committing, grep the summary for every participant name and for a few distinctive transcript phrases.
 
-In both, lead with the decision the user asked about, separate what was measured from what was only listened to, and keep anything unresolved as an open question. If the listening review is still pending, write both reports now with the run results and mark scores and decision as pending, then update them once the review finishes.
+In both, lead with the decision the user asked about, separate what was measured from what was only listened to, and keep anything unresolved as an open question. If the listening review is still pending, write the run results into both now, set the status to `review pending`, and commit; update both once the review finishes.
 
 ## Other checks
 

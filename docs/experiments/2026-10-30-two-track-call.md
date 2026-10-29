@@ -57,7 +57,7 @@ at the default 30 s window. A dry run on scratch copies gave 86 clips, about 31 
                  "speaker_show_runs": ["tracks-two-track-call", "sortformer-two-track-call"]}]}
 ```
 
-Skill code: commit `a6c7e69`; dataset snapshot `de616b4aa3dcbd29b96057fbdc173f37dbe160f3b898c035d62802a8d1441f23` (from `dataset.py snapshot`). Restarts and reruns use this snapshot, not the current scripts.
+Skill code: commit ``; dataset snapshot `cc24865fadea9fba01b8fe4ca722a978bbeb8b1faaa56ae671e0ccf4635b354a a1537aa False` (from `dataset.py snapshot`). Restarts and reruns use this snapshot, not the current scripts. It was retaken before any run, after two skill fixes (artifacts digest-checked on every read; references built from one event read).
 
 Review session ID: `check-two-track-call`. Reference IDs: `ref-check-two-track-call` (listened) and `tracks-two-track-call` (from the tracks). Evaluation IDs: `eval-check-two-track-call` (both runs against the listened clips) and `eval-two-track-call` (Sortformer against the track reference).
 
@@ -71,7 +71,7 @@ Run from the repository root with `MEETING_REVIEW_DATA` set to the private datas
 
 ## Restart from scratch
 
-If the private data for this experiment is lost: register the recording again under the same ID from the two raw tracks with the commands above, rerun the runs, register them under the same IDs, rebuild the track reference, and rerun `pick_clips.py` with the config above, using the skill code at the commit above (`git show a6c7e69:.agents/skills/meeting-experiment-review/scripts/…`) if the snapshot is lost too. Track activity is deterministic, so the same tracks give the same reference and the same picked clips; rechoose the four hand-added clips by the rule above.
+If the private data for this experiment is lost: register the recording again under the same ID from the two raw tracks with the commands above, rerun the runs, register them under the same IDs, rebuild the track reference, and rerun `pick_clips.py` with the config above, using the skill code at the commit above (`git show :.agents/skills/meeting-experiment-review/scripts/…`) if the snapshot is lost too. Track activity is deterministic, so the same tracks give the same reference and the same picked clips; rechoose the four hand-added clips by the rule above.
 
 ## Runtime and memory
 

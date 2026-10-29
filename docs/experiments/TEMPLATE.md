@@ -41,7 +41,7 @@ Review session ID: `<session-id>`. Reference ID: `ref-<session-id>`. Evaluation 
 python3 .agents/skills/meeting-experiment-review/scripts/review.py serve "$MEETING_REVIEW_DATA" --session <session-id> --port 8770
 ```
 
-Run from the repository root with `MEETING_REVIEW_DATA` set to the private dataset. Open the `http://127.0.0.1:8770/?token=…` URL it prints; answers save as you go, and Ctrl-C stops the server. Click **Finish session** when done.
+Run from the repository root with `MEETING_REVIEW_DATA` set to the private dataset ([setup](../../README.md#setup)). Open the `http://127.0.0.1:8770/?token=…` URL it prints; answers save as you go, and Ctrl-C stops the server. Click **Finish session** when done.
 
 ## Restart from scratch
 

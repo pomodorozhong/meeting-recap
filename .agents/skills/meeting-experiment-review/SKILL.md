@@ -38,7 +38,7 @@ Commit it under the same privacy rules as the final summary. When the plan chang
 
 ### 1. Create the dataset and add recordings
 
-Commands below use `$MEETING_REVIEW_DATA` for the dataset folder. Ask the user where it should live (outside any Git checkout), and have them set the variable in their shell profile.
+Commands below use `$MEETING_REVIEW_DATA` for the dataset folder. Ask the user where it should live (outside any Git checkout), and have them set the variable in their shell profile; in this repository, the README's Setup section gives the command.
 
 ```bash
 python3 scripts/dataset.py init "$MEETING_REVIEW_DATA"

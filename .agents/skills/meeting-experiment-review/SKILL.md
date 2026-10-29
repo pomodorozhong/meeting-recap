@@ -154,6 +154,14 @@ python3 scripts/evaluate.py "$MEETING_REVIEW_DATA" --reference ref-part1 --runs 
 - By default each run's labels are mapped to people in whichever way scores best, which flatters runs; pass `--mappings mappings.json` (`{"run-id": {"label": "A"}}`) to test a fixed naming. Only completed runs can be scored.
 - Confirmed `transcript` items are not scored by a script. Compare them with each run's text yourself in the private report (exact wording, dropped or invented words, names and terms).
 
+**Known turns.** When the true speaker turns are already known, as for the synthetic call in `experiments/synthetic-call/`, skip the listening session and build the reference from them:
+
+```bash
+python3 scripts/review.py known "$DATASET" --recording synthetic --segments experiments/synthetic-call/reference/segments.json --id truth
+```
+
+It cuts the recording into clips of about `--window` seconds (default 30), each ending at a gap between turns, with padding 0. The reference records `source.kind: known_segments` and the segments' SHA-256 instead of a session. Use it only for generated audio whose script is the ground truth, never for a real call.
+
 ### 6. Report in two parts
 
 **Full report, private:** `<dataset>/reports/<id>.md`, where `<id>` matches the session or evaluation. It may include names, quoted transcript text, and timestamps. Link the session, reference, and evaluation IDs and the run IDs it draws on. Cover per-clip results, what the user heard that the scores miss, and transcript comparisons. Create the `reports/` folder if needed. Unlike the dataset's other artifacts, reports are prose and may be revised; the evaluation and reference files they cite stay fixed.

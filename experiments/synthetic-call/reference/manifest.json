@@ -1,0 +1,21 @@
+{
+ "script": "script.json",
+ "model": {
+  "mlx-community/Qwen3-TTS-12Hz-1.7B-CustomVoice-bf16": "52f4770fd9726457eae3d3b6aa92047a25a10776"
+ },
+ "seed": 7,
+ "speakers": {
+  "A": {
+   "voice": "vivian"
+  },
+  "B": {
+   "voice": "dylan"
+  },
+  "C": {
+   "voice": "ryan"
+  }
+ },
+ "duration_seconds": 329.88,
+ "elapsed_seconds": 237.5,
+ "call_sha256": "6b7011c6057821e04fe1b3cd78659297218e83d0ed899496e769eb4992a25d48"
+}

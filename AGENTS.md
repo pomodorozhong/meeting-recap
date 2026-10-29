@@ -16,3 +16,8 @@ Private material lives in the review dataset outside the checkout, at `$MEETING_
 - Conventional Commits.
 - Pin models and dependencies by revision or hash.
 - Python tools run with `uv` or the standard library.
+- After changing the skill, run its tests from the repository root (they use generated audio only):
+
+  ```bash
+  uv run --no-project --with opencc-python-reimplemented python -m unittest discover -s tests/skill -t tests/skill
+  ```

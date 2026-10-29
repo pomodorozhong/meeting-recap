@@ -170,3 +170,5 @@ In both, lead with the decision the user asked about, separate what was measured
 ## Other checks
 
 `python3 scripts/dataset.py validate <dataset>` rechecks every digest and the event logs.
+
+This repository tests every script in `tests/skill/` (see AGENTS.md for the command). Run the tests after changing the skill, and add tests for new behavior. Never name a script after a standard-library module: scripts run with their own folder first on `sys.path`, so a `select.py` broke the review server.

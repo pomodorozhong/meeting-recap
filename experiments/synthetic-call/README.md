@@ -57,7 +57,7 @@ Smoke test, 2026-10-29: Sortformer (FluidAudio, as pinned in docs/runners.md) re
 | --- | --- | --- |
 | [mlx-community/Qwen3-TTS-12Hz-1.7B-CustomVoice-bf16](https://huggingface.co/mlx-community/Qwen3-TTS-12Hz-1.7B-CustomVoice-bf16), MLX port of [Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice](https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice) | `52f4770fd9726457eae3d3b6aa92047a25a10776` | Apache-2.0 |
 
-Python dependencies are pinned in the script header.
+Python dependencies are pinned in the script header, and every transitive package in [`generate.py.lock`](generate.py.lock) (`uv lock --script`), which `uv run` uses automatically. The locked environment reproduced the seed-7 `call_sha256`.
 
 ## Input profile for comparable real recordings
 

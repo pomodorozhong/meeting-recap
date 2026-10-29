@@ -1,5 +1,5 @@
 # /// script
-# requires-python = ">=3.11,<3.13"
+# requires-python = ">=3.12,<3.13"
 # dependencies = ["mlx-audio==0.6.1", "mlx==0.32.4", "soundfile==0.12.1", "numpy<2.3", "scipy==1.18.1"]
 # ///
 """Speak a script with Qwen3-TTS CustomVoice's preset speakers, plus its ground truth.

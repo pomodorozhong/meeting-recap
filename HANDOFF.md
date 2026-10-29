@@ -9,7 +9,8 @@
 - Code checkpoint: see `git log`. `feat:` adds `experiments/capture/` (`record.swift`, ScreenCaptureKit, `mic.m4a` + `system.m4a` + `timing.json`); `docs:` adds decision 6; `feat(skill)` adds `scripts/tracks.py` and `review.py tracks` (reference from two tracks' activity, source kind `two_tracks`), documented in SKILL.md.
 - State: the user recorded a ~48.5 min two-person call with headphones (in the dataset's `raw/`, with a meeting app's transcript whose speaker labels are wrong: it shows three speakers). A dry run of `tracks.py` on it in scratch took 2 s and found ~15 min of A, ~11 min of B, 91 s overlapping; at the default 30 s window that is 86 clips of ~31 s. Nothing is registered in the dataset yet.
 - Verification: 78 skill tests pass; `swiftc -typecheck experiments/capture/record.swift` passes; the documented `amix` command makes a 16 kHz mono mix of the full call length. Diffs scanned for names and private paths.
-- Next action: write the experiment summary in `docs/experiments/` (Sortformer on the two-track call, reference from `review.py tracks`, a few listened clips around overlaps to check the activity), commit it, then register the mix and run.
+- Experiment: [docs/experiments/2026-10-30-two-track-call.md](docs/experiments/2026-10-30-two-track-call.md) is committed (status planned), with run, session, reference and evaluation IDs; skill snapshot `de616b4a…` taken at `a6c7e69`.
+- Next action: follow its plan: make the scratch WAVs and AAC mix, register `two-track-call`, register the track-activity run, run Sortformer (timed, nothing else running), build the track reference, then prepare the 10-clip check session for the user.
 
 ## Ranked work
 

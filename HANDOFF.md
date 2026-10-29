@@ -2,18 +2,19 @@
 
 ## In progress
 
-### feat/synthetic-call
+### feat/two-track-capture
 
-- Task: shareable synthetic test recording (advances #4, unlinked); based on `main`.
-- PR: https://github.com/pomodorozhong/meeting-recap/pull/17 (open, base `main`; awaiting review). The same work was reviewed as #12, which merged into the layout branch by mistake before that branch had a PR to `main`; it was split back out so #14 stayed focused on the layout.
-- Code checkpoint: see `git log`. `feat(skill)` adds `review.py known` with tests; `feat:` adds `experiments/synthetic-call/` as a uv project: `generate.py` (Qwen3-TTS CustomVoice; A `vivian`, B `dylan`, C `ryan`, `aiden` spare), the 73-turn `script.json` (5.5 min), and `reference/` from the seed-7 run.
-- State: awaiting review. Audio is not committed: seed 7 reproduces the same `call_sha256` on this machine, also in the locked project environment. Whisper heard the call at 5.9% character error rate. 70 skill tests pass. Sortformer, scored with `review.py known`, recovered 67/72 turns and 7/10 clips.
-- Next action: the user reviews the PR. #4 stays open: its done-when says "each runner", but only Sortformer and the MLX Whisper runner have run on the call.
-- Avoid: Kokoro and CosyVoice voices; cloning; using `review.py known` for a real call.
+- Task: record calls as two aligned tracks and use a two-person call's tracks as its speaker reference; no issue yet (see P-01). Based on `main`, unlinked.
+- PR: none
+- Code checkpoint: 2d915a4. `feat:` adds `experiments/capture/` (`record.swift`, ScreenCaptureKit, `mic.m4a` + `system.m4a` + `timing.json`); `docs:` adds decision 6.
+- State: the user recorded a ~48.5 min two-person call with headphones (in the dataset's `raw/`, with a meeting app's transcript whose speaker labels are wrong: it shows three speakers). Nothing has run on it yet.
+- Verification: `swiftc -typecheck experiments/capture/record.swift` passes; the user's recording shows both tracks written and aligned within 0.2 s. Diffs scanned for names and private paths.
+- Next action: add a skill command that builds a reference from two tracks' voice activity (with tests on generated audio), then write the experiment summary in `docs/experiments/` and register the mixed recording.
+- Pending: P-01 (file an issue for this branch) blocks linking the branch and opening its PR.
 
 ## Ranked work
 
-1. #4 Add a shareable synthetic test recording (awaiting review on `feat/synthetic-call`; then the remaining runners on the call)
+1. #4 Add a shareable synthetic test recording (the call merged in #17; the remaining runners still need to run on it)
 2. #1 Evaluate Desert Ant Labs Who for on-device speaker diarization (next, as the user asked; its issue still cites `experiments/diarization/score.py`, now the skill's `evaluate.py`)
 3. #11 Compare Breeze-ASR-25 and Whisper Large v3 transcript accuracy (blocks choosing the pipeline's ASR model)
 4. #9 Choose a license
@@ -24,4 +25,4 @@
 
 ## Pending
 
-None.
+- P-01: file an issue "Use a two-person two-track call as its own speaker reference" (recorder, decision 6, a skill command building the reference from track voice activity, and a first experiment scoring Sortformer on it). Needs approval because it posts to GitHub; blocks linking `feat/two-track-capture` and its PR.

@@ -3,12 +3,10 @@
 from __future__ import annotations
 
 import argparse
-import base64
 import json
 import mimetypes
 import secrets
 import sys
-import uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
@@ -234,8 +232,8 @@ def make_handler(root, session_id, token):
                 return
             try:
                 length = int(self.headers.get("Content-Length", "0"))
-                if length < 1 or length > 16 * 1024 * 1024:
-                    raise ValueError("request must be 1 byte–16 MiB")
+                if length < 1 or length > 1024 * 1024:
+                    raise ValueError("request must be 1 byte–1 MiB")
                 if self.headers.get("Content-Type", "").split(";")[0] != "application/json":
                     raise ValueError("JSON request required")
                 data = json.loads(self.rfile.read(length))
@@ -244,23 +242,6 @@ def make_handler(root, session_id, token):
                     if not isinstance(data.get("expected_revision"), int):
                         raise ValueError("expected_revision is required")
                     result = save_answer(root, session_id, data)
-                elif path == "/api/feedback":
-                    if data["item_id"] not in items:
-                        raise ValueError("unknown review item")
-                    media_type = data["media_type"].split(";")[0]
-                    extensions = {"audio/webm": ".webm", "audio/ogg": ".ogg", "audio/mp4": ".m4a",
-                                  "audio/wav": ".wav", "audio/mpeg": ".mp3", "audio/x-wav": ".wav"}
-                    if media_type not in extensions:
-                        raise ValueError("supported audio feedback required")
-                    audio = base64.b64decode(data["base64"], validate=True)
-                    if not audio or len(audio) > 10 * 1024 * 1024:
-                        raise ValueError("audio feedback must be 1 byte–10 MiB")
-                    target = root / "sessions" / session_id / "feedback" / (uuid.uuid4().hex + extensions[media_type])
-                    target.parent.mkdir(parents=True, exist_ok=True)
-                    with target.open("xb") as handle:
-                        handle.write(audio)
-                    result = append_event(root, session_id, {"type": "audio-feedback", "item_id": data["item_id"],
-                                                             "path": str(target.relative_to(root)), "media_type": media_type})
                 elif path == "/api/close":
                     result = close_session(root, session_id)
                 else:

@@ -9,8 +9,8 @@
 header{border-bottom:1px solid #3b5146}h1{font-size:26px;margin:8px 0}h2{font-size:20px}
 .muted{color:#adbeaf;font-size:14px}.card{background:#1b2b24;border:1px solid #3b5146;border-radius:12px;padding:20px;margin-bottom:18px}
 label{display:block;margin:14px 0 7px}input[type=text],textarea{display:block;width:100%;border:1px solid #67806e;border-radius:6px;padding:10px;background:#101c16;color:inherit;font:inherit}
-textarea{min-height:85px}button,.upload{border:1px solid #6a826e;border-radius:7px;padding:10px 14px;background:#293e2f;color:inherit;font:inherit;cursor:pointer;display:inline-block}
-button:hover,.upload:hover{background:#385440}button:disabled{opacity:.5;cursor:default}.primary{background:#c1dba9;color:#152212;font-weight:650}
+textarea{min-height:85px}button{border:1px solid #6a826e;border-radius:7px;padding:10px 14px;background:#293e2f;color:inherit;font:inherit;cursor:pointer;display:inline-block}
+button:hover{background:#385440}button:disabled{opacity:.5;cursor:default}.primary{background:#c1dba9;color:#152212;font-weight:650}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.row label{margin:0}.wide{flex:1}
 audio{width:100%;margin:12px 0}progress{width:100%;height:9px;accent-color:#c1dba9}
 pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;max-height:260px;overflow:auto}
@@ -42,12 +42,6 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;max-height:260px;
     <label for="feedback">Feedback or uncertainty (optional)</label>
     <textarea id="feedback" placeholder="For example: I need more context to identify the second voice."></textarea>
     <div class="row">
-      <button id="record">Record verbal feedback</button>
-      <label class="upload">Attach audio feedback<input id="upload" type="file" accept="audio/*" hidden></label>
-      <span id="voiceState" class="muted"></span>
-    </div>
-    <p class="muted">Verbal feedback is saved as original audio. It is separate from a confirmed answer.</p>
-    <div class="row">
       <button id="confirm" class="primary">Save confirmed</button><button id="unsure">Save unsure</button>
       <button id="skip">Skip</button><button id="unusable">Mark unusable</button>
     </div>
@@ -62,14 +56,14 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;max-height:260px;
 <script>
 const $=id=>document.getElementById(id);
 const token=new URLSearchParams(location.search).get('token');
-let data,index=0,padding=1,dirty=false,busy=false,stopAt=null,recorder=null,recordingItem=null,stream=null;
+let data,index=0,padding=1,dirty=false,busy=false,stopAt=null;
 const item=()=>data.session.items[index];
 async function api(path,body){
   const response=await fetch(path,{method:body?'POST':'GET',headers:{'X-Review-Token':token,...(body?{'Content-Type':'application/json'}:{})},body:body?JSON.stringify(body):undefined});
   const result=await response.json();if(!response.ok)throw Error(result.error||'Request failed');return result;
 }
 function message(text){$('message').textContent=text;}
-function blocked(){if(busy||recorder){message('Finish the current save or voice recording first.');return true}if(dirty){message('Save your answer or mark it unsure before moving on.');return true}return false}
+function blocked(){if(busy){message('Finish the current save first.');return true}if(dirty){message('Save your answer or mark it unsure before moving on.');return true}return false}
 function bounds(){const c=item();return [Math.max(0,c.start_seconds-padding),c.end_seconds+padding]}
 function showContext(){const [a,b]=bounds();$('context').textContent=`Playback ${a.toFixed(1)}–${b.toFixed(1)} s · ${padding} s surrounding context`}
 async function play(){const [start,end]=bounds();$('audio').currentTime=start;stopAt=end;await $('audio').play();}
@@ -89,11 +83,11 @@ function render(){
   $('silence').checked=answer?.state==='confirmed'&&(c.task==='speaker_order'?answer.annotation.speaker_order.length===0:answer.annotation.text==='');
   $('speakers').hidden=c.task!=='speaker_order';$('transcription').hidden=c.task!=='transcript';
   $('prediction').hidden=true;$('reveal').hidden=false;$('predicted').textContent='';
-  $('voiceState').textContent='';$('previous').disabled=index===0;$('next').disabled=index===data.session.items.length-1;
+  $('previous').disabled=index===0;$('next').disabled=index===data.session.items.length-1;
   showContext();message('');
 }
 async function save(state){
-  if(busy||recorder){message('Finish the current save or voice recording first.');return}
+  if(busy){message('Finish the current save first.');return}
   const c=item();const order=$('order').value.split(',').map(s=>s.trim()).filter(Boolean);
   if(state==='confirmed'&&!$('silence').checked&&(c.task==='speaker_order'?!order.length:!$('text').value.trim())){message('Enter your answer, or explicitly select No speech.');return}
   if(state==='confirmed'&&$('silence').checked&&(c.task==='speaker_order'?order.length:$('text').value.trim())){message('Clear the answer or uncheck No speech.');return}
@@ -102,11 +96,6 @@ async function save(state){
     data.answers[c.id]=result;data.revision=result.seq;dirty=false;$('state').textContent=state;
     if(index<data.session.items.length-1){index++;render()}else{render();message('Saved. You can revisit answers or finish this session.')}}catch(e){message(e.message)}finally{busy=false}
 }
-async function attach(blob,mediaType,targetId){
-  if(blob.size>10*1024*1024)throw Error('Keep each audio feedback file under 10 MiB.');
-  const encoded=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result.split(',')[1]);reader.onerror=reject;reader.readAsDataURL(blob)});
-  const result=await api('/api/feedback',{item_id:targetId,media_type:mediaType,base64:encoded});data.revision=result.seq;$('voiceState').textContent='Original audio feedback saved.';
-}
 for(const id of ['order','extra','text','feedback','silence'])$(id).addEventListener('input',()=>{dirty=true});
 $('previous').onclick=()=>{if(!blocked()){index--;render()}};$('next').onclick=()=>{if(!blocked()){index++;render()}};
 $('play').onclick=()=>play().catch(e=>message(e.message));
@@ -114,18 +103,8 @@ for(const [id,extra]of [['context5',5],['context15',15]])$(id).onclick=()=>{padd
 $('reset').onclick=()=>{padding=item().padding_seconds??1;showContext()};
 for(const [id,state]of [['confirm','confirmed'],['unsure','unsure'],['skip','skipped'],['unusable','unusable']])$(id).onclick=()=>save(state);
 $('reveal').onclick=async()=>{const id=item().id;try{const value=await api(`/api/prediction/${encodeURIComponent(id)}`);if(item().id!==id)return;$('predicted').textContent=JSON.stringify(value,null,2);$('reason').textContent=item().reason;$('prediction').hidden=false;$('reveal').hidden=true}catch(e){message(e.message)}};
-$('upload').onchange=async e=>{const file=e.target.files[0];if(!file||busy||recorder)return;busy=true;try{await attach(file,file.type,item().id)}catch(err){message(err.message)}finally{busy=false;e.target.value=''}};
-$('record').onclick=async()=>{
-  if(busy)return;if(recorder){recorder.stop();return}
-  if(!navigator.mediaDevices?.getUserMedia||!window.MediaRecorder){message('This browser cannot record feedback. Attach an audio file instead.');return}
-  busy=true;try{stream=await navigator.mediaDevices.getUserMedia({audio:true});recordingItem=item().id;const chunks=[];const active=new MediaRecorder(stream);recorder=active;
-    active.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
-    active.onstop=async()=>{busy=true;recorder=null;stream.getTracks().forEach(t=>t.stop());$('record').textContent='Record verbal feedback';try{await attach(new Blob(chunks,{type:active.mimeType}),active.mimeType,recordingItem)}catch(e){message(e.message)}finally{busy=false}};
-    active.start();$('record').textContent='Stop recording';$('voiceState').textContent='Recording feedback…';
-  }catch(e){stream?.getTracks().forEach(t=>t.stop());message(e.message)}finally{busy=false}
-};
 $('finish').onclick=async()=>{if(blocked())return;busy=true;try{const result=await api('/api/close',{});data.revision=result.seq;data.closed=true;message(`Session finished: ${JSON.stringify(result.counts)}. Return to the agent to snapshot confirmed references.`)}catch(e){message(e.message)}finally{busy=false}};
-window.addEventListener('beforeunload',event=>{if(dirty||recorder||busy){event.preventDefault();event.returnValue=''}});
+window.addEventListener('beforeunload',event=>{if(dirty||busy){event.preventDefault();event.returnValue=''}});
 api('/api/session').then(result=>{data=result;render()}).catch(e=>message(e.message));
 </script>
 </html>

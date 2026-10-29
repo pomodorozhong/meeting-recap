@@ -10,8 +10,7 @@
   runs/<id>/run.json                id, recording_id, model, status, artifacts{name: {path, sha256}}, config, runtime, notes[, parents]
   runs/<id>/<artifact>.<ext>
   sessions/<id>/session.json        the frozen plan
-  sessions/<id>/events.jsonl        answer / audio-feedback / close events, seq 1..n
-  sessions/<id>/feedback/*.webm     voice notes from the review page
+  sessions/<id>/events.jsonl        answer / close events, seq 1..n
   references/<id>.json              confirmed clips, excluded items, digests of session and events
   evaluations/<id>/evaluation.json
   evaluations/<id>/report.md

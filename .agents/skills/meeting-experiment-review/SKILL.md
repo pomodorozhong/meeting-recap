@@ -91,7 +91,7 @@ python3 scripts/review.py serve ~/Documents/meeting-review-data --session turns-
 - The server serves `assets/review.html` from the skill on each request, so moving or editing the skill breaks a running server. Restarting prints a new token; saved answers are kept.
 - Before the user starts, tell them to use the same speaker IDs for each person throughout (names or initials); these become the reference. Names stay in the dataset.
 - For a transcript clip that is too long to type, the user can save `unsure` and say in the feedback which run is closer. That answer is not a reference, but it can be reported as a preference.
-- The page plays each clip, can reveal predictions, and saves answers, notes, and optional voice feedback to the dataset. Stop the server when the user finishes.
+- The page plays each clip, can reveal predictions, and saves answers and text notes to the dataset. Stop the server when the user finishes.
 
 If the user answers in chat instead, write their exact answer to a JSON file outside the repo and save it:
 

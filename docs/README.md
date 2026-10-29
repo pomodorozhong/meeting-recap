@@ -1,4 +1,4 @@
-# Project status and decisions
+# Project status
 
 The goal is meeting notes produced locally on a MacBook Pro with an M2 Pro and 16 GB of memory, covering the 22 behaviors in the [feature catalogue](https://github.com/pomodorozhong/rabbit-holes/blob/master/topics/ai_meeting_notes/feature-catalogue.md) (`MN-01`–`MN-22`). Research phases 1–3 ran in [rabbit-holes](https://github.com/pomodorozhong/rabbit-holes/issues/167); building continues here. What to work on next is in [HANDOFF.md](../HANDOFF.md).
 
@@ -14,10 +14,7 @@ For a three-person online Chinese + English call on one mono track, Whisper Larg
 
 ## Decisions
 
-1. Stop testing models for this kind of call.
-2. Pipeline candidate: Whisper Large v3 (Chinese forced) or Breeze-ASR-25, Sortformer, labels attached by overlap per word, a naming step that can merge labels, Traditional script output.
-3. Summaries and the other catalogue features are separate questions.
-4. Experiments run through the `meeting-experiment-review` skill: private dataset outside Git (`$MEETING_REVIEW_DATA`), a public summary in `experiments/` committed before the first run, and a code snapshot per experiment so the live scripts carry no options kept only for old experiments.
+See [decisions.md](decisions.md). Pipeline candidate: Whisper Large v3 (Chinese forced) or Breeze-ASR-25, Sortformer, labels attached by overlap per word, a naming step that can merge labels, Traditional script output.
 
 ## Open questions
 
@@ -28,6 +25,7 @@ For a three-person online Chinese + English call on one mono track, Whisper Larg
 
 ## Documents
 
+- [Decisions](decisions.md): what was decided, including the repository layout.
 - [Experiments](experiments/README.md): one public summary per experiment, and the template for new ones.
 - [Runner guide](runners.md): how each model runner is built and run, with pinned versions.
 - [Investigation plan](investigation-plan.md) and [review guide](review-guide.md): the research plan and review criteria from phases 1–3.

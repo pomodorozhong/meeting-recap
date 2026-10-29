@@ -1,6 +1,6 @@
 # Agent instructions
 
-Local meeting assistant for an M2 Pro / 16 GB Mac. Status and decisions: [docs/README.md](docs/README.md). Layout: [README.md](README.md).
+Local meeting assistant for an M2 Pro / 16 GB Mac. Status: [docs/README.md](docs/README.md). Decisions: [docs/decisions.md](docs/decisions.md). Layout: [README.md](README.md#layout).
 
 <!-- handoff:start (from the handoff skill; edit the skill's template, not this copy) -->
 ## Handoff
@@ -25,6 +25,8 @@ Private material lives in the review dataset outside the checkout, at `$MEETING_
 
 ## Conventions
 
+- Each experiment is self-contained in its own `experiments/<name>/` folder; candidate pipelines go in `experiments/pipelines/<name>/`. Nothing imports across experiment folders, and `app/` depends on nothing in `experiments/`.
+- Record each decision as a numbered entry in `docs/decisions.md`.
 - Conventional Commits.
 - Pin models and dependencies by revision or hash.
 - Python tools run with `uv` or the standard library.

@@ -50,7 +50,7 @@ uv run experiments/mlx/run.py recording-16k.wav breeze.json eoleedi/Breeze-ASR-2
 - Set `HF_HUB_OFFLINE=1` when the models are already cached.
 - Wrap in `/usr/bin/time -l` to record wall time and peak memory for the run spec.
 
-Results from the 2026-10-29 experiment on 87 minutes of audio:
+Results from the [2026-10-29 experiment](experiments/2026-10-29-full-calls-sortformer-breeze-mlx.md) on 87 minutes of audio:
 
 - Breeze-ASR-25 through MLX ran at about 0.22–0.25× real time (5.7 min for 22 min, 14.4 min for 65 min), against about 8× real time through transformers on MPS. Peak memory was 3.3–3.6 GB.
 - Whisper Large v3 through MLX ran at about 0.12–0.14× real time with 2.6–3.6 GB peak memory.

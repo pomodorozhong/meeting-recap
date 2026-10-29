@@ -16,7 +16,7 @@
 
 - Task: shareable synthetic test recording (advances #4); stacked on `docs/repository-layout`.
 - PR: https://github.com/pomodorozhong/meeting-recap/pull/12 (open, base `docs/repository-layout`; awaiting review)
-- Code checkpoint: f30eac7. It holds `generate.py` (Qwen3-TTS CustomVoice only) with `generate.py.lock`, the 73-turn `script.json` (5.5 min; A `vivian`, B `dylan`, C `ryan`, `aiden` spare), `reference/` from the seed-7 run, and the skill's `review.py known`.
+- Code checkpoint: 1a9b303. It holds `generate.py` (Qwen3-TTS CustomVoice only) as a uv project (`pyproject.toml`, `uv.lock`), the 73-turn `script.json` (5.5 min; A `vivian`, B `dylan`, C `ryan`, `aiden` spare), `reference/` from the seed-7 run, and the skill's `review.py known`.
 - State: awaiting review. The user has not said whether the full call sounds right. Audio is not committed: seed 7 reproduces the same `call_sha256` on this machine, also in the locked environment. 70 skill tests pass. End to end on the call: Sortformer recovered 67/72 turns and got 7/10 clips fully right.
 - Next action: the user reviews #12 after the layout branch's PR. #4 stays open: its done-when says "each runner", but only Sortformer and the MLX Whisper runner have run on the call.
 - Avoid: Kokoro and CosyVoice voices; cloning; using `review.py known` for a real call.

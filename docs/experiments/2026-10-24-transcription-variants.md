@@ -39,6 +39,19 @@ Prompt texts are private and are read from environment variables, not stored in 
 
 Other runs were not timed separately.
 
+## Follow-up: Whisper and Breeze through MLX (2026-10-29)
+
+Breeze-ASR-25 was too slow through transformers, so both models were run again through [`experiments/mlx/run.py`](../../experiments/mlx/run.py) on both full recordings of the same call (22:23 and 64:49).
+
+| Model | Pinned version | 22:23 part | 64:49 part | Peak memory |
+| --- | --- | ---: | ---: | ---: |
+| Whisper Large v3 | `mlx-community/whisper-large-v3-mlx` at `49e6aa286ad60c14352c404340ded53710378a11` | 2.6 min (0.12×) | 8.9 min (0.14×) | 2.6–3.6 GB |
+| Breeze-ASR-25 | `eoleedi/Breeze-ASR-25-mlx` at `172151e3fd93ab6dc841d639f23dd48b24bc8301` | 5.7 min (0.25×) | 14.4 min (0.22×) | 3.3–3.6 GB |
+
+Settings: mlx-whisper 0.4.2, `language=zh`, word timestamps, `condition_on_previous_text=False`. Each run overlapped another job (a Swift build or a Sortformer run), so the times are upper bounds and not a fair speed comparison between the two models.
+
+Over the full 87 minutes, Breeze again wrote Traditional characters (0.1% of CJK characters change under `s2tw`, against 14% for Whisper) and produced fewer segments with no CJK (9 against 25). Text accuracy was not compared: the planned listening review was dropped, and comparing the two models' text is left for its own experiment.
+
 ## Results
 
 No reference transcript; runs were compared with proxy checks ([`experiments/transcription/metrics.py`](../../experiments/transcription/metrics.py)) and by reading known passages side by side.
@@ -62,9 +75,10 @@ No reference transcript; runs were compared with proxy checks ([`experiments/tra
 
 ## Decision
 
-Force Chinese. It removes invented foreign lines without the omissions prompts cause, and English product terms still come through. Convert Simplified characters after transcription, and fix names in a naming step after speaker separation rather than through a prompt. Breeze-ASR-25 needs a faster runtime before it can replace Large v3.
+Force Chinese. It removes invented foreign lines without the omissions prompts cause, and English product terms still come through. Convert Simplified characters after transcription, and fix names in a naming step after speaker separation rather than through a prompt. Breeze-ASR-25 needed a faster runtime before it could replace Large v3; MLX provides one (see the follow-up above), so the remaining question is whether its text is more accurate.
 
 ## Open questions
 
-- Can Breeze-ASR-25 run fast enough after a Core ML or MLX conversion? (Answered on [2026-10-29](2026-10-29-full-calls-sortformer-breeze-mlx.md): about 0.25× real time through MLX.)
+- ~~Can Breeze-ASR-25 run fast enough after a Core ML or MLX conversion?~~ Yes: about 0.25× real time through MLX (follow-up above).
+- Is Breeze-ASR-25's text more accurate than Whisper Large v3's on this kind of call?
 - What is the character error rate on a few minutes with a hand-made reference transcript?

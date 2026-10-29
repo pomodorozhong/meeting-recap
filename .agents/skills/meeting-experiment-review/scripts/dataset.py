@@ -84,7 +84,7 @@ def add_run(root, spec_path):
 
 
 def validate(root):
-    counts = {"recordings": 0, "runs": 0, "sessions": 0, "references": 0}
+    counts = {"recordings": 0, "runs": 0, "sessions": 0, "references": 0, "code": 0}
     for path in (root / "recordings").glob("*/recording.json"):
         item = read_json(path)
         if digest(inside(root, item["media"])) != item["sha256"]:
@@ -97,6 +97,13 @@ def validate(root):
             if digest(inside(root, artifact["path"])) != artifact["sha256"]:
                 raise ValueError(f"run artifact changed: {item['id']}")
         counts["runs"] += 1
+    from common import fingerprint as code_fingerprint
+    for path in (root / "code").glob("*/code.json"):
+        item = read_json(path)
+        files = {name: digest(inside(path.parent, name)) for name in item["files"]}
+        if files != item["files"] or code_fingerprint(files) != item["sha256"] or item["sha256"] != path.parent.name:
+            raise ValueError(f"code snapshot changed: {path.parent.name}")
+        counts["code"] += 1
     from review import validate_plan
     from common import events
     for path in (root / "sessions").glob("*/session.json"):
@@ -130,6 +137,8 @@ def main():
     run.add_argument("--spec", required=True)
     check = sub.add_parser("validate")
     check.add_argument("dataset")
+    freeze = sub.add_parser("snapshot", help="copy the current skill code into the dataset and print its ID")
+    freeze.add_argument("dataset")
     args = parser.parse_args()
     if args.command == "init":
         result = init(args.dataset)
@@ -139,6 +148,9 @@ def main():
             result = add_recording(root, args.id, args.audio, args.duration, args.group)
         elif args.command == "add-run":
             result = add_run(root, args.spec)
+        elif args.command == "snapshot":
+            from common import snapshot
+            result = snapshot(root)
         else:
             result = validate(root)
     print(json.dumps(result, ensure_ascii=False, indent=2))

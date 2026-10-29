@@ -4,7 +4,7 @@ import argparse
 import json
 import sys
 
-from common import dataset, digest, fingerprint, identifier, inside, now, number, read_json, run, write_new
+from common import dataset, digest, fingerprint, identifier, inside, now, number, read_json, run, snapshot, write_new
 from scoring import score
 
 
@@ -36,7 +36,7 @@ def evaluate(root, reference_id, run_ids, evaluation_id, min_overlap=0.3, mappin
     if len(sets) > 1:
         raise ValueError("compare runs on the same recording and identical reference items in one evaluation")
     result = {"format": "meeting-review-evaluation", "version": 1, "id": evaluation_id,
-              "created_at": now(), "reference_id": reference_id, "reference_sha256": expected,
+              "created_at": now(), "code": snapshot(root), "reference_id": reference_id, "reference_sha256": expected,
               "excluded": reference["excluded"],
               "other_tasks_not_scored": sum(c["task"] != "speaker_order" for c in reference["clips"]),
               "results": comparisons,

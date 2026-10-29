@@ -45,6 +45,44 @@ def fingerprint(data):
                                     allow_nan=False, separators=(",", ":")).encode()).hexdigest()
 
 
+SKILL_DIR = Path(__file__).resolve().parent.parent
+
+
+def code_files(skill_dir=SKILL_DIR):
+    files = sorted(p for p in (skill_dir / "scripts").glob("*.py"))
+    return [*files, skill_dir / "assets" / "review.html"]
+
+
+def snapshot(root):
+    """Copy the running skill code into <dataset>/code/<sha256>/ once, and return a record of it.
+
+    Experiments keep using the exact code that produced them even after the skill changes:
+    rerun a step with python3 <dataset>/code/<sha256>/scripts/<script>.py.
+    """
+    import shutil
+    import subprocess
+    files = {str(p.relative_to(SKILL_DIR)): digest(p) for p in code_files()}
+    code_id = fingerprint(files)
+    target = root / "code" / code_id
+    if not target.exists():
+        staging = root / "code" / f".{code_id}.tmp"
+        shutil.rmtree(staging, ignore_errors=True)
+        for name in files:
+            (staging / name).parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(SKILL_DIR / name, staging / name)
+        git = {}
+        try:
+            run_git = lambda *args: subprocess.run(["git", "-C", str(SKILL_DIR), *args], capture_output=True,
+                                                   text=True, check=True).stdout.strip()
+            git = {"commit": run_git("rev-parse", "HEAD"), "dirty": bool(run_git("status", "--porcelain", "--", "."))}
+        except (OSError, subprocess.CalledProcessError):
+            pass
+        write_new(staging / "code.json", {"sha256": code_id, "files": files, "git": git, "created_at": now()})
+        staging.rename(target)
+    info = read_json(target / "code.json")
+    return {"sha256": code_id, "git": info["git"]}
+
+
 def number(value, name, minimum=0):
     if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or value < minimum:
         raise ValueError(f"{name} must be a finite number >= {minimum}")

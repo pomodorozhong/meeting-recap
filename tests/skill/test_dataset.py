@@ -73,7 +73,7 @@ class Validate(DatasetCase):
     def test_counts_and_detects_changes(self):
         self.add_recording("rec1", 30)
         self.add_run("dia1", artifacts={"segments": segs(("A", 0, 5))})
-        self.assertEqual(dataset_cli.validate(self.root), {"recordings": 1, "runs": 1, "sessions": 0, "references": 0})
+        self.assertEqual(dataset_cli.validate(self.root), {"recordings": 1, "runs": 1, "sessions": 0, "references": 0, "code": 0})
         write_json(self.root / "runs" / "dia1" / "segments.json", segs(("B", 0, 5)))
         with self.assertRaises(ValueError):
             dataset_cli.validate(self.root)
@@ -83,6 +83,31 @@ class Validate(DatasetCase):
         write_wav(self.root / info["media"], 31)
         with self.assertRaises(ValueError):
             dataset_cli.validate(self.root)
+
+
+class Snapshot(DatasetCase):
+    def test_copies_the_code_once_and_validates_it(self):
+        import common
+        first = common.snapshot(self.root)
+        self.assertEqual(common.snapshot(self.root), first)
+        target = self.root / "code" / first["sha256"]
+        self.assertTrue((target / "scripts" / "review.py").exists())
+        self.assertTrue((target / "assets" / "review.html").exists())
+        self.assertEqual(len(list((self.root / "code").iterdir())), 1)
+        self.assertEqual(dataset_cli.validate(self.root)["code"], 1)
+        (target / "scripts" / "review.py").write_text("# changed\n")
+        with self.assertRaises(ValueError):
+            dataset_cli.validate(self.root)
+
+    def test_snapshot_runs_from_its_own_copy(self):
+        import subprocess
+        import sys
+
+        import common
+        code = common.snapshot(self.root)["sha256"]
+        script = self.root / "code" / code / "scripts" / "dataset.py"
+        out = subprocess.run([sys.executable, str(script), "snapshot", str(self.root)], capture_output=True, text=True, check=True)
+        self.assertIn(code, out.stdout)
 
 
 if __name__ == "__main__":

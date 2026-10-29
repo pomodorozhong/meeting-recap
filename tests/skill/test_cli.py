@@ -64,7 +64,7 @@ class Cli(unittest.TestCase):
         out = json.loads(run("evaluate.py", self.ds, "--reference", "ref1", "--runs", "dia1", "--id", "ev1").stdout)
         self.assertEqual(out["results"][0]["run_id"], "dia1")
         counts = json.loads(run("dataset.py", "validate", self.ds).stdout)
-        self.assertEqual(counts, {"recordings": 1, "runs": 3, "sessions": 1, "references": 1})
+        self.assertEqual(counts, {"recordings": 1, "runs": 3, "sessions": 1, "references": 1, "code": 1})
 
     def test_review_server_starts_as_a_script(self):
         plan = write_json(self.tmp / "serve-plan.json", {

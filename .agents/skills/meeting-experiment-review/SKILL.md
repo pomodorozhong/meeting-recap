@@ -14,6 +14,7 @@ All helpers are standard-library Python 3.11+ in `scripts/`. Run them as `python
 - **Artifacts are immutable.** Recordings, runs, sessions, references, and evaluations are written once with SHA-256 digests. To change a prediction, register a new run ID; never edit files inside the dataset by hand. `dataset.py validate` detects changes.
 - **Only the user confirms ground truth.** Answers come from the review page or from a JSON file holding exactly what the user said. Never fill in a `confirmed` answer from a model output, a participant list, or your own guess. If the user is unsure, record `unsure`.
 - **Keep claims inside the evidence.** The evaluation measures speaker turn order on selected clips. It is not DER, not transcript accuracy, and not an error rate for the whole recording. Say so when reporting.
+- **Code is frozen per experiment.** `review.py prepare` and `reference`, `evaluate.py`, `attach.py`, and `pick_clips.py` copy the skill's scripts and page into `<dataset>/code/<sha256>/` (once per version) and record that ID and the Git commit in what they write. To redo a step of an old experiment exactly, run the script from its snapshot, for example `python3 <dataset>/code/<sha256>/scripts/pick_clips.py …`. So the live scripts never need options kept only to reproduce old experiments; remove them instead. `python3 scripts/dataset.py snapshot <dataset>` takes a snapshot on demand.
 - **Compare like with like.** One evaluation covers runs on the same recording and the same reference clips; the script rejects anything else.
 
 ## Workflow

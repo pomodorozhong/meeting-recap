@@ -11,7 +11,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
-from common import (answers, append_event, dataset, events, fingerprint, identifier, inside,
+from common import (answers, append_event, dataset, events, fingerprint, identifier, inside, snapshot,
                     now, number, read_json, recording, run, session, span, write_new)
 
 TASKS = {"speaker_order", "transcript"}
@@ -50,7 +50,7 @@ def validate_plan(root, plan):
 
 def prepare(root, plan_path):
     plan = validate_plan(root, read_json(plan_path))
-    result = {**plan, "format": "meeting-review-session", "version": 1, "created_at": now()}
+    result = {**plan, "format": "meeting-review-session", "version": 1, "created_at": now(), "code": snapshot(root)}
     write_new(root / "sessions" / plan["id"] / "session.json", result)
     return result
 
@@ -107,7 +107,7 @@ def make_reference(root, session_id, reference_id):
         clips.append({**item, **answer["annotation"], "answer_seq": answer["seq"]})
     info = {"format": "meeting-review-reference", "version": 1, "id": reference_id,
             "session_id": session_id, "session_sha256": fingerprint(plan),
-            "events_sha256": fingerprint(rows), "revision": len(rows), "created_at": now(),
+            "events_sha256": fingerprint(rows), "revision": len(rows), "created_at": now(), "code": snapshot(root),
             "clips": clips, "excluded": excluded}
     result = {**info, "sha256": fingerprint(info)}
     write_new(root / "references" / (reference_id + ".json"), result)

@@ -31,6 +31,8 @@ Clip selection (`pick_clips.py` config; run IDs only, no paths):
 {}
 ```
 
+Skill code: commit `<git-sha>`; dataset snapshot `<code-sha256>` (from `dataset.py snapshot`). Restarts and reruns use this snapshot, not the current scripts.
+
 Review session ID: `<session-id>`. Reference ID: `ref-<session-id>`. Evaluation IDs: one per recording.
 
 ## Run the review
@@ -43,7 +45,7 @@ Run from the repository root with `MEETING_REVIEW_DATA` set to the private datas
 
 ## Restart from scratch
 
-If the private data for this experiment is lost: register the recordings again under the same IDs, rerun the commands in the plan, register the runs under the same IDs, and rerun `pick_clips.py` with the config above. The same seed gives the same clips only if the runs reproduce the same segments and text; otherwise review the new plan before preparing the session.
+If the private data for this experiment is lost: register the recordings again under the same IDs, rerun the commands in the plan, register the runs under the same IDs, and rerun `pick_clips.py` with the config above, using the skill code at the commit above (`git show <git-sha>:.agents/skills/meeting-experiment-review/scripts/…`) if the snapshot is lost too. The same seed gives the same clips only if the runs reproduce the same segments and text; otherwise review the new plan before preparing the session.
 
 ## Runtime and memory
 

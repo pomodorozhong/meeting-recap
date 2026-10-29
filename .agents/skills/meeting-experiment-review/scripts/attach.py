@@ -5,7 +5,7 @@ import json
 import re
 import sys
 
-from common import dataset, digest, identifier, inside, now, read_json, run, write_new
+from common import dataset, digest, identifier, inside, now, read_json, run, snapshot, write_new
 
 
 def clean(text):
@@ -71,7 +71,7 @@ def attach(root, asr_id, diarization_id, new_id, method):
         raise ValueError("derived run ID already exists")
     write_new(directory / "segments.json", output)
     info = {"id": new_id, "recording_id": asr["recording_id"], "model": "speaker-attachment",
-            "status": "completed", "created_at": now(), "config": {"method": method},
+            "status": "completed", "created_at": now(), "code": snapshot(root), "config": {"method": method},
             "parents": [asr_id, diarization_id], "artifacts": {
                 "segments": {"path": str((directory / "segments.json").relative_to(root)),
                              "sha256": digest(directory / "segments.json")}}}

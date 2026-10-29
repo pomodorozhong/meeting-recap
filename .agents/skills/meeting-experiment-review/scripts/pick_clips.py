@@ -18,7 +18,7 @@ import re
 import sys
 from collections import Counter
 
-from common import dataset, identifier, inside, read_json, recording, run, write_new
+from common import dataset, identifier, inside, read_json, recording, run, snapshot, write_new
 
 DEFAULTS = {"window_seconds": 15, "lead_seconds": 4, "min_overlap": 0.3, "min_turns": 2, "max_turns": 5,
             "min_gap_seconds": 20, "transcript_gap_seconds": 60, "min_characters": 30,
@@ -136,7 +136,7 @@ def select(root, config):
     items = [{"id": f"c{n:02d}", **item} for n, item in enumerate(speaker_items + transcript_items, 1)]
     method = {k: o[k] for k in DEFAULTS} | {"recordings": o["recordings"]}
     return {"id": identifier(o["id"]), "question": o["question"],
-            "selector": {"name": "pick_clips.py", "version": "1", "seed": o["seed"], "method": method,
+            "selector": {"name": "pick_clips.py", "version": "1", "seed": o["seed"], "method": method, "code": snapshot(root),
                          "shortfall": shortfall}, "items": items}
 
 

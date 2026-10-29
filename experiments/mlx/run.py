@@ -1,7 +1,3 @@
-# /// script
-# requires-python = ">=3.11,<3.13"
-# dependencies = ["mlx-whisper==0.4.2"]
-# ///
 """Transcribe a 16 kHz WAV with an MLX Whisper-format model and write WhisperKit-shaped JSON.
 
 Usage: run.py <wav> <out.json> <hf-repo> [language]

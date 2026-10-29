@@ -2,15 +2,14 @@
 
 ## In progress
 
-### docs/repository-layout
+### build/uv-projects
 
-- Task: decide the repository layout (closes #8); also carries the handoff layout commit from the merged foundation branch.
-- PR: none yet; drafted for the user's approval, against `main`. It is the bottom of a stack: `feat/synthetic-call` builds on it, and `build/uv-projects` on that. Merge bottom-up into `main`; never merge a PR into a branch that has no PR to `main`.
-- Code checkpoint: d232880
-- State: complete for review. `docs/decisions.md` holds all decisions, including the layout: self-contained `experiments/<name>/`, candidate pipelines in `experiments/pipelines/<name>/`, and `app/` for the final app with its own copy of the chosen pipeline. README.md and AGENTS.md updated.
-- Verification: docs only; diff scanned for names and private paths.
-- Next action: open the PR once the user approves it.
-- Avoid: branching from local `main`, which is still at the initial commit; base new branches on `origin/main`.
+- Task: make every Python tool folder a uv project with a committed lock (no issue); based on `main`, independent of `feat/synthetic-call`.
+- PR: https://github.com/pomodorozhong/meeting-recap/pull/15 (open, base `main`; awaiting review). Replaces the closed #13.
+- Code checkpoint: see `git log`. `pyproject.toml` (`package = false`) and `uv.lock` in `experiments/breeze/`, `experiments/mlx/`, `experiments/pyannote/`, `experiments/transcription/` and the skill folder; the scripts lost their inline headers. `AGENTS.md`, `docs/runners.md` and `SKILL.md` describe running with `uv run --project <folder>`.
+- Verification: each project installs with `uv run --locked`, and each script gets past its imports. The MLX Whisper runner ran on a 5.5-minute synthetic call, and `metrics.py` read its output. `pick_clips.py --help` runs in the skill project. 67 skill tests pass; `uv lock --check` passes in all five projects.
+- Checks not run: the Breeze and pyannote runners past startup (pyannote needs the user's Hugging Face token).
+- Next action: the user reviews #15. If the synthetic call PR merges first, add `experiments/synthetic-call/` to the AGENTS.md line as the example project.
 
 ### feat/synthetic-call
 

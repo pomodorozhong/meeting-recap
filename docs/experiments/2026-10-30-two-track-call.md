@@ -1,6 +1,6 @@
 # 2026-10-30: Sortformer on a two-person call, scored against its own tracks
 
-**Status:** planned
+**Status:** review pending. Runs, the track reference, and the Sortformer score are done; the listening check of the track activity is not, so the score below is provisional.
 
 Write and commit this file before the first run. Fill in the results sections as the experiment goes; nothing here may name people, quote transcripts, or give private paths.
 
@@ -48,7 +48,7 @@ python3 scripts/review.py tracks "$MEETING_REVIEW_DATA" --recording two-track-ca
 
 at the default 30 s window. A dry run on scratch copies gave 86 clips, about 31 s each.
 
-**Check clips** (listening): 10 `speaker_order` clips of 15 s. Six come from `pick_clips.py` on the track activity, one per time bin; four are added by hand at the four longest stretches where both tracks are active, at least 60 s from each other and from the picked clips, each window starting 4 s before the overlap. The plan records the hand-added clips under `selector.method`.
+**Check clips** (listening): 10 `speaker_order` clips of 15 s. Six come from `pick_clips.py` on the track activity, one per time bin; four are added by hand at the four longest stretches where both tracks are active, at least 60 s from each other and from the picked clips, each window starting 4 s before the overlap. The plan records the hand-added clips under `selector.method`. With only two labels, `pick_clips.py` gave its six clips the reason "rarest diarization label": it centres them on Speaker B's turns, which is harmless here, and the reason wording is the selector's, not a sign of a split voice.
 
 ```json
 {"id": "check-two-track-call", "question": "Does each track's activity match who you hear, and in what order?",
@@ -75,16 +75,23 @@ If the private data for this experiment is lost: register the recording again un
 
 ## Runtime and memory
 
+| Step | Wall time | Peak memory | Notes |
+| --- | --- | --- | --- |
+| Track activity (`tracks.py`, both tracks) | 2 s | not measured | |
+| Sortformer on the 48:30 mix | 19:52 (0.41× real time) | 1.41 GB resident, 1.21 GB footprint | nothing else running |
+
+Sortformer took longer than on the 2026-10-24 recordings (12:01 for 64:49 while sharing the machine); the cause is not known.
+
 ## Results
 
 | Measure | Result |
 | --- | --- |
 | Track activity vs. listened clips | |
 | Sortformer vs. listened clips | |
-| Sortformer vs. track reference: turns recovered | |
-| Sortformer vs. track reference: clips correct | |
-| Excluded items | |
-| Label mapping | |
+| Sortformer vs. track reference: turns recovered | 528 / 629 (84%), provisional |
+| Sortformer vs. track reference: clips correct | 39 / 86, provisional. Of the 47 misses, 39 only drop turns, 7 only add turns, 1 does both |
+| Excluded items | none in the track reference |
+| Label mapping | fitted: one Sortformer label per speaker; two more labels cover 6 short segments in all |
 
 **Metric limits.** Both scores measure speaker turn order within clips, not DER, timing, or transcript accuracy. The track reference is itself a measurement (a level gate); the listened check is what makes it a reference, and only on 10 clips.
 

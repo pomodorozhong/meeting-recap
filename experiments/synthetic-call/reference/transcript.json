@@ -1,0 +1,443 @@
+{
+ "text": "哈囉，聽得到嗎？聽得到。可以，我這邊也 OK。好，那我們開始吧。今天主要是看下個 sprint 的 backlog，然後最後再對一下 demo 的時間。嗯。第一個是 login page 的 bug，上週 QA 有回報，iOS 上會閃退。對，那個我有看過，應該是 SDK 版本太舊。我這個禮拜可以先把它升級。升級會不會影響到 Android？不會，Android 那邊是另一個 package，版本是分開管的。OK。那閃退是每次都會發生，還是只有某些機型？目前看起來是舊一點的 iPhone 比較多，新的機器我自己測不太出來。了解。那可以請 QA 再補一下 crash log 嗎？可以，我等一下就在 ticket 上面留言。好，那這張就先排進來。那第二個是 dashboard 的效能。有客戶說載入要十幾秒。我覺得是 API 一次撈太多資料，可以改成分頁，或是加一層快取。對對對。而且前端現在是一進來就把所有圖表都畫出來，其實很多是使用者根本不會看的。所以你的意思是改成 lazy loading？對，先載入上面那三個最常用的，下面的捲到再載。那 mobile 版也要一起改嗎？mobile 的 dashboard 只有兩張圖，應該還好，先不用。好，那這個就交給你，預估大概要幾天？API 那邊兩天，前端一天，總共三天吧，包含寫 unit test。沒問題。欸，我可以插一下嗎？可以，你說。就是 push notification 那個需求，上次 product team 說這個 sprint 一定要做，我們是不是要先討論一下範圍？喔對，差點忘了。那個需求文件我有看過，寫得滿模糊的。對，像是使用者可不可以自己關掉某一類通知，上面完全沒寫。嗯，這個我下午去問 PM。我們先假設第一版只有開跟關兩種設定就好。那後端要準備一個 settings 的 endpoint。然後 iOS 跟 Android 的 token 要分開存。對，這個我來開 schema。好，那這樣估起來要多久？client 端我覺得要四到五天，因為兩個平台都要做。後端大概兩天。嗯，那這樣有點緊。登入的 bug 加上通知，你這個 sprint 會不會塞不下？嗯，有一點。如果 SDK 升級很順的話應該還可以，但如果要改很多東西就不一定了。還是 Android 那邊我先幫忙？我之前有寫過一點 Kotlin。真的嗎？那太好了。可以，那就這樣分。你先做 dashboard，做完再去幫 Android。好。那接下來是技術債的部分。我們的 CI 最近常常跑超過二十分鐘，大家應該都有感覺。有，超有感。主要是 integration test 每次都把整個資料庫重建一次。那有辦法改成只重建有變動的部分嗎？可以用 snapshot，但要花一點時間研究，我覺得這個 sprint 不太可能。好，那這個先開一張 ticket 放在 backlog，下個 sprint 再看。然後 Docker image 好像也很大，每次 pull 都很久。嗯，那個可以先改成 multi-stage build，應該半天就可以弄好。半天的話可以順便做。OK，我記下來。好，最後一件事，下週三要 demo 給 product team，大家記得先把 staging 環境準備好。下週三是幾點？下午兩點，大概一個小時。那 staging 的資料要不要先清一下？上次 demo 的時候有一堆測試帳號。對，這個很重要。可以麻煩你週二之前弄好嗎？可以。那 demo 的時候通知功能應該還沒好，要展示嗎？可以展示做到一半的版本，但要先跟他們說清楚這不是最後的樣子。好，了解。那我整理一下。登入的 bug 跟 iOS 的通知是你的；dashboard、Docker image、清 staging，還有幫忙 Android 是你的；我去跟 PM 確認通知的需求。這樣對嗎？對。沒錯。好，還有其他問題嗎？沒有了。我也沒有。好，那今天就先這樣，大家辛苦了，拜拜。拜拜。拜拜。",
+ "segments": [
+  {
+   "start": 0.5,
+   "end": 2.66,
+   "text": "哈囉，聽得到嗎？",
+   "speaker": "A"
+  },
+  {
+   "start": 3.06,
+   "end": 3.7,
+   "text": "聽得到。",
+   "speaker": "B"
+  },
+  {
+   "start": 4.0,
+   "end": 6.4,
+   "text": "可以，我這邊也 OK。",
+   "speaker": "C"
+  },
+  {
+   "start": 6.9,
+   "end": 15.7,
+   "text": "好，那我們開始吧。今天主要是看下個 sprint 的 backlog，然後最後再對一下 demo 的時間。",
+   "speaker": "A"
+  },
+  {
+   "start": 15.9,
+   "end": 16.22,
+   "text": "嗯。",
+   "speaker": "B"
+  },
+  {
+   "start": 16.52,
+   "end": 23.56,
+   "text": "第一個是 login page 的 bug，上週 QA 有回報，iOS 上會閃退。",
+   "speaker": "A"
+  },
+  {
+   "start": 23.96,
+   "end": 31.96,
+   "text": "對，那個我有看過，應該是 SDK 版本太舊。我這個禮拜可以先把它升級。",
+   "speaker": "C"
+  },
+  {
+   "start": 32.26,
+   "end": 34.42,
+   "text": "升級會不會影響到 Android？",
+   "speaker": "B"
+  },
+  {
+   "start": 34.72,
+   "end": 39.52,
+   "text": "不會，Android 那邊是另一個 package，版本是分開管的。",
+   "speaker": "C"
+  },
+  {
+   "start": 39.72,
+   "end": 40.44,
+   "text": "OK。",
+   "speaker": "B"
+  },
+  {
+   "start": 40.84,
+   "end": 46.12,
+   "text": "那閃退是每次都會發生，還是只有某些機型？",
+   "speaker": "A"
+  },
+  {
+   "start": 46.52,
+   "end": 55.32,
+   "text": "目前看起來是舊一點的 iPhone 比較多，新的機器我自己測不太出來。",
+   "speaker": "C"
+  },
+  {
+   "start": 55.62,
+   "end": 59.38,
+   "text": "了解。那可以請 QA 再補一下 crash log 嗎？",
+   "speaker": "A"
+  },
+  {
+   "start": 59.68,
+   "end": 62.72,
+   "text": "可以，我等一下就在 ticket 上面留言。",
+   "speaker": "C"
+  },
+  {
+   "start": 63.12,
+   "end": 66.48,
+   "text": "好，那這張就先排進來。",
+   "speaker": "A"
+  },
+  {
+   "start": 67.28,
+   "end": 72.08,
+   "text": "那第二個是 dashboard 的效能。有客戶說載入要十幾秒。",
+   "speaker": "A"
+  },
+  {
+   "start": 72.48,
+   "end": 78.24,
+   "text": "我覺得是 API 一次撈太多資料，可以改成分頁，或是加一層快取。",
+   "speaker": "B"
+  },
+  {
+   "start": 77.84,
+   "end": 78.64,
+   "text": "對對對。",
+   "speaker": "C"
+  },
+  {
+   "start": 78.94,
+   "end": 85.66,
+   "text": "而且前端現在是一進來就把所有圖表都畫出來，其實很多是使用者根本不會看的。",
+   "speaker": "B"
+  },
+  {
+   "start": 86.06,
+   "end": 88.38,
+   "text": "所以你的意思是改成 lazy loading？",
+   "speaker": "A"
+  },
+  {
+   "start": 88.68,
+   "end": 92.28,
+   "text": "對，先載入上面那三個最常用的，下面的捲到再載。",
+   "speaker": "B"
+  },
+  {
+   "start": 92.68,
+   "end": 95.64,
+   "text": "那 mobile 版也要一起改嗎？",
+   "speaker": "C"
+  },
+  {
+   "start": 95.94,
+   "end": 101.22,
+   "text": "mobile 的 dashboard 只有兩張圖，應該還好，先不用。",
+   "speaker": "B"
+  },
+  {
+   "start": 101.62,
+   "end": 108.1,
+   "text": "好，那這個就交給你，預估大概要幾天？",
+   "speaker": "A"
+  },
+  {
+   "start": 108.7,
+   "end": 115.26,
+   "text": "API 那邊兩天，前端一天，總共三天吧，包含寫 unit test。",
+   "speaker": "B"
+  },
+  {
+   "start": 115.56,
+   "end": 116.52,
+   "text": "沒問題。",
+   "speaker": "A"
+  },
+  {
+   "start": 117.02,
+   "end": 119.66,
+   "text": "欸，我可以插一下嗎？",
+   "speaker": "C"
+  },
+  {
+   "start": 119.96,
+   "end": 121.64,
+   "text": "可以，你說。",
+   "speaker": "A"
+  },
+  {
+   "start": 121.94,
+   "end": 130.9,
+   "text": "就是 push notification 那個需求，上次 product team 說這個 sprint 一定要做，我們是不是要先討論一下範圍？",
+   "speaker": "C"
+  },
+  {
+   "start": 131.3,
+   "end": 133.7,
+   "text": "喔對，差點忘了。",
+   "speaker": "A"
+  },
+  {
+   "start": 134.1,
+   "end": 137.22,
+   "text": "那個需求文件我有看過，寫得滿模糊的。",
+   "speaker": "B"
+  },
+  {
+   "start": 137.52,
+   "end": 143.76,
+   "text": "對，像是使用者可不可以自己關掉某一類通知，上面完全沒寫。",
+   "speaker": "C"
+  },
+  {
+   "start": 144.16,
+   "end": 153.44,
+   "text": "嗯，這個我下午去問 PM。我們先假設第一版只有開跟關兩種設定就好。",
+   "speaker": "A"
+  },
+  {
+   "start": 153.74,
+   "end": 156.54,
+   "text": "那後端要準備一個 settings 的 endpoint。",
+   "speaker": "B"
+  },
+  {
+   "start": 156.84,
+   "end": 160.52,
+   "text": "然後 iOS 跟 Android 的 token 要分開存。",
+   "speaker": "C"
+  },
+  {
+   "start": 160.72,
+   "end": 162.4,
+   "text": "對，這個我來開 schema。",
+   "speaker": "B"
+  },
+  {
+   "start": 162.9,
+   "end": 166.18,
+   "text": "好，那這樣估起來要多久？",
+   "speaker": "A"
+  },
+  {
+   "start": 166.68,
+   "end": 171.88,
+   "text": "client 端我覺得要四到五天，因為兩個平台都要做。",
+   "speaker": "C"
+  },
+  {
+   "start": 172.18,
+   "end": 173.78,
+   "text": "後端大概兩天。",
+   "speaker": "B"
+  },
+  {
+   "start": 174.18,
+   "end": 181.14,
+   "text": "嗯，那這樣有點緊。登入的 bug 加上通知，你這個 sprint 會不會塞不下？",
+   "speaker": "A"
+  },
+  {
+   "start": 181.74,
+   "end": 189.9,
+   "text": "嗯，有一點。如果 SDK 升級很順的話應該還可以，但如果要改很多東西就不一定了。",
+   "speaker": "C"
+  },
+  {
+   "start": 190.3,
+   "end": 195.18,
+   "text": "還是 Android 那邊我先幫忙？我之前有寫過一點 Kotlin。",
+   "speaker": "B"
+  },
+  {
+   "start": 195.48,
+   "end": 197.88,
+   "text": "真的嗎？那太好了。",
+   "speaker": "C"
+  },
+  {
+   "start": 198.28,
+   "end": 203.88,
+   "text": "可以，那就這樣分。你先做 dashboard，做完再去幫 Android。",
+   "speaker": "A"
+  },
+  {
+   "start": 204.08,
+   "end": 204.4,
+   "text": "好。",
+   "speaker": "B"
+  },
+  {
+   "start": 205.2,
+   "end": 214.64,
+   "text": "那接下來是技術債的部分。我們的 CI 最近常常跑超過二十分鐘，大家應該都有感覺。",
+   "speaker": "A"
+  },
+  {
+   "start": 214.34,
+   "end": 217.38,
+   "text": "有，超有感。",
+   "speaker": "C"
+  },
+  {
+   "start": 217.78,
+   "end": 222.34,
+   "text": "主要是 integration test 每次都把整個資料庫重建一次。",
+   "speaker": "B"
+  },
+  {
+   "start": 222.74,
+   "end": 227.78,
+   "text": "那有辦法改成只重建有變動的部分嗎？",
+   "speaker": "A"
+  },
+  {
+   "start": 228.18,
+   "end": 233.3,
+   "text": "可以用 snapshot，但要花一點時間研究，我覺得這個 sprint 不太可能。",
+   "speaker": "B"
+  },
+  {
+   "start": 233.6,
+   "end": 239.36,
+   "text": "好，那這個先開一張 ticket 放在 backlog，下個 sprint 再看。",
+   "speaker": "A"
+  },
+  {
+   "start": 239.76,
+   "end": 246.08,
+   "text": "然後 Docker image 好像也很大，每次 pull 都很久。",
+   "speaker": "C"
+  },
+  {
+   "start": 246.48,
+   "end": 252.64,
+   "text": "嗯，那個可以先改成 multi-stage build，應該半天就可以弄好。",
+   "speaker": "B"
+  },
+  {
+   "start": 252.94,
+   "end": 255.58,
+   "text": "半天的話可以順便做。",
+   "speaker": "A"
+  },
+  {
+   "start": 255.88,
+   "end": 257.08,
+   "text": "OK，我記下來。",
+   "speaker": "B"
+  },
+  {
+   "start": 257.88,
+   "end": 266.44,
+   "text": "好，最後一件事，下週三要 demo 給 product team，大家記得先把 staging 環境準備好。",
+   "speaker": "A"
+  },
+  {
+   "start": 266.84,
+   "end": 268.36,
+   "text": "下週三是幾點？",
+   "speaker": "C"
+  },
+  {
+   "start": 268.66,
+   "end": 273.62,
+   "text": "下午兩點，大概一個小時。",
+   "speaker": "A"
+  },
+  {
+   "start": 274.02,
+   "end": 280.58,
+   "text": "那 staging 的資料要不要先清一下？上次 demo 的時候有一堆測試帳號。",
+   "speaker": "B"
+  },
+  {
+   "start": 280.88,
+   "end": 285.12,
+   "text": "對，這個很重要。可以麻煩你週二之前弄好嗎？",
+   "speaker": "A"
+  },
+  {
+   "start": 285.32,
+   "end": 285.96,
+   "text": "可以。",
+   "speaker": "B"
+  },
+  {
+   "start": 286.46,
+   "end": 290.3,
+   "text": "那 demo 的時候通知功能應該還沒好，要展示嗎？",
+   "speaker": "C"
+  },
+  {
+   "start": 290.7,
+   "end": 298.22,
+   "text": "可以展示做到一半的版本，但要先跟他們說清楚這不是最後的樣子。",
+   "speaker": "A"
+  },
+  {
+   "start": 298.52,
+   "end": 300.2,
+   "text": "好，了解。",
+   "speaker": "C"
+  },
+  {
+   "start": 300.8,
+   "end": 315.52,
+   "text": "那我整理一下。登入的 bug 跟 iOS 的通知是你的；dashboard、Docker image、清 staging，還有幫忙 Android 是你的；我去跟 PM 確認通知的需求。這樣對嗎？",
+   "speaker": "A"
+  },
+  {
+   "start": 315.82,
+   "end": 316.46,
+   "text": "對。",
+   "speaker": "B"
+  },
+  {
+   "start": 316.26,
+   "end": 317.14,
+   "text": "沒錯。",
+   "speaker": "C"
+  },
+  {
+   "start": 317.54,
+   "end": 319.62,
+   "text": "好，還有其他問題嗎？",
+   "speaker": "A"
+  },
+  {
+   "start": 320.42,
+   "end": 321.3,
+   "text": "沒有了。",
+   "speaker": "B"
+  },
+  {
+   "start": 321.6,
+   "end": 322.48,
+   "text": "我也沒有。",
+   "speaker": "C"
+  },
+  {
+   "start": 322.88,
+   "end": 327.36,
+   "text": "好，那今天就先這樣，大家辛苦了，拜拜。",
+   "speaker": "A"
+  },
+  {
+   "start": 327.66,
+   "end": 328.46,
+   "text": "拜拜。",
+   "speaker": "C"
+  },
+  {
+   "start": 328.26,
+   "end": 329.38,
+   "text": "拜拜。",
+   "speaker": "B"
+  }
+ ]
+}

@@ -9,9 +9,7 @@
 - Code checkpoint: see `git log`. The first five `fix(skill)` commits cover the findings. Two more address a review of the PR: a failed attachment no longer deletes a racing caller's completed run, and every buffered zero-length word must be within `--max-gap` of the word it joins (`14a03af`); every dataset write checks its resolved destination folder, so a symlinked `runs/` can't carry writes into a checkout or out of the dataset (`8270109`).
 - Verification: 94 skill tests pass, and each commit passes on its own. Each new regression test was run before its fix and failed. The diff was scanned for names and private paths. Not run: `dataset.py validate` on the real dataset.
 - Compatibility: evaluations written before this branch, such as `eval-two-track-call`, have no digest; `validate` checks their links and lists them under `unsealed_evaluations`. Rerun `evaluate.py` under a new ID to seal one.
-- Next action: the reviewer re-reviews PR #20. Its body predates the two review-fix commits; see P-02.
-- Pending:
-  - P-02: update PR #20's body to describe the two review-fix commits and the 94-test result; needs the user's approval; blocks nothing but an accurate description.
+- Next action: the reviewer re-reviews PR #20; its body describes the two review-fix commits and the 94-test result.
 
 ## Ranked work
 

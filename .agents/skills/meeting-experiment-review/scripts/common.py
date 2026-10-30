@@ -203,7 +203,7 @@ def append_event(root, session_id, event, expected_revision=None):
         fcntl.flock(lock, fcntl.LOCK_EX)
         rows = events(root, session_id)
         if expected_revision is not None and expected_revision != len(rows):
-            raise ValueError("review changed; reload before saving this answer")
+            raise ValueError("answers changed in another tab or command; reload the page and try again")
         row = {**event, "seq": len(rows) + 1, "at": now()}
         with log.open("a", encoding="utf-8") as handle:
             handle.write(json.dumps(row, ensure_ascii=False, allow_nan=False) + "\n")

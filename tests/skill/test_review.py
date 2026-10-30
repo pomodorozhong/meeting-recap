@@ -238,7 +238,10 @@ class Server(ReviewCase):
         self.assertEqual((status, json.loads(body)["seq"]), (200, 1))
         self.assertEqual(self.request("/api/answer", answer)[0], 400)  # stale revision
         self.assertEqual(self.request("/api/answer", {**answer, "expected_revision": None})[0], 400)
-        self.assertEqual(json.loads(self.request("/api/close", {})[2])["type"], "close")
+        # Finishing from a tab that missed another tab's save must fail like a stale answer does.
+        self.assertEqual(self.request("/api/close", {})[0], 400)
+        self.assertEqual(self.request("/api/close", {"expected_revision": 0})[0], 400)
+        self.assertEqual(json.loads(self.request("/api/close", {"expected_revision": 1})[2])["type"], "close")
         self.assertTrue(json.loads(self.request("/api/session")[2])["closed"])
 
     def test_rejects_bad_posts(self):

@@ -178,13 +178,13 @@ def segments_reference(root, recording_id, rows, reference_id, window, source, m
     return result
 
 
-def close_session(root, session_id):
+def close_session(root, session_id, expected_revision=None):
     plan = session(root, session_id)
     latest = answers(root, session_id)
     counts = {state: 0 for state in [*sorted(STATES), "unreviewed"]}
     for item in plan["items"]:
         counts[latest.get(item["id"], {}).get("state", "unreviewed")] += 1
-    return append_event(root, session_id, {"type": "close", "counts": counts})
+    return append_event(root, session_id, {"type": "close", "counts": counts}, expected_revision)
 
 
 def prediction(root, item):
@@ -307,7 +307,10 @@ def make_handler(root, session_id, token):
                         raise ValueError("expected_revision is required")
                     result = save_answer(root, session_id, data)
                 elif path == "/api/close":
-                    result = close_session(root, session_id)
+                    # Like an answer, finishing must come from a page that has seen every saved answer.
+                    if not isinstance(data.get("expected_revision"), int):
+                        raise ValueError("expected_revision is required")
+                    result = close_session(root, session_id, data["expected_revision"])
                 else:
                     self.send_data({"error": "not found"}, status=404)
                     return

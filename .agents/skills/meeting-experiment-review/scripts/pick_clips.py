@@ -107,6 +107,10 @@ def select(root, config):
                 info, asr = completed(root, run_id, "transcript")
                 if info["recording_id"] != rec_id:
                     raise ValueError("transcript run names a different recording")
+                # Windows are compared word by word; a segment without word timing would count as silence.
+                if any(not s.get("words") and s.get("text", "").strip() for s in asr["segments"]):
+                    raise ValueError(f"transcript run {run_id} has text without word timestamps; "
+                                     "transcript clips need word timing, so pick these clips by hand")
                 texts.append(asr)
             ranked, a = [], int(skip)
             # Full windows only: the last one may end exactly at the end of the recording, never past it.

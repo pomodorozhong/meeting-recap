@@ -100,6 +100,24 @@ class SymlinkedSubdirectory(DatasetCase):
                             common.snapshot(self.root)
 
 
+    def test_refuses_answers_through_a_symlinked_log_or_lock(self):
+        import shutil
+        for name in ("events.jsonl", ".lock"):
+            with self.subTest(name):
+                log = self.root / "sessions" / "s1" / name
+                outside = self.checkout / name
+                shutil.move(log, outside)
+                before = outside.read_bytes()
+                log.symlink_to(outside)
+                try:
+                    with self.assertRaises(ValueError):
+                        self.answer()
+                    self.assertEqual(outside.read_bytes(), before)
+                finally:
+                    log.unlink()
+                    shutil.move(outside, log)
+
+
 class AddRecording(DatasetCase):
     def test_copies_media_and_records_digest(self):
         info = self.add_recording("rec1", 10, group="call")

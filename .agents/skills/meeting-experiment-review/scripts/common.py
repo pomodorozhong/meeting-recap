@@ -181,13 +181,15 @@ def append_event(root, session_id, event, expected_revision=None):
     # A file lock also serializes writes from the server and CLI. The app is local-only.
     import fcntl
     directory = private(root, root / "sessions" / identifier(session_id))
-    with (directory / ".lock").open("a") as lock:
+    # The files themselves could be symlinks too, so check where each one really leads before opening it.
+    log, lock_path = (private(root, directory / name) for name in ("events.jsonl", ".lock"))
+    with lock_path.open("a") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX)
         rows = events(root, session_id)
         if expected_revision is not None and expected_revision != len(rows):
             raise ValueError("review changed; reload before saving this answer")
         row = {**event, "seq": len(rows) + 1, "at": now()}
-        with (directory / "events.jsonl").open("a", encoding="utf-8") as handle:
+        with log.open("a", encoding="utf-8") as handle:
             handle.write(json.dumps(row, ensure_ascii=False, allow_nan=False) + "\n")
         return row
 

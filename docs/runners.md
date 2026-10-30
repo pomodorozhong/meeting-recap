@@ -40,6 +40,19 @@ AUDIO=recording-16k.wav OUT=/scratch/dia ./run_sweep.sh
 - The sweep repeats each Community-1 setting five times (`__1`–`__5`) because results varied between identical runs, then runs Sortformer and four LS-EEND variants.
 - `.build/release/fluidaudiocli sortformer <wav> --output <out.json>` runs Sortformer alone; `sortformer_to_segments.py <in> <out>` converts its JSON to `segments`.
 
+## `experiments/who/`
+
+Swift package `whoexp` for Desert Ant Labs' Who diarizer (#1), on `desert-ant-core` `1a5efed67f44731b5eb5433aa9be3eebae05e269` (tag `v4.2.1`), which pins the weights [`desert-ant-labs/who`](https://huggingface.co/desert-ant-labs/who) at `v0.3.4`. It builds with the Command Line Tools; Xcode is not needed.
+
+```bash
+cd experiments/who && swift build -c release
+.build/release/whoexp recording-16k.wav segments.json variant=fp16 models="$WHO_MODELS"
+```
+
+- `whoexp <audio> <out.json> [variant=fp16|int8] [models=<dir>]` writes `segments` JSON directly, every speaker kept, and prints one JSON line with the speaker count, load time and diarize time (decoding included).
+- `models` is the folder for the weights; keep it outside the checkout. Missing weights are downloaded into it on first use (Core ML, 81 MB fp16 or 42 MB int8). Without `models`, the SDK uses its own cache.
+- Each model load sends a licence check to `events.desertant.com` with an install ID, the model and SDK versions, the platform and the process name. It carries no audio. The SDK and weights are under the Desert Ant Labs Source-Available License: free for most apps, a commercial licence at scale.
+
 ## `experiments/mlx/run.py`
 
 Whisper-format models through `mlx-whisper`, writing WhisperKit-shaped JSON with word timestamps. Its folder is a uv project.

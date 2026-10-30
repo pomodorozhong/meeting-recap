@@ -37,7 +37,7 @@ WhisperKit report shape. `attach.py --method word` needs `words` in every segmen
   "words": [{"word": "你", "start": 0.0, "end": 0.4}]}]}
 ```
 
-Special tokens such as `<|zh|>` are stripped when attaching.
+Special tokens such as `<|zh|>` are stripped when attaching; a word or segment left with no text makes no turn.
 
 ## Answer
 

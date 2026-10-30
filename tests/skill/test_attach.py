@@ -52,6 +52,11 @@ class Turns(unittest.TestCase):
         close = attach.turns(transcript(("a", 0, 1), ("b", 1.5, 2)), segs(("x", 0, 2)), "word")
         self.assertEqual([(t["start_seconds"], t["end_seconds"], t["text"]) for t in close], [(0, 2, "ab")])
 
+    def test_token_only_words_make_no_turn(self):
+        out = attach.turns(transcript(("<|zh|>", 0, 1), ("a", 1, 2), (" ", 2, 3)), DIARIZATION, "word")
+        self.assertEqual([(t["start_seconds"], t["end_seconds"], t["text"]) for t in out], [(1, 2, "a")])
+        self.assertEqual(attach.turns(transcript(("<|zh|>", 0, 1)), DIARIZATION, "seg"), [])
+
     def test_text_without_words_is_refused(self):
         timed = transcript(("a", 0, 1))["segments"]
         asr = {"segments": [*timed, {"start": 2, "end": 3, "text": "<|zh|>synthetic words", "words": []}]}

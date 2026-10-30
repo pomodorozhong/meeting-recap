@@ -1,6 +1,6 @@
 # 2026-10-30: Who against Sortformer
 
-**Status:** planned
+**Status:** review pending. Runs and the synthetic and two-track scores are done; the long calls wait for session `full-calls-2026-10-29`, and the two-track score for `check-two-track-call`.
 
 Write and commit this file before the first run. Fill in the results sections as the experiment goes; nothing here may name people, quote transcripts, or give private paths.
 
@@ -122,17 +122,67 @@ If the private data for this experiment is lost:
 
 ## Runtime and memory
 
+Runs were timed with `/usr/bin/time -l`, one at a time, with nothing else running.
+- **Weights:** both were already downloaded. The first load of each variant, which included the download and the Core ML preparation, took 37 s for fp16 and 44 s for int8. Later loads took 0.3–2.5 s.
+- **Sortformer:** the synthetic run is new. The other Sortformer rows come from the runs already registered, which were measured the same way.
+
+| Recording | Who fp16: wall, diarize, peak footprint | Who int8 | Sortformer: wall, peak |
+| --- | --- | --- | --- |
+| Synthetic, 5:30 | 3.2 s, 0.7 s, 285 MB | 3.0 s, 0.7 s, 296 MB | 140 s, 968 MB RSS / 750 MB footprint |
+| Two-track call, 48:30 | 6.4 s, 6.0 s, 446 MB | 8.3 s, 6.0 s, 463 MB | 1192 s, 1209 MB footprint |
+| 22:23 part | 5.4 s, 3.0 s, 372 MB | 5.2 s, 2.9 s, 371 MB | 721 s, 1061 MB RSS |
+| 64:49 part | 10.7 s, 8.3 s, 522 MB | 10.2 s, 7.9 s, 520 MB | 1825 s, 1035 MB RSS |
+
+Who ran about 100–450 times faster than real time, depending on how much of each run the load took. That is 45–185 times faster than Sortformer, with about half its memory.
+
+**Repeats.** Two more fp16 runs on the synthetic call gave byte-identical segments.
+
+**Offline check.** The fp16 rerun with the licence endpoint unreachable passed. It gave the same segments and left the model folder's files byte-identical.
+
+**SDK quirk.** The runner's `model_was_downloaded` field, from the SDK's `isDownloaded()`, was false on some runs whose weights were present. Do not rely on it.
+
 ## Results
 
-| Measure | Result |
-| --- | --- |
-| Turns recovered | |
-| Clips correct | |
-| Excluded items | |
-| Label mapping | |
+Scores are speaker-order LCS on the reference clips, with fitted mappings (one Who label per person on both recordings).
+
+| Recording (reference) | Who fp16 | Who int8 | Sortformer |
+| --- | --- | --- | --- |
+| Synthetic, `truth-synthetic` (known turns) | 64/72 turns, 6/10 clips | 64/72, 6/10 | 67/72, 7/10 |
+| Two-track call, `tracks-two-track-call` (track activity, provisional) | 516/629, 33/86 | 517/629, 32/86 | 527/629, 38/86 |
+
+**Excluded items:** 0.
+
+**Two-track call.**
+- 18 clips are correct in both runs, 15 only in Who's, 20 only in Sortformer's, and 33 in neither. The two models fail on different clips, so the gap is not one systematic failure.
+- Sortformer scores 527/38 here against the earlier summary's 528/39. That evaluation used an older skill snapshot from before the scoring fixes in #23; this one rescored Sortformer's registered run under the current snapshot.
+
+**Synthetic call.**
+- Who misses the same two clips as Sortformer, each with one short reply dropped.
+- Who also gives one of Speaker B's turns to Speaker A, and misses all three of Speaker B's short turns near the end. Sortformer gets that last clip wrong differently: it gives one Speaker C turn a fourth label.
+
+**Long calls, not scored yet.** Neither long call has a reference yet, so only labels can be compared:
+- On both three-person parts, both models give three main labels and a fourth minor one. Who's minor label holds 13.6 s on the 22:23 part and 7.4 s on the 64:49 part. Sortformer's holds 24.1 s and 13.8 s.
+- On the two-person call, Who gives three minor labels (12.4 s, 1.7 s and 1.6 s; int8 adds a fourth at 1.7 s). Sortformer gives two (3.4 s and 0.7 s).
+- Who labels more speech overall: 758 s on the 22:23 part against Sortformer's 635 s. Whether that is speech Sortformer misses or noise has not been heard.
 
 **Metric limits.**
+- This is speaker order on selected clips: not DER, not transcript accuracy, and not an error rate for whole recordings.
+- The two-track reference is track activity whose listening check is pending.
+- The synthetic call has generated voices, so it is not a stand-in for real calls.
+- Fitted mappings flatter every run equally.
 
 ## Decision
 
+Provisional: keep Sortformer as the pipeline's diarizer, and keep Who as an optional alternative.
+- **Quality:** Who is within 5% of Sortformer's turns on both scored recordings (4.5% fewer on the synthetic call, 2.1% fewer on the two-track call), but below it on both. That fails this plan's bar for replacing Sortformer and passes its bar for an alternative.
+- **Speed and memory:** Who's are the strongest reason to keep it. It diarizes an hour in about 10 s, where Sortformer takes 30 minutes, so it could label speakers during or right after a call. Sortformer's place would be a later, slower pass.
+- **int8 and fp16:** they score within one turn of each other at the same speed. If Who is used, the 42 MB int8 download is enough.
+
+The decision is final once the long calls are scored.
+
 ## Open questions
+
+- **Long calls:** on the two three-person parts, does Who keep the three voices apart once session `full-calls-2026-10-29` is answered (`eval-who-part1`, `eval-who-part2`)? And whose voice does the fourth minor label hold, for each model?
+- **Two-track reference:** do the two-track scores hold once session `check-two-track-call` confirms the track activity? If the reference changes, rerun the evaluation under a new ID.
+- **Minor labels:** does Who's minor-label speech carry real speech, such as laughter, which its model card says may get its own label, or is it noise?
+- **Licensing:** what do the source-available licence and its scale threshold mean for shipping Who in `app/`? Its licence check sends an install ID from every install.

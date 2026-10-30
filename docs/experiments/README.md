@@ -12,4 +12,4 @@ Each summary is written from [TEMPLATE.md](TEMPLATE.md) and committed **before**
 | 2026-10-24 | [Attaching labels to text](2026-10-24-label-attachment.md) | Method matters little with short segments; overlap per word chosen |
 | 2026-10-24 | [Both full recordings](2026-10-24-full-recordings.md) | Stable labels over 87 minutes, one voice split across two labels; stop testing models |
 | 2026-10-30 | [Sortformer on a two-person two-track call](2026-10-30-two-track-call.md) | Planned |
-| 2026-10-30 | [Who against Sortformer](2026-10-30-who-diarization.md) | Planned |
+| 2026-10-30 | [Who against Sortformer](2026-10-30-who-diarization.md) | Review pending: Who 64/72 and 516/629 turns against Sortformer's 67 and 527, 45–185× faster; Sortformer stays for now |

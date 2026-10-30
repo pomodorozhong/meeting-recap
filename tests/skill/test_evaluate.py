@@ -38,6 +38,11 @@ class Evaluate(DatasetCase):
         with self.assertRaises(ValueError):
             evaluate.evaluate(self.root, "ref1", ["good"], "ev1")
 
+    def test_mappings_must_cover_every_run(self):
+        with self.assertRaises(ValueError):
+            evaluate.evaluate(self.root, "ref1", ["good", "merged"], "ev3", mappings={"good": {"x": "A", "y": "B"}})
+        self.assertFalse((self.root / "evaluations" / "ev3").exists())
+
     def test_explicit_mapping(self):
         result = evaluate.evaluate(self.root, "ref1", ["good"], "ev2", mappings={"good": {"x": "B", "y": "A"}})
         self.assertEqual(result["results"][0]["turns_recovered"], 1)

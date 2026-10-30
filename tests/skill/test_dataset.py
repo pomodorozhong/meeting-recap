@@ -164,6 +164,17 @@ class AddRun(DatasetCase):
                 self.add_run(**{"artifacts": {"segments": segs(("A", 0, 5))}, **kwargs})
         self.assertFalse((self.root / "runs" / "dia4").exists())
 
+    def test_refuses_times_past_the_recording(self):
+        transcript = {"segments": [{"start": 0, "end": 2, "text": "x", "words": [{"word": "x", "start": 0, "end": 101}]}]}
+        for run_id, artifacts in {"late-segments": {"segments": segs(("A", 100, 101))},
+                                  "late-words": {"transcript": transcript}}.items():
+            with self.subTest(run_id):
+                with self.assertRaises(ValueError):
+                    self.add_run(run_id, artifacts=artifacts)
+                self.assertFalse((self.root / "runs" / run_id).exists())
+        # A model padding its last frame a little past the end is allowed.
+        self.add_run("edge", artifacts={"segments": segs(("A", 29, 30.5))})
+
     def test_requires_a_model(self):
         spec = write_json(self.tmp / "s" / "run.json", {"id": "x", "recording_id": "rec1", "model": "", "status": "completed"})
         with self.assertRaises(ValueError):
@@ -174,11 +185,27 @@ class Validate(DatasetCase):
     def test_counts_and_detects_changes(self):
         self.add_recording("rec1", 30)
         self.add_run("dia1", artifacts={"segments": segs(("A", 0, 5))})
-        self.assertEqual(dataset_cli.validate(self.root), {"recordings": 1, "runs": 1, "sessions": 0, "references": 0,
-                                                         "evaluations": 0, "unsealed_evaluations": [], "code": 0})
+        self.assertEqual(dataset_cli.validate(self.root), {"recordings": 1, "runs": 1, "incomplete_runs": [], "sessions": 0,
+                                                         "references": 0, "evaluations": 0, "unsealed_evaluations": [],
+                                                         "code": 0})
         write_json(self.root / "runs" / "dia1" / "segments.json", segs(("B", 0, 5)))
         with self.assertRaises(ValueError):
             dataset_cli.validate(self.root)
+
+    def test_detects_times_past_the_recording(self):
+        import json
+        self.add_recording("rec1", 30)
+        self.add_run("dia1", artifacts={"segments": segs(("A", 20, 25))})
+        path = self.root / "recordings" / "rec1" / "recording.json"
+        path.write_text(json.dumps({**json.loads(path.read_text()), "duration_seconds": 10}))
+        with self.assertRaises(ValueError):
+            dataset_cli.validate(self.root)
+
+    def test_lists_run_folders_without_a_manifest(self):
+        self.add_recording("rec1", 30)
+        self.add_run("dia1", artifacts={"segments": segs(("A", 0, 5))})
+        write_json(self.root / "runs" / "half" / "segments.json", segs(("A", 0, 5)))
+        self.assertEqual(dataset_cli.validate(self.root)["incomplete_runs"], ["half"])
 
     def test_detects_changed_media(self):
         info = self.add_recording("rec1", 30)
@@ -267,6 +294,9 @@ class Snapshot(DatasetCase):
         (target / "scripts" / "review.py").write_text("# changed\n")
         with self.assertRaises(ValueError):
             dataset_cli.validate(self.root)
+        # Reusing the edited copy would cite code that never ran.
+        with self.assertRaises(ValueError):
+            common.snapshot(self.root)
 
     def test_concurrent_snapshots_share_one_copy(self):
         import subprocess

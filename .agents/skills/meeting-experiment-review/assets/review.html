@@ -67,7 +67,11 @@ function blocked(){if(busy){message('Finish the current save first.');return tru
 function bounds(){const c=item();return [Math.max(0,c.start_seconds-padding),c.end_seconds+padding]}
 function showContext(){const [a,b]=bounds();$('context').textContent=`Playback ${a.toFixed(1)}–${b.toFixed(1)} s · ${padding} s surrounding context`}
 async function play(){const [start,end]=bounds();$('audio').currentTime=start;stopAt=end;await $('audio').play();}
-$('audio').ontimeupdate=()=>{if(stopAt!==null&&$('audio').currentTime>=stopAt){$('audio').pause();stopAt=null}};
+// The native controls play the whole recording, so every play path is held to the clip and its context.
+function hold(){const [start,end]=bounds(),a=$('audio');if(a.currentTime<start||a.currentTime>=end)a.currentTime=start;stopAt=end}
+$('audio').onplay=hold;
+$('audio').onloadedmetadata=()=>{$('audio').currentTime=bounds()[0]};
+$('audio').ontimeupdate=()=>{const a=$('audio');if(a.paused)return;if(a.currentTime<bounds()[0])a.currentTime=bounds()[0];else if(stopAt!==null&&a.currentTime>=stopAt){a.pause();stopAt=null}};
 function render(){
   const c=item(),answer=data.answers[c.id];padding=c.padding_seconds??1;dirty=false;stopAt=null;
   $('audio').pause();$('audio').src=`/media/${encodeURIComponent(c.id)}?token=${encodeURIComponent(token)}`;

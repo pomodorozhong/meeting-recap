@@ -21,6 +21,16 @@ class ClipTurns(unittest.TestCase):
         self.assertEqual(scoring.clip_turns(data, 0, 10, min_overlap=0.3), ["0", "1"])
         self.assertEqual(scoring.clip_turns(data, 0, 10, min_overlap=0.05), ["0", "1", "2"])
 
+    def test_a_split_span_counts_like_a_continuous_one(self):
+        whole = segs(("a", 0, 1))
+        split = segs(*[("a", i / 5, (i + 1) / 5) for i in range(5)])
+        self.assertEqual(scoring.clip_turns(whole, 0, 1, min_overlap=0.3), ["a"])
+        self.assertEqual(scoring.clip_turns(split, 0, 1, min_overlap=0.3), ["a"])
+
+    def test_spans_split_by_another_label_stay_separate(self):
+        data = segs(("a", 0, 0.2), ("b", 0.2, 2), ("a", 2, 2.2))
+        self.assertEqual(scoring.clip_turns(data, 0, 3, min_overlap=0.3), ["b"])
+
 
 class Score(unittest.TestCase):
     data = segs(("x", 0, 5), ("y", 5, 10), ("x", 10, 15), ("z", 20, 25))
@@ -35,6 +45,13 @@ class Score(unittest.TestCase):
         result = scoring.score(self.data, [clip("c1", 0, 15, ["A", "B", "A"])], mapping={"x": "A"})
         self.assertEqual((result["turns_recovered"], result["clips_correct"]), (2, 0))
         self.assertEqual(result["details"][0]["predicted"], ["A", None, "A"])
+
+    def test_unassigned_text_never_matches_a_person(self):
+        data = segs(("__unassigned__", 0, 5))
+        with self.assertRaises(ValueError):
+            scoring.score(data, [clip("c1", 0, 5, ["A"])], mapping={"__unassigned__": "A"})
+        result = scoring.score(data, [clip("c1", 0, 5, ["A"])], mapping={})
+        self.assertEqual((result["turns_recovered"], result["clips_correct"]), (0, 0))
 
     def test_extra_turns_need_permission(self):
         reference = [clip("c1", 0, 15, ["A", "A"])]

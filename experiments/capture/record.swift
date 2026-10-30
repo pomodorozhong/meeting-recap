@@ -87,6 +87,8 @@ final class Track {
     var silenceFilled: Double = 0
     var dropped: Double = 0
     var peak: Float = 0
+    /// A buffer in this track's format, to make the silence that pads its end.
+    var template: CMSampleBuffer?
     /// The first write failure; once set, the recording has lost audio and must stop.
     var error: String?
 
@@ -129,6 +131,28 @@ final class Track {
         lastEnd = time + buffer.duration
         peak = max(peak, Track.peak(of: buffer))
         guard input.append(buffer) else { return fail("could not write audio") }
+        if template == nil { template = buffer }
+    }
+
+    /// Fills silence from the last buffer to `end`, in one-second pieces, so a dropout that lasts until the
+    /// recording stops still leaves both files on one timeline. Runs after capture stops, so it can wait for the encoder.
+    func pad(to end: CMTime) {
+        guard error == nil, writer.status == .writing, let template, (end - lastEnd).seconds > 0.01 else { return }
+        let missing = (end - lastEnd).seconds
+        let piece = CMTime(value: CMTimeValue(sampleRate), timescale: CMTimeScale(sampleRate))
+        while (end - lastEnd).seconds > 0.001 {
+            let next = min(end, lastEnd + piece)
+            let deadline = Date().addingTimeInterval(5)
+            while !input.isReadyForMoreMediaData {
+                guard Date() < deadline else { return fail("the encoder did not accept the end padding") }
+                usleep(10_000)
+            }
+            guard let silence = Track.silence(like: template, from: lastEnd, to: next), input.append(silence) else {
+                return fail("could not pad the end with silence")
+            }
+            lastEnd = next
+        }
+        silenceFilled += missing
     }
 
     func fail(_ what: String) {
@@ -276,6 +300,11 @@ final class Recorder: NSObject, SCStreamOutput, SCStreamDelegate {
     func stop() async -> [String] {
         try? await stream?.stopCapture()
         stream = nil
+        // A track whose input went quiet before the stop would otherwise end early; both end where the later one does.
+        queue.sync {
+            let end = max(system.lastEnd, mic.lastEnd)
+            for track in [system, mic] { track.pad(to: end) }
+        }
         var problems: [String] = []
         for track in [system, mic] {
             if track.writer.status == .writing {

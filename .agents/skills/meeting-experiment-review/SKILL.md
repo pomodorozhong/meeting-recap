@@ -5,7 +5,7 @@ description: Run local speech experiments (transcription, speaker diarization, l
 
 # Meeting Experiment Review
 
-Recordings, transcripts, and the user's answers are private. Every artifact lives in a **private dataset directory outside any Git checkout**; the scripts refuse to create one inside a repository. Never copy audio, transcript text, speaker names, or answers into a repo, issue, PR, commit, or chat summary beyond what the user asks for. The only output that goes into a repository is the public summary in step 6.
+Recordings, transcripts, and the user's answers are private. Every artifact lives in a **private dataset directory outside any Git checkout**; the scripts refuse to write a dataset, a `pick_clips.py` plan, or `tracks.py` segments anywhere inside a Git checkout (a symlink counts where it points), and refuse to write through a dataset folder, such as `runs/`, that a symlink leads out of the dataset. Only `dataset.py validate` still opens a dataset found inside one, read-only, so it can be checked before it is moved out. Never copy audio, transcript text, speaker names, or answers into a repo, issue, PR, commit, or chat summary beyond what the user asks for. The only output that goes into a repository is the public summary in step 6.
 
 All helpers are standard-library Python 3.11+ in `scripts/`. Run them as `python3 <skill>/scripts/<name>.py`. Every command prints JSON; failures exit nonzero with a one-line reason.
 
@@ -76,6 +76,8 @@ python3 scripts/attach.py "$MEETING_REVIEW_DATA" --asr-run whisper-part1 --diari
 
 `word` (default) needs word timestamps; `seg` attaches whole ASR segments by overlap; `line` reproduces HushScribe's single-point lookup for comparison.
 
+Same-speaker words more than `--max-gap` seconds apart (default 1) become separate turns, so no turn spans a silence. `word` refuses a segment that has text but no word timestamps instead of dropping its text; use `seg` for such a transcript. A zero-length word joins the turn just before it, or else the next word's, when one is within `--max-gap`; attachment fails rather than writing a run with a zero-length turn.
+
 ### 3. Choose clips and prepare a session
 
 Pick clips that answer the user's question and give each a reason:
@@ -99,7 +101,7 @@ Pick clips that answer the user's question and give each a reason:
 uv run scripts/pick_clips.py "$MEETING_REVIEW_DATA" --config select.json --out plan.json
 ```
 
-Optional keys and defaults: `window_seconds` 15, `lead_seconds` 4, `min_overlap` 0.3, `min_turns` 2, `max_turns` 5, `min_gap_seconds` 20, `transcript_gap_seconds` 60, `min_characters` 30. Save the config next to the private report so the selection can be rerun; the plan records it under `selector.method`. If a time bin has no turn-change window that avoids the other clips, or there are too few transcript windows far enough apart, the plan has fewer items than asked and the command prints them under `shortfall` (also kept in `selector.shortfall`). A bin crowded by an earlier pick still gets a clip, as long as it does not overlap one. Review the plan and add or replace items by hand when the question needs clips the rules miss.
+Transcript windows are full windows from `skip_before` on; the last may end exactly at the end of the recording, and a shorter remainder is never a candidate. Optional keys and defaults: `window_seconds` 15, `lead_seconds` 4, `min_overlap` 0.3, `min_turns` 2, `max_turns` 5, `min_gap_seconds` 20, `transcript_gap_seconds` 60, `min_characters` 30. Save the config next to the private report so the selection can be rerun; the plan records it under `selector.method`. If a time bin has no turn-change window that avoids the other clips, or there are too few transcript windows far enough apart (the typical window must be apart from the disagreement clips too), the plan has fewer items than asked and the command prints them under `shortfall` (also kept in `selector.shortfall`). A bin crowded by an earlier pick still gets a clip, as long as it does not overlap one. Review the plan and add or replace items by hand when the question needs clips the rules miss.
 
 A hand-written plan records how the clips were chosen in `selector` (extra fields such as `method` and `seed` are kept):
 
@@ -150,7 +152,7 @@ python3 scripts/evaluate.py "$MEETING_REVIEW_DATA" --reference ref-part1 --runs 
 ```
 
 - The reference keeps only confirmed items and lists the rest as excluded.
-- `evaluate.py` scores `speaker_order` items only, one recording per evaluation; run it once per recording. It writes `evaluations/<id>/evaluation.json` and `report.md` with turns recovered and clips correct per run.
+- `evaluate.py` scores `speaker_order` items only, one recording per evaluation; run it once per recording. It writes `evaluations/<id>/evaluation.json` and `report.md` with turns recovered and clips correct per run, and seals both: the evaluation records its own SHA-256 and the report's.
 - By default each run's labels are mapped to people in whichever way scores best, which flatters runs; pass `--mappings mappings.json` (`{"run-id": {"label": "A"}}`) to test a fixed naming. Only completed runs can be scored.
 - Confirmed `transcript` items are not scored by a script. Compare them with each run's text yourself in the private report (exact wording, dropped or invented words, names and terms).
 
@@ -192,6 +194,6 @@ In both, lead with the decision the user asked about, separate what was measured
 
 ## Other checks
 
-`python3 scripts/dataset.py validate <dataset>` rechecks every digest and the event logs.
+`python3 scripts/dataset.py validate <dataset>` rechecks every digest and the event logs. It also checks that each session reference still matches its session, the answers it froze (answers saved later are fine), and the clips built from them; and that each evaluation still matches its own digest, its report's, and the reference, runs, and code snapshot it names. Evaluations saved before they carried a digest are checked for those links only and listed under `unsealed_evaluations`; to seal one, rerun `evaluate.py` with the same inputs under a new ID.
 
 This repository tests every script in `tests/skill/` (see AGENTS.md for the command). Run the tests after changing the skill, and add tests for new behavior. Never name a script after a standard-library module: scripts run with their own folder first on `sys.path`, so a `select.py` broke the review server.

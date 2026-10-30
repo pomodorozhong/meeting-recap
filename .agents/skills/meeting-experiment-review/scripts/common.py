@@ -61,25 +61,36 @@ def snapshot(root):
     """
     import shutil
     import subprocess
+    import tempfile
     files = {str(p.relative_to(SKILL_DIR)): digest(p) for p in code_files()}
     code_id = fingerprint(files)
-    target = root / "code" / code_id
+    target = private(root, root / "code") / code_id
     if not target.exists():
-        staging = root / "code" / f".{code_id}.tmp"
-        shutil.rmtree(staging, ignore_errors=True)
-        for name in files:
-            (staging / name).parent.mkdir(parents=True, exist_ok=True)
-            shutil.copyfile(SKILL_DIR / name, staging / name)
-        git = {}
+        # Each caller stages its own copy; the first rename publishes it, and later callers reuse that one.
+        target.parent.mkdir(parents=True, exist_ok=True)
+        staging = Path(tempfile.mkdtemp(prefix=f".{code_id}.", suffix=".tmp", dir=target.parent))
         try:
-            run_git = lambda *args: subprocess.run(["git", "-C", str(SKILL_DIR), *args], capture_output=True,
-                                                   text=True, check=True).stdout.strip()
-            git = {"commit": run_git("rev-parse", "HEAD"), "dirty": bool(run_git("status", "--porcelain", "--", "."))}
-        except (OSError, subprocess.CalledProcessError):
-            pass
-        write_new(staging / "code.json", {"sha256": code_id, "files": files, "git": git, "created_at": now()})
-        staging.rename(target)
+            for name in files:
+                (staging / name).parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(SKILL_DIR / name, staging / name)
+            git = {}
+            try:
+                run_git = lambda *args: subprocess.run(["git", "-C", str(SKILL_DIR), *args], capture_output=True,
+                                                       text=True, check=True).stdout.strip()
+                git = {"commit": run_git("rev-parse", "HEAD"), "dirty": bool(run_git("status", "--porcelain", "--", "."))}
+            except (OSError, subprocess.CalledProcessError):
+                pass
+            write_new(staging / "code.json", {"sha256": code_id, "files": files, "git": git, "created_at": now()})
+            try:
+                staging.rename(target)
+            except OSError:
+                if not (target / "code.json").exists():
+                    raise
+        finally:
+            shutil.rmtree(staging, ignore_errors=True)
     info = read_json(target / "code.json")
+    if info["files"] != files:
+        raise ValueError(f"code snapshot {code_id} does not match the running code")
     return {"sha256": code_id, "git": info["git"]}
 
 
@@ -106,12 +117,29 @@ def inside(root, relative):
     return target
 
 
-def dataset(path):
+def outside_git(path):
+    """Resolve a private destination, refusing one inside a Git checkout (a worktree's .git is a file)."""
+    path = Path(path).expanduser().resolve()
+    if any((parent / ".git").exists() for parent in (path, *path.parents)):
+        raise ValueError(f"keep private data outside any Git checkout: {path} is inside one")
+    return path
+
+
+def private(root, path):
+    """Resolve a write destination, refusing one that a symlink takes out of the dataset or into a Git checkout."""
+    target = Path(path).resolve()
+    if not target.is_relative_to(root):
+        raise ValueError(f"{Path(path).relative_to(root)} leads outside the dataset; replace the symlink with a folder")
+    return outside_git(target)
+
+
+def dataset(path, write=True):
+    """Open a dataset; only read-only commands such as validate pass write=False to open one inside a checkout."""
     root = Path(path).expanduser().resolve()
     info = read_json(root / "dataset.json")
     if info.get("format") != FORMAT or info.get("version") != VERSION:
         raise ValueError("unsupported review dataset")
-    return root
+    return outside_git(root) if write else root
 
 
 def recording(root, recording_id):
@@ -152,14 +180,16 @@ def events(root, session_id):
 def append_event(root, session_id, event, expected_revision=None):
     # A file lock also serializes writes from the server and CLI. The app is local-only.
     import fcntl
-    directory = root / "sessions" / identifier(session_id)
-    with (directory / ".lock").open("a") as lock:
+    directory = private(root, root / "sessions" / identifier(session_id))
+    # The files themselves could be symlinks too, so check where each one really leads before opening it.
+    log, lock_path = (private(root, directory / name) for name in ("events.jsonl", ".lock"))
+    with lock_path.open("a") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX)
         rows = events(root, session_id)
         if expected_revision is not None and expected_revision != len(rows):
             raise ValueError("review changed; reload before saving this answer")
         row = {**event, "seq": len(rows) + 1, "at": now()}
-        with (directory / "events.jsonl").open("a", encoding="utf-8") as handle:
+        with log.open("a", encoding="utf-8") as handle:
             handle.write(json.dumps(row, ensure_ascii=False, allow_nan=False) + "\n")
         return row
 

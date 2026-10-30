@@ -17,7 +17,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 from common import (answers, append_event, artifact, dataset, digest, events, fingerprint, identifier, inside, snapshot,
-                    now, number, read_json, recording, run, segments, session, span, write_new)
+                    now, number, private, read_json, recording, run, segments, session, span, write_new)
 import tracks
 
 TASKS = {"speaker_order", "transcript"}
@@ -57,7 +57,7 @@ def validate_plan(root, plan):
 def prepare(root, plan_path):
     plan = validate_plan(root, read_json(plan_path))
     result = {**plan, "format": "meeting-review-session", "version": 1, "created_at": now(), "code": snapshot(root)}
-    write_new(root / "sessions" / plan["id"] / "session.json", result)
+    write_new(private(root, root / "sessions" / plan["id"]) / "session.json", result)
     return result
 
 
@@ -99,11 +99,9 @@ def save_answer(root, session_id, data):
                                           "annotation": clean, "feedback_text": feedback}, data.get("expected_revision"))
 
 
-def make_reference(root, session_id, reference_id):
-    identifier(reference_id)
-    plan = session(root, session_id)
-    rows = events(root, session_id)
-    latest = answers(root, session_id, rows=rows)
+def reference_clips(root, plan, rows):
+    """Confirmed clips and excluded items from one read of the events; validate recomputes them the same way."""
+    latest = answers(root, plan["id"], rows=rows)
     clips, excluded = [], []
     for item in plan["items"]:
         answer = latest.get(item["id"])
@@ -111,12 +109,20 @@ def make_reference(root, session_id, reference_id):
             excluded.append({"item_id": item["id"], "state": answer["state"] if answer else "unreviewed"})
             continue
         clips.append({**item, **answer["annotation"], "answer_seq": answer["seq"]})
+    return clips, excluded
+
+
+def make_reference(root, session_id, reference_id):
+    identifier(reference_id)
+    plan = session(root, session_id)
+    rows = events(root, session_id)
+    clips, excluded = reference_clips(root, plan, rows)
     info = {"format": "meeting-review-reference", "version": 1, "id": reference_id,
             "session_id": session_id, "session_sha256": fingerprint(plan),
             "events_sha256": fingerprint(rows), "revision": len(rows), "created_at": now(), "code": snapshot(root),
             "clips": clips, "excluded": excluded}
     result = {**info, "sha256": fingerprint(info)}
-    write_new(root / "references" / (reference_id + ".json"), result)
+    write_new(private(root, root / "references") / (reference_id + ".json"), result)
     return result
 
 
@@ -163,7 +169,7 @@ def segments_reference(root, recording_id, rows, reference_id, window, source):
             "source": {**source, "window_seconds": window},
             "created_at": now(), "code": snapshot(root), "clips": clips, "excluded": []}
     result = {**info, "sha256": fingerprint(info)}
-    write_new(root / "references" / (reference_id + ".json"), result)
+    write_new(private(root, root / "references") / (reference_id + ".json"), result)
     return result
 
 

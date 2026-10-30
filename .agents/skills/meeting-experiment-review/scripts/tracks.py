@@ -17,7 +17,7 @@ import sys
 import wave
 from array import array
 
-from common import number
+from common import number, outside_git
 
 SETTINGS = {"frame_seconds": 0.03, "margin_db": 15.0, "floor_db": -50.0,
             "min_gap_seconds": 0.3, "min_speech_seconds": 0.2}
@@ -97,8 +97,9 @@ def main():
     parser.add_argument("--track", action="append", required=True, help="SPEAKER=path.wav, once per track")
     parser.add_argument("--out", required=True, help="segments JSON to write (private; keep it in the dataset or scratch)")
     args = parser.parse_args()
+    out = outside_git(args.out)
     rows, duration = track_segments(parse_tracks(args.track))
-    with open(args.out, "x", encoding="utf-8") as handle:
+    with open(out, "x", encoding="utf-8") as handle:
         json.dump(rows, handle, indent=2)
         handle.write("\n")
     speech = {}

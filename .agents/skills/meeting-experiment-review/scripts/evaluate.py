@@ -4,7 +4,7 @@ import argparse
 import json
 import sys
 
-from common import artifact, dataset, fingerprint, identifier, now, number, read_json, run, snapshot, write_new
+from common import artifact, dataset, digest, fingerprint, identifier, now, number, private, read_json, run, snapshot, write_new
 from scoring import score
 
 
@@ -38,10 +38,9 @@ def evaluate(root, reference_id, run_ids, evaluation_id, min_overlap=0.3, mappin
               "other_tasks_not_scored": sum(c["task"] != "speaker_order" for c in reference["clips"]),
               "results": comparisons,
               "limits": "Selected-clip speaker order only; not DER, transcript accuracy, or a population error rate."}
-    directory = root / "evaluations" / evaluation_id
+    directory = private(root, root / "evaluations" / evaluation_id)
     if directory.exists():
         raise ValueError("evaluation ID already exists")
-    write_new(directory / "evaluation.json", result)
     lines = ["# Private evaluation", "", "Speaker-order LCS on the same confirmed clips.", "",
              "| Run | Turns recovered | Clips correct |", "| --- | ---: | ---: |"]
     for item in comparisons:
@@ -50,8 +49,13 @@ def evaluate(root, reference_id, run_ids, evaluation_id, min_overlap=0.3, mappin
                   f"Excluded unresolved/skipped/unusable items: {len(reference['excluded'])}.",
                   f"Confirmed items of other tasks not scored: {result['other_tasks_not_scored']}.",
                   "Mappings are fitted to the reference unless an explicit mapping was supplied."])
+    directory.mkdir(parents=True)
     with (directory / "report.md").open("x", encoding="utf-8") as handle:
         handle.write("\n".join(lines) + "\n")
+    # Sealed like a reference: validate checks the result and the report against these digests.
+    result["report_sha256"] = digest(directory / "report.md")
+    result = {**result, "sha256": fingerprint(result)}
+    write_new(directory / "evaluation.json", result)
     return result
 
 

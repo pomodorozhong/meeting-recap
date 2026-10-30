@@ -14,8 +14,8 @@
   references/<id>.json              confirmed clips, excluded items, digests of session and events
                                     (or, from `review.py known` or `tracks`, a `source` with the known
                                     segments' digest, or each track's digest and the activity settings)
-  evaluations/<id>/evaluation.json
-  evaluations/<id>/report.md
+  evaluations/<id>/evaluation.json  scores, the reference's and each run's digests, report_sha256, and its own sha256
+  evaluations/<id>/report.md        generated with the evaluation; never edited (private prose goes in reports/)
 ```
 
 IDs are 1–64 letters, digits, `_`, or `-`, starting with a letter or digit.
@@ -30,7 +30,7 @@ Labels are only meaningful within one run. `__unassigned__` marks text with no o
 
 ## `transcript` artifact (ASR)
 
-WhisperKit report shape. `words` is needed for `attach.py --method word`.
+WhisperKit report shape. `attach.py --method word` needs `words` in every segment that has text; a word's `end` must not be before its `start`.
 
 ```json
 {"text": "...", "segments": [{"start": 0.0, "end": 5.1, "text": "...",

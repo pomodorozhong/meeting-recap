@@ -146,6 +146,12 @@ class PickTranscriptClips(DatasetCase):
                 plan = pick_clips.select(self.root, config)
                 self.assertEqual([(i["start_seconds"], i["end_seconds"]) for i in plan["items"]], [(float(skip), skip + 15.0)])
 
+    def test_a_fractional_skip_is_not_rounded_down(self):
+        config = self.speech("late-start", 60, 10, 26)
+        config["recordings"][0]["skip_before"] = 10.5
+        plan = pick_clips.select(self.root, config)
+        self.assertGreaterEqual(min(i["start_seconds"] for i in plan["items"]), 10.5)
+
     def test_refuses_a_transcript_without_word_timestamps(self):
         self.add_run("asr3", artifacts={"transcript": {"segments": [{"start": 0, "end": 120, "text": "們們" * 60}]}})
         config = self.config()

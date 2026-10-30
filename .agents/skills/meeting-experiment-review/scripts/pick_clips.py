@@ -112,7 +112,7 @@ def select(root, config):
                     raise ValueError(f"transcript run {run_id} has text without word timestamps; "
                                      "transcript clips need word timing, so pick these clips by hand")
                 texts.append(asr)
-            ranked, a = [], int(skip)
+            ranked, a = [], skip
             # Full windows only: the last one may end exactly at the end of the recording, never past it.
             while a + window <= duration:
                 x, y = (words(asr, a, a + window, convert) for asr in texts)

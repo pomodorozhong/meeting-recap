@@ -8,7 +8,7 @@
   - Runner `experiments/who/` uses `desert-ant-core` v4.2.1 and weights v0.3.4. It builds with the Command Line Tools.
   - The summary is `docs/experiments/2026-10-30-who-diarization.md`.
   - Built from `main` at `b5a03ae`. The branch is local and not linked to #1, because the PR may not finish the issue until the long calls are scored.
-- PR: none (see P-02).
+- PR: https://github.com/pomodorozhong/meeting-recap/pull/25 (draft, base `main`, closes nothing; related to #1 and #18).
 - Code checkpoint: `798d04a`, then this `docs:` commit.
 - State:
   - Weights are in `~/Library/Caches/meeting-recap/who`, outside the checkout.
@@ -24,12 +24,7 @@
   - Answer `check-two-track-call` (also #18). If the track reference changes, rerun the two-track evaluation under a new ID.
   - The serve commands are in the summary.
 - Not run: no listening yet. Who's minor labels (7–14 s on the long calls) have not been heard.
-- Pending: P-02.
-- Next action: resolve P-02. After the user's listening, score the long calls and finalize the decision in the summary and in `docs/decisions.md`.
-  - **P-02:** open a PR from `feat/who-diarization` to `main` with the runner, the runner docs, and the experiment summary at `review pending`.
-    - Its body says "Related to #1", because #1 stays open until the long calls are scored.
-    - Needs approval because opening a PR does.
-    - It blocks nothing. The listening can happen before or after the merge.
+- Next action: after the user's listening, score the long calls, finalize the decision in the summary and in `docs/decisions.md`, then mark PR #25 ready for review.
 
 ## Ranked work
 

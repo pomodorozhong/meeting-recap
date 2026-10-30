@@ -99,11 +99,9 @@ def save_answer(root, session_id, data):
                                           "annotation": clean, "feedback_text": feedback}, data.get("expected_revision"))
 
 
-def make_reference(root, session_id, reference_id):
-    identifier(reference_id)
-    plan = session(root, session_id)
-    rows = events(root, session_id)
-    latest = answers(root, session_id, rows=rows)
+def reference_clips(root, plan, rows):
+    """Confirmed clips and excluded items from one read of the events; validate recomputes them the same way."""
+    latest = answers(root, plan["id"], rows=rows)
     clips, excluded = [], []
     for item in plan["items"]:
         answer = latest.get(item["id"])
@@ -111,6 +109,14 @@ def make_reference(root, session_id, reference_id):
             excluded.append({"item_id": item["id"], "state": answer["state"] if answer else "unreviewed"})
             continue
         clips.append({**item, **answer["annotation"], "answer_seq": answer["seq"]})
+    return clips, excluded
+
+
+def make_reference(root, session_id, reference_id):
+    identifier(reference_id)
+    plan = session(root, session_id)
+    rows = events(root, session_id)
+    clips, excluded = reference_clips(root, plan, rows)
     info = {"format": "meeting-review-reference", "version": 1, "id": reference_id,
             "session_id": session_id, "session_sha256": fingerprint(plan),
             "events_sha256": fingerprint(rows), "revision": len(rows), "created_at": now(), "code": snapshot(root),

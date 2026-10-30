@@ -66,7 +66,8 @@ class Cli(unittest.TestCase):
         truth = write_json(self.tmp / "truth.json", [{"speaker_id": "A", "start_seconds": 0, "end_seconds": 5}])
         run("review.py", "known", self.ds, "--recording", "rec1", "--segments", truth, "--id", "known1")
         counts = json.loads(run("dataset.py", "validate", self.ds).stdout)
-        self.assertEqual(counts, {"recordings": 1, "runs": 3, "sessions": 1, "references": 2, "code": 1})
+        self.assertEqual(counts, {"recordings": 1, "runs": 3, "sessions": 1, "references": 2, "evaluations": 1,
+                                  "unsealed_evaluations": [], "code": 1})
 
     def test_private_outputs_stay_outside_git_checkouts(self):
         checkout = self.tmp / "checkout"

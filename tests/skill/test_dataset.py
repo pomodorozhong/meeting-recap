@@ -99,7 +99,8 @@ class Validate(DatasetCase):
     def test_counts_and_detects_changes(self):
         self.add_recording("rec1", 30)
         self.add_run("dia1", artifacts={"segments": segs(("A", 0, 5))})
-        self.assertEqual(dataset_cli.validate(self.root), {"recordings": 1, "runs": 1, "sessions": 0, "references": 0, "code": 0})
+        self.assertEqual(dataset_cli.validate(self.root), {"recordings": 1, "runs": 1, "sessions": 0, "references": 0,
+                                                         "evaluations": 0, "unsealed_evaluations": [], "code": 0})
         write_json(self.root / "runs" / "dia1" / "segments.json", segs(("B", 0, 5)))
         with self.assertRaises(ValueError):
             dataset_cli.validate(self.root)
@@ -109,6 +110,71 @@ class Validate(DatasetCase):
         write_wav(self.root / info["media"], 31)
         with self.assertRaises(ValueError):
             dataset_cli.validate(self.root)
+
+
+class ValidateProvenance(DatasetCase):
+    def setUp(self):
+        super().setUp()
+        import evaluate
+        import review
+        self.review = review
+        self.add_recording("rec1", 30)
+        self.add_run("dia1", artifacts={"segments": segs(("x", 0, 5), ("y", 5, 10))})
+        review.prepare(self.root, write_json(self.tmp / "plan.json", {
+            "id": "s1", "question": "Who speaks?", "selector": {"name": "agent-selected", "version": "1"},
+            "items": [{"id": "c1", "task": "speaker_order", "recording_id": "rec1", "start_seconds": 1,
+                       "end_seconds": 9, "padding_seconds": 0, "reason": "turn change", "run_ids": ["dia1"]}]}))
+        self.answer(["A", "B"])
+        review.make_reference(self.root, "s1", "ref1")
+        evaluate.evaluate(self.root, "ref1", ["dia1"], "ev1")
+
+    def answer(self, order):
+        self.review.save_answer(self.root, "s1", {"item_id": "c1", "state": "confirmed", "annotation": {"speaker_order": order}})
+
+    def test_detects_each_change_to_evidence_or_results(self):
+        import json
+
+        def edit_json(name, change):
+            def apply(path):
+                data = json.loads(path.read_text())
+                change(data)
+                path.write_text(json.dumps(data))
+            return name, apply
+
+        def edit_text(name, old, new):
+            return name, lambda path: path.write_text(path.read_text().replace(old, new))
+
+        mutations = {
+            "evaluation result": edit_json("evaluations/ev1/evaluation.json",
+                                           lambda d: d["results"][0].update(clips_correct=0)),
+            "evaluation report": edit_text("evaluations/ev1/report.md", "| 2/2 | 1/1 |", "| 0/2 | 0/1 |"),
+            "session question": edit_json("sessions/s1/session.json", lambda d: d.update(question="Who else?")),
+            "referenced answer": edit_text("sessions/s1/events.jsonl", '["A", "B"]', '["B", "A"]'),
+            "evaluated run": edit_json("runs/dia1/run.json", lambda d: d.update(notes="changed")),
+        }
+        self.assertEqual(dataset_cli.validate(self.root)["evaluations"], 1)
+        for name, (relative, apply) in mutations.items():
+            path = self.root / relative
+            original = path.read_bytes()
+            with self.subTest(name):
+                apply(path)
+                self.assertNotEqual(path.read_bytes(), original)
+                with self.assertRaises(ValueError):
+                    dataset_cli.validate(self.root)
+            path.write_bytes(original)
+
+    def test_answers_after_the_reference_keep_it_valid(self):
+        self.answer(["B"])
+        self.review.close_session(self.root, "s1")
+        self.assertEqual(dataset_cli.validate(self.root)["references"], 1)
+
+    def test_lists_evaluations_saved_before_they_were_sealed(self):
+        import json
+        path = self.root / "evaluations" / "ev1" / "evaluation.json"
+        data = json.loads(path.read_text())
+        del data["sha256"], data["report_sha256"]
+        path.write_text(json.dumps(data))
+        self.assertEqual(dataset_cli.validate(self.root)["unsealed_evaluations"], ["ev1"])
 
 
 class Snapshot(DatasetCase):

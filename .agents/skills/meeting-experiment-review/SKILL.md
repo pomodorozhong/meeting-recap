@@ -152,7 +152,7 @@ python3 scripts/evaluate.py "$MEETING_REVIEW_DATA" --reference ref-part1 --runs 
 ```
 
 - The reference keeps only confirmed items and lists the rest as excluded.
-- `evaluate.py` scores `speaker_order` items only, one recording per evaluation; run it once per recording. It writes `evaluations/<id>/evaluation.json` and `report.md` with turns recovered and clips correct per run.
+- `evaluate.py` scores `speaker_order` items only, one recording per evaluation; run it once per recording. It writes `evaluations/<id>/evaluation.json` and `report.md` with turns recovered and clips correct per run, and seals both: the evaluation records its own SHA-256 and the report's.
 - By default each run's labels are mapped to people in whichever way scores best, which flatters runs; pass `--mappings mappings.json` (`{"run-id": {"label": "A"}}`) to test a fixed naming. Only completed runs can be scored.
 - Confirmed `transcript` items are not scored by a script. Compare them with each run's text yourself in the private report (exact wording, dropped or invented words, names and terms).
 
@@ -194,6 +194,6 @@ In both, lead with the decision the user asked about, separate what was measured
 
 ## Other checks
 
-`python3 scripts/dataset.py validate <dataset>` rechecks every digest and the event logs.
+`python3 scripts/dataset.py validate <dataset>` rechecks every digest and the event logs. It also checks that each session reference still matches its session, the answers it froze (answers saved later are fine), and the clips built from them; and that each evaluation still matches its own digest, its report's, and the reference, runs, and code snapshot it names. Evaluations saved before they carried a digest are checked for those links only and listed under `unsealed_evaluations`; to seal one, rerun `evaluate.py` with the same inputs under a new ID.
 
 This repository tests every script in `tests/skill/` (see AGENTS.md for the command). Run the tests after changing the skill, and add tests for new behavior. Never name a script after a standard-library module: scripts run with their own folder first on `sys.path`, so a `select.py` broke the review server.

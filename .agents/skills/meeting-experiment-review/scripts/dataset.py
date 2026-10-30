@@ -8,8 +8,8 @@ import shutil
 import sys
 from pathlib import Path
 
-from common import (FORMAT, VERSION, dataset, digest, identifier, inside, now, number, outside_git,
-                    read_json, recording, segments, write_new)
+from common import (FORMAT, VERSION, dataset, digest, events, fingerprint, identifier, inside, now, number,
+                    outside_git, read_json, recording, run, segments, session, write_new)
 
 
 def init(path):
@@ -81,8 +81,48 @@ def add_run(root, spec_path):
     return info
 
 
+def check_reference(root, item):
+    """A session reference must still match its session, the event prefix it froze, and the answers in it."""
+    from review import reference_clips
+    name = item["id"]
+    plan = session(root, item["session_id"])
+    if fingerprint(plan) != item["session_sha256"]:
+        raise ValueError(f"reference {name}: its session changed")
+    # Answers saved after the reference was frozen are allowed; the prefix it was built from is not.
+    rows = events(root, item["session_id"])[:item["revision"]]
+    if len(rows) != item["revision"] or fingerprint(rows) != item["events_sha256"]:
+        raise ValueError(f"reference {name}: the answers it was built from changed")
+    if list(reference_clips(root, plan, rows)) != [item["clips"], item["excluded"]]:
+        raise ValueError(f"reference {name}: its clips do not match its session's answers")
+
+
+def check_evaluation(root, item, directory):
+    """Check an evaluation's links to its reference, runs, and code; return False if it predates sealing."""
+    name = item["id"]
+    if name != directory.name:
+        raise ValueError(f"evaluation {directory.name} names another ID")
+    sealed = "sha256" in item
+    if sealed:
+        expected = item.pop("sha256")
+        if fingerprint(item) != expected:
+            raise ValueError(f"evaluation changed: {name}")
+        if digest(directory / "report.md") != item["report_sha256"]:
+            raise ValueError(f"evaluation report changed: {name}")
+    reference = read_json(root / "references" / (identifier(item["reference_id"]) + ".json"))
+    if reference["sha256"] != item["reference_sha256"]:
+        raise ValueError(f"evaluation {name}: its reference changed")
+    for result in item["results"]:
+        info = run(root, result["run_id"])
+        if fingerprint(info) != result["run_sha256"] or info["artifacts"]["segments"]["sha256"] != result["segments_sha256"]:
+            raise ValueError(f"evaluation {name}: run {result['run_id']} changed")
+    if not (root / "code" / item["code"]["sha256"] / "code.json").exists():
+        raise ValueError(f"evaluation {name}: its code snapshot is missing")
+    return sealed
+
+
 def validate(root):
-    counts = {"recordings": 0, "runs": 0, "sessions": 0, "references": 0, "code": 0}
+    counts = {"recordings": 0, "runs": 0, "sessions": 0, "references": 0, "evaluations": 0,
+              "unsealed_evaluations": [], "code": 0}
     for path in (root / "recordings").glob("*/recording.json"):
         item = read_json(path)
         if digest(inside(root, item["media"])) != item["sha256"]:
@@ -95,29 +135,34 @@ def validate(root):
             if digest(inside(root, artifact["path"])) != artifact["sha256"]:
                 raise ValueError(f"run artifact changed: {item['id']}")
         counts["runs"] += 1
-    from common import fingerprint as code_fingerprint
     for path in (root / "code").glob("*/code.json"):
         if path.parent.name.startswith("."):
             continue  # a snapshot still being staged, or one abandoned by a crash
         item = read_json(path)
         files = {name: digest(inside(path.parent, name)) for name in item["files"]}
-        if files != item["files"] or code_fingerprint(files) != item["sha256"] or item["sha256"] != path.parent.name:
+        if files != item["files"] or fingerprint(files) != item["sha256"] or item["sha256"] != path.parent.name:
             raise ValueError(f"code snapshot changed: {path.parent.name}")
         counts["code"] += 1
     from review import validate_plan
-    from common import events
     for path in (root / "sessions").glob("*/session.json"):
         item = read_json(path)
         validate_plan(root, item)
         events(root, item["id"])
         counts["sessions"] += 1
-    from common import fingerprint
     for path in (root / "references").glob("*.json"):
         item = read_json(path)
         expected = item.pop("sha256")
         if fingerprint(item) != expected:
-            raise ValueError("reference snapshot changed")
+            raise ValueError(f"reference snapshot changed: {item['id']}")
+        if "session_id" in item:
+            check_reference(root, item)
         counts["references"] += 1
+    for path in (root / "evaluations").glob("*/evaluation.json"):
+        item = read_json(path)
+        if not check_evaluation(root, item, path.parent):
+            counts["unsealed_evaluations"].append(item["id"])
+        counts["evaluations"] += 1
+    counts["unsealed_evaluations"].sort()
     return counts
 
 

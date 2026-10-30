@@ -2,6 +2,7 @@ import unittest
 
 from helpers import DatasetCase, segs, write_json, write_wav
 
+import common
 import dataset as dataset_cli
 
 
@@ -41,6 +42,62 @@ class PrivateLocation(DatasetCase):
                 refused = subprocess.run([*script, "snapshot", str(path)], capture_output=True, text=True)
                 self.assertIn("outside any Git checkout", refused.stderr)
         self.assertFalse((checkout / "data" / "code").exists())
+
+
+class SymlinkedSubdirectory(DatasetCase):
+    """A dataset folder that is a symlink must not carry private writes out of the dataset."""
+
+    def setUp(self):
+        super().setUp()
+        import evaluate
+        import review
+        self.evaluate, self.review = evaluate, review
+        self.add_recording("rec1", 30)
+        self.add_run("dia1", artifacts={"segments": segs(("x", 0, 5))})
+        review.prepare(self.root, write_json(self.tmp / "plan.json", {
+            "id": "s1", "question": "Who speaks?", "selector": {"name": "agent-selected", "version": "1"},
+            "items": [{"id": "c1", "task": "speaker_order", "recording_id": "rec1", "start_seconds": 1,
+                       "end_seconds": 4, "padding_seconds": 0, "reason": "turn", "run_ids": ["dia1"]}]}))
+        self.answer()
+        review.make_reference(self.root, "s1", "ref1")
+        evaluate.evaluate(self.root, "ref1", ["dia1"], "ev1")
+        self.checkout = self.tmp / "checkout"
+        (self.checkout / ".git").mkdir(parents=True)
+
+    def answer(self):
+        self.review.save_answer(self.root, "s1", {"item_id": "c1", "state": "confirmed",
+                                                  "annotation": {"speaker_order": ["A"]}})
+
+    def test_refuses_writes_through_a_symlinked_folder(self):
+        import shutil
+        writes = {
+            "recordings": lambda: self.add_recording("rec2", 10),
+            "runs": lambda: self.add_run("dia2", artifacts={"segments": segs(("x", 0, 5))}),
+            "sessions": self.answer,
+            "references": lambda: self.review.make_reference(self.root, "s1", "ref2"),
+            "evaluations": lambda: self.evaluate.evaluate(self.root, "ref1", ["dia1"], "ev2"),
+            "code": lambda: common.snapshot(self.root),
+        }
+        for name, write in writes.items():
+            for destination in (self.checkout / name, self.tmp / "elsewhere" / name):
+                with self.subTest(name, to=destination.parent.name):
+                    folder = self.root / name
+                    destination.parent.mkdir(exist_ok=True)
+                    shutil.move(folder, destination)
+                    if name == "code":
+                        shutil.rmtree(destination)
+                        destination.mkdir()
+                    before = sorted(p.relative_to(destination) for p in destination.rglob("*"))
+                    folder.symlink_to(destination)
+                    try:
+                        with self.assertRaises(ValueError):
+                            write()
+                        self.assertEqual(sorted(p.relative_to(destination) for p in destination.rglob("*")), before)
+                    finally:
+                        folder.unlink()
+                        shutil.move(destination, folder)
+                        if name == "code":
+                            common.snapshot(self.root)
 
 
 class AddRecording(DatasetCase):

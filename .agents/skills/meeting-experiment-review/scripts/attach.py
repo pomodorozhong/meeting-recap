@@ -6,7 +6,7 @@ import re
 import shutil
 import sys
 
-from common import artifact, dataset, digest, identifier, now, number, run, segments, snapshot, write_new
+from common import artifact, dataset, digest, identifier, now, number, private, run, segments, snapshot, write_new
 
 # Same-speaker words further apart than this become separate turns.
 MAX_GAP_SECONDS = 1.0
@@ -94,7 +94,7 @@ def attach(root, asr_id, diarization_id, new_id, method, max_gap=MAX_GAP_SECONDS
         raise ValueError("attachment needs completed parent runs")
     output = turns(artifact(root, asr, "transcript"), artifact(root, dia, "segments"), method, max_gap)
     code = snapshot(root)
-    directory = root / "runs" / new_id
+    directory = private(root, root / "runs" / new_id)
     try:
         # Creating the directory reserves the ID, so a failure below removes only this caller's own run.
         directory.mkdir(parents=True)

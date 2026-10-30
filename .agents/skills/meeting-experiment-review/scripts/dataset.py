@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 from common import (FORMAT, VERSION, dataset, digest, events, fingerprint, identifier, inside, now, number,
-                    outside_git, read_json, recording, run, segments, session, write_new)
+                    outside_git, private, read_json, recording, run, segments, session, write_new)
 
 
 def init(path):
@@ -24,7 +24,7 @@ def add_recording(root, recording_id, audio, duration, group=None):
     identifier(recording_id)
     number(duration, "duration_seconds", minimum=0.001)
     audio = Path(audio).expanduser().resolve(strict=True)
-    directory = root / "recordings" / recording_id
+    directory = private(root, root / "recordings" / recording_id)
     if directory.exists():
         raise ValueError("recording ID already exists")
     extension = audio.suffix.lower()
@@ -59,7 +59,7 @@ def add_run(root, spec_path):
         if name == "segments":
             segments(read_json(path))
         sources[name] = path
-    directory = root / "runs" / run_id
+    directory = private(root, root / "runs" / run_id)
     if directory.exists():
         raise ValueError("run ID already exists; register a new run instead of replacing predictions")
     directory.mkdir(parents=True)

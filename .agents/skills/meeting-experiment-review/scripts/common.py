@@ -64,7 +64,7 @@ def snapshot(root):
     import tempfile
     files = {str(p.relative_to(SKILL_DIR)): digest(p) for p in code_files()}
     code_id = fingerprint(files)
-    target = root / "code" / code_id
+    target = private(root, root / "code") / code_id
     if not target.exists():
         # Each caller stages its own copy; the first rename publishes it, and later callers reuse that one.
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -125,6 +125,14 @@ def outside_git(path):
     return path
 
 
+def private(root, path):
+    """Resolve a write destination, refusing one that a symlink takes out of the dataset or into a Git checkout."""
+    target = Path(path).resolve()
+    if not target.is_relative_to(root):
+        raise ValueError(f"{Path(path).relative_to(root)} leads outside the dataset; replace the symlink with a folder")
+    return outside_git(target)
+
+
 def dataset(path, write=True):
     """Open a dataset; only read-only commands such as validate pass write=False to open one inside a checkout."""
     root = Path(path).expanduser().resolve()
@@ -172,7 +180,7 @@ def events(root, session_id):
 def append_event(root, session_id, event, expected_revision=None):
     # A file lock also serializes writes from the server and CLI. The app is local-only.
     import fcntl
-    directory = root / "sessions" / identifier(session_id)
+    directory = private(root, root / "sessions" / identifier(session_id))
     with (directory / ".lock").open("a") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX)
         rows = events(root, session_id)

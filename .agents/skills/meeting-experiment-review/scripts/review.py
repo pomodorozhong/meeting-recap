@@ -17,7 +17,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 from common import (answers, append_event, artifact, dataset, digest, events, fingerprint, identifier, inside, snapshot,
-                    now, number, read_json, recording, run, segments, session, span, write_new)
+                    now, number, private, read_json, recording, run, segments, session, span, write_new)
 import tracks
 
 TASKS = {"speaker_order", "transcript"}
@@ -57,7 +57,7 @@ def validate_plan(root, plan):
 def prepare(root, plan_path):
     plan = validate_plan(root, read_json(plan_path))
     result = {**plan, "format": "meeting-review-session", "version": 1, "created_at": now(), "code": snapshot(root)}
-    write_new(root / "sessions" / plan["id"] / "session.json", result)
+    write_new(private(root, root / "sessions" / plan["id"]) / "session.json", result)
     return result
 
 
@@ -122,7 +122,7 @@ def make_reference(root, session_id, reference_id):
             "events_sha256": fingerprint(rows), "revision": len(rows), "created_at": now(), "code": snapshot(root),
             "clips": clips, "excluded": excluded}
     result = {**info, "sha256": fingerprint(info)}
-    write_new(root / "references" / (reference_id + ".json"), result)
+    write_new(private(root, root / "references") / (reference_id + ".json"), result)
     return result
 
 
@@ -169,7 +169,7 @@ def segments_reference(root, recording_id, rows, reference_id, window, source):
             "source": {**source, "window_seconds": window},
             "created_at": now(), "code": snapshot(root), "clips": clips, "excluded": []}
     result = {**info, "sha256": fingerprint(info)}
-    write_new(root / "references" / (reference_id + ".json"), result)
+    write_new(private(root, root / "references") / (reference_id + ".json"), result)
     return result
 
 

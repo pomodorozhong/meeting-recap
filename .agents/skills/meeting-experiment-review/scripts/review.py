@@ -16,7 +16,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
-from common import (answers, append_event, artifact, dataset, digest, events, fingerprint, identifier, inside, snapshot,
+from common import (answers, append_event, artifact, dataset, digest, events, fingerprint, identifier, inside, media, snapshot,
                     now, number, private, read_json, recording, run, segments, session, span, write_new)
 import tracks
 
@@ -246,7 +246,7 @@ def make_handler(root, session_id, token):
                     self.send_data(prediction(root, items[path.rsplit("/", 1)[1]]))
                 elif path.startswith("/media/"):
                     item = items[path.rsplit("/", 1)[1]]
-                    self.send_media(inside(root, recording(root, item["recording_id"])["media"]))
+                    self.send_media(media(root, recording(root, item["recording_id"])))
                 else:
                     self.send_data({"error": "not found"}, status=404)
             except (ValueError, KeyError, OSError, TypeError) as error:

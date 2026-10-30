@@ -149,6 +149,21 @@ def recording(root, recording_id):
     return info
 
 
+_verified_media = {}
+
+
+def media(root, info):
+    """A recording's media path after checking its digest; rechecked whenever the file's size or mtime changes."""
+    path = inside(root, info["media"])
+    stat = path.stat()
+    key = (stat.st_size, stat.st_mtime_ns)
+    if _verified_media.get(path) != key:
+        if digest(path) != info["sha256"]:
+            raise ValueError(f"recording {info['id']} changed since registration")
+        _verified_media[path] = key
+    return path
+
+
 def run(root, run_id):
     return read_json(root / "runs" / identifier(run_id) / "run.json")
 

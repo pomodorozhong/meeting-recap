@@ -5,7 +5,7 @@ import urllib.error
 import urllib.request
 from http.server import ThreadingHTTPServer
 
-from helpers import DatasetCase, segs, transcript, write_json
+from helpers import DatasetCase, segs, transcript, write_json, write_wav
 
 import evaluate
 import review
@@ -224,6 +224,13 @@ class Server(ReviewCase):
         self.assertEqual(self.request("/media/c1", headers={"Range": "bytes=x"})[0], 416)
         self.assertEqual(self.request("/nowhere")[0], 404)
         self.assertEqual(self.request("/api/prediction/c9")[0], 400)
+
+    def test_refuses_to_play_a_recording_changed_after_registration(self):
+        self.assertEqual(self.request("/media/c1")[0], 200)
+        write_wav(self.root / "recordings" / "rec1" / "source.wav", 31)
+        status, _, body = self.request("/media/c1")
+        self.assertEqual(status, 400)
+        self.assertIn("changed", json.loads(body)["error"])
 
     def test_saves_answers_and_closes(self):
         answer = {"item_id": "c1", "state": "confirmed", "annotation": {"speaker_order": ["A"]}, "expected_revision": 0}

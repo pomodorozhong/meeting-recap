@@ -50,7 +50,8 @@ SKILL_DIR = Path(__file__).resolve().parent.parent
 
 def code_files(skill_dir=SKILL_DIR):
     files = sorted(p for p in (skill_dir / "scripts").glob("*.py"))
-    return [*files, skill_dir / "assets" / "review.html"]
+    # pyproject.toml and uv.lock pin the packages some steps need, such as OpenCC for transcript clips.
+    return [*files, skill_dir / "assets" / "review.html", skill_dir / "pyproject.toml", skill_dir / "uv.lock"]
 
 
 def snapshot(root):

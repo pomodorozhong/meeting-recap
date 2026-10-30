@@ -5,13 +5,13 @@
 ### fix/skill-review-findings
 
 - Task: fix the skill-side code review findings R-01–R-04, R-07, R-11, R-12 and R-14 (no issue; the review report is private to the reviewing session). Based on `main` after #19, unlinked. R-05 and R-06 were fixed in #19; the runner findings R-08–R-10 and R-13 are a separate task.
-- PR: none yet; see P-01.
-- Code checkpoint: see `git log`. Five `fix(skill)` commits: attachment splits turns at `--max-gap` (default 1 s), refuses text without word timestamps and reversed words, and joins zero-length words to a neighbouring turn (R-02–R-04); transcript selection keeps the typical clip apart and includes the last full window (R-11, R-12); snapshots stage per caller (R-07); writes inside a Git checkout are refused at every command and both `--out` options (R-14); `validate` checks session references against their session and event prefix and checks sealed evaluations (R-01).
-- Verification: 92 skill tests pass, each commit on its own too; each new regression test was run before its fix and failed. The diff was scanned for names and private paths. Not run: `dataset.py validate` on the real dataset.
+- PR: https://github.com/pomodorozhong/meeting-recap/pull/20 (open, base `main`, ready for review; closes nothing). The user approved opening it.
+- Code checkpoint: see `git log`. The first five `fix(skill)` commits cover the findings. Two more address a review of the PR: a failed attachment no longer deletes a racing caller's completed run, and every buffered zero-length word must be within `--max-gap` of the word it joins (`14a03af`); every dataset write checks its resolved destination folder, so a symlinked `runs/` can't carry writes into a checkout or out of the dataset (`8270109`).
+- Verification: 94 skill tests pass, and each commit passes on its own. Each new regression test was run before its fix and failed. The diff was scanned for names and private paths. Not run: `dataset.py validate` on the real dataset.
 - Compatibility: evaluations written before this branch, such as `eval-two-track-call`, have no digest; `validate` checks their links and lists them under `unsealed_evaluations`. Rerun `evaluate.py` under a new ID to seal one.
-- Next action: after P-01 is approved, push and open the PR with the `open-pr` skill.
+- Next action: the reviewer re-reviews PR #20. Its body predates the two review-fix commits; see P-02.
 - Pending:
-  - P-01: open a PR from `fix/skill-review-findings` to `main` with the title and body shown in the session; needs the user's approval under `open-pr`; blocks review and merge.
+  - P-02: update PR #20's body to describe the two review-fix commits and the 94-test result; needs the user's approval; blocks nothing but an accurate description.
 
 ## Ranked work
 

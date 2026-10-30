@@ -4,6 +4,8 @@ import unittest
 from helpers import DatasetCase, segs, transcript, write_json
 
 import attach
+from common import segments
+from scoring import clip_turns
 
 DIARIZATION = segs(("A", 0, 5), ("B", 5, 10))
 ASR = transcript(("你", 1, 2), ("好", 2, 3), ("<|zh|>嗨", 6, 7))
@@ -38,6 +40,42 @@ class Turns(unittest.TestCase):
     def test_unassigned_text(self):
         out = attach.turns(transcript(("x", 20, 21)), DIARIZATION, "word")
         self.assertEqual(out[0]["speaker_id"], "__unassigned__")
+
+    def test_a_silent_gap_splits_one_speakers_turn(self):
+        dia = segs(("x", 0, 1), ("x", 100, 101))
+        between = attach.turns(transcript(("a", 0, 1), ("b", 100, 101)), dia, "word")
+        self.assertEqual([(t["start_seconds"], t["end_seconds"], t["text"]) for t in between], [(0, 1, "a"), (100, 101, "b")])
+        self.assertEqual(clip_turns(between, 40, 50), [])
+        within = {"segments": [{"start": 0, "end": 101, "text": "ab", "words": [
+            {"word": "a", "start": 0, "end": 1}, {"word": "b", "start": 100, "end": 101}]}]}
+        self.assertEqual(len(attach.turns(within, dia, "word")), 2)
+        close = attach.turns(transcript(("a", 0, 1), ("b", 1.5, 2)), segs(("x", 0, 2)), "word")
+        self.assertEqual([(t["start_seconds"], t["end_seconds"], t["text"]) for t in close], [(0, 2, "ab")])
+
+    def test_text_without_words_is_refused(self):
+        timed = transcript(("a", 0, 1))["segments"]
+        asr = {"segments": [*timed, {"start": 2, "end": 3, "text": "<|zh|>synthetic words", "words": []}]}
+        with self.assertRaisesRegex(ValueError, "segment 1"):
+            attach.turns(asr, DIARIZATION, "word")
+        silent = {"segments": [*timed, {"start": 2, "end": 3, "text": "<|zh|> ", "words": []}]}
+        self.assertEqual([t["text"] for t in attach.turns(silent, DIARIZATION, "word")], ["a"])
+
+    def test_zero_length_words_join_a_neighbouring_turn(self):
+        cases = {
+            "after a word": ((("a", 1, 2), (",", 2, 2)), [("A", 1, 2, "a,")]),
+            "before a word": (((",", 1, 1), ("a", 1, 2)), [("A", 1, 2, ",a")]),
+            "a run of them": ((("a", 1, 2), (",", 2, 2), (".", 2, 2), ("b", 2, 3)), [("A", 1, 3, "a,.b")]),
+            "between speakers": ((("a", 4, 5), (",", 5, 5), ("b", 5, 6)), [("A", 4, 5, "a,"), ("B", 5, 6, "b")]),
+        }
+        for name, (words, expected) in cases.items():
+            with self.subTest(name):
+                out = attach.turns(transcript(*words), DIARIZATION, "word")
+                self.assertEqual([(t["speaker_id"], t["start_seconds"], t["end_seconds"], t["text"]) for t in out], expected)
+                segments(out)
+        for name, words in {"isolated": [("a", 0, 0)], "far from others": [("a", 1, 2), (",", 8, 8)],
+                            "reversed": [("a", 2, 1)]}.items():
+            with self.subTest(name), self.assertRaises(ValueError):
+                attach.turns(transcript(*words), DIARIZATION, "word")
 
 
 class Attach(DatasetCase):

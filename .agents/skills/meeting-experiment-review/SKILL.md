@@ -76,6 +76,8 @@ python3 scripts/attach.py "$MEETING_REVIEW_DATA" --asr-run whisper-part1 --diari
 
 `word` (default) needs word timestamps; `seg` attaches whole ASR segments by overlap; `line` reproduces HushScribe's single-point lookup for comparison.
 
+Same-speaker words more than `--max-gap` seconds apart (default 1) become separate turns, so no turn spans a silence. `word` refuses a segment that has text but no word timestamps instead of dropping its text; use `seg` for such a transcript. A zero-length word joins the turn just before it, or else the next word's, when one is within `--max-gap`; attachment fails rather than writing a run with a zero-length turn.
+
 ### 3. Choose clips and prepare a session
 
 Pick clips that answer the user's question and give each a reason:

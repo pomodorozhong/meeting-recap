@@ -30,7 +30,7 @@ Labels are only meaningful within one run. `__unassigned__` marks text with no o
 
 ## `transcript` artifact (ASR)
 
-WhisperKit report shape. `words` is needed for `attach.py --method word`.
+WhisperKit report shape. `attach.py --method word` needs `words` in every segment that has text; a word's `end` must not be before its `start`.
 
 ```json
 {"text": "...", "segments": [{"start": 0.0, "end": 5.1, "text": "...",

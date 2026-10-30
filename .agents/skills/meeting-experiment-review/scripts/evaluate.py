@@ -4,7 +4,7 @@ import argparse
 import json
 import sys
 
-from common import dataset, digest, fingerprint, identifier, inside, now, number, read_json, run, snapshot, write_new
+from common import artifact, dataset, fingerprint, identifier, now, number, read_json, run, snapshot, write_new
 from scoring import score
 
 
@@ -21,16 +21,13 @@ def evaluate(root, reference_id, run_ids, evaluation_id, min_overlap=0.3, mappin
         info = run(root, run_id)
         if info["status"] != "completed":
             raise ValueError(f"run {run_id} is {info['status']}; it cannot be scored as completed")
-        artifact = info["artifacts"]["segments"]
-        path = inside(root, artifact["path"])
-        if digest(path) != artifact["sha256"]:
-            raise ValueError("prediction artifact changed")
+        predicted = artifact(root, info, "segments")
         clips = [c for c in reference["clips"] if c["recording_id"] == info["recording_id"] and c["task"] == "speaker_order"]
         if not clips:
             raise ValueError(f"no confirmed speaker-order references for {run_id}")
         comparisons.append({"run_id": run_id, "recording_id": info["recording_id"], "model": info["model"],
-                            "run_sha256": fingerprint(info), "segments_sha256": artifact["sha256"],
-                            **score(read_json(path), clips, min_overlap, (mappings or {}).get(run_id))})
+                            "run_sha256": fingerprint(info), "segments_sha256": info["artifacts"]["segments"]["sha256"],
+                            **score(predicted, clips, min_overlap, (mappings or {}).get(run_id))})
     # Scores for different recordings or tasks must not be pooled into a misleading ranking.
     sets = {tuple(row["item_id"] for row in result["details"]) for result in comparisons}
     if len(sets) > 1:

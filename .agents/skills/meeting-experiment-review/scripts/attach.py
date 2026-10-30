@@ -5,7 +5,7 @@ import json
 import re
 import sys
 
-from common import dataset, digest, identifier, inside, now, read_json, run, snapshot, write_new
+from common import artifact, dataset, digest, identifier, now, run, snapshot, write_new
 
 
 def clean(text):
@@ -60,12 +60,7 @@ def attach(root, asr_id, diarization_id, new_id, method):
         raise ValueError("attachment inputs must use the same recording and time origin")
     if asr["status"] != "completed" or dia["status"] != "completed":
         raise ValueError("attachment needs completed parent runs")
-    for parent, key in [(asr, "transcript"), (dia, "segments")]:
-        artifact = parent["artifacts"][key]
-        if digest(inside(root, artifact["path"])) != artifact["sha256"]:
-            raise ValueError("parent artifact changed")
-    output = turns(read_json(inside(root, asr["artifacts"]["transcript"]["path"])),
-                   read_json(inside(root, dia["artifacts"]["segments"]["path"])), method)
+    output = turns(artifact(root, asr, "transcript"), artifact(root, dia, "segments"), method)
     directory = root / "runs" / new_id
     if directory.exists():
         raise ValueError("derived run ID already exists")

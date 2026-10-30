@@ -12,7 +12,8 @@
   sessions/<id>/session.json        the frozen plan
   sessions/<id>/events.jsonl        answer / close events, seq 1..n
   references/<id>.json              confirmed clips, excluded items, digests of session and events
-                                    (or, from `review.py known`, a `source` with the known segments' digest)
+                                    (or, from `review.py known` or `tracks`, a `source` with the known
+                                    segments' digest, or each track's digest and the activity settings)
   evaluations/<id>/evaluation.json
   evaluations/<id>/report.md
 ```

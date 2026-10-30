@@ -124,6 +124,17 @@ def run(root, run_id):
     return read_json(root / "runs" / identifier(run_id) / "run.json")
 
 
+def artifact(root, info, name):
+    """Read a run's artifact after checking it against the digest recorded when it was registered."""
+    entry = info["artifacts"].get(name)
+    if entry is None:
+        raise ValueError(f"run {info['id']} has no {name} artifact")
+    path = inside(root, entry["path"])
+    if digest(path) != entry["sha256"]:
+        raise ValueError(f"run {info['id']}: {name} artifact changed since registration")
+    return read_json(path)
+
+
 def session(root, session_id):
     return read_json(root / "sessions" / identifier(session_id) / "session.json")
 
@@ -153,8 +164,10 @@ def append_event(root, session_id, event, expected_revision=None):
         return row
 
 
-def answers(root, session_id, until=None):
-    return {event["item_id"]: event for event in events(root, session_id)
+def answers(root, session_id, until=None, rows=None):
+    """Latest answer per item; pass `rows` from one events() read so answers and revision agree."""
+    rows = events(root, session_id) if rows is None else rows
+    return {event["item_id"]: event for event in rows
             if event["type"] == "answer" and (until is None or event["seq"] <= until)}
 
 

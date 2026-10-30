@@ -1,5 +1,7 @@
 """Shared fixtures: a throwaway dataset outside any Git checkout, built from generated audio."""
 import json
+import math
+import random
 import struct
 import sys
 import tempfile
@@ -28,6 +30,23 @@ def write_wav(path, seconds, rate=8000):
         handle.setsampwidth(2)
         handle.setframerate(rate)
         handle.writeframes(struct.pack("<h", 0) * int(seconds * rate))
+    return path
+
+
+def write_track(path, seconds, bursts, rate=8000, amplitude=8000, noise=30, seed=0):
+    """A generated speaker track: low noise, plus a 300 Hz tone for each (start, end[, amplitude]) burst."""
+    rng = random.Random(seed)
+    samples = [rng.randint(-noise, noise) for _ in range(int(seconds * rate))]
+    for start, end, *level in bursts:
+        for i in range(int(start * rate), int(end * rate)):
+            samples[i] += int((level[0] if level else amplitude) * math.sin(2 * math.pi * 300 * i / rate))
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with wave.open(str(path), "wb") as handle:
+        handle.setnchannels(1)
+        handle.setsampwidth(2)
+        handle.setframerate(rate)
+        handle.writeframes(struct.pack(f"<{len(samples)}h", *samples))
     return path
 
 

@@ -2,16 +2,16 @@
 
 ## In progress
 
-### feat/two-track-capture
+### fix/skill-review-findings
 
-- Task: record calls as two aligned tracks and use a two-person call's tracks as its speaker reference; [#18](https://github.com/pomodorozhong/meeting-recap/issues/18). Based on `main`, unlinked. The PR does not finish #18 (its experiment has not run), so it says `Related to #18`.
-- PR: https://github.com/pomodorozhong/meeting-recap/pull/19 (open, base `main`, ready for review; `Related to #18`, closes nothing).
-- Code checkpoint: see `git log`. `feat:` adds `experiments/capture/` (`record.swift`, ScreenCaptureKit, `mic.m4a` + `system.m4a` + `timing.json`); `docs:` adds decision 6; `feat(skill)` adds `scripts/tracks.py` and `review.py tracks` (reference from two tracks' activity, source kind `two_tracks`), documented in SKILL.md.
-- State: the user recorded a ~48.5 min two-person call with headphones (in the dataset's `raw/`, with a meeting app's transcript whose speaker labels are wrong: it shows three speakers). A dry run of `tracks.py` on it in scratch took 2 s and found ~15 min of A, ~11 min of B, 91 s overlapping; at the default 30 s window that is 86 clips of ~31 s. Nothing is registered in the dataset yet.
-- Verification: 81 skill tests pass (the three new ones fail without the fixes); `swiftc -typecheck experiments/capture/record.swift` passes; the documented `amix` command makes a 16 kHz mono mix of the full call length. Diffs scanned for names and private paths.
-- Experiment: [docs/experiments/2026-10-30-two-track-call.md](docs/experiments/2026-10-30-two-track-call.md) is committed (status planned), with run, session, reference and evaluation IDs; skill snapshot `cc24865f…` taken at ``, after two review fixes: artifacts are digest-checked on every read (R-05) and references take answers and revision from one event read (R-06).
-- Experiment state: recording `two-track-call`, runs `tracks-two-track-call` and `sortformer-two-track-call`, reference `tracks-two-track-call` (86 clips), evaluation `eval-two-track-call` (Sortformer 528/629 turns, 39/86 clips, provisional), and session `check-two-track-call` (10 clips) are in the dataset; scratch WAVs are in a session scratchpad and can be remade from the plan.
-- Next action: the user listens to `check-two-track-call` (command in the experiment summary); then freeze `ref-check-two-track-call`, run `eval-check-two-track-call` on both runs, write the private report, and finish the summary.
+- Task: fix the skill-side code review findings R-01–R-04, R-07, R-11, R-12 and R-14 (no issue; the review report is private to the reviewing session). Based on `main` after #19, unlinked. R-05 and R-06 were fixed in #19; the runner findings R-08–R-10 and R-13 are a separate task.
+- PR: none yet; see P-01.
+- Code checkpoint: see `git log`. Five `fix(skill)` commits: attachment splits turns at `--max-gap` (default 1 s), refuses text without word timestamps and reversed words, and joins zero-length words to a neighbouring turn (R-02–R-04); transcript selection keeps the typical clip apart and includes the last full window (R-11, R-12); snapshots stage per caller (R-07); writes inside a Git checkout are refused at every command and both `--out` options (R-14); `validate` checks session references against their session and event prefix and checks sealed evaluations (R-01).
+- Verification: 92 skill tests pass, each commit on its own too; each new regression test was run before its fix and failed. The diff was scanned for names and private paths. Not run: `dataset.py validate` on the real dataset.
+- Compatibility: evaluations written before this branch, such as `eval-two-track-call`, have no digest; `validate` checks their links and lists them under `unsealed_evaluations`. Rerun `evaluate.py` under a new ID to seal one.
+- Next action: after P-01 is approved, push and open the PR with the `open-pr` skill.
+- Pending:
+  - P-01: open a PR from `fix/skill-review-findings` to `main` with the title and body shown in the session; needs the user's approval under `open-pr`; blocks review and merge.
 
 ## Ranked work
 
@@ -23,7 +23,7 @@
 6. #7 Decide where private experiment data is backed up
 7. #5 Add a Reproduce section to public experiment summaries
 8. #3 Migrate the 2026-10-24 experiment results into the private review dataset
-9. Remaining code review findings (R-01–R-04, R-07–R-14; no issue yet): dataset validation of references and evaluations, attachment gaps and empty or zero-length words, snapshot concurrency, model pinning, runner wrappers, transcript clip picking, writes outside the dataset guard
+9. Remaining code review findings R-08–R-10 and R-13 in `experiments/` runners (no issue yet): model pinning, the no-VAD variant, runner completion checks, sweep output reuse. The skill findings are on `fix/skill-review-findings`
 10. Build the minimal pipeline for saved recordings in `experiments/pipelines/`: ASR and Sortformer, attachment, naming, Markdown transcript (no issue yet)
 
 ## Pending

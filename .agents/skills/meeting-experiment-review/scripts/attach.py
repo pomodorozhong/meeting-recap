@@ -61,8 +61,9 @@ def turns(asr, segs, method, max_gap=MAX_GAP_SECONDS):
                 waiting.append((start, text))
             continue
         if waiting:
-            if start - waiting[-1][0] > max_gap:
-                raise ValueError(f"a zero-length word at {waiting[0][0]} s has no word within {max_gap} s to join")
+            far = [at for at, _ in waiting if abs(start - at) > max_gap]
+            if far:
+                raise ValueError(f"a zero-length word at {far[0]} s has no word within {max_gap} s to join")
             text = "".join(t for _, t in waiting) + text
             waiting = []
         if method == "line":
@@ -94,8 +95,11 @@ def attach(root, asr_id, diarization_id, new_id, method, max_gap=MAX_GAP_SECONDS
     output = turns(artifact(root, asr, "transcript"), artifact(root, dia, "segments"), method, max_gap)
     code = snapshot(root)
     directory = root / "runs" / new_id
-    if directory.exists():
-        raise ValueError("derived run ID already exists")
+    try:
+        # Creating the directory reserves the ID, so a failure below removes only this caller's own run.
+        directory.mkdir(parents=True)
+    except FileExistsError:
+        raise ValueError("derived run ID already exists") from None
     try:
         write_new(directory / "segments.json", output)
         info = {"id": new_id, "recording_id": asr["recording_id"], "model": "speaker-attachment",

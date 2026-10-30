@@ -1,7 +1,7 @@
 import json
 import unittest
 
-from helpers import DatasetCase, segs, transcript, write_json
+from helpers import DatasetCase, dataset_cli, segs, transcript, write_json
 
 import attach
 from common import segments
@@ -66,6 +66,7 @@ class Turns(unittest.TestCase):
             "before a word": (((",", 1, 1), ("a", 1, 2)), [("A", 1, 2, ",a")]),
             "a run of them": ((("a", 1, 2), (",", 2, 2), (".", 2, 2), ("b", 2, 3)), [("A", 1, 3, "a,.b")]),
             "between speakers": ((("a", 4, 5), (",", 5, 5), ("b", 5, 6)), [("A", 4, 5, "a,"), ("B", 5, 6, "b")]),
+            "a run before a word": (((",", 0.2, 0.2), (".", 0.5, 0.5), ("a", 1, 2)), [("A", 1, 2, ",.a")]),
         }
         for name, (words, expected) in cases.items():
             with self.subTest(name):
@@ -73,7 +74,8 @@ class Turns(unittest.TestCase):
                 self.assertEqual([(t["speaker_id"], t["start_seconds"], t["end_seconds"], t["text"]) for t in out], expected)
                 segments(out)
         for name, words in {"isolated": [("a", 0, 0)], "far from others": [("a", 1, 2), (",", 8, 8)],
-                            "reversed": [("a", 2, 1)]}.items():
+                            "reversed": [("a", 2, 1)],
+                            "one far before a word": [(",", 0, 0), (".", 100, 100), ("a", 100.5, 101)]}.items():
             with self.subTest(name), self.assertRaises(ValueError):
                 attach.turns(transcript(*words), DIARIZATION, "word")
 
@@ -93,6 +95,34 @@ class Attach(DatasetCase):
         self.assertEqual(data[0]["speaker_id"], "A")
         with self.assertRaises(ValueError):
             attach.attach(self.root, "asr1", "dia1", "att1", "word")
+
+    def test_a_racing_attachment_never_deletes_the_winners_run(self):
+        real = attach.write_new
+        other = {}
+
+        def another_caller_first(path, data):
+            # A second caller with the same ID runs to completion just before this caller's first write.
+            if not other:
+                attach.write_new = real
+                try:
+                    other["result"] = attach.attach(self.root, "asr1", "dia1", "race", "word")
+                except ValueError as error:
+                    other["result"] = error
+                finally:
+                    attach.write_new = another_caller_first
+            return real(path, data)
+        attach.write_new = another_caller_first
+        try:
+            try:
+                mine = attach.attach(self.root, "asr1", "dia1", "race", "word")
+            except (ValueError, OSError) as error:
+                mine = error
+        finally:
+            attach.write_new = real
+        outcomes = [isinstance(r, dict) for r in (mine, other["result"])]
+        self.assertEqual(sorted(outcomes), [False, True], (mine, other["result"]))
+        self.assertTrue((self.root / "runs" / "race" / "run.json").exists())
+        dataset_cli.validate(self.root)
 
     def test_rejects_mismatched_or_changed_parents(self):
         self.add_run("dia2", recording_id="rec2", artifacts={"segments": DIARIZATION})

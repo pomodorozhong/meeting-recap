@@ -81,6 +81,18 @@ class KnownReference(ReviewCase):
         result = evaluate.evaluate(self.root, "known1", ["truth"], "ev1")["results"][0]
         self.assertEqual((result["turns_recovered"], result["clips_correct"]), (result["reference_turns"], result["clips"]))
 
+    def test_a_turn_too_short_to_score_is_left_out(self):
+        rows = segs(("A", 0, 5), ("B", 5, 5.21), ("A", 5.21, 10))
+        self.add_run("same", artifacts={"segments": rows})
+        ref = self.known(rows, window=30)
+        self.assertEqual([c["speaker_order"] for c in ref["clips"]], [["A"]])
+        result = evaluate.evaluate(self.root, "known1", ["same"], "ev1")["results"][0]
+        self.assertEqual((result["turns_recovered"], result["clips_correct"]), (result["reference_turns"], result["clips"]))
+        with self.assertRaises(ValueError):
+            evaluate.evaluate(self.root, "known1", ["same"], "ev2", min_overlap=0.1)
+        with self.assertRaises(ValueError):
+            self.known(segs(("A", 0, 0.2)), reference_id="all-short")
+
     def test_rejects_bad_segments(self):
         for name, rows in {"empty": [], "past the end": segs(("A", 0, 31)), "blank speaker": segs(("", 0, 1))}.items():
             with self.subTest(name), self.assertRaises(ValueError):

@@ -143,7 +143,7 @@ def track_reference(root, recording_id, track_paths, reference_id, window=30.0, 
     return segments_reference(root, recording_id, rows, reference_id, window, source)
 
 
-def segments_reference(root, recording_id, rows, reference_id, window, source):
+def segments_reference(root, recording_id, rows, reference_id, window, source, min_overlap=0.3):
     identifier(reference_id)
     number(window, "window", minimum=1)
     rec = recording(root, recording_id)
@@ -154,6 +154,9 @@ def segments_reference(root, recording_id, rows, reference_id, window, source):
         raise ValueError("known segments exceed recording duration")
     groups = []
     for seg in rows:
+        # A turn too short for the scorer to count (see scoring.clip_turns) must not be expected of a prediction.
+        if seg["end_seconds"] - seg["start_seconds"] < min_overlap:
+            continue
         # A clip closes only at a gap, so no turn (or overlap) is split between two clips.
         if not groups or (seg["start_seconds"] >= groups[-1]["end"] and groups[-1]["end"] - groups[-1]["start"] >= window):
             groups.append({"start": seg["start_seconds"], "end": seg["end_seconds"], "order": []})
@@ -161,12 +164,14 @@ def segments_reference(root, recording_id, rows, reference_id, window, source):
         group["end"] = max(group["end"], seg["end_seconds"])
         if not group["order"] or group["order"][-1] != seg["speaker_id"]:
             group["order"].append(seg["speaker_id"])
+    if not groups:
+        raise ValueError(f"no known turn lasts {min_overlap} s, the shortest the scorer counts")
     clips = [{"id": f"k{i + 1:03d}", "task": "speaker_order", "recording_id": recording_id,
               "start_seconds": g["start"], "end_seconds": g["end"], "padding_seconds": 0,
               "reason": source["kind"].replace("_", " "), "speaker_order": g["order"], "allow_extra_turns": False}
              for i, g in enumerate(groups)]
     info = {"format": "meeting-review-reference", "version": 1, "id": reference_id,
-            "source": {**source, "window_seconds": window},
+            "source": {**source, "window_seconds": window, "min_overlap_seconds": min_overlap},
             "created_at": now(), "code": snapshot(root), "clips": clips, "excluded": []}
     result = {**info, "sha256": fingerprint(info)}
     write_new(private(root, root / "references") / (reference_id + ".json"), result)

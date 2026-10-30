@@ -38,7 +38,7 @@ The first run asks to allow **Screen & System Audio Recording** and **Microphone
 
 If a file cannot be written (a full disk, an encoder error, or a track that never received audio), the recorder stops, still writes `timing.json`, prints `RECORDING FAILED` with the reason, and exits with status 1. Only a complete recording prints `saved` and exits with 0.
 
-Both files share one timeline that starts at the first audio buffer from either stream. A track that starts late or drops out is filled with silence, so sample *n* of one file is sample *n* of the other. Convert for other tools with, for example, `ffmpeg -i mic.m4a -ar 16000 mic.wav`.
+Both files share one timeline that starts at the first audio buffer from either stream. A track that starts late or drops out is filled with silence, and when you stop, the track that went quiet first is padded to where the other ends, so sample *n* of one file is sample *n* of the other and both files have the same length. Convert for other tools with, for example, `ffmpeg -i mic.m4a -ar 16000 mic.wav`.
 
 Wear headphones: on speakers, the other side of the call leaks into `mic.m4a`. A Bluetooth headset's mic runs at 16 or 24 kHz and switches the headset into its lower-quality call mode, so for cleaner mic audio use wired headphones or Bluetooth headphones with `--mic MacBook`.
 

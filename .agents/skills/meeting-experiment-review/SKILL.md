@@ -153,7 +153,7 @@ python3 scripts/evaluate.py "$MEETING_REVIEW_DATA" --reference ref-part1 --runs 
 
 - The reference keeps only confirmed items and lists the rest as excluded.
 - `evaluate.py` scores `speaker_order` items only, one recording per evaluation; run it once per recording. It writes `evaluations/<id>/evaluation.json` and `report.md` with turns recovered and clips correct per run, and seals both: the evaluation records its own SHA-256 and the report's.
-- By default each run's labels are mapped to people in whichever way scores best, which flatters runs; pass `--mappings mappings.json` (`{"run-id": {"label": "A"}}`) to test a fixed naming. Only completed runs can be scored.
+- By default each run's labels are mapped to people in whichever way scores best, which flatters runs; pass `--mappings mappings.json` (`{"run-id": {"label": "A"}}`) to test a fixed naming; it must name every run scored, so none falls back to the fitted mapping. Only completed runs can be scored.
 - Confirmed `transcript` items are not scored by a script. Compare them with each run's text yourself in the private report (exact wording, dropped or invented words, names and terms).
 
 **Known turns.** When the true speaker turns are already known, as for the synthetic call in `experiments/synthetic-call/`, skip the listening session and build the reference from them:

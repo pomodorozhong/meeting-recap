@@ -20,6 +20,10 @@ def evaluate(root, reference_id, run_ids, evaluation_id, min_overlap=0.3, mappin
     if built_for != min_overlap:
         raise ValueError(f"reference {reference_id} left out turns shorter than {built_for} s; evaluate with --min-overlap {built_for}")
     comparisons = []
+    # A run missing from an explicit mappings file would silently fall back to the flattering fitted mapping.
+    missing = [r for r in run_ids if mappings is not None and r not in mappings]
+    if missing:
+        raise ValueError(f"--mappings has no mapping for {', '.join(missing)}; give one for every run scored")
     for run_id in run_ids:
         info = run(root, run_id)
         if info["status"] != "completed":
@@ -30,7 +34,7 @@ def evaluate(root, reference_id, run_ids, evaluation_id, min_overlap=0.3, mappin
             raise ValueError(f"no confirmed speaker-order references for {run_id}")
         comparisons.append({"run_id": run_id, "recording_id": info["recording_id"], "model": info["model"],
                             "run_sha256": fingerprint(info), "segments_sha256": info["artifacts"]["segments"]["sha256"],
-                            **score(predicted, clips, min_overlap, (mappings or {}).get(run_id))})
+                            **score(predicted, clips, min_overlap, None if mappings is None else mappings[run_id])})
     # Scores for different recordings or tasks must not be pooled into a misleading ranking.
     sets = {tuple(row["item_id"] for row in result["details"]) for result in comparisons}
     if len(sets) > 1:

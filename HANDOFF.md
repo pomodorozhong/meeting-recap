@@ -41,5 +41,5 @@
 
 ## Pending
 
-- **P-01:** open a `docs:` PR from `docs/handoff-review-fixes-merged` that removes the merged #23 and #24 subsections from `HANDOFF.md`. This branch removes them too, so P-01 is redundant if P-02's PR merges. Then delete that branch instead.
+- **P-01:** open a `docs:` PR from `docs/handoff-review-fixes-merged` that removes the merged #23 and #24 subsections from `HANDOFF.md`. This branch removes them too, so P-01 is redundant once PR #25 merges; then delete that branch instead.
 - **P-03:** decide what to do with the local branch `codex/sanitize-research-import` (5 commits, last one `tmp`, about 48k lines of imported research material, never pushed or opened as a PR). Options: delete it, or review it for private material and publish the reusable parts. Needs the user's decision because it may hold private material and deleting it loses the only copy. Blocks nothing; every other merged branch was deleted on 2026-10-30.

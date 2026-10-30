@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 from common import (FORMAT, VERSION, dataset, digest, events, fingerprint, identifier, inside, now, number,
-                    outside_git, private, read_json, recording, run, segments, session, write_new)
+                    outside_git, private, read_json, recording, run, segments, session, within, write_new)
 
 
 def init(path):
@@ -47,7 +47,7 @@ def add_run(root, spec_path):
     spec_path = Path(spec_path).resolve()
     spec = read_json(spec_path)
     run_id = identifier(spec["id"])
-    recording(root, spec["recording_id"])
+    duration = recording(root, spec["recording_id"])["duration_seconds"]
     if spec.get("status") not in {"completed", "failed", "incomplete"}:
         raise ValueError("run status must be completed, failed, or incomplete")
     if not isinstance(spec.get("model"), str) or not spec["model"]:
@@ -58,6 +58,8 @@ def add_run(root, spec_path):
         path = (spec_path.parent / source).resolve(strict=True)
         if name == "segments":
             segments(read_json(path))
+        if name in {"segments", "transcript"}:
+            within(read_json(path), name, duration)
         sources[name] = path
     directory = private(root, root / "runs" / run_id)
     if directory.exists():
@@ -121,7 +123,7 @@ def check_evaluation(root, item, directory):
 
 
 def validate(root):
-    counts = {"recordings": 0, "runs": 0, "sessions": 0, "references": 0, "evaluations": 0,
+    counts = {"recordings": 0, "runs": 0, "incomplete_runs": [], "sessions": 0, "references": 0, "evaluations": 0,
               "unsealed_evaluations": [], "code": 0}
     for path in (root / "recordings").glob("*/recording.json"):
         item = read_json(path)
@@ -130,11 +132,20 @@ def validate(root):
         counts["recordings"] += 1
     for path in (root / "runs").glob("*/run.json"):
         item = read_json(path)
-        recording(root, item["recording_id"])
-        for artifact in item["artifacts"].values():
-            if digest(inside(root, artifact["path"])) != artifact["sha256"]:
+        duration = recording(root, item["recording_id"])["duration_seconds"]
+        for name, artifact in item["artifacts"].items():
+            target = inside(root, artifact["path"])
+            if digest(target) != artifact["sha256"]:
                 raise ValueError(f"run artifact changed: {item['id']}")
+            if name in {"segments", "transcript"}:
+                try:
+                    within(read_json(target), name, duration)
+                except ValueError as error:
+                    raise ValueError(f"run {item['id']}: {error}") from None
         counts["runs"] += 1
+    # A run folder without run.json is a write that failed or is still under way; its ID cannot be reused.
+    counts["incomplete_runs"] = sorted(p.name for p in (root / "runs").glob("*")
+                                       if p.is_dir() and not (p / "run.json").exists())
     for path in (root / "code").glob("*/code.json"):
         if path.parent.name.startswith("."):
             continue  # a snapshot still being staged, or one abandoned by a crash

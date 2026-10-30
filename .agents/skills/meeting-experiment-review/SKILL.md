@@ -14,7 +14,7 @@ All helpers are standard-library Python 3.11+ in `scripts/`. Run them as `python
 - **Artifacts are immutable.** Recordings, runs, sessions, references, and evaluations are written once with SHA-256 digests. To change a prediction, register a new run ID; never edit files inside the dataset by hand. `dataset.py validate` detects changes.
 - **Only the user confirms ground truth.** Answers come from the review page or from a JSON file holding exactly what the user said. Never fill in a `confirmed` answer from a model output, a participant list, or your own guess. If the user is unsure, record `unsure`.
 - **Keep claims inside the evidence.** The evaluation measures speaker turn order on selected clips. It is not DER, not transcript accuracy, and not an error rate for the whole recording. Say so when reporting.
-- **Code is frozen per experiment.** `review.py prepare` and `reference`, `evaluate.py`, `attach.py`, and `pick_clips.py` copy the skill's scripts, page, `pyproject.toml`, and `uv.lock` into `<dataset>/code/<sha256>/` (once per version) and record that ID and the Git commit in what they write. To redo a step of an old experiment exactly, run the script from its snapshot, for example `python3 <dataset>/code/<sha256>/scripts/pick_clips.py …`. So the live scripts never need options kept only to reproduce old experiments; remove them instead. `python3 scripts/dataset.py snapshot <dataset>` takes a snapshot on demand.
+- **Code is frozen per experiment.** `review.py prepare` and `reference`, `evaluate.py`, `attach.py`, and `pick_clips.py` copy the skill's scripts, page, `pyproject.toml`, and `uv.lock` into `<dataset>/code/<sha256>/` (once per version, rechecking every copied file before reusing a snapshot) and record that ID and the Git commit in what they write. To redo a step of an old experiment exactly, run the script from its snapshot, for example `python3 <dataset>/code/<sha256>/scripts/pick_clips.py …`. So the live scripts never need options kept only to reproduce old experiments; remove them instead. `python3 scripts/dataset.py snapshot <dataset>` takes a snapshot on demand.
 - **Compare like with like.** One evaluation covers runs on the same recording and the same reference clips; the script rejects anything else.
 
 ## Workflow
@@ -63,7 +63,7 @@ Runs can come from any tool that writes the formats in [references/formats.md](r
 python3 scripts/dataset.py add-run "$MEETING_REVIEW_DATA" --spec run.json
 ```
 
-- Artifact paths are relative to the spec file. Use `segments` for diarization output and `transcript` for WhisperKit-shaped ASR JSON; other names (such as `raw`) are stored but not read.
+- Artifact paths are relative to the spec file. Use `segments` for diarization output and `transcript` for WhisperKit-shaped ASR JSON; other names (such as `raw`) are stored but not read. A `segments` or `transcript` time more than 1 s past the recording's `duration_seconds` is refused, since it means the wrong input file or time origin.
 - Put pinned versions and every non-default setting in `config`; the public summary is written from it.
 - Measure wall time and peak memory with `/usr/bin/time -l`. Runs that share the machine slow each other down; run timed jobs one at a time, or say in `notes` which runs overlapped.
 - Record failed or partial runs too, with `status` `failed` or `incomplete`.
@@ -194,6 +194,6 @@ In both, lead with the decision the user asked about, separate what was measured
 
 ## Other checks
 
-`python3 scripts/dataset.py validate <dataset>` rechecks every digest and the event logs. It also checks that each session reference still matches its session, the answers it froze (answers saved later are fine), and the clips built from them; and that each evaluation still matches its own digest, its report's, and the reference, runs, and code snapshot it names. Evaluations saved before they carried a digest are checked for those links only and listed under `unsealed_evaluations`; to seal one, rerun `evaluate.py` with the same inputs under a new ID.
+`python3 scripts/dataset.py validate <dataset>` rechecks every digest and the event logs. It also checks that each session reference still matches its session, the answers it froze (answers saved later are fine), and the clips built from them; and that each evaluation still matches its own digest, its report's, and the reference, runs, and code snapshot it names. Evaluations saved before they carried a digest are checked for those links only and listed under `unsealed_evaluations`; to seal one, rerun `evaluate.py` with the same inputs under a new ID. Run times past the recording's end fail validation too. A run folder without `run.json` (a write that crashed, or one still under way) is listed under `incomplete_runs`; its ID cannot be reused, so once nothing is writing, delete that folder by hand.
 
 This repository tests every script in `tests/skill/` (see AGENTS.md for the command). Run the tests after changing the skill, and add tests for new behavior. Never name a script after a standard-library module: scripts run with their own folder first on `sys.path`, so a `select.py` broke the review server.

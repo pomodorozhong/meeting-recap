@@ -90,7 +90,8 @@ def snapshot(root):
         finally:
             shutil.rmtree(staging, ignore_errors=True)
     info = read_json(target / "code.json")
-    if info["files"] != files:
+    # Reusing a copy that was edited since would cite code that never ran.
+    if info["files"] != files or any(digest(inside(target, name)) != files[name] for name in files):
         raise ValueError(f"code snapshot {code_id} does not match the running code")
     return {"sha256": code_id, "git": info["git"]}
 
@@ -215,6 +216,27 @@ def answers(root, session_id, until=None, rows=None):
     rows = events(root, session_id) if rows is None else rows
     return {event["item_id"]: event for event in rows
             if event["type"] == "answer" and (until is None or event["seq"] <= until)}
+
+
+# Models may pad the last frame slightly past the end; anything later means the wrong input or time origin.
+END_TOLERANCE_SECONDS = 1.0
+
+
+def within(data, name, duration):
+    """Refuse a segments or transcript artifact with times past its recording's end."""
+    if name == "segments":
+        ends = [item["end_seconds"] for item in data]
+    elif name == "transcript" and isinstance(data, dict):
+        ends = [t for s in data.get("segments", []) for t in
+                (s.get("end"), *(w.get("end") for w in s.get("words") or []))
+                if isinstance(t, (int, float))]
+    else:
+        return data
+    latest = max(ends, default=0)
+    if latest > duration + END_TOLERANCE_SECONDS:
+        raise ValueError(f"{name} reaches {latest:.2f} s, past the recording's {duration:.2f} s; "
+                         "check the input file and time origin")
+    return data
 
 
 def segments(data):

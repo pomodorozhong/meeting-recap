@@ -4,7 +4,8 @@
 Speaker-order clips: windows starting `lead_seconds` before a predicted turn change, one per
 equal time bin after `skip_before`, plus one on the rarest diarization label (a voice split
 across two labels shows up there). Transcript clips: windows where two transcript runs differ
-most after OpenCC s2tw normalization, plus the median window for a fair comparison.
+most after OpenCC s2tw normalization, plus the median of the remaining spaced windows for a fair
+comparison. Only full windows are candidates.
 """
 import argparse
 import difflib
@@ -107,11 +108,13 @@ def select(root, config):
                 if info["recording_id"] != rec_id:
                     raise ValueError("transcript run names a different recording")
                 texts.append(asr)
-            ranked = []
-            for a in range(int(skip), int(duration) - window, window):
+            ranked, a = [], int(skip)
+            # Full windows only: the last one may end exactly at the end of the recording, never past it.
+            while a + window <= duration:
                 x, y = (words(asr, a, a + window, convert) for asr in texts)
                 if len(x) + len(y) > o["min_characters"]:
                     ranked.append((1 - difflib.SequenceMatcher(None, x, y).ratio(), a))
+                a += window
             ranked.sort(reverse=True)
             if not ranked:
                 raise ValueError(f"no transcript windows with speech in {rec_id}")
@@ -123,8 +126,14 @@ def select(root, config):
                 shortfall.append({"recording_id": rec_id, "task": "transcript", "missing": rec["transcript_clips"] - len(chosen),
                                   "why": "not enough windows with speech spaced transcript_gap_seconds apart"})
             entries = [(a, f"Transcript runs disagree most here ({d:.0%} different after s2tw)") for d, a in chosen]
-            median = ranked[len(ranked) // 2]
-            entries.append((median[1], f"Typical disagreement ({median[0]:.0%}) for a fair comparison"))
+            # The typical window is the median of those left, spaced like the others, so it is never a repeat.
+            rest = [(d, a) for d, a in ranked if all(abs(a - b) > o["transcript_gap_seconds"] for _, b in chosen)]
+            if rest:
+                d, a = rest[len(rest) // 2]
+                entries.append((a, f"Typical disagreement ({d:.0%}) for a fair comparison"))
+            else:
+                shortfall.append({"recording_id": rec_id, "task": "transcript", "missing": 1,
+                                  "why": "no typical window spaced transcript_gap_seconds from the other clips"})
             for a, reason in entries:
                 transcript_items.append({"task": "transcript", "recording_id": rec_id, "start_seconds": float(a),
                                          "end_seconds": float(a + window), "padding_seconds": 0, "reason": reason,

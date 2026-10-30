@@ -117,8 +117,34 @@ class PickTranscriptClips(DatasetCase):
     def test_reports_missing_transcript_clips(self):
         plan = pick_clips.select(self.root, self.config(recordings=[
             {"recording_id": "rec1", "transcript_runs": ["asr1", "asr2"], "transcript_clips": 5}]))
-        # Windows start every 15 s up to 90 s; none is more than 60 s from the top pick at 30 s.
-        self.assertEqual([s["missing"] for s in plan["selector"]["shortfall"]], [4])
+        # Windows start every 15 s up to 105 s; only 105 s is more than 60 s from the top pick at 30 s,
+        # and no window is left for the typical clip.
+        self.assertEqual([s["missing"] for s in plan["selector"]["shortfall"]], [3, 1])
+        self.assertEqual([i["start_seconds"] for i in plan["items"]], [30.0, 105.0])
+
+    def speech(self, recording_id, duration, start, end):
+        self.add_recording(recording_id, duration)
+        for run_id, text in ((f"{recording_id}-a", "們們"), (f"{recording_id}-b", "们们")):
+            self.add_run(run_id, recording_id=recording_id,
+                         artifacts={"transcript": transcript(*[(text, i, i + 1) for i in range(start, end)])})
+        rec = {"recording_id": recording_id, "transcript_runs": [f"{recording_id}-a", f"{recording_id}-b"],
+               "transcript_clips": 1}
+        return self.config(recordings=[rec])
+
+    def test_the_typical_clip_is_never_a_repeat(self):
+        plan = pick_clips.select(self.root, self.speech("one", 120, 90, 105))
+        self.assertEqual([(i["start_seconds"], i["end_seconds"]) for i in plan["items"]], [(90.0, 105.0)])
+        self.assertEqual([s["missing"] for s in plan["selector"]["shortfall"]], [1])
+
+    def test_the_last_full_window_is_a_candidate(self):
+        cases = {"ends at the recording's end": (120, 105, 120, 105), "exactly one window": (15, 0, 15, 0),
+                 "fractional duration": (22.5, 0, 22, 0)}
+        for name, (duration, start, end, skip) in cases.items():
+            with self.subTest(name):
+                config = self.speech(name.replace(" ", "-").replace("'", ""), duration, start, end)
+                config["recordings"][0]["skip_before"] = skip
+                plan = pick_clips.select(self.root, config)
+                self.assertEqual([(i["start_seconds"], i["end_seconds"]) for i in plan["items"]], [(float(skip), skip + 15.0)])
 
     def test_rejects_unknown_config_keys(self):
         with self.assertRaises(ValueError):

@@ -51,7 +51,9 @@ def activity(path, settings=SETTINGS):
     step = settings["frame_seconds"]
     if step <= 0:
         raise ValueError("frame_seconds must be positive")
-    dbs, duration, _rate = levels(path, step)
+    dbs, duration, rate = levels(path, step)
+    # Frames are whole samples, so a frame lasts slightly more or less than frame_seconds; time counts real frames.
+    step = max(1, round(step * rate)) / rate
     quiet = sorted(dbs)[len(dbs) // 10] if dbs else -math.inf
     threshold = max(quiet + settings["margin_db"], settings["floor_db"])
     spans = []

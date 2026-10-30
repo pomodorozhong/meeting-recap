@@ -25,6 +25,12 @@ class Activity(DatasetCase):
         self.assertAlmostEqual(spans[0][0], 1, delta=0.03)
         self.assertAlmostEqual(spans[0][1], 6, delta=0.03)
 
+    def test_times_stay_true_when_a_frame_is_not_a_whole_number_of_samples(self):
+        # At 7350 Hz a 30 ms frame rounds to 220 samples (29.9 ms); times must count real frames.
+        spans, _ = tracks.activity(self.track("odd-rate", [(100, 104)], seconds=110, rate=7350))
+        self.assertAlmostEqual(spans[0][0], 100, delta=0.03)
+        self.assertAlmostEqual(spans[0][1], 104, delta=0.03)
+
     def test_silent_track_has_no_speech(self):
         self.assertEqual(tracks.activity(self.track("quiet", [], noise=0))[0], [])
 

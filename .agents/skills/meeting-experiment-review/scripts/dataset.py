@@ -99,6 +99,8 @@ def validate(root):
         counts["runs"] += 1
     from common import fingerprint as code_fingerprint
     for path in (root / "code").glob("*/code.json"):
+        if path.parent.name.startswith("."):
+            continue  # a snapshot still being staged, or one abandoned by a crash
         item = read_json(path)
         files = {name: digest(inside(path.parent, name)) for name in item["files"]}
         if files != item["files"] or code_fingerprint(files) != item["sha256"] or item["sha256"] != path.parent.name:

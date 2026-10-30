@@ -99,6 +99,23 @@ class Snapshot(DatasetCase):
         with self.assertRaises(ValueError):
             dataset_cli.validate(self.root)
 
+    def test_concurrent_snapshots_share_one_copy(self):
+        import subprocess
+        import sys
+
+        from helpers import SCRIPTS
+        code = f"import sys; sys.path.insert(0, {str(SCRIPTS)!r}); import common, pathlib; " \
+               f"print(common.snapshot(pathlib.Path({str(self.root)!r}))['sha256'])"
+        processes = [subprocess.Popen([sys.executable, "-c", code], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                     for _ in range(8)]
+        results = [(p.wait(), *p.communicate()) for p in processes]
+        self.assertEqual([status for status, _, _ in results], [0] * 8, [err for _, _, err in results])
+        self.assertEqual(len({out for _, out, _ in results}), 1)
+        self.assertEqual([p.name for p in (self.root / "code").iterdir()], [results[0][1].strip()])
+        (self.root / "code" / ".abandoned.tmp").mkdir()
+        write_json(self.root / "code" / ".abandoned.tmp" / "code.json", {})
+        self.assertEqual(dataset_cli.validate(self.root)["code"], 1)
+
     def test_snapshot_runs_from_its_own_copy(self):
         import subprocess
         import sys

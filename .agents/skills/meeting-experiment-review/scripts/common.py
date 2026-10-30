@@ -61,25 +61,36 @@ def snapshot(root):
     """
     import shutil
     import subprocess
+    import tempfile
     files = {str(p.relative_to(SKILL_DIR)): digest(p) for p in code_files()}
     code_id = fingerprint(files)
     target = root / "code" / code_id
     if not target.exists():
-        staging = root / "code" / f".{code_id}.tmp"
-        shutil.rmtree(staging, ignore_errors=True)
-        for name in files:
-            (staging / name).parent.mkdir(parents=True, exist_ok=True)
-            shutil.copyfile(SKILL_DIR / name, staging / name)
-        git = {}
+        # Each caller stages its own copy; the first rename publishes it, and later callers reuse that one.
+        target.parent.mkdir(parents=True, exist_ok=True)
+        staging = Path(tempfile.mkdtemp(prefix=f".{code_id}.", suffix=".tmp", dir=target.parent))
         try:
-            run_git = lambda *args: subprocess.run(["git", "-C", str(SKILL_DIR), *args], capture_output=True,
-                                                   text=True, check=True).stdout.strip()
-            git = {"commit": run_git("rev-parse", "HEAD"), "dirty": bool(run_git("status", "--porcelain", "--", "."))}
-        except (OSError, subprocess.CalledProcessError):
-            pass
-        write_new(staging / "code.json", {"sha256": code_id, "files": files, "git": git, "created_at": now()})
-        staging.rename(target)
+            for name in files:
+                (staging / name).parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(SKILL_DIR / name, staging / name)
+            git = {}
+            try:
+                run_git = lambda *args: subprocess.run(["git", "-C", str(SKILL_DIR), *args], capture_output=True,
+                                                       text=True, check=True).stdout.strip()
+                git = {"commit": run_git("rev-parse", "HEAD"), "dirty": bool(run_git("status", "--porcelain", "--", "."))}
+            except (OSError, subprocess.CalledProcessError):
+                pass
+            write_new(staging / "code.json", {"sha256": code_id, "files": files, "git": git, "created_at": now()})
+            try:
+                staging.rename(target)
+            except OSError:
+                if not (target / "code.json").exists():
+                    raise
+        finally:
+            shutil.rmtree(staging, ignore_errors=True)
     info = read_json(target / "code.json")
+    if info["files"] != files:
+        raise ValueError(f"code snapshot {code_id} does not match the running code")
     return {"sha256": code_id, "git": info["git"]}
 
 

@@ -146,6 +146,13 @@ class PickTranscriptClips(DatasetCase):
                 plan = pick_clips.select(self.root, config)
                 self.assertEqual([(i["start_seconds"], i["end_seconds"]) for i in plan["items"]], [(float(skip), skip + 15.0)])
 
+    def test_refuses_a_transcript_without_word_timestamps(self):
+        self.add_run("asr3", artifacts={"transcript": {"segments": [{"start": 0, "end": 120, "text": "們們" * 60}]}})
+        config = self.config()
+        config["recordings"][0]["transcript_runs"] = ["asr1", "asr3"]
+        with self.assertRaisesRegex(ValueError, "word timestamps"):
+            pick_clips.select(self.root, config)
+
     def test_rejects_unknown_config_keys(self):
         with self.assertRaises(ValueError):
             pick_clips.select(self.root, self.config(normalize="first"))

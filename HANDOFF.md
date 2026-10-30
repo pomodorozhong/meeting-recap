@@ -2,13 +2,14 @@
 
 ## In progress
 
-### fix/capture-safety
+### fix/skill-review-followups
 
-- Task: fix the recorder findings from a second code review (P1): it wrote into the current folder, the public checkout, when `MEETING_REVIEW_DATA` was unset; a trailing `--app` recorded all system audio; and write failures still printed "saved" and exited 0. No issue. Based on `main`, unlinked.
-- PR: https://github.com/pomodorozhong/meeting-recap/pull/21 (open, base `main`, ready for review; closes nothing). Rebased onto `main` after #20 merged.
-- Code checkpoint: see `git log`. `fix(capture)` changes `experiments/capture/record.swift` and its README.
-- Verification: `swiftc -typecheck` passes with no warnings. A built binary exits 2 before capturing for: no destination, `--app` or `--app --mic x` without a value, `--out` inside the checkout, `--out` through a symlink into it, `MEETING_REVIEW_DATA` inside it, and a folder that holds files. Not run: a live recording (needs capture permissions and a call), so the failure path is checked by reading only.
-- Next action: review and merge PR #21; then record a short test call to check the normal path still prints `saved` and exits 0.
+- Task: fix the new skill findings from a second code review: turns too short to score in known references (6), playback without a digest check (9), snapshots without `pyproject.toml`/`uv.lock` (12), transcripts without word timing in clip picking (14), track activity time drift (16), finishing from a stale tab (17), and edits lost during a save (18). No issue. Also carries a fix that missed #20's merge: a word or segment that is only special tokens makes no attached turn. Rebuilt onto `main` after #20 and #21 merged, unlinked.
+- PR: https://github.com/pomodorozhong/meeting-recap/pull/22 (open, base `main`, ready for review; closes nothing).
+- Code checkpoint: see `git log`. The token-only `fix(skill)` commit, then one `fix(skill)` commit per finding (17 and 18 share one), then a `docs(skill)` commit.
+- Verification: 100 skill tests pass, and each commit passes on its own. Each new test failed before its fix. 17 and 18 were also checked in the browser against a synthetic dataset: the old page closed the session from a stale tab and left the fields editable during a save; the new page refuses the stale finish and locks the fields.
+- Compatibility: new snapshots have new IDs, since they include two more files. New known and track references leave out turns shorter than 0.3 s, so they differ from references built before.
+- Next action: review and merge PR #22.
 
 ## Ranked work
 
@@ -20,7 +21,7 @@
 6. #7 Decide where private experiment data is backed up
 7. #5 Add a Reproduce section to public experiment summaries
 8. #3 Migrate the 2026-10-24 experiment results into the private review dataset
-9. Remaining code review findings R-08–R-10 and R-13 in `experiments/` runners (no issue yet): model pinning, the no-VAD variant, runner completion checks, sweep output reuse. The skill findings merged in #20; the follow-ups are in #22
+9. Remaining code review findings R-08–R-10 and R-13 in `experiments/` runners (no issue yet): model pinning, the no-VAD variant, runner completion checks, sweep output reuse. The second review's finding 20 (the two-track experiment summary's empty commit, malformed snapshot ID, and `git show :path` recovery command) goes with #18. The skill findings merged in #20 and the recorder fixes in #21; the skill follow-ups are in #22
 10. Build the minimal pipeline for saved recordings in `experiments/pipelines/`: ASR and Sortformer, attachment, naming, Markdown transcript (no issue yet)
 
 ## Pending

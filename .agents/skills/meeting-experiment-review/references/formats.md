@@ -13,7 +13,8 @@
   sessions/<id>/events.jsonl        answer / close events, seq 1..n
   references/<id>.json              confirmed clips, excluded items, digests of session and events
                                     (or, from `review.py known` or `tracks`, a `source` with the known
-                                    segments' digest, or each track's digest and the activity settings)
+                                    segments' digest, or each track's digest and the activity settings,
+                                    and the min_overlap_seconds below which turns were left out)
   evaluations/<id>/evaluation.json  scores, the reference's and each run's digests, report_sha256, and its own sha256
   evaluations/<id>/report.md        generated with the evaluation; never edited (private prose goes in reports/)
 ```
@@ -37,7 +38,7 @@ WhisperKit report shape. `attach.py --method word` needs `words` in every segmen
   "words": [{"word": "你", "start": 0.0, "end": 0.4}]}]}
 ```
 
-Special tokens such as `<|zh|>` are stripped when attaching.
+Special tokens such as `<|zh|>` are stripped when attaching; a word or segment left with no text makes no turn.
 
 ## Answer
 

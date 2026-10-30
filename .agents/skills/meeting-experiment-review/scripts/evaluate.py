@@ -16,6 +16,9 @@ def evaluate(root, reference_id, run_ids, evaluation_id, min_overlap=0.3, mappin
     expected = reference["sha256"]
     if fingerprint({k: v for k, v in reference.items() if k != "sha256"}) != expected:
         raise ValueError("reference snapshot changed")
+    built_for = reference.get("source", {}).get("min_overlap_seconds", min_overlap)
+    if built_for != min_overlap:
+        raise ValueError(f"reference {reference_id} left out turns shorter than {built_for} s; evaluate with --min-overlap {built_for}")
     comparisons = []
     for run_id in run_ids:
         info = run(root, run_id)

@@ -260,6 +260,8 @@ class Snapshot(DatasetCase):
         target = self.root / "code" / first["sha256"]
         self.assertTrue((target / "scripts" / "review.py").exists())
         self.assertTrue((target / "assets" / "review.html").exists())
+        # The locked environment (OpenCC for transcript clips) is part of what reproduces a step.
+        self.assertTrue((target / "pyproject.toml").exists() and (target / "uv.lock").exists())
         self.assertEqual(len(list((self.root / "code").iterdir())), 1)
         self.assertEqual(dataset_cli.validate(self.root)["code"], 1)
         (target / "scripts" / "review.py").write_text("# changed\n")

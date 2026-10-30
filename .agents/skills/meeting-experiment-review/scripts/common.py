@@ -50,7 +50,8 @@ SKILL_DIR = Path(__file__).resolve().parent.parent
 
 def code_files(skill_dir=SKILL_DIR):
     files = sorted(p for p in (skill_dir / "scripts").glob("*.py"))
-    return [*files, skill_dir / "assets" / "review.html"]
+    # pyproject.toml and uv.lock pin the packages some steps need, such as OpenCC for transcript clips.
+    return [*files, skill_dir / "assets" / "review.html", skill_dir / "pyproject.toml", skill_dir / "uv.lock"]
 
 
 def snapshot(root):
@@ -148,6 +149,21 @@ def recording(root, recording_id):
     return info
 
 
+_verified_media = {}
+
+
+def media(root, info):
+    """A recording's media path after checking its digest; rechecked whenever the file's size or mtime changes."""
+    path = inside(root, info["media"])
+    stat = path.stat()
+    key = (stat.st_size, stat.st_mtime_ns)
+    if _verified_media.get(path) != key:
+        if digest(path) != info["sha256"]:
+            raise ValueError(f"recording {info['id']} changed since registration")
+        _verified_media[path] = key
+    return path
+
+
 def run(root, run_id):
     return read_json(root / "runs" / identifier(run_id) / "run.json")
 
@@ -187,7 +203,7 @@ def append_event(root, session_id, event, expected_revision=None):
         fcntl.flock(lock, fcntl.LOCK_EX)
         rows = events(root, session_id)
         if expected_revision is not None and expected_revision != len(rows):
-            raise ValueError("review changed; reload before saving this answer")
+            raise ValueError("answers changed in another tab or command; reload the page and try again")
         row = {**event, "seq": len(rows) + 1, "at": now()}
         with log.open("a", encoding="utf-8") as handle:
             handle.write(json.dumps(row, ensure_ascii=False, allow_nan=False) + "\n")

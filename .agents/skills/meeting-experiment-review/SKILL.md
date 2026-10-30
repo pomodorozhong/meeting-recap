@@ -14,7 +14,7 @@ All helpers are standard-library Python 3.11+ in `scripts/`. Run them as `python
 - **Artifacts are immutable.** Recordings, runs, sessions, references, and evaluations are written once with SHA-256 digests. To change a prediction, register a new run ID; never edit files inside the dataset by hand. `dataset.py validate` detects changes.
 - **Only the user confirms ground truth.** Answers come from the review page or from a JSON file holding exactly what the user said. Never fill in a `confirmed` answer from a model output, a participant list, or your own guess. If the user is unsure, record `unsure`.
 - **Keep claims inside the evidence.** The evaluation measures speaker turn order on selected clips. It is not DER, not transcript accuracy, and not an error rate for the whole recording. Say so when reporting.
-- **Code is frozen per experiment.** `review.py prepare` and `reference`, `evaluate.py`, `attach.py`, and `pick_clips.py` copy the skill's scripts and page into `<dataset>/code/<sha256>/` (once per version) and record that ID and the Git commit in what they write. To redo a step of an old experiment exactly, run the script from its snapshot, for example `python3 <dataset>/code/<sha256>/scripts/pick_clips.py …`. So the live scripts never need options kept only to reproduce old experiments; remove them instead. `python3 scripts/dataset.py snapshot <dataset>` takes a snapshot on demand.
+- **Code is frozen per experiment.** `review.py prepare` and `reference`, `evaluate.py`, `attach.py`, and `pick_clips.py` copy the skill's scripts, page, `pyproject.toml`, and `uv.lock` into `<dataset>/code/<sha256>/` (once per version) and record that ID and the Git commit in what they write. To redo a step of an old experiment exactly, run the script from its snapshot, for example `python3 <dataset>/code/<sha256>/scripts/pick_clips.py …`. So the live scripts never need options kept only to reproduce old experiments; remove them instead. `python3 scripts/dataset.py snapshot <dataset>` takes a snapshot on demand.
 - **Compare like with like.** One evaluation covers runs on the same recording and the same reference clips; the script rejects anything else.
 
 ## Workflow
@@ -83,7 +83,7 @@ Same-speaker words more than `--max-gap` seconds apart (default 1) become separa
 Pick clips that answer the user's question and give each a reason:
 
 - **Speaker order:** windows of 10–15 s starting a few seconds before a predicted turn change, spread across the recording (for example one per equal time bin), plus places where runs disagree, overlaps, short interjections, and rarely used labels (a voice split across two labels shows up there).
-- **Transcript:** windows where runs disagree most, plus one or two typical windows so the comparison is fair. Normalize script first (OpenCC `s2tw`) so Simplified vs. Traditional differences do not dominate. Keep these clips short (5–10 s): the user has to type what they hear.
+- **Transcript:** windows where runs disagree most, plus one or two typical windows so the comparison is fair. Normalize script first (OpenCC `s2tw`) so Simplified vs. Traditional differences do not dominate. Both runs need word timestamps; `pick_clips.py` refuses a run with text but no words, so pick such clips by hand. Keep these clips short (5–10 s): the user has to type what they hear.
 - Skip ranges the user already reviewed in an earlier session unless you are checking repeatability.
 - Keep the session to what one sitting allows (about 10–20 items).
 
@@ -129,7 +129,7 @@ python3 scripts/review.py serve "$MEETING_REVIEW_DATA" --session turns-part1 --p
 - The server serves `assets/review.html` from the skill on each request, so moving or editing the skill breaks a running server. Restarting prints a new token; saved answers are kept.
 - Before the user starts, tell them to use the same speaker IDs for each person throughout (names or initials); these become the reference. Names stay in the dataset.
 - For a transcript clip that is too long to type, the user can save `unsure` and say in the feedback which run is closer. That answer is not a reference, but it can be reported as a preference.
-- The page plays each clip, can reveal predictions, and saves answers and text notes to the dataset. Stop the server when the user finishes.
+- The page plays each clip, can reveal predictions, and saves answers and text notes to the dataset. It refuses to play a recording whose digest no longer matches. Finishing is refused, like a save, when another tab or command saved answers this page has not loaded; reload and finish again. Stop the server when the user finishes.
 
 If the user answers in chat instead, write their exact answer to a JSON file outside the repo and save it:
 
@@ -162,7 +162,7 @@ python3 scripts/evaluate.py "$MEETING_REVIEW_DATA" --reference ref-part1 --runs 
 python3 scripts/review.py known "$DATASET" --recording synthetic --segments experiments/synthetic-call/reference/segments.json --id truth
 ```
 
-It cuts the recording into clips of about `--window` seconds (default 30), each ending at a gap between turns, with padding 0. The reference records `source.kind: known_segments` and the segments' SHA-256 instead of a session. Use it only for generated audio whose script is the ground truth, never for a real call.
+It cuts the recording into clips of about `--window` seconds (default 30), each ending at a gap between turns, with padding 0. Turns shorter than 0.3 s are left out, since the scorer never counts them; the reference records this as `source.min_overlap_seconds`, and `evaluate.py` refuses a different `--min-overlap` for it. The reference records `source.kind: known_segments` and the segments' SHA-256 instead of a session. Use it only for generated audio whose script is the ground truth, never for a real call.
 
 **Two tracks.** A real call recorded with `experiments/capture/` that has exactly two speakers, the local one on headphones, has its turns in its tracks: `mic.m4a` is Speaker A and `system.m4a` is Speaker B. Ask the user to confirm both conditions first; a meeting app's speaker labels are no evidence of who was there. Convert each track to WAV, register a mono mix of the two as the recording, and build the reference from the tracks:
 

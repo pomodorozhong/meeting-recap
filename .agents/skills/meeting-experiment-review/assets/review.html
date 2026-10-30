@@ -92,10 +92,13 @@ async function save(state){
   if(state==='confirmed'&&!$('silence').checked&&(c.task==='speaker_order'?!order.length:!$('text').value.trim())){message('Enter your answer, or explicitly select No speech.');return}
   if(state==='confirmed'&&$('silence').checked&&(c.task==='speaker_order'?order.length:$('text').value.trim())){message('Clear the answer or uncheck No speech.');return}
   const annotation=c.task==='speaker_order'?{speaker_order:order,allow_extra_turns:$('extra').checked}:{text:$('text').value};
-  busy=true;try{const result=await api('/api/answer',{item_id:c.id,state,annotation,feedback_text:$('feedback').value,expected_revision:data.revision});
+  setBusy(true);try{const result=await api('/api/answer',{item_id:c.id,state,annotation,feedback_text:$('feedback').value,expected_revision:data.revision});
     data.answers[c.id]=result;data.revision=result.seq;dirty=false;$('state').textContent=state;
-    if(index<data.session.items.length-1){index++;render()}else{render();message('Saved. You can revisit answers or finish this session.')}}catch(e){message(e.message)}finally{busy=false}
+    if(index<data.session.items.length-1){index++;render()}else{render();message('Saved. You can revisit answers or finish this session.')}}catch(e){message(e.message)}finally{setBusy(false)}
 }
+// The answer cannot change while it is being saved, so nothing typed during a save is lost when the page moves on.
+const fields=['order','extra','text','feedback','silence','confirm','unsure','skip','unusable','finish'];
+function setBusy(on){busy=on;for(const id of fields)$(id).disabled=on}
 for(const id of ['order','extra','text','feedback','silence'])$(id).addEventListener('input',()=>{dirty=true});
 $('previous').onclick=()=>{if(!blocked()){index--;render()}};$('next').onclick=()=>{if(!blocked()){index++;render()}};
 $('play').onclick=()=>play().catch(e=>message(e.message));
@@ -103,7 +106,8 @@ for(const [id,extra]of [['context5',5],['context15',15]])$(id).onclick=()=>{padd
 $('reset').onclick=()=>{padding=item().padding_seconds??1;showContext()};
 for(const [id,state]of [['confirm','confirmed'],['unsure','unsure'],['skip','skipped'],['unusable','unusable']])$(id).onclick=()=>save(state);
 $('reveal').onclick=async()=>{const id=item().id;try{const value=await api(`/api/prediction/${encodeURIComponent(id)}`);if(item().id!==id)return;$('predicted').textContent=JSON.stringify(value,null,2);$('reason').textContent=item().reason;$('prediction').hidden=false;$('reveal').hidden=true}catch(e){message(e.message)}};
-$('finish').onclick=async()=>{if(blocked())return;busy=true;try{const result=await api('/api/close',{});data.revision=result.seq;data.closed=true;message(`Session finished: ${JSON.stringify(result.counts)}. Return to the agent to snapshot confirmed references.`)}catch(e){message(e.message)}finally{busy=false}};
+// Finishing sends the revision this page has seen, so a tab that missed another tab's answers cannot close over them.
+$('finish').onclick=async()=>{if(blocked())return;setBusy(true);try{const result=await api('/api/close',{expected_revision:data.revision});data=await api('/api/session');render();message(`Session finished: ${JSON.stringify(result.counts)}. Return to the agent to snapshot confirmed references.`)}catch(e){message(e.message)}finally{setBusy(false)}};
 window.addEventListener('beforeunload',event=>{if(dirty||busy){event.preventDefault();event.returnValue=''}});
 api('/api/session').then(result=>{data=result;render()}).catch(e=>message(e.message));
 </script>

@@ -47,7 +47,9 @@ def units(asr, method):
             number(word["end"], "word end")
             if word["end"] < word["start"]:
                 raise ValueError(f"transcript segment {index} has a word that ends before it starts")
-            yield word["start"], word["end"], clean(word["word"])
+            text = clean(word["word"])
+            if text.strip():  # a unit that is only special tokens or spaces carries no speech to attach
+                yield word["start"], word["end"], text
 
 
 def turns(asr, segs, method, max_gap=MAX_GAP_SECONDS):

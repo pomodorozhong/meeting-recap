@@ -5,7 +5,7 @@ import urllib.error
 import urllib.request
 from http.server import ThreadingHTTPServer
 
-from helpers import DatasetCase, segs, transcript, write_json
+from helpers import DatasetCase, segs, transcript, write_json, write_wav
 
 import evaluate
 import review
@@ -80,6 +80,18 @@ class KnownReference(ReviewCase):
         self.known(window=5)
         result = evaluate.evaluate(self.root, "known1", ["truth"], "ev1")["results"][0]
         self.assertEqual((result["turns_recovered"], result["clips_correct"]), (result["reference_turns"], result["clips"]))
+
+    def test_a_turn_too_short_to_score_is_left_out(self):
+        rows = segs(("A", 0, 5), ("B", 5, 5.21), ("A", 5.21, 10))
+        self.add_run("same", artifacts={"segments": rows})
+        ref = self.known(rows, window=30)
+        self.assertEqual([c["speaker_order"] for c in ref["clips"]], [["A"]])
+        result = evaluate.evaluate(self.root, "known1", ["same"], "ev1")["results"][0]
+        self.assertEqual((result["turns_recovered"], result["clips_correct"]), (result["reference_turns"], result["clips"]))
+        with self.assertRaises(ValueError):
+            evaluate.evaluate(self.root, "known1", ["same"], "ev2", min_overlap=0.1)
+        with self.assertRaises(ValueError):
+            self.known(segs(("A", 0, 0.2)), reference_id="all-short")
 
     def test_rejects_bad_segments(self):
         for name, rows in {"empty": [], "past the end": segs(("A", 0, 31)), "blank speaker": segs(("", 0, 1))}.items():
@@ -213,13 +225,23 @@ class Server(ReviewCase):
         self.assertEqual(self.request("/nowhere")[0], 404)
         self.assertEqual(self.request("/api/prediction/c9")[0], 400)
 
+    def test_refuses_to_play_a_recording_changed_after_registration(self):
+        self.assertEqual(self.request("/media/c1")[0], 200)
+        write_wav(self.root / "recordings" / "rec1" / "source.wav", 31)
+        status, _, body = self.request("/media/c1")
+        self.assertEqual(status, 400)
+        self.assertIn("changed", json.loads(body)["error"])
+
     def test_saves_answers_and_closes(self):
         answer = {"item_id": "c1", "state": "confirmed", "annotation": {"speaker_order": ["A"]}, "expected_revision": 0}
         status, _, body = self.request("/api/answer", answer)
         self.assertEqual((status, json.loads(body)["seq"]), (200, 1))
         self.assertEqual(self.request("/api/answer", answer)[0], 400)  # stale revision
         self.assertEqual(self.request("/api/answer", {**answer, "expected_revision": None})[0], 400)
-        self.assertEqual(json.loads(self.request("/api/close", {})[2])["type"], "close")
+        # Finishing from a tab that missed another tab's save must fail like a stale answer does.
+        self.assertEqual(self.request("/api/close", {})[0], 400)
+        self.assertEqual(self.request("/api/close", {"expected_revision": 0})[0], 400)
+        self.assertEqual(json.loads(self.request("/api/close", {"expected_revision": 1})[2])["type"], "close")
         self.assertTrue(json.loads(self.request("/api/session")[2])["closed"])
 
     def test_rejects_bad_posts(self):

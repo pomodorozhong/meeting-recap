@@ -16,7 +16,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
-from common import (answers, append_event, artifact, dataset, digest, events, fingerprint, identifier, inside, snapshot,
+from common import (answers, append_event, artifact, dataset, digest, events, fingerprint, identifier, inside, media, snapshot,
                     now, number, private, read_json, recording, run, segments, session, span, write_new)
 import tracks
 
@@ -143,7 +143,7 @@ def track_reference(root, recording_id, track_paths, reference_id, window=30.0, 
     return segments_reference(root, recording_id, rows, reference_id, window, source)
 
 
-def segments_reference(root, recording_id, rows, reference_id, window, source):
+def segments_reference(root, recording_id, rows, reference_id, window, source, min_overlap=0.3):
     identifier(reference_id)
     number(window, "window", minimum=1)
     rec = recording(root, recording_id)
@@ -154,6 +154,9 @@ def segments_reference(root, recording_id, rows, reference_id, window, source):
         raise ValueError("known segments exceed recording duration")
     groups = []
     for seg in rows:
+        # A turn too short for the scorer to count (see scoring.clip_turns) must not be expected of a prediction.
+        if seg["end_seconds"] - seg["start_seconds"] < min_overlap:
+            continue
         # A clip closes only at a gap, so no turn (or overlap) is split between two clips.
         if not groups or (seg["start_seconds"] >= groups[-1]["end"] and groups[-1]["end"] - groups[-1]["start"] >= window):
             groups.append({"start": seg["start_seconds"], "end": seg["end_seconds"], "order": []})
@@ -161,25 +164,27 @@ def segments_reference(root, recording_id, rows, reference_id, window, source):
         group["end"] = max(group["end"], seg["end_seconds"])
         if not group["order"] or group["order"][-1] != seg["speaker_id"]:
             group["order"].append(seg["speaker_id"])
+    if not groups:
+        raise ValueError(f"no known turn lasts {min_overlap} s, the shortest the scorer counts")
     clips = [{"id": f"k{i + 1:03d}", "task": "speaker_order", "recording_id": recording_id,
               "start_seconds": g["start"], "end_seconds": g["end"], "padding_seconds": 0,
               "reason": source["kind"].replace("_", " "), "speaker_order": g["order"], "allow_extra_turns": False}
              for i, g in enumerate(groups)]
     info = {"format": "meeting-review-reference", "version": 1, "id": reference_id,
-            "source": {**source, "window_seconds": window},
+            "source": {**source, "window_seconds": window, "min_overlap_seconds": min_overlap},
             "created_at": now(), "code": snapshot(root), "clips": clips, "excluded": []}
     result = {**info, "sha256": fingerprint(info)}
     write_new(private(root, root / "references") / (reference_id + ".json"), result)
     return result
 
 
-def close_session(root, session_id):
+def close_session(root, session_id, expected_revision=None):
     plan = session(root, session_id)
     latest = answers(root, session_id)
     counts = {state: 0 for state in [*sorted(STATES), "unreviewed"]}
     for item in plan["items"]:
         counts[latest.get(item["id"], {}).get("state", "unreviewed")] += 1
-    return append_event(root, session_id, {"type": "close", "counts": counts})
+    return append_event(root, session_id, {"type": "close", "counts": counts}, expected_revision)
 
 
 def prediction(root, item):
@@ -241,7 +246,7 @@ def make_handler(root, session_id, token):
                     self.send_data(prediction(root, items[path.rsplit("/", 1)[1]]))
                 elif path.startswith("/media/"):
                     item = items[path.rsplit("/", 1)[1]]
-                    self.send_media(inside(root, recording(root, item["recording_id"])["media"]))
+                    self.send_media(media(root, recording(root, item["recording_id"])))
                 else:
                     self.send_data({"error": "not found"}, status=404)
             except (ValueError, KeyError, OSError, TypeError) as error:
@@ -302,7 +307,10 @@ def make_handler(root, session_id, token):
                         raise ValueError("expected_revision is required")
                     result = save_answer(root, session_id, data)
                 elif path == "/api/close":
-                    result = close_session(root, session_id)
+                    # Like an answer, finishing must come from a page that has seen every saved answer.
+                    if not isinstance(data.get("expected_revision"), int):
+                        raise ValueError("expected_revision is required")
+                    result = close_session(root, session_id, data["expected_revision"])
                 else:
                     self.send_data({"error": "not found"}, status=404)
                     return

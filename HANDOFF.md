@@ -2,36 +2,48 @@
 
 ## In progress
 
-### fix/capture-runner-alignment
+### feat/who-diarization
 
-- Task: fix two findings from the second review of `5332001`. The recorder now pads a track that goes quiet before the stop to the other track's end (finding 2). `run_full.sh` now refuses inputs that share a basename, or outputs already in `OUT`, before any model starts (finding 10). No issue. Built from `main` at `d0f6d19`, unlinked.
-- PR: https://github.com/pomodorozhong/meeting-recap/pull/24 (open, base `main`, ready for review; closes nothing; independent of #23).
-- Code checkpoint: see `git log`; one `fix(capture)` and one `fix(experiments)` commit.
-- Verification: `swiftc -typecheck` passes. A probe built from the recorder's own `Track`/`stop()` code with generated buffers gave files of 2.048 s and 0.512 s before the fix, and 2.048 s for both after. `run_full.sh` was run with fake model tools: same-name inputs and a rerun into the same `OUT` both exit 2, and unique inputs keep both outputs. Not run: a live recording.
-- Next action: review and merge PR #24 (in any order with #23).
-
-### fix/skill-scoring-checks
-
-- Task: fix the skill findings from the second review of `5332001` that #20–#22 left open. Native playback now stays inside the clip (1). `--mappings` must name every run scored (3). Split same-label spans now score like continuous ones (4). `__unassigned__` can never be mapped (5). Validation lists run folders without `run.json` under `incomplete_runs` (6). Run times past the recording are refused (7). A fractional `skip_before` is no longer rounded down (8). A reused snapshot is checked file by file (9). No issue. Built from `main` at `d0f6d19`, unlinked.
-- PR: https://github.com/pomodorozhong/meeting-recap/pull/23 (open, base `main`, ready for review; closes nothing; independent of #24).
-- Code checkpoint: see `git log`; five `fix(skill)` commits, then this `docs:` commit.
-- Verification: 109 skill tests pass on the branch and on each commit. Each new test failed before its fix. The page test needs Node and is skipped without it. Not run: the review page in a real browser.
-- Compatibility: `validate` output has a new `incomplete_runs` key. Runs with times more than 1 s past the recording's `duration_seconds` now fail `add-run` and `validate`.
-- Next action: review and merge PR #23 (in any order with #24).
+- Task: #1, evaluating Who against Sortformer.
+  - Runner `experiments/who/` uses `desert-ant-core` v4.2.1 and weights v0.3.4. It builds with the Command Line Tools.
+  - The summary is `docs/experiments/2026-10-30-who-diarization.md`.
+  - Built from `main` at `b5a03ae`. The branch is local and not linked to #1, because the PR may not finish the issue until the long calls are scored.
+- PR: none (see P-02).
+- Code checkpoint: `798d04a`, then this `docs:` commit.
+- State:
+  - Weights are in `~/Library/Caches/meeting-recap/who`, outside the checkout.
+  - The dataset has the new recording `synthetic`, reference `truth-synthetic`, and runs `who-{fp16,int8}-{synthetic,two-track-call,part1,part2}` and `sortformer-synthetic`.
+  - Evaluations `eval-who-synthetic` and `eval-who-two-track-call` are done, and the private report is `reports/eval-who-two-track-call.md`. `dataset.py validate` passes.
+- Results:
+  - Who scores 64/72 on the synthetic call and 516/629 on the two-track call. Sortformer scores 67/72 and 527/629.
+  - Who runs 45–185 times faster than Sortformer, with about half its memory. int8 scores the same as fp16.
+  - Repeat runs are byte-identical, and the offline check passed.
+  - Provisional decision: Sortformer stays the diarizer, and Who is an optional alternative.
+- Waiting on the user:
+  - Answer session `full-calls-2026-10-29`, then freeze `ref-full-calls-2026-10-29` and run `eval-who-part1` and `eval-who-part2`.
+  - Answer `check-two-track-call` (also #18). If the track reference changes, rerun the two-track evaluation under a new ID.
+  - The serve commands are in the summary.
+- Not run: no listening yet. Who's minor labels (7–14 s on the long calls) have not been heard.
+- Pending: P-02.
+- Next action: resolve P-02. After the user's listening, score the long calls and finalize the decision in the summary and in `docs/decisions.md`.
+  - **P-02:** open a PR from `feat/who-diarization` to `main` with the runner, the runner docs, and the experiment summary at `review pending`.
+    - Its body says "Related to #1", because #1 stays open until the long calls are scored.
+    - Needs approval because opening a PR does.
+    - It blocks nothing. The listening can happen before or after the merge.
 
 ## Ranked work
 
-1. #18 Use a two-person two-track call as its own speaker reference: recorder, decision 6, and `review.py tracks` merged in #19. Left: the user listens to session `check-two-track-call` (command in `docs/experiments/2026-10-30-two-track-call.md`), then freeze `ref-check-two-track-call`, run `eval-check-two-track-call` on both runs, write the private report, and finish the summary (Sortformer's 528/629 turns is provisional until then)
-2. #4 Add a shareable synthetic test recording (the call merged in #17; the remaining runners still need to run on it)
-3. #1 Evaluate Desert Ant Labs Who for on-device speaker diarization (next, as the user asked; its issue still cites `experiments/diarization/score.py`, now the skill's `evaluate.py`)
+1. #18 Use a two-person two-track call as its own speaker reference: recorder, decision 6, and `review.py tracks` merged in #19. Left: the user listens to session `check-two-track-call` (command in `docs/experiments/2026-10-30-two-track-call.md`), then freeze `ref-check-two-track-call`, run `eval-check-two-track-call` on both runs, write the private report, and finish the summary (Sortformer's 528/629 turns is provisional until then; it is 527/629 under the current skill snapshot, see the Who summary)
+2. #1 Evaluate Who: runs and provisional scores done on `feat/who-diarization`; the long calls wait for the user to answer `full-calls-2026-10-29` (issue still cites `experiments/diarization/score.py`, now the skill's `evaluate.py`, and an excerpt that is not in the dataset)
+3. #4 Add a shareable synthetic test recording (the call merged in #17; Sortformer and Who have now run on it, the ASR runners still need to)
 4. #11 Compare Breeze-ASR-25 and Whisper Large v3 transcript accuracy (blocks choosing the pipeline's ASR model)
 5. #9 Choose a license
 6. #7 Decide where private experiment data is backed up
 7. #5 Add a Reproduce section to public experiment summaries
 8. #3 Migrate the 2026-10-24 experiment results into the private review dataset
-9. Remaining code review findings R-08–R-10 and R-13 in `experiments/` runners (no issue yet): model pinning, the no-VAD variant, runner completion checks, sweep output reuse. The second review's finding 20 (the two-track experiment summary's empty commit, malformed snapshot ID, and `git show :path` recovery command) goes with #18. The skill findings merged in #20 and the recorder fixes in #21; the skill follow-ups merged in #22; the remaining findings from the second review of `5332001` are in #23 (skill) and #24 (recorder and `run_full.sh`)
+9. Remaining code review findings R-08–R-10 and R-13 in `experiments/` runners (no issue yet): model pinning, the no-VAD variant, runner completion checks, sweep output reuse. The second review's finding 20 (the two-track experiment summary's empty commit, malformed snapshot ID, and `git show :path` recovery command) goes with #18. The skill and recorder findings from both reviews of `5332001` merged in #20–#24; live checks not yet run: the review page's native playback in a browser and a recorder stop with one track quiet (reviewer steps in #23 and #24)
 10. Build the minimal pipeline for saved recordings in `experiments/pipelines/`: ASR and Sortformer, attachment, naming, Markdown transcript (no issue yet)
 
 ## Pending
 
-None.
+- **P-01:** open a `docs:` PR from `docs/handoff-review-fixes-merged` that removes the merged #23 and #24 subsections from `HANDOFF.md`. This branch removes them too, so P-01 is redundant if P-02's PR merges. Then delete that branch instead.

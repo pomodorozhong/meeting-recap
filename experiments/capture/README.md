@@ -10,13 +10,15 @@ From the repository root, a few seconds before the call:
 swift experiments/capture/record.swift
 ```
 
-Every 5 seconds it prints the elapsed time and the peak level of each track since the last line, so you can see that both are live. Stop with Ctrl-C.
+It records into `$MEETING_REVIEW_DATA/raw/<date and time>/` and refuses to start when that variable is unset (unless `--out` is given), when the folder is inside a Git checkout (symlinks are followed), or when it already holds files. Every 5 seconds it prints the elapsed time and the peak level of each track since the last line, so you can see that both are live. Stop with Ctrl-C.
+
+Each option needs a value; a missing one is an error rather than a fallback, so a bare `--app` never records all system audio.
 
 | Option | Does |
 | --- | --- |
 | `--app <name>` | Capture system audio only from apps whose name or bundle ID contains `<name>` (repeatable), such as `--app Teams` or `--app Chrome` for Google Meet. Without it, all system audio is captured. |
 | `--mic <name>` | Record the input device whose name contains `<name>`, such as `--mic MacBook`. Without it, the system default input is used. |
-| `--out <dir>` | Output folder. The default is `$MEETING_REVIEW_DATA/raw/<date and time>/`, outside the checkout. |
+| `--out <dir>` | Output folder instead of `$MEETING_REVIEW_DATA/raw/<date and time>/`. It must be new or empty and outside any Git checkout. |
 
 To see the microphone names `--mic` can match, pass a name that matches none; the script stops and lists them. Quote it, since zsh treats a bare `?` as a filename pattern:
 
@@ -32,7 +34,9 @@ The first run asks to allow **Screen & System Audio Recording** and **Microphone
 | --- | --- |
 | `system.m4a` | System audio, Apple Lossless, 48 kHz stereo |
 | `mic.m4a` | The input device, Apple Lossless, resampled to 48 kHz mono |
-| `timing.json` | Per track: where its first real sample falls, its duration, and how much silence was filled in |
+| `timing.json` | Per track: where its first real sample falls, its duration, how much silence was filled in, how much audio the encoder dropped, whether the file was written completely, and any write error |
+
+If a file cannot be written (a full disk, an encoder error, or a track that never received audio), the recorder stops, still writes `timing.json`, prints `RECORDING FAILED` with the reason, and exits with status 1. Only a complete recording prints `saved` and exits with 0.
 
 Both files share one timeline that starts at the first audio buffer from either stream. A track that starts late or drops out is filled with silence, so sample *n* of one file is sample *n* of the other. Convert for other tools with, for example, `ffmpeg -i mic.m4a -ar 16000 mic.wav`.
 

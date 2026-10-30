@@ -18,26 +18,62 @@ struct Options {
     var outDir: URL
 
     static func parse() -> Options {
-        let stamp = ISO8601DateFormatter.string(
-            from: Date(), timeZone: .current, formatOptions: [.withFullDate, .withTime, .withDashSeparatorInDate]
-        )
-        let base = ProcessInfo.processInfo.environment["MEETING_REVIEW_DATA"].map {
-            URL(fileURLWithPath: $0).appendingPathComponent("raw")
-        } ?? URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
-        var options = Options(outDir: base.appendingPathComponent(stamp))
+        let usage = "usage: record.swift [--app <name>]... [--mic <name>] [--out <dir>]"
+        var apps: [String] = [], mic: String?, out: String?
         var args = CommandLine.arguments.dropFirst().makeIterator()
         while let arg = args.next() {
+            guard ["--app", "--mic", "--out"].contains(arg) else { fail(usage) }
+            // A missing value must not quietly widen the capture, as a bare --app would to all system audio.
+            guard let value = args.next(), !value.isEmpty, !value.hasPrefix("--") else { fail("\(arg) needs a value\n\(usage)") }
             switch arg {
-            case "--app": if let v = args.next() { options.apps.append(v) }
-            case "--mic": options.mic = args.next()
-            case "--out": if let v = args.next() { options.outDir = URL(fileURLWithPath: v) }
-            default:
-                FileHandle.standardError.write("usage: record.swift [--app <name>]... [--mic <name>] [--out <dir>]\n".data(using: .utf8)!)
-                exit(2)
+            case "--app": apps.append(value)
+            case "--mic": mic = value
+            default: out = value
             }
         }
-        return options
+        let outDir: URL
+        if let out {
+            outDir = URL(fileURLWithPath: out)
+        } else if let data = ProcessInfo.processInfo.environment["MEETING_REVIEW_DATA"], !data.isEmpty {
+            let stamp = ISO8601DateFormatter.string(
+                from: Date(), timeZone: .current, formatOptions: [.withFullDate, .withTime, .withDashSeparatorInDate]
+            )
+            outDir = URL(fileURLWithPath: data).appendingPathComponent("raw").appendingPathComponent(stamp)
+        } else {
+            fail("set MEETING_REVIEW_DATA to the private dataset folder, or pass --out <dir> outside any Git checkout")
+        }
+        return Options(apps: apps, mic: mic, outDir: privateFolder(outDir))
     }
+}
+
+func fail(_ message: String, status: Int32 = 2) -> Never {
+    FileHandle.standardError.write((message + "\n").data(using: .utf8)!)
+    exit(status)
+}
+
+/// The output folder with symlinks resolved, refused when it is inside a Git checkout (a worktree's .git is a
+/// file) or already holds files: recordings are private and must never land in this public repository.
+func privateFolder(_ url: URL) -> URL {
+    let files = FileManager.default
+    // Resolve the deepest part that exists, so a symlink anywhere on the path counts where it points.
+    var existing = url.standardizedFileURL, rest: [String] = []
+    while !files.fileExists(atPath: existing.path), existing.path != "/" {
+        rest.insert(existing.lastPathComponent, at: 0)
+        existing.deleteLastPathComponent()
+    }
+    let resolved = rest.reduce(existing.resolvingSymlinksInPath()) { $0.appendingPathComponent($1) }
+    var folder = resolved
+    while true {
+        if files.fileExists(atPath: folder.appendingPathComponent(".git").path) {
+            fail("refusing to record into \(resolved.path): it is inside the Git checkout at \(folder.path)")
+        }
+        if folder.path == "/" { break }
+        folder.deleteLastPathComponent()
+    }
+    if let contents = try? files.contentsOfDirectory(atPath: resolved.path), !contents.isEmpty {
+        fail("refusing to record into \(resolved.path): it already holds files")
+    }
+    return resolved
 }
 
 /// One output file fed from one ScreenCaptureKit stream type.
@@ -49,7 +85,10 @@ final class Track {
     var firstTime: CMTime?
     var lastEnd: CMTime = .zero
     var silenceFilled: Double = 0
+    var dropped: Double = 0
     var peak: Float = 0
+    /// The first write failure; once set, the recording has lost audio and must stop.
+    var error: String?
 
     init(name: String, url: URL, channels: Int) throws {
         self.name = name
@@ -66,11 +105,17 @@ final class Track {
     }
 
     func append(_ buffer: CMSampleBuffer, sessionStart: CMTime) {
+        guard error == nil else { return }
         if writer.status == .unknown {
-            writer.startWriting()
+            guard writer.startWriting() else { return fail("could not start writing") }
             writer.startSession(atSourceTime: sessionStart)
         }
-        guard writer.status == .writing, input.isReadyForMoreMediaData else { return }
+        guard writer.status == .writing else { return fail("writer stopped") }
+        guard input.isReadyForMoreMediaData else {
+            // The encoder fell behind; the gap is filled with silence below and reported in timing.json.
+            dropped += buffer.duration.seconds
+            return
+        }
         let time = buffer.presentationTimeStamp
         if firstTime == nil {
             firstTime = time
@@ -79,11 +124,15 @@ final class Track {
         // Fill a late start or a dropout with silence so both files keep one timeline.
         if (time - lastEnd).seconds > 0.01, let silence = Track.silence(like: buffer, from: lastEnd, to: time) {
             silenceFilled += (time - lastEnd).seconds
-            input.append(silence)
+            guard input.append(silence) else { return fail("could not write silence") }
         }
         lastEnd = time + buffer.duration
         peak = max(peak, Track.peak(of: buffer))
-        input.append(buffer)
+        guard input.append(buffer) else { return fail("could not write audio") }
+    }
+
+    func fail(_ what: String) {
+        error = "\(what): \(writer.error?.localizedDescription ?? "unknown error")"
     }
 
     /// A zeroed buffer in the same format as `buffer`, covering `start` to `end`.
@@ -140,6 +189,9 @@ final class Recorder: NSObject, SCStreamOutput, SCStreamDelegate {
     let queue = DispatchQueue(label: "capture")
     var sessionStart: CMTime?
     var stream: SCStream?
+    /// Called once, on the capture queue, when a track can no longer be written.
+    var onFailure: (String) -> Void = { _ in }
+    var reportedFailure = false
 
     init(outDir: URL) throws {
         system = try Track(name: "system", url: outDir.appendingPathComponent("system.m4a"), channels: 2)
@@ -203,11 +255,14 @@ final class Recorder: NSObject, SCStreamOutput, SCStreamDelegate {
         // Both files share one timeline: the first audio buffer from either stream.
         if sessionStart == nil { sessionStart = buffer.presentationTimeStamp }
         track.append(buffer, sessionStart: sessionStart!)
+        if let error = track.error, !reportedFailure {
+            reportedFailure = true
+            onFailure("\(track.name).m4a: \(error)")
+        }
     }
 
     func stream(_ stream: SCStream, didStopWithError error: Error) {
-        print("capture stopped: \(error.localizedDescription)")
-        Task { await self.stop(); exit(1) }
+        onFailure("capture stopped: \(error.localizedDescription)")
     }
 
     func meter() -> String {
@@ -217,13 +272,25 @@ final class Recorder: NSObject, SCStreamOutput, SCStreamDelegate {
         }
     }
 
-    func stop() async {
+    /// Stops capture and finishes both files, returning what went wrong with each; empty means both are complete.
+    func stop() async -> [String] {
         try? await stream?.stopCapture()
         stream = nil
-        for track in [system, mic] where track.writer.status == .writing {
-            track.input.markAsFinished()
-            await track.writer.finishWriting()
+        var problems: [String] = []
+        for track in [system, mic] {
+            if track.writer.status == .writing {
+                track.input.markAsFinished()
+                await track.writer.finishWriting()
+            }
+            if let error = track.error {
+                problems.append("\(track.name).m4a: \(error)")
+            } else if track.writer.status == .unknown {
+                problems.append("\(track.name).m4a: no audio arrived")
+            } else if track.writer.status != .completed {
+                problems.append("\(track.name).m4a: \(track.writer.error?.localizedDescription ?? "not finished")")
+            }
         }
+        return problems
     }
 
     func timing() -> [String: Any] {
@@ -233,8 +300,10 @@ final class Recorder: NSObject, SCStreamOutput, SCStreamDelegate {
                 "starts_at_seconds": track.firstTime.flatMap { t in sessionStart.map { (t - $0).seconds } } ?? NSNull(),
                 "duration_seconds": sessionStart.map { (track.lastEnd - $0).seconds } ?? 0,
                 "silence_filled_seconds": track.silenceFilled,
+                "dropped_seconds": track.dropped,
                 "written": track.writer.status == .completed,
-            ]
+                "error": track.error.map { $0 as Any } ?? NSNull(),
+            ] as [String: Any]
         }
         return result
     }
@@ -246,8 +315,48 @@ struct CaptureError: Error, CustomStringConvertible {
 }
 
 let options = Options.parse()
-try FileManager.default.createDirectory(at: options.outDir, withIntermediateDirectories: true)
-let recorder = try Recorder(outDir: options.outDir)
+do {
+    try FileManager.default.createDirectory(at: options.outDir, withIntermediateDirectories: true)
+} catch {
+    fail("could not create \(options.outDir.path): \(error.localizedDescription)", status: 1)
+}
+let recorder: Recorder
+do {
+    recorder = try Recorder(outDir: options.outDir)
+} catch {
+    fail("could not create the output files: \(error.localizedDescription)", status: 1)
+}
+
+let finishing = NSLock()
+var finished = false
+
+/// Stops once, writes timing.json, and exits 0 only when both files and timing.json were written completely.
+@MainActor func finish(failure: String? = nil) async -> Never {
+    let first = finishing.withLock {
+        defer { finished = true }
+        return !finished
+    }
+    guard first else {
+        // Another stop is already writing the files; it exits when done.
+        while true { try? await Task.sleep(for: .seconds(3600)) }
+    }
+    var problems = failure.map { [$0] } ?? []
+    problems += await recorder.stop()
+    do {
+        let data = try JSONSerialization.data(withJSONObject: recorder.timing(), options: [.prettyPrinted, .sortedKeys])
+        try data.write(to: options.outDir.appendingPathComponent("timing.json"))
+        print(String(data: data, encoding: .utf8)!)
+    } catch {
+        problems.append("timing.json: \(error.localizedDescription)")
+    }
+    guard problems.isEmpty else {
+        fail("\nRECORDING FAILED; the files in \(options.outDir.path) may be incomplete:\n" + problems.joined(separator: "\n"), status: 1)
+    }
+    print("\nsaved system.m4a, mic.m4a, timing.json in \(options.outDir.path)")
+    exit(0)
+}
+
+recorder.onFailure = { message in Task { await finish(failure: message) } }
 do {
     try await recorder.start(apps: options.apps, mic: options.mic)
 } catch {
@@ -259,16 +368,7 @@ print("recording to \(options.outDir.path)  (Ctrl-C to stop)")
 
 signal(SIGINT, SIG_IGN)
 let stopSignal = DispatchSource.makeSignalSource(signal: SIGINT, queue: .main)
-stopSignal.setEventHandler {
-    Task {
-        await recorder.stop()
-        let data = try JSONSerialization.data(withJSONObject: recorder.timing(), options: [.prettyPrinted, .sortedKeys])
-        try data.write(to: options.outDir.appendingPathComponent("timing.json"))
-        print("\nsaved system.m4a, mic.m4a, timing.json in \(options.outDir.path)")
-        print(String(data: data, encoding: .utf8)!)
-        exit(0)
-    }
-}
+stopSignal.setEventHandler { Task { await finish() } }
 stopSignal.resume()
 
 let meterTimer = DispatchSource.makeTimerSource(queue: .global())

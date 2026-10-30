@@ -259,5 +259,44 @@ class Server(ReviewCase):
         connection.close()
 
 
+
+PAGE_HARNESS = r"""
+const fs = require('fs');
+const html = fs.readFileSync(process.argv.at(-1), 'utf8');
+const script = html.slice(html.indexOf('<script>') + 8, html.lastIndexOf('</script>'));
+// Any element: unknown properties are no-op functions that also accept property reads.
+const anything = () => new Proxy(function () {}, {get: (t, k) => (k in t ? t[k] : (t[k] = anything()))});
+const audio = {currentTime: 0, paused: true, play() { this.paused = false; this.onplay && this.onplay(); return Promise.resolve(); },
+               pause() { this.paused = true; }};
+const elements = {audio};
+global.document = {getElementById: id => elements[id] || (elements[id] = anything())};
+global.window = {addEventListener() {}};
+global.location = {search: '?token=t'};
+const item = {id: 'c1', task: 'speaker_order', recording_id: 'rec1', start_seconds: 30, end_seconds: 45, padding_seconds: 1};
+global.fetch = async () => ({ok: true, json: async () => ({session: {question: 'Who?', items: [item]}, answers: {}, revision: 0, closed: false})});
+eval(script);
+setTimeout(() => {
+  const out = {};
+  audio.onloadedmetadata(); out.loaded = audio.currentTime;
+  audio.currentTime = 0; audio.play(); out.native_start = audio.currentTime;  // the native Play control
+  audio.currentTime = 46.5; audio.ontimeupdate(); out.paused_at_end = audio.paused;
+  audio.play(); out.replay_start = audio.currentTime;
+  audio.currentTime = 5; audio.ontimeupdate(); out.after_seek_back = audio.currentTime;
+  console.log(JSON.stringify(out));
+}, 0);
+"""
+
+
+@unittest.skipUnless(__import__("shutil").which("node"), "the page check needs Node")
+class PagePlayback(unittest.TestCase):
+    def test_native_controls_stay_in_the_clip(self):
+        import subprocess
+
+        from helpers import SKILL
+        out = subprocess.run(["node", "-e", PAGE_HARNESS, "--", str(SKILL / "assets" / "review.html")],
+                             capture_output=True, text=True, check=True).stdout
+        self.assertEqual(json.loads(out), {"loaded": 29, "native_start": 29, "paused_at_end": True,
+                                           "replay_start": 29, "after_seek_back": 29})
+
 if __name__ == "__main__":
     unittest.main()

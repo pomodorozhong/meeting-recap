@@ -2,14 +2,13 @@
 
 ## In progress
 
-### fix/skill-review-findings
+### fix/capture-safety
 
-- Task: fix the skill-side code review findings R-01–R-04, R-07, R-11, R-12 and R-14 (no issue; the review report is private to the reviewing session). Based on `main` after #19, unlinked. R-05 and R-06 were fixed in #19; the runner findings R-08–R-10 and R-13 are a separate task.
-- PR: https://github.com/pomodorozhong/meeting-recap/pull/20 (open, base `main`, ready for review; closes nothing). The user approved opening it.
-- Code checkpoint: see `git log`. The first five `fix(skill)` commits cover the findings. Two more address a review of the PR: a failed attachment no longer deletes a racing caller's completed run, and every buffered zero-length word must be within `--max-gap` of the word it joins (`14a03af`); every dataset write checks its resolved destination folder, so a symlinked `runs/` can't carry writes into a checkout or out of the dataset (`8270109`). A second review found the answer log itself could be a symlink: `append_event` now checks `events.jsonl` and `.lock` too.
-- Verification: 95 skill tests pass, and each commit passes on its own. Each new regression test was run before its fix and failed. The diff was scanned for names and private paths. Not run: `dataset.py validate` on the real dataset.
-- Compatibility: evaluations written before this branch, such as `eval-two-track-call`, have no digest; `validate` checks their links and lists them under `unsealed_evaluations`. Rerun `evaluate.py` under a new ID to seal one.
-- Next action: the reviewer re-reviews PR #20; its body describes every fix and the 95-test result.
+- Task: fix the recorder findings from a second code review (P1): it wrote into the current folder, the public checkout, when `MEETING_REVIEW_DATA` was unset; a trailing `--app` recorded all system audio; and write failures still printed "saved" and exited 0. No issue. Based on `main`, unlinked.
+- PR: https://github.com/pomodorozhong/meeting-recap/pull/21 (open, base `main`, ready for review; closes nothing). Rebased onto `main` after #20 merged.
+- Code checkpoint: see `git log`. `fix(capture)` changes `experiments/capture/record.swift` and its README.
+- Verification: `swiftc -typecheck` passes with no warnings. A built binary exits 2 before capturing for: no destination, `--app` or `--app --mic x` without a value, `--out` inside the checkout, `--out` through a symlink into it, `MEETING_REVIEW_DATA` inside it, and a folder that holds files. Not run: a live recording (needs capture permissions and a call), so the failure path is checked by reading only.
+- Next action: review and merge PR #21; then record a short test call to check the normal path still prints `saved` and exits 0.
 
 ## Ranked work
 
@@ -21,7 +20,7 @@
 6. #7 Decide where private experiment data is backed up
 7. #5 Add a Reproduce section to public experiment summaries
 8. #3 Migrate the 2026-10-24 experiment results into the private review dataset
-9. Remaining code review findings R-08–R-10 and R-13 in `experiments/` runners (no issue yet): model pinning, the no-VAD variant, runner completion checks, sweep output reuse. The skill findings are on `fix/skill-review-findings`
+9. Remaining code review findings R-08–R-10 and R-13 in `experiments/` runners (no issue yet): model pinning, the no-VAD variant, runner completion checks, sweep output reuse. The skill findings merged in #20; the follow-ups are in #22
 10. Build the minimal pipeline for saved recordings in `experiments/pipelines/`: ASR and Sortformer, attachment, naming, Markdown transcript (no issue yet)
 
 ## Pending

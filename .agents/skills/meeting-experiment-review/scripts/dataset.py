@@ -8,14 +8,12 @@ import shutil
 import sys
 from pathlib import Path
 
-from common import (FORMAT, VERSION, dataset, digest, identifier, inside, now, number,
+from common import (FORMAT, VERSION, dataset, digest, identifier, inside, now, number, outside_git,
                     read_json, recording, segments, write_new)
 
 
 def init(path):
-    root = Path(path).expanduser().resolve()
-    if any((parent / ".git").exists() for parent in (root, *root.parents)):
-        raise ValueError("create the private dataset outside any Git checkout")
+    root = outside_git(path)
     if root.exists() and any(root.iterdir()):
         raise ValueError("dataset destination must be empty or new")
     write_new(root / "dataset.json", {"format": FORMAT, "version": VERSION, "created_at": now()})
@@ -145,7 +143,7 @@ def main():
     if args.command == "init":
         result = init(args.dataset)
     else:
-        root = dataset(args.dataset)
+        root = dataset(args.dataset, write=args.command != "validate")
         if args.command == "add-recording":
             result = add_recording(root, args.id, args.audio, args.duration, args.group)
         elif args.command == "add-run":

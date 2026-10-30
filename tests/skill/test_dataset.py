@@ -17,6 +17,32 @@ class Init(DatasetCase):
             dataset_cli.init(self.tmp / "full")
 
 
+class PrivateLocation(DatasetCase):
+    def test_refuses_writes_to_a_dataset_inside_a_git_checkout(self):
+        import shutil
+        import subprocess
+        import sys
+
+        import common
+        from helpers import SCRIPTS
+        self.add_recording("rec1", 10)
+        checkout = self.tmp / "repo"
+        checkout.mkdir()
+        (checkout / ".git").write_text("gitdir: elsewhere\n")  # a worktree's marker is a file
+        shutil.copytree(self.root, checkout / "data")
+        (self.tmp / "link").symlink_to(checkout / "data")
+        for path in (checkout / "data", self.tmp / "link"):
+            with self.subTest(str(path.name)):
+                with self.assertRaises(ValueError):
+                    common.dataset(path)
+                self.assertEqual(common.dataset(path, write=False), (checkout / "data").resolve())
+                script = [sys.executable, str(SCRIPTS / "dataset.py")]
+                self.assertEqual(subprocess.run([*script, "validate", str(path)], capture_output=True).returncode, 0)
+                refused = subprocess.run([*script, "snapshot", str(path)], capture_output=True, text=True)
+                self.assertIn("outside any Git checkout", refused.stderr)
+        self.assertFalse((checkout / "data" / "code").exists())
+
+
 class AddRecording(DatasetCase):
     def test_copies_media_and_records_digest(self):
         info = self.add_recording("rec1", 10, group="call")

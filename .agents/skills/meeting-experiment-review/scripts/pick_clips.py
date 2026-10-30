@@ -15,7 +15,7 @@ import re
 import sys
 from collections import Counter
 
-from common import artifact, dataset, identifier, read_json, recording, run, snapshot, write_new
+from common import artifact, dataset, identifier, outside_git, read_json, recording, run, snapshot, write_new
 
 DEFAULTS = {"window_seconds": 15, "lead_seconds": 4, "min_overlap": 0.3, "min_turns": 2, "max_turns": 5,
             "min_gap_seconds": 20, "transcript_gap_seconds": 60, "min_characters": 30}
@@ -151,8 +151,9 @@ def main():
     parser.add_argument("--config", required=True, help="selection JSON; see SKILL.md step 3")
     parser.add_argument("--out", required=True, help="new plan JSON path, outside the repository")
     args = parser.parse_args()
+    out = outside_git(args.out)
     plan = select(dataset(args.dataset), read_json(args.config))
-    write_new(args.out, plan)
+    write_new(out, plan)
     print(json.dumps({"plan": args.out, "items": len(plan["items"]), "shortfall": plan["selector"]["shortfall"]},
                      ensure_ascii=False, indent=2))
 

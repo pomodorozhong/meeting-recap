@@ -117,12 +117,21 @@ def inside(root, relative):
     return target
 
 
-def dataset(path):
+def outside_git(path):
+    """Resolve a private destination, refusing one inside a Git checkout (a worktree's .git is a file)."""
+    path = Path(path).expanduser().resolve()
+    if any((parent / ".git").exists() for parent in (path, *path.parents)):
+        raise ValueError(f"keep private data outside any Git checkout: {path} is inside one")
+    return path
+
+
+def dataset(path, write=True):
+    """Open a dataset; only read-only commands such as validate pass write=False to open one inside a checkout."""
     root = Path(path).expanduser().resolve()
     info = read_json(root / "dataset.json")
     if info.get("format") != FORMAT or info.get("version") != VERSION:
         raise ValueError("unsupported review dataset")
-    return root
+    return outside_git(root) if write else root
 
 
 def recording(root, recording_id):

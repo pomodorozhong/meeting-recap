@@ -68,6 +68,18 @@ class Cli(unittest.TestCase):
         counts = json.loads(run("dataset.py", "validate", self.ds).stdout)
         self.assertEqual(counts, {"recordings": 1, "runs": 3, "sessions": 1, "references": 2, "code": 1})
 
+    def test_private_outputs_stay_outside_git_checkouts(self):
+        checkout = self.tmp / "checkout"
+        (checkout / ".git").mkdir(parents=True)
+        config = write_json(self.tmp / "pick-private.json", {"id": "s9", "question": "Who?", "seed": 3, "recordings": [
+            {"recording_id": "rec1", "diarization_run": "dia1", "speaker_clips": 1}]})
+        result = run("pick_clips.py", self.ds, "--config", config, "--out", checkout / "plan.json", check=False)
+        self.assertIn("outside any Git checkout", result.stderr)
+        track = write_wav(self.tmp / "track.wav", 2)
+        result = run("tracks.py", "--track", f"A={track}", "--out", checkout / "segments.json", check=False)
+        self.assertIn("outside any Git checkout", result.stderr)
+        self.assertEqual(list(checkout.iterdir()), [checkout / ".git"])
+
     def test_review_server_starts_as_a_script(self):
         plan = write_json(self.tmp / "serve-plan.json", {
             "id": "serve", "question": "Who?", "selector": {"name": "agent-selected", "version": "1"},

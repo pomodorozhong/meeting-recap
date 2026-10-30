@@ -5,7 +5,7 @@ description: Run local speech experiments (transcription, speaker diarization, l
 
 # Meeting Experiment Review
 
-Recordings, transcripts, and the user's answers are private. Every artifact lives in a **private dataset directory outside any Git checkout**; the scripts refuse to create one inside a repository. Never copy audio, transcript text, speaker names, or answers into a repo, issue, PR, commit, or chat summary beyond what the user asks for. The only output that goes into a repository is the public summary in step 6.
+Recordings, transcripts, and the user's answers are private. Every artifact lives in a **private dataset directory outside any Git checkout**; the scripts refuse to write a dataset, a `pick_clips.py` plan, or `tracks.py` segments anywhere inside a Git checkout (a symlink counts where it points). Only `dataset.py validate` still opens a dataset found inside one, read-only, so it can be checked before it is moved out. Never copy audio, transcript text, speaker names, or answers into a repo, issue, PR, commit, or chat summary beyond what the user asks for. The only output that goes into a repository is the public summary in step 6.
 
 All helpers are standard-library Python 3.11+ in `scripts/`. Run them as `python3 <skill>/scripts/<name>.py`. Every command prints JSON; failures exit nonzero with a one-line reason.
 

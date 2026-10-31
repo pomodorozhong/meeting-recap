@@ -39,6 +39,7 @@ AUDIO=recording-16k.wav OUT=/scratch/dia ./run_sweep.sh
 - Building `fluidaudiocli` takes about two minutes. FluidAudio downloads its models on first use to `~/Library/Application Support/FluidAudio/Models`.
 - `diarexp <wav> <out.json> [key=value ...]` writes `segments` JSON directly. Keys: `num`, `min`, `max`, `thr`, `minseg`, `excl`, `exovl`, `step`, `mingap`, `fa`, `fb`.
 - The sweep repeats each Community-1 setting five times (`__1`–`__5`) because results varied between identical runs, then runs Sortformer and four LS-EEND variants.
+- `OUT` must be a new directory. The sweep reserves it before any model starts, refuses an existing destination (including a partial run), and converts only the five raw CLI outputs. Choose a new `OUT` for a retry; prior outputs are retained.
 - `.build/release/fluidaudiocli sortformer <wav> --output <out.json>` runs Sortformer alone; `sortformer_to_segments.py <in> <out>` converts its JSON to `segments`.
 
 ## `experiments/mlx/run.py`

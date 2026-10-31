@@ -1,0 +1,201 @@
+{
+ "run": "script",
+ "judged_by": "Claude, from the script; check before relying on it",
+ "items": {
+  "decisions/0": {
+   "verdict": "correct",
+   "matches": [
+    "D1",
+    "T1",
+    "T2"
+   ]
+  },
+  "decisions/1": {
+   "verdict": "correct",
+   "matches": [
+    "D2",
+    "T3"
+   ]
+  },
+  "decisions/2": {
+   "verdict": "correct",
+   "matches": [
+    "D4"
+   ],
+   "note": "drops the 'pending the PM' caveat"
+  },
+  "decisions/3": {
+   "verdict": "misplaced",
+   "matches": [
+    "T5"
+   ],
+   "note": "an assignment listed as a decision"
+  },
+  "decisions/4": {
+   "verdict": "misplaced",
+   "matches": [
+    "T6",
+    "T5"
+   ],
+   "note": "an assignment listed as a decision; omits that Speaker B helps with Android"
+  },
+  "decisions/5": {
+   "verdict": "correct",
+   "matches": [
+    "D6",
+    "T7"
+   ]
+  },
+  "decisions/6": {
+   "verdict": "correct",
+   "matches": [
+    "D7",
+    "T8"
+   ]
+  },
+  "decisions/7": {
+   "verdict": "correct",
+   "matches": [
+    "D8",
+    "T9"
+   ]
+  },
+  "decisions/8": {
+   "verdict": "correct",
+   "matches": [
+    "D9",
+    "T10"
+   ]
+  },
+  "decisions/9": {
+   "verdict": "correct",
+   "matches": [
+    "D10"
+   ]
+  },
+  "decisions/10": {
+   "verdict": "misplaced",
+   "matches": [
+    "T1",
+    "T3",
+    "T4",
+    "T5",
+    "T7",
+    "T9"
+   ],
+   "note": "the closing summary of assignments, listed as a decision"
+  },
+  "action_items/0": {
+   "verdict": "correct",
+   "matches": [
+    "T1",
+    "T2"
+   ],
+   "note": "no deadline although Speaker C said this week"
+  },
+  "action_items/1": {
+   "verdict": "correct",
+   "matches": [
+    "T3"
+   ]
+  },
+  "action_items/2": {
+   "verdict": "correct",
+   "matches": [
+    "T5"
+   ]
+  },
+  "action_items/3": {
+   "verdict": "correct",
+   "matches": [
+    "T6"
+   ]
+  },
+  "action_items/4": {
+   "verdict": "correct",
+   "matches": [
+    "T7"
+   ]
+  },
+  "action_items/5": {
+   "verdict": "correct",
+   "matches": [
+    "T8"
+   ],
+   "note": "names Speaker A as owner; the call names nobody"
+  },
+  "action_items/6": {
+   "verdict": "correct",
+   "matches": [
+    "T9"
+   ]
+  },
+  "action_items/7": {
+   "verdict": "correct",
+   "matches": [
+    "T10"
+   ],
+   "due_ok": true
+  },
+  "action_items/8": {
+   "verdict": "correct",
+   "matches": [
+    "T4"
+   ],
+   "due_ok": true
+  },
+  "proposals/0": {
+   "verdict": "correct",
+   "matches": [
+    "P1"
+   ]
+  },
+  "proposals/1": {
+   "verdict": "misplaced",
+   "matches": [
+    "D2"
+   ],
+   "note": "lazy loading was adopted, but is listed as not decided"
+  },
+  "proposals/2": {
+   "verdict": "correct",
+   "matches": [
+    "P2"
+   ]
+  },
+  "open_questions/0": {
+   "verdict": "wrong",
+   "matches": [
+    "X6"
+   ],
+   "note": "answered in the call: Android is a separate package"
+  },
+  "open_questions/1": {
+   "verdict": "wrong",
+   "matches": [
+    "X1"
+   ],
+   "note": "answered in the call: mostly older iPhones"
+  },
+  "open_questions/2": {
+   "verdict": "wrong",
+   "matches": [
+    "X7"
+   ],
+   "note": "answered in the call: not for now"
+  },
+  "open_questions/3": {
+   "verdict": "correct",
+   "matches": [
+    "Q1"
+   ]
+  },
+  "open_questions/4": {
+   "verdict": "wrong",
+   "matches": [
+    "X2"
+   ],
+   "note": "resolved in the call: Speaker B helps with Android"
+  }
+ }
+}

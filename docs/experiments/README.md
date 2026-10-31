@@ -12,4 +12,4 @@ Each summary is written from [TEMPLATE.md](TEMPLATE.md) and committed **before**
 | 2026-10-24 | [Attaching labels to text](2026-10-24-label-attachment.md) | Method matters little with short segments; overlap per word chosen |
 | 2026-10-24 | [Both full recordings](2026-10-24-full-recordings.md) | Stable labels over 87 minutes, one voice split across two labels; stop testing models |
 | 2026-10-30 | [Sortformer on a two-person two-track call](2026-10-30-two-track-call.md) | Planned |
-| 2026-11-01 | [Recap accuracy on the synthetic call](2026-11-01-recap-accuracy-synthetic.md) | Planned |
+| 2026-11-01 | [Recap accuracy on the synthetic call](2026-11-01-recap-accuracy-synthetic.md) | Recap of a perfect transcript found 21/24 items but listed 4 answered questions as open; pipeline recaps 13–20/24 with 5–7 wrong items; fix the summary stage first |

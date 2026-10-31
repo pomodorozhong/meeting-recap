@@ -1,6 +1,6 @@
 # 2026-11-01: Recap accuracy on the synthetic call
 
-**Status:** planned.
+**Status:** complete.
 
 ## Question
 
@@ -62,19 +62,73 @@ Every condition uses the pipeline's summary stage unchanged: Qwen3.5 9B 4-bit at
 
 ## Runtime and memory
 
+Each recap was one prompt of about 2,300 tokens, decoded in 77–99 s with a 6.71 GB MLX peak on the M2 Pro (16 GB). The `script` condition ran twice and gave byte-identical replies, so greedy decoding is repeatable on identical input.
+
 ## Results
+
+Run `python3 experiments/recap-accuracy/score.py experiments/recap-accuracy/runs/<condition> experiments/recap-accuracy/matches/<condition>.json` from the repository root. The recaps and transcripts scored are in `experiments/recap-accuracy/runs/`.
 
 | Measure | `sortformer` | `who` | `script` |
 | --- | --- | --- | --- |
-| Key items found | | | |
-| Placed in an accepted section | | | |
-| Evidence covers the item | | | |
-| Recap items: correct / misplaced / wrong / duplicate | | | |
-| Action owners right | | | |
-| Deadlines right | | | |
+| Key items found (of 24) | 13 | 20 | 21 |
+| Placed in an accepted section | 11 | 18 | 21 |
+| Evidence covers the item | 13/13 | 18/20 | 21/21 |
+| Recap items: correct / misplaced / wrong | 9 / 3 / 7 of 19 | 15 / 1 / 5 of 21 | 20 / 4 / 4 of 28 |
+| Action owners right | 5/5 | 6/7 | 9/10 |
+| Deadlines right | 5/5 | 7/7 | 9/10 |
+| Missed | D5, D7, D9, D10, T4, T6, T8, T9, T11, P2, Q1 | D9, T4, T6, Q1 | D3, D5, T11 |
+
+No recap had duplicates.
+
+**Errors even with a perfect transcript (`script`).** These come from the summary model and prompt:
+- **Answered questions listed as open (4):** whether the SDK upgrade affects Android, whether the crash hits every phone, whether mobile changes too, and whether the sprint fits. All of them were answered in the call.
+- **Assignments listed as decisions (3), and an adopted idea listed as not decided (1):** lazy loading is under "Proposals (not decided)".
+- **An owner given where the call names none:** the CI ticket.
+- **A missed deadline:** "this week" for the SDK upgrade.
+
+**Errors added in the pipeline recaps:**
+- **Invented items:**
+  - a ticket for the notification requirement (`who`);
+  - a CI research task (`who`);
+  - a question about QA's crash log (`who`);
+  - a question about Speaker C finishing the CI work (`sortformer`).
+- **Wrong facts:**
+  - the Docker build deferred to next sprint (`sortformer`);
+  - Speaker C rather than Speaker B helping with Android (`sortformer`);
+  - the snapshot question attributed to the wrong speaker (`sortformer`).
+- **Missed the most important items:**
+  - Both missed Speaker A asking the PM (T4) and Speaker C's notification client work (T6).
+  - `sortformer` also missed the demo date and scope (D9, D10). They appear in its topics but nowhere else.
+
+**The recap swings with small changes to its input.**
+- **The two pipeline transcripts are nearly the same:** identical ASR text, 95.1% and 95.8% speaker agreement, and the same names after merging. Their recaps still differ by 7 key items found and 2 wrong items.
+- **One label change moved Sortformer's recap:**
+  - The first Sortformer recap, written before its spare fourth label was merged, listed the demo date and scope as decisions.
+  - The scored one, written after the merge, dropped both.
+  - That earlier recap was replaced by `summarize --replace` and is not kept, so it is not scored here.
+- **Conclusion:** one recap per condition can't separate the diarizers. Most of the difference is the summary model's sensitivity to small changes in the transcript.
 
 **Metric limits.**
+- Claude wrote the key and the verdicts, and there is one call with one sample per condition.
+- Two answered questions (X6, X7) were added to the key after the `script` recap had been read. They decide 2 of its 4 wrong items and 1 of `sortformer`'s.
+- Matching a recap item to a key item is a judgement, and so is calling an item misplaced rather than wrong. `matches/` records each verdict with a note.
+- Topics are not scored. Several items missed in the scored sections appear in the topics.
 
 ## Decision
 
+Fix the summary stage before tuning ASR or diarization for the recap.
+- **Most errors are the summary stage's:**
+  - Even a perfect transcript leaves 3 of 24 items missed and 8 of 28 recap items misplaced or wrong.
+  - The pipeline recaps add invented items and lose up to 11 of 24 items.
+  - Those losses are larger than the transcript's 4–5% speaker errors explain, and the recap swings between near-identical inputs.
+- **Candidate fixes to measure next, on this call and its key:**
+  - Prompt rules that an open question must still be unanswered at the end of the call, and that an assignment goes only in action items.
+  - Separate passes per section, or a check pass that removes answered questions and items no transcript line supports.
+  - Several samples per condition, to measure the swing rather than one draw.
+- **Not decided here:** the diarizer for the recap. The Who recap scored better, but that difference is within the recap's swing. #25 still decides the diarizer on speaker accuracy.
+
 ## Open questions
+
+- How much do the prompt changes above reduce errors on the `script` condition, and do they hold on the pipeline transcripts?
+- How large is the recap's swing? Some small input changes that keep the meaning, such as renaming a speaker or moving one turn boundary, would measure it.
+- Do the same error kinds appear on a real call? The private-recording review for #28 checks usefulness and omissions there.

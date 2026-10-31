@@ -212,8 +212,11 @@ On this one generated call Who is at least as good end to end. That differs from
 
 The point of this baseline is to see where the whole pipeline loses most before optimizing any part. Each issue needs its own measurement on a real recording before it is fixed.
 
-1. **Words cross turn boundaries.** Whisper's word times drift at turn changes, so a reply's first character often stays with the previous speaker (「聽」 then 「得到」). This costs about 3 points of speaker agreement on top of diarization's own errors, and it is visible on almost every short reply. Candidate fixes: split turns at Whisper segment or punctuation boundaries that lie near a diarization change, or align words with a separate forced aligner.
-2. **The recap mixes assignments into decisions.** Who does what appears both as decisions and as action items, two action items repeat one task, and one action item's owner is doubtful. Every item cites real lines, but whether those lines support the item is checked only by reading. Only the private-recording review can say whether this matters.
+1. **The recap is the least accurate stage.** The [recap accuracy check](../../../docs/experiments/2026-11-01-recap-accuracy-synthetic.md) scored three recaps against a 24-item key.
+   - **Perfect transcript:** the recap of the script itself found 21 items, but listed 4 answered questions as open and 4 items in the wrong section.
+   - **Pipeline transcripts:** the recaps found 13 (Sortformer) and 20 (Who) items, with 5–7 wrong ones each, including invented tasks and a wrong helper.
+   - **Unstable:** the recap swings with small changes to its input, so fix and measure the summary stage first.
+2. **Words cross turn boundaries.** Whisper's word times drift at turn changes, so a reply's first character often stays with the previous speaker (「聽」 then 「得到」). This costs about 3 points of speaker agreement on top of diarization's own errors, and it is visible on almost every short reply. Candidate fixes: split turns at Whisper segment or punctuation boundaries that lie near a diarization change, or align words with a separate forced aligner.
 3. **Runtime is dominated by Sortformer** at 0.41×, three times Whisper's time. `--diarizer who` removes this cost (2 s instead of 136 s). Choosing it as the default waits for its long-call scores in #25 and the private-recording review.
 4. **ASR errors and punctuation.** Homophones land in the transcript and the recap (「分頁」 as 「糞頁」, 「時間」 as 「實踐」). Whisper writes mostly half-width punctuation (34 of 38 marks), which reads oddly in Chinese. `opencc-python-reimplemented` converts 「只有」 to 「隻有」 under both `s2tw` and `s2twp`.
 5. **A spare speaker label** appears for a few characters. Naming handles it; nothing to change yet.

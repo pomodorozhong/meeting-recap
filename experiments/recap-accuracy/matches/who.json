@@ -1,0 +1,140 @@
+{
+ "run": "who",
+ "judged_by": "Claude, from the script; check before relying on it",
+ "items": {
+  "decisions/0": {
+   "verdict": "correct",
+   "matches": [
+    "D1",
+    "T1"
+   ]
+  },
+  "decisions/1": {
+   "verdict": "correct",
+   "matches": [
+    "D2"
+   ]
+  },
+  "decisions/2": {
+   "verdict": "correct",
+   "matches": [
+    "D3"
+   ]
+  },
+  "decisions/3": {
+   "verdict": "correct",
+   "matches": [
+    "D4"
+   ]
+  },
+  "decisions/4": {
+   "verdict": "correct",
+   "matches": [
+    "D6",
+    "T7"
+   ]
+  },
+  "decisions/5": {
+   "verdict": "correct",
+   "matches": [
+    "D7"
+   ]
+  },
+  "decisions/6": {
+   "verdict": "correct",
+   "matches": [
+    "D10"
+   ]
+  },
+  "action_items/0": {
+   "verdict": "correct",
+   "matches": [
+    "T2"
+   ]
+  },
+  "action_items/1": {
+   "verdict": "correct",
+   "matches": [
+    "T3"
+   ],
+   "note": "states paging or caching as chosen; the call never chose"
+  },
+  "action_items/2": {
+   "verdict": "wrong",
+   "matches": [],
+   "note": "invents a ticket for the notification requirement"
+  },
+  "action_items/3": {
+   "verdict": "correct",
+   "matches": [
+    "T5",
+    "D5"
+   ]
+  },
+  "action_items/4": {
+   "verdict": "wrong",
+   "matches": [],
+   "note": "researching the CI fix was deferred, not assigned"
+  },
+  "action_items/5": {
+   "verdict": "correct",
+   "matches": [
+    "T8"
+   ]
+  },
+  "action_items/6": {
+   "verdict": "correct",
+   "matches": [
+    "T9",
+    "D8"
+   ]
+  },
+  "action_items/7": {
+   "verdict": "correct",
+   "matches": [
+    "T10",
+    "T11"
+   ],
+   "note": "gives staging preparation for the demo to Speaker B alone",
+   "due_ok": true
+  },
+  "proposals/0": {
+   "verdict": "correct",
+   "matches": [
+    "P1"
+   ]
+  },
+  "proposals/1": {
+   "verdict": "correct",
+   "matches": [
+    "P2"
+   ]
+  },
+  "proposals/2": {
+   "verdict": "misplaced",
+   "matches": [
+    "D8"
+   ],
+   "note": "the multi-stage build was agreed, but is listed as not decided"
+  },
+  "open_questions/0": {
+   "verdict": "wrong",
+   "matches": [],
+   "note": "nobody asks whether QA has added the crash log"
+  },
+  "open_questions/1": {
+   "verdict": "wrong",
+   "matches": [
+    "X5"
+   ],
+   "note": "answered in the call: three days"
+  },
+  "open_questions/2": {
+   "verdict": "wrong",
+   "matches": [
+    "X2"
+   ],
+   "note": "resolved in the call: Speaker B helps with Android"
+  }
+ }
+}

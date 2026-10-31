@@ -7,6 +7,17 @@ SUMMARY_REPO = "mlx-community/Qwen3.5-9B-4bit"
 SUMMARY_REVISION = "8b2b98c00a6b4d291155e4890773ca8f769aee53"
 FLUIDAUDIO_REVISION = "ea500621819cadc46d6212af44624f2b45ab3240"
 FLUIDAUDIO_CLI = Path(__file__).resolve().parent / ".build" / "release" / "fluidaudiocli"
+# Who: the SDK revision pins the weights (desert-ant-labs/who v0.3.4, Core ML int8).
+WHO_SDK_REVISION = "1a5efed67f44731b5eb5433aa9be3eebae05e269"
+WHO_WEIGHTS = "desert-ant-labs/who v0.3.4 coreml-int8"
+WHO_CLI = Path(__file__).resolve().parent / ".build" / "release" / "who-diarize"
+
+
+def who_models():
+    """The Who weights folder, outside the checkout; WHO_MODELS overrides the default."""
+    import os
+
+    return Path(os.environ.get("WHO_MODELS") or Path.home() / "Library/Application Support/meeting-recap/who")
 
 
 def snapshot(repo, revision):

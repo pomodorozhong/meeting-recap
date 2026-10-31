@@ -27,6 +27,16 @@ def sortformer_segments(raw):
     return sorted(segments, key=lambda s: (s["start_seconds"], s["end_seconds"]))
 
 
+def who_segments(raw):
+    """Read who-diarize's JSON object into segments."""
+    segments = [{"speaker_id": str(s["speaker_id"]), "start_seconds": float(s["start_seconds"]),
+                 "end_seconds": float(s["end_seconds"])} for s in raw["segments"]]
+    for s in segments:
+        if s["end_seconds"] < s["start_seconds"]:
+            raise ValueError(f"diarization segment ends before it starts at {s['start_seconds']} s")
+    return sorted(segments, key=lambda s: (s["start_seconds"], s["end_seconds"]))
+
+
 def label_at(segments, start, end):
     """The label overlapping [start, end] the most; else the nearest within 1 s; else None."""
     best, overlap = None, 0.0

@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Saved recording -> speaker-labeled Traditional Chinese Markdown transcript -> local recap.
 
-  setup                      download the pinned models (needs the network once)
+  setup [--who]              download the pinned models (needs the network once)
   run AUDIO OUT [--resume]   run every stage into a new output folder, offline
+                             (--diarizer who swaps Sortformer for Desert Ant Labs Who)
   render OUT                 rebuild transcript.md after editing OUT/speakers.json
   summarize OUT [--replace]  rerun the recap with the current speaker names
 """
@@ -25,6 +26,9 @@ import pipeline
 
 HERE = Path(__file__).resolve().parent
 STAGES = ("convert", "asr", "diarize", "attach", "transcript", "summary")
+DIARIZERS = {"sortformer": f"FluidAudio Sortformer, fluidaudiocli@{pins.FLUIDAUDIO_REVISION}",
+             "who": f"{pins.WHO_WEIGHTS}, desert-ant-core@{pins.WHO_SDK_REVISION}"}
+RAW_DIARIZATION = {"sortformer": "sortformer.raw.json", "who": "who.raw.json"}
 
 
 class StageError(Exception):
@@ -137,7 +141,7 @@ class Run:
         print(f"[{name}] completed in {record['seconds']:.1f} s", flush=True)
 
 
-def prepare(audio, out, resume):
+def prepare(audio, out, resume, diarizer="sortformer"):
     audio, out = Path(audio).resolve(), Path(out).resolve()
     if not audio.is_file():
         raise ValueError(f"{audio} is not a file")
@@ -151,15 +155,18 @@ def prepare(audio, out, resume):
         manifest = read_json(out / "run.json")
         if manifest["input_sha256"] != digest:
             raise ValueError(f"{out} holds a run of a different recording; choose a new folder")
+        if manifest.get("diarizer", "sortformer") != diarizer:
+            raise ValueError(f"{out} was run with --diarizer {manifest.get('diarizer', 'sortformer')}; "
+                             "resume it with the same diarizer, or choose a new folder")
         return audio, out
     if resume:
         raise ValueError(f"{out} has no run to resume")
     out.mkdir(parents=True, exist_ok=True)
     write_atomic(out / "run.json", {
         "pipeline": "whisper-sortformer", "code_commit": git_commit(), "created_at": now(),
-        "input_name": audio.name, "input_sha256": digest,
+        "input_name": audio.name, "input_sha256": digest, "diarizer": diarizer,
         "models": {"asr": f"{pins.WHISPER_REPO}@{pins.WHISPER_REVISION}",
-                   "diarization": f"FluidAudio Sortformer, fluidaudiocli@{pins.FLUIDAUDIO_REVISION}",
+                   "diarization": DIARIZERS[diarizer],
                    "summary": f"{pins.SUMMARY_REPO}@{pins.SUMMARY_REVISION}"},
         "machine": {"platform": platform.platform(), "processor": platform.processor()}})
     return audio, out
@@ -188,7 +195,27 @@ def asr(out):
     return stats
 
 
-def diarize(out):
+def diarize(out, diarizer="sortformer"):
+    return who(out) if diarizer == "who" else sortformer(out)
+
+
+def who(out):
+    if not pins.WHO_CLI.exists():
+        raise StageError(f"{pins.WHO_CLI.name} is not built; run `swift build -c release --product who-diarize` "
+                         "in the pipeline folder")
+    raw = out / "who.raw.json"
+    raw.unlink(missing_ok=True)
+    # Refuses to download when the weights are missing; each load sends the SDK's licence check, no audio.
+    stats = measured(out, "diarize", [str(pins.WHO_CLI), str(out / "audio.wav"), str(raw), str(pins.who_models())])
+    if not raw.exists():
+        raise StageError("Who wrote no output; see logs/diarize.log")
+    data = read_json(raw)
+    stats.update(load_seconds=data["load_seconds"], diarize_seconds=data["diarize_seconds"])
+    write_atomic(out / "diarization.json", pipeline.who_segments(data))
+    return stats
+
+
+def sortformer(out):
     if not pins.FLUIDAUDIO_CLI.exists():
         raise StageError(f"{pins.FLUIDAUDIO_CLI.name} is not built; run `swift build -c release --product "
                          "fluidaudiocli` in the pipeline folder")
@@ -247,11 +274,11 @@ def summary(out, replace=False):
 
 
 def run(args):
-    audio, out = prepare(args.audio, args.out, args.resume)
+    audio, out = prepare(args.audio, args.out, args.resume, args.diarizer)
     record = Run(out)
     plan = [("convert", lambda: convert(audio, out), ["audio.wav"]),
             ("asr", lambda: asr(out), ["asr.json"]),
-            ("diarize", lambda: diarize(out), ["sortformer.raw.json", "diarization.json"]),
+            ("diarize", lambda: diarize(out, args.diarizer), [RAW_DIARIZATION[args.diarizer], "diarization.json"]),
             ("attach", lambda: attach(out), ["turns.json", "speakers.json"]),
             ("transcript", lambda: transcript(out), ["transcript.md"])]
     if not args.no_summary:
@@ -285,7 +312,7 @@ def summarize(args):
     Run(out).stage("summary", lambda: summary(out, replace=True), ["summary.json", "summary.md"])
 
 
-def setup(_args):
+def setup(args):
     for repo, revision in ((pins.WHISPER_REPO, pins.WHISPER_REVISION), (pins.SUMMARY_REPO, pins.SUMMARY_REVISION)):
         print(f"{repo}@{revision}: {pins.snapshot(repo, revision)}")
     if not pins.FLUIDAUDIO_CLI.exists():
@@ -299,18 +326,28 @@ def setup(_args):
                        capture_output=True, check=True)
         if not result.exists():
             raise ValueError("Sortformer could not run; check the network and FluidAudio's model download")
+    if args.who:
+        if not pins.WHO_CLI.exists():
+            raise ValueError("build Who first: swift build -c release --product who-diarize")
+        models = pins.who_models()
+        models.mkdir(parents=True, exist_ok=True)
+        subprocess.run([str(pins.WHO_CLI), "-", "-", str(models), "--download"], check=True)
     print("setup complete; `run` now works offline")
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     commands = parser.add_subparsers(dest="command", required=True)
-    commands.add_parser("setup", help="download pinned models").set_defaults(func=setup)
+    p = commands.add_parser("setup", help="download pinned models")
+    p.add_argument("--who", action="store_true", help="also download Who's weights for --diarizer who")
+    p.set_defaults(func=setup)
     p = commands.add_parser("run", help="run every stage")
     p.add_argument("audio")
     p.add_argument("out", help="a new folder outside the Git checkout")
     p.add_argument("--resume", action="store_true", help="continue a failed or partial run in OUT")
     p.add_argument("--no-summary", action="store_true", help="stop after the transcript")
+    p.add_argument("--diarizer", choices=sorted(DIARIZERS), default="sortformer",
+                   help="sortformer (default) or who: much faster, slightly fewer turns kept apart in #25")
     p.set_defaults(func=run)
     p = commands.add_parser("render", help="rebuild transcript.md from speakers.json")
     p.add_argument("out")

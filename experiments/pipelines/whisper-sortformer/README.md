@@ -11,6 +11,7 @@ From the repository root:
 ```bash
 cd experiments/pipelines/whisper-sortformer
 swift build -c release --product fluidaudiocli
+swift build -c release --product who-diarize   # only for --diarizer who
 cd -
 uv run --project experiments/pipelines/whisper-sortformer experiments/pipelines/whisper-sortformer/recap.py setup
 ```
@@ -18,6 +19,7 @@ uv run --project experiments/pipelines/whisper-sortformer experiments/pipelines/
 - `swift build` takes about two and a half minutes. It builds FluidAudio's `fluidaudiocli` at the pinned revision into this folder's `.build/`.
 - `setup` downloads the two pinned Hugging Face snapshots (Whisper about 3 GB, Qwen about 5.6 GB) to the Hugging Face cache. It also runs Sortformer once on generated silence, so FluidAudio downloads its models to `~/Library/Application Support/FluidAudio/Models`.
 - `ffmpeg` and `ffprobe` must be on `PATH` (`brew install ffmpeg`).
+- For `--diarizer who`, run `setup --who` as well. It downloads Who's int8 weights (44 MB) to `~/Library/Application Support/meeting-recap/who`, or to `$WHO_MODELS` if set.
 
 ## Run (offline)
 
@@ -30,12 +32,13 @@ uv run --project experiments/pipelines/whisper-sortformer experiments/pipelines/
 - **Offline:** both Python model stages run with `HF_HUB_OFFLINE=1`, so they fail rather than download a different revision. Sortformer loads FluidAudio's cached models.
 - **Order:** stages run one after another. Each model runs in its own process, so its memory is freed before the next model loads.
 - **`--no-summary`:** stops after the transcript.
+- **`--diarizer who`:** uses Desert Ant Labs Who (int8) instead of Sortformer. It labels speakers in seconds instead of minutes. It refuses to run when its weights are missing rather than downloading them. Each load sends the SDK's licence check (an install ID, versions and platform, no audio) to `events.desertant.com`; the Who experiment ([#25](https://github.com/pomodorozhong/meeting-recap/pull/25)) found inference still works when that server is unreachable. Its licence is source-available. Sortformer stays the default until #25's long-call scores are in. A resumed run must use the diarizer it started with.
 
 | Stage | Writes | What it does |
 | --- | --- | --- |
 | `convert` | `audio.wav` | ffmpeg to 16 kHz mono 32-bit float, keeping the time origin |
 | `asr` | `asr.json` | Whisper Large v3 through `mlx-whisper`: `language=zh`, word timestamps, `condition_on_previous_text=False` |
-| `diarize` | `sortformer.raw.json`, `diarization.json` | FluidAudio Sortformer (`fluidaudiocli sortformer`), converted to segments |
+| `diarize` | `sortformer.raw.json` or `who.raw.json`, `diarization.json` | FluidAudio Sortformer (`fluidaudiocli sortformer`) or Who (`who-diarize`), converted to segments |
 | `attach` | `turns.json`, `speakers.json` | Each word gets the label it overlaps most (else the nearest within 1 s). Same-label words less than 1 s apart form one turn |
 | `transcript` | `transcript.md` | Speaker names applied, OpenCC `s2tw` to Traditional characters, one `**[HH:MM:SS] Name:**` paragraph per turn |
 | `summary` | `summary.json`, `summary.md` | Qwen3.5 9B through `mlx-lm`, described below |
@@ -96,6 +99,7 @@ Neither of the last two counts Metal buffers fully. For an MLX model they can sh
 | --- | --- |
 | Whisper | [`mlx-community/whisper-large-v3-mlx`](https://huggingface.co/mlx-community/whisper-large-v3-mlx) at `49e6aa286ad60c14352c404340ded53710378a11`, through `mlx-whisper` 0.4.2 |
 | Sortformer | FluidAudio `ea500621819cadc46d6212af44624f2b45ab3240` (`Package.swift`, `Package.resolved`); model `Sortformer_v2.1.mlmodelc` as in [docs/runners.md](../../../docs/runners.md) |
+| Who (optional) | `desert-ant-core` `1a5efed67f44731b5eb5433aa9be3eebae05e269` (tag `v4.2.1`), which pins the weights `desert-ant-labs/who` `v0.3.4`, Core ML int8; Desert Ant Labs Source-Available License |
 | Recap | [`mlx-community/Qwen3.5-9B-4bit`](https://huggingface.co/mlx-community/Qwen3.5-9B-4bit) at `8b2b98c00a6b4d291155e4890773ca8f769aee53` (Apache-2.0), through `mlx-lm` 0.32.2 |
 | Python packages | `uv.lock` |
 | Script conversion | `opencc-python-reimplemented` 0.1.7, `s2tw` |
@@ -128,6 +132,17 @@ The [synthetic call](../../synthetic-call/README.md) (seed 7, 5:29, three speake
 - **Matches earlier runs:** Sortformer's 0.41× matches its 2026-10-24 runs on 87 minutes of a real call.
 - **Projection, not measured:** an hour-long call would take about 33 minutes before the summary (0.55×). The summary adds about one prompt per 15 minutes plus a merge prompt.
 
+**With `--diarizer who`** (same call, same day):
+
+| Stage | Sortformer | Who |
+| --- | --- | --- |
+| diarize | 136 s, 0.79 GB footprint | 2.1 s (0.4 s load, 0.7 s diarizing), 0.27 GB footprint |
+| asr | 47 s | 47 s, identical text |
+| summary | 99 s | 82 s |
+| **total** | **283 s (0.86×)** | **132 s (0.40×)** |
+
+With Who, Whisper and the summary model are the slow stages. An hour-long call would take about 9 minutes before the summary (projection, not measured). The summary's time varies by about 20 s between runs on the same transcript length.
+
 ### Quality
 
 | Measure | Result | How |
@@ -138,19 +153,27 @@ The [synthetic call](../../synthetic-call/README.md) (seed 7, 5:29, three speake
 | Labels | 4, for 3 speakers | The fourth holds 2 characters; renaming it in `speakers.json` merges it |
 | Recap evidence | 6 topics, 7 decisions, 10 action items, 3 proposals, 2 open questions; every item kept a valid timestamp | Read by hand against the script, not scored |
 
+With `--diarizer who`, measured the same way:
+- **Speaker agreement:** 98.5% with diarization alone and 95.8% in the transcript, against Sortformer's 98.2% and 95.1%.
+- **Labels:** exactly three, with no spare.
+- **Turns:** 65 transcript turns, against Sortformer's 67 (73 in the script).
+- **Recap:** 8 topics, 7 decisions, 8 action items, 3 proposals and 3 open questions, all with valid timestamps.
+
+On this one generated call Who is at least as good end to end. That differs from #25, where Who kept slightly fewer turns apart on clip-level turn order. The two measures count different things, and one call can't settle it.
+
 ### Issues found, most important first
 
 The point of this baseline is to see where the whole pipeline loses most before optimizing any part. Each issue needs its own measurement on a real recording before it is fixed.
 
 1. **Words cross turn boundaries.** Whisper's word times drift at turn changes, so a reply's first character often stays with the previous speaker (「聽」 then 「得到」). This costs about 3 points of speaker agreement on top of diarization's own errors, and it is visible on almost every short reply. Candidate fixes: split turns at Whisper segment or punctuation boundaries that lie near a diarization change, or align words with a separate forced aligner.
 2. **The recap mixes assignments into decisions.** Who does what appears both as decisions and as action items, two action items repeat one task, and one action item's owner is doubtful. Every item cites real lines, but whether those lines support the item is checked only by reading. Only the private-recording review can say whether this matters.
-3. **Runtime is dominated by Sortformer** at 0.41×, three times Whisper's time. ASR and diarization don't depend on each other and fit in memory together (about 5 GB), so running them in parallel is the obvious first optimization. It is deliberately not done until a real recording confirms the baseline.
+3. **Runtime is dominated by Sortformer** at 0.41×, three times Whisper's time. `--diarizer who` removes this cost (2 s instead of 136 s). Choosing it as the default waits for its long-call scores in #25 and the private-recording review.
 4. **ASR errors and punctuation.** Homophones land in the transcript and the recap (「分頁」 as 「糞頁」, 「時間」 as 「實踐」). Whisper writes mostly half-width punctuation (34 of 38 marks), which reads oddly in Chinese. `opencc-python-reimplemented` converts 「只有」 to 「隻有」 under both `s2tw` and `s2twp`.
 5. **A spare speaker label** appears for a few characters. Naming handles it; nothing to change yet.
 
 ## Known limits
 
-- **Speakers:** the speaker count is not set. Sortformer handles at most four speakers.
+- **Speakers:** the speaker count is not set. Sortformer handles at most four speakers; Who is built for at most four per five-minute piece.
 - **Overlaps:** overlapping speech goes to one speaker per word.
 - **ASR runtime:** Whisper runs through MLX, not the WhisperKit CLI used on 2026-10-24. It has the same model weights but no VAD chunking, and long silences can still produce stray text.
 - **Scope:** no live capture, GUI, or search.

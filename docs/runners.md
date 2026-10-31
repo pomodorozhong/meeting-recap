@@ -73,7 +73,7 @@ Patch for HushScribe `51103f0c8f97344ec7ecdf6480a2ee53cd9a0e92` that runs one fi
 
 ## `experiments/pipelines/whisper-sortformer/`
 
-The first end-to-end pipeline: saved audio to a speaker-labeled Markdown transcript and a local recap, with its own pinned FluidAudio build and uv project. Setup, the `run`/`render`/`summarize` commands, outputs, measurement and its synthetic baseline are in [its README](../experiments/pipelines/whisper-sortformer/README.md).
+The first end-to-end pipeline: saved audio to a speaker-labeled Markdown transcript and a local recap, with its own pinned FluidAudio build (and optional Who build, `--diarizer who`) and uv project. Setup, the `run`/`render`/`summarize` commands, outputs, measurement and its synthetic baseline are in [its README](../experiments/pipelines/whisper-sortformer/README.md).
 
 ## `experiments/full-recordings/run_full.sh`
 

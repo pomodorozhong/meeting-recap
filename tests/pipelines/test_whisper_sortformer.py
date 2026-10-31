@@ -47,6 +47,11 @@ class Attach(unittest.TestCase):
                                 segs(("S1", 0.0, 1.0), ("S2", 4.9, 6.0)))
         self.assertEqual([(t["speaker_id"], t["text"]) for t in turns], [("S1", "好。"), ("S2", "呢你")])
 
+    def test_who_output_becomes_sorted_segments(self):
+        raw = {"load_seconds": 0.3, "segments": [{"speaker_id": "Who_1", "start_seconds": 2, "end_seconds": 3},
+                                                 {"speaker_id": "Who_0", "start_seconds": 0, "end_seconds": 1}]}
+        self.assertEqual(pipeline.who_segments(raw), segs(("Who_0", 0.0, 1.0), ("Who_1", 2.0, 3.0)))
+
     def test_text_without_word_times_is_refused(self):
         with self.assertRaises(ValueError):
             pipeline.attach({"segments": [{"text": "你好", "start": 0, "end": 1, "words": []}]}, [])
@@ -150,10 +155,10 @@ class Runs(unittest.TestCase):
             target.write_text(json.dumps({"mlx_peak_bytes": 2, "replies": [{"reply": reply}]}))
         return {"wall_seconds": 0.1}
 
-    def fake_diarize(self, out):
+    def fake_diarize(self, out, diarizer="sortformer"):
         if "diarize" in self.failing:
             raise recap.StageError("Sortformer wrote no output")
-        (out / "sortformer.raw.json").write_text(json.dumps(SORTFORMER))
+        (out / recap.RAW_DIARIZATION[diarizer]).write_text(json.dumps(SORTFORMER))
         (out / "diarization.json").write_text(json.dumps(pipeline.sortformer_segments(SORTFORMER)))
         return {}
 
@@ -213,6 +218,15 @@ class Runs(unittest.TestCase):
         self.assertTrue((self.out / "transcript.md").exists())
         self.assertFalse((self.out / "summary.md").exists())
         self.assertEqual(self.stages()["summary"]["status"], "failed")
+
+    def test_who_writes_its_own_raw_output_and_resume_keeps_the_diarizer(self):
+        self.failing = {"summary"}
+        self.assertEqual(self.main("run", str(self.audio), str(self.out), "--diarizer", "who"), 1)
+        self.assertTrue((self.out / "who.raw.json").exists())
+        self.assertEqual(json.loads((self.out / "run.json").read_text())["diarizer"], "who")
+        self.failing = set()
+        self.assertEqual(self.main("run", str(self.audio), str(self.out), "--resume"), 1)
+        self.assertEqual(self.main("run", str(self.audio), str(self.out), "--resume", "--diarizer", "who"), 0)
 
     def test_resume_refuses_a_different_recording(self):
         self.failing = {"asr"}

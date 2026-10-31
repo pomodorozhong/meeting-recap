@@ -91,8 +91,8 @@ def select(root, config):
             for a, seq in sorted(pick):
                 reason = (f"Rarest diarization label ({totals[rarest]:.0f} s in all; possible split voice)" if rarest in seq
                           else f"Turn change, time bin sample ({len(seq)} predicted turns)")
-                speaker_items.append({"task": "speaker_order", "recording_id": rec_id, "start_seconds": round(a, 2),
-                                      "end_seconds": round(a + window, 2), "padding_seconds": 1, "reason": reason,
+                speaker_items.append({"task": "speaker_order", "recording_id": rec_id, "start_seconds": a,
+                                      "end_seconds": a + window, "padding_seconds": 1, "reason": reason,
                                       "run_ids": rec.get("speaker_show_runs", [rec["diarization_run"]])})
         if rec.get("transcript_clips"):
             if convert is None:

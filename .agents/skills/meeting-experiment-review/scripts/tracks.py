@@ -65,7 +65,8 @@ def activity(path, settings=SETTINGS):
             spans[-1][1] = end
         else:
             spans.append([start, end])
-    return [(round(a, 3), round(b, 3)) for a, b in spans if b - a >= settings["min_speech_seconds"]], duration
+    # Keep sample-derived bounds: rounding up can put the final span past the WAV's duration.
+    return [(a, b) for a, b in spans if b - a >= settings["min_speech_seconds"]], duration
 
 
 def track_segments(tracks, settings=SETTINGS, tolerance_seconds=1.0):

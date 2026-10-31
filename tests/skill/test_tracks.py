@@ -85,6 +85,16 @@ class TrackReference(DatasetCase):
         with self.assertRaises(ValueError):
             review.track_reference(self.root, "long", self.paths, "tracks2")
 
+    def test_reference_keeps_a_fractional_final_sample_within_the_recording(self):
+        duration = 2.000625  # A whole number of samples at 16 kHz, but not milliseconds.
+        self.add_recording("fractional", duration)
+        paths = {"A": write_track(self.tmp / "tail.wav", duration, [(1, duration)], rate=16000),
+                 "B": write_track(self.tmp / "reply.wav", duration, [(0.1, 0.5)], rate=16000)}
+        ref = review.track_reference(self.root, "fractional", paths, "fractional-ref")
+        end = ref["clips"][-1]["end_seconds"]
+        self.assertLessEqual(end, duration)
+        self.assertAlmostEqual(end, duration, delta=1 / 16000)
+
 
 class TrackCli(DatasetCase):
     def test_scripts_run_as_the_user_would(self):

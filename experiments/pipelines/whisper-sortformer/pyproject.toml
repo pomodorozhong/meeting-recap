@@ -1,0 +1,14 @@
+[project]
+name = "whisper-sortformer-pipeline"
+version = "0.1.0"
+description = "Saved recording to speaker-labeled Markdown transcript and recap"
+requires-python = ">=3.11,<3.13"
+dependencies = [
+    "mlx-whisper==0.4.2",
+    "mlx-lm==0.32.2",
+    "huggingface-hub",
+    "opencc-python-reimplemented==0.1.7",
+]
+
+[tool.uv]
+package = false

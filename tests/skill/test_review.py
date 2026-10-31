@@ -102,6 +102,19 @@ class KnownReference(ReviewCase):
 
 
 class Predictions(ReviewCase):
+    def test_predictions_include_saved_padding_for_speakers_and_words(self):
+        rows = segs(("A", 4.1, 4.9), ("B", 5, 10), ("C", 10.2, 10.8), ("D", 12, 13))
+        self.add_run("padded-dia", artifacts={"segments": rows})
+        self.add_run("padded-asr", artifacts={"transcript": transcript(
+            ("before", 4.1, 4.9), ("inside", 5, 10), ("after", 10.2, 10.8), ("outside", 12, 13))})
+        for padding, expected in [(1, ["A", "B", "C"]), (0, ["B"])]:
+            item = self.item(start_seconds=5, end_seconds=10, padding_seconds=padding, run_ids=["padded-dia"])
+            shown = review.prediction(self.root, item)["padded-dia"]
+            self.assertEqual([row["speaker_id"] for row in shown], expected)
+            item.update(task="transcript", run_ids=["padded-asr"])
+            words = review.prediction(self.root, item)["padded-asr"]
+            self.assertEqual([row["start"] for row in words], [row["start_seconds"] for row in shown])
+
     def test_refuses_a_prediction_changed_after_registration(self):
         self.assertEqual([s["speaker_id"] for s in review.prediction(self.root, self.item())["dia1"]], ["x", "y", "x"])
         write_json(self.root / "runs" / "dia1" / "segments.json", segs(("z", 0, 15)))

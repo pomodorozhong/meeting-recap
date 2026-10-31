@@ -192,6 +192,8 @@ def close_session(root, session_id, expected_revision=None):
 
 def prediction(root, item):
     result = {}
+    padding = item.get("padding_seconds", 1)
+    start, end = max(0, item["start_seconds"] - padding), item["end_seconds"] + padding
     for run_id in item.get("run_ids", []):
         info = run(root, run_id)
         name = "segments" if item["task"] == "speaker_order" else "transcript"
@@ -201,9 +203,9 @@ def prediction(root, item):
         data = artifact(root, info, name)
         if item["task"] == "speaker_order":
             data = [{"speaker_id": s["speaker_id"], "start_seconds": s["start_seconds"], "end_seconds": s["end_seconds"]}
-                    for s in data if s["start_seconds"] < item["end_seconds"] and s["end_seconds"] > item["start_seconds"]]
+                    for s in data if s["start_seconds"] < end and s["end_seconds"] > start]
         else:
-            data = [s for s in data["segments"] if s["start"] < item["end_seconds"] and s["end"] > item["start_seconds"]]
+            data = [s for s in data["segments"] if s["start"] < end and s["end"] > start]
         result[run_id] = data
     return result
 

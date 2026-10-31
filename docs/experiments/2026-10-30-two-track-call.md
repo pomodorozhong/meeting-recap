@@ -57,7 +57,7 @@ at the default 30 s window. A dry run on scratch copies gave 86 clips, about 31 
                  "speaker_show_runs": ["tracks-two-track-call", "sortformer-two-track-call"]}]}
 ```
 
-Skill code: commit ``; dataset snapshot `cc24865fadea9fba01b8fe4ca722a978bbeb8b1faaa56ae671e0ccf4635b354a a1537aa False` (from `dataset.py snapshot`). Restarts and reruns use this snapshot, not the current scripts. It was retaken before any run, after two skill fixes (artifacts digest-checked on every read; references built from one event read).
+Skill code: dataset snapshot `cc24865fadea9fba01b8fe4ca722a978bbeb8b1faaa56ae671e0ccf4635b354a`. The actual checkout commit at run time was not recorded reliably. Public recovery checkpoint: commit `53320016ef6eaf07e95936ebbef51546d95ef59b`; its eight skill scripts and review page reproduce that exact snapshot digest. This legacy snapshot identity covers those nine files, not the dependency environment. Restarts and reruns use the snapshot or the verified recovery checkpoint, not the current scripts. It was retaken before any run, after two skill fixes (artifacts digest-checked on every read; references built from one event read).
 
 Review session ID: `check-two-track-call`. Reference IDs: `ref-check-two-track-call` (listened) and `tracks-two-track-call` (from the tracks). Evaluation IDs: `eval-check-two-track-call` (both runs against the listened clips) and `eval-two-track-call` (Sortformer against the track reference).
 
@@ -71,7 +71,15 @@ Run from the repository root with `MEETING_REVIEW_DATA` set to the private datas
 
 ## Restart from scratch
 
-If the private data for this experiment is lost: register the recording again under the same ID from the two raw tracks with the commands above, rerun the runs, register them under the same IDs, rebuild the track reference, and rerun `pick_clips.py` with the config above, using the skill code at the commit above (`git show :.agents/skills/meeting-experiment-review/scripts/…`) if the snapshot is lost too. Track activity is deterministic, so the same tracks give the same reference and the same picked clips; rechoose the four hand-added clips by the rule above.
+If the private data for this experiment is lost: register the recording again under the same ID from the two raw tracks with the commands above, rerun and register the runs, rebuild the track reference, and rerun `pick_clips.py` with the config above. If the code snapshot is lost too, extract the verified public checkpoint without changing the current checkout:
+
+```bash
+replay_root=$(mktemp -d)
+git archive 53320016ef6eaf07e95936ebbef51546d95ef59b .agents/skills/meeting-experiment-review | tar -x -C "$replay_root"
+replay_skill="$replay_root/.agents/skills/meeting-experiment-review"
+```
+
+Run the plan's commands from a scratch directory outside Git. For each historical helper, replace `python3 scripts/<helper>.py` with `uv run --project "$replay_skill" "$replay_skill/scripts/<helper>.py"`. The archived project and lock describe the checkpoint's dependency environment; the original snapshot did not attest to it. Track activity is deterministic, so the same tracks and code give the same reference and picked clips; rechoose the four hand-added clips by the rule above. Later skill changes can produce different references, so rerunning with current code requires new artifact IDs and an updated experiment record.
 
 ## Runtime and memory
 
@@ -80,7 +88,7 @@ If the private data for this experiment is lost: register the recording again un
 | Track activity (`tracks.py`, both tracks) | 2 s | not measured | |
 | Sortformer on the 48:30 mix | 19:52 (0.41× real time) | 1.41 GB resident, 1.21 GB footprint | nothing else running |
 
-That is in line with the 2026-10-24 recordings (0.54× and 0.47× real time, while sharing the machine with transcription runs), and memory stays under 1.5 GB.
+That is in line with the 2026-10-24 full-recording summary (0.41× real time for both recordings, with steps run sequentially and nothing else running), and memory stays under 1.5 GB.
 
 ## Results
 

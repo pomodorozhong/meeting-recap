@@ -22,6 +22,13 @@ class LabelAt(unittest.TestCase):
 
 
 class Turns(unittest.TestCase):
+    def test_overlapping_words_preserve_the_full_speaker_span(self):
+        asr = transcript(("first", 0, 2), ("second", 1, 1.5))
+        out = attach.turns(asr, segs(("A", 0, 2)), "word")
+        self.assertEqual(len(out), 1)
+        self.assertEqual((out[0]["start_seconds"], out[0]["end_seconds"]), (0, 2))
+        self.assertEqual(out[0]["text"], "firstsecond")
+
     def test_word_attachment_merges_runs_and_strips_tokens(self):
         out = attach.turns(ASR, DIARIZATION, "word")
         self.assertEqual([(t["speaker_id"], t["text"]) for t in out], [("A", "你好"), ("B", "嗨")])

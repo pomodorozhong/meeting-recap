@@ -4,7 +4,14 @@
 # Env: AUDIO (16 kHz mono WAV), OUT
 set -eu
 A=${AUDIO:?}; OUT=${OUT:?Set OUT to a private dataset run directory}; B=.build/release/diarexp; C=.build/release/fluidaudiocli
-mkdir -p $OUT/rep $OUT/other
+OUT=${OUT:A}
+mkdir -p "${OUT:h}"
+# Reserve this run atomically before starting a model; failed runs keep their partial outputs.
+if ! mkdir "$OUT" 2>/dev/null; then
+  print -u2 -- "OUT must be a new writable directory: $OUT"
+  exit 2
+fi
+mkdir "$OUT/rep" "$OUT/other"
 cfg() { n=$1; shift; for i in 1 2 3 4 5; do $B $A $OUT/rep/${n}__$i.json "$@" >/dev/null 2>&1; done; echo "done $n"; }
 cfg default
 cfg n3 num=3
@@ -18,5 +25,8 @@ cfg thr0.8 thr=0.8
 cfg range2_5 min=2 max=5
 $C sortformer $A --output $OUT/other/sortformer.json
 for v in dihard3 ami callhome dihard2; do $C lseend $A --variant $v --output $OUT/other/lseend_$v.json; done
-for f in $OUT/other/*.json; do python3 sortformer_to_segments.py $f ${f%.json}_seg.json; done
+raw_names=(sortformer lseend_dihard3 lseend_ami lseend_callhome lseend_dihard2)
+for name in "${raw_names[@]}"; do
+  python3 sortformer_to_segments.py "$OUT/other/$name.json" "$OUT/other/${name}_seg.json"
+done
 # Register each run with dataset.py, then evaluate against a confirmed reference snapshot.

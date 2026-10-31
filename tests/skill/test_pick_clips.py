@@ -85,6 +85,18 @@ class PickClips(DatasetCase):
         self.assertEqual(len(items), 1)
         self.assertTrue(items[0]["reason"].startswith("Rarest diarization label"))
 
+    def test_selected_bounds_survive_session_preparation_at_fractional_end(self):
+        import review
+
+        self.add_recording("fractional", 30.006)
+        self.add_run("fractional-dia", recording_id="fractional", artifacts={
+            "segments": segs(("A", 0, 19.006), ("B", 19.006, 30.006))})
+        config = self.config(rec={"recording_id": "fractional", "diarization_run": "fractional-dia",
+                                  "speaker_show_runs": ["fractional-dia"], "speaker_clips": 1})
+        plan = pick_clips.select(self.root, config)
+        prepared = review.prepare(self.root, write_json(self.tmp / "fractional-plan.json", plan))
+        self.assertEqual(prepared["items"][0]["end_seconds"], 30.006)
+
     def test_rejects_unfinished_or_mismatched_runs(self):
         self.add_recording("rec2", 240)
         self.add_run("dia2", recording_id="rec2", artifacts={"segments": alternating()})

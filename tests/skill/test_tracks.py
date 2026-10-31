@@ -34,6 +34,27 @@ class Activity(DatasetCase):
     def test_silent_track_has_no_speech(self):
         self.assertEqual(tracks.activity(self.track("quiet", [], noise=0))[0], [])
 
+    def test_continuous_activity_requires_an_explicit_noise_calibration(self):
+        path = self.track("continuous", [(0, 4.75)], seconds=5, rate=16000)
+        with self.assertRaisesRegex(ValueError, "quiet calibration"):
+            tracks.activity(path)
+        spans, _ = tracks.activity(path, noise_floor_dbfs=-65)
+        self.assertAlmostEqual(spans[0][0], 0, delta=0.03)
+        self.assertAlmostEqual(spans[0][1], 4.75, delta=0.03)
+        # A genuinely quiet track stays silent without needing a calibration override.
+        self.assertEqual(tracks.activity(self.track("quiet-noise", []))[0], [])
+
+    def test_noise_calibration_validates_levels_and_speaker_ids(self):
+        for level in [float("nan"), float("inf"), 1, -201, True]:
+            with self.subTest(level=level), self.assertRaises(ValueError):
+                tracks.activity(self.track("a", A), noise_floor_dbfs=level)
+        with self.assertRaisesRegex(ValueError, "speaker IDs"):
+            tracks.track_segments({"A": self.track("a", A), "B": self.track("b", B)},
+                                  noise_floors={"C": -65})
+        for values in [["A"], ["A=nan"], ["A=1"], ["A=-65", "A=-60"]]:
+            with self.subTest(values=values), self.assertRaises(ValueError):
+                tracks.parse_noise_floors(values)
+
     def test_segments_from_two_tracks(self):
         rows, _ = tracks.track_segments({"A": self.track("a", A), "B": self.track("b", B)})
         self.assertEqual([(r["speaker_id"], round(r["start_seconds"], 1), round(r["end_seconds"], 1)) for r in rows],
@@ -85,8 +106,33 @@ class TrackReference(DatasetCase):
         with self.assertRaises(ValueError):
             review.track_reference(self.root, "long", self.paths, "tracks2")
 
+    def test_reference_keeps_a_fractional_final_sample_within_the_recording(self):
+        duration = 2.000625  # A whole number of samples at 16 kHz, but not milliseconds.
+        self.add_recording("fractional", duration)
+        paths = {"A": write_track(self.tmp / "tail.wav", duration, [(1, duration)], rate=16000),
+                 "B": write_track(self.tmp / "reply.wav", duration, [(0.1, 0.5)], rate=16000)}
+        ref = review.track_reference(self.root, "fractional", paths, "fractional-ref")
+        end = ref["clips"][-1]["end_seconds"]
+        self.assertLessEqual(end, duration)
+        self.assertAlmostEqual(end, duration, delta=1 / 16000)
+
 
 class TrackCli(DatasetCase):
+    def test_calibration_is_required_before_a_reference_can_omit_continuous_activity(self):
+        self.add_recording("calibrated", 5)
+        a = write_track(self.tmp / "continuous.wav", 5, [(0, 4.75)])
+        b = write_track(self.tmp / "answer.wav", 5, [(1, 2)])
+        arguments = ["--recording", "calibrated", "--track", f"A={a}", "--track", f"B={b}", "--id", "cal-ref"]
+        result = run("review.py", "tracks", self.root, *arguments, check=False)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertFalse((self.root / "references" / "cal-ref.json").exists())
+        ref = json.loads(run("review.py", "tracks", self.root, *arguments, "--noise-floor", "A=-65").stdout)
+        self.assertEqual(ref["source"]["tracks"]["A"]["noise_floor_dbfs"], -65)
+        self.assertEqual(ref["clips"][0]["speaker_order"], ["A", "B"])
+        rows = json.loads(run("tracks.py", "--track", f"A={a}", "--track", f"B={b}",
+                              "--noise-floor", "A=-65", "--out", self.tmp / "calibrated.json").stdout)
+        self.assertGreater(rows["speech_seconds"]["A"], 4)
+
     def test_scripts_run_as_the_user_would(self):
         self.add_recording("rec1", 20)
         a, b = write_track(self.tmp / "a.wav", 20, A), write_track(self.tmp / "b.wav", 20, B)

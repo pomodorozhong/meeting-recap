@@ -14,6 +14,7 @@ All runs so far used macOS 26.6.2, Apple M2 Pro, 16 GB, Swift 6.3.3.
 | MLX Whisper model | `mlx-community/whisper-large-v3-mlx` at `49e6aa286ad60c14352c404340ded53710378a11` |
 | MLX Breeze model | `eoleedi/Breeze-ASR-25-mlx` at `172151e3fd93ab6dc841d639f23dd48b24bc8301` |
 | Breeze-ASR-25 (transformers) | `MediaTek-Research/Breeze-ASR-25` at `cffe7ccb404d025296a00758d0a33468bec3a9d0` |
+| pyannote Community-1 | `pyannote/speaker-diarization-community-1` at `3533c8cf8e369892e6b79ff1bf80f7b0286a54ee` (including its bundled segmentation, embedding, and PLDA assets) |
 
 Each Python runner's folder is a uv project, with a `pyproject.toml` and a committed `uv.lock`; run it from the repository root with `uv run --project <folder>`. The locks were made on 2026-10-29, after the 2026-10-24 experiments, so they don't record the package versions those runs used.
 
@@ -38,6 +39,7 @@ AUDIO=recording-16k.wav OUT=/scratch/dia ./run_sweep.sh
 - Building `fluidaudiocli` takes about two minutes. FluidAudio downloads its models on first use to `~/Library/Application Support/FluidAudio/Models`.
 - `diarexp <wav> <out.json> [key=value ...]` writes `segments` JSON directly. Keys: `num`, `min`, `max`, `thr`, `minseg`, `excl`, `exovl`, `step`, `mingap`, `fa`, `fb`.
 - The sweep repeats each Community-1 setting five times (`__1`–`__5`) because results varied between identical runs, then runs Sortformer and four LS-EEND variants.
+- `OUT` must be a new directory. The sweep reserves it before any model starts, refuses an existing destination (including a partial run), and converts only the five raw CLI outputs. Choose a new `OUT` for a retry; prior outputs are retained.
 - `.build/release/fluidaudiocli sortformer <wav> --output <out.json>` runs Sortformer alone; `sortformer_to_segments.py <in> <out>` converts its JSON to `segments`.
 
 ## `experiments/mlx/run.py`
@@ -50,7 +52,8 @@ uv run --project experiments/mlx experiments/mlx/run.py recording-16k.wav breeze
 ```
 
 - Arguments: WAV, output path, Hugging Face repo, language (default `zh`). Decoding uses `condition_on_previous_text=False` to limit repetition loops.
-- Set `HF_HUB_OFFLINE=1` when the models are already cached. The runner takes a repo name, not a revision; to match the pinned snapshots above, download them first with `hf download <repo> --revision <commit>`, or check `~/.cache/huggingface/hub/models--<org>--<name>/snapshots/`.
+- The two listed repositories use the exact revisions in the table. The runner resolves that snapshot first, checks its revision, and passes its local path to MLX; the output records `model_revision`. An unlisted model requires `--revision <full-40-character-commit>`, which also permits an explicit revision for a listed model. Branch and tag names are refused.
+- Set `HF_HUB_OFFLINE=1` when that exact revision is already cached. If it is missing, the runner fails rather than loading another cached version.
 - Wrap in `/usr/bin/time -l` to record wall time and peak memory for the run spec.
 
 Results from the [MLX follow-up](experiments/2026-10-24-transcription-variants.md#follow-up-whisper-and-breeze-through-mlx-2026-10-29) on 87 minutes of audio:
@@ -77,7 +80,7 @@ Sortformer and WhisperKit Whisper Large v3 (Chinese forced, VAD, word timestamps
 Each folder is a uv project; run them with `uv run --project experiments/breeze` or `--project experiments/pyannote`.
 
 - `breeze/run.py <wav> <out.json>` runs Breeze-ASR-25 through transformers and writes WhisperKit-shaped JSON. It is slow on the M2 Pro; prefer the MLX runner.
-- `pyannote/run.py <wav> <out.json> [num_speakers]` writes `segments`. It needs the Hugging Face terms accepted for `pyannote/speaker-diarization-community-1` and a logged-in token.
+- `pyannote/run.py <wav> <out.json> [num_speakers]` writes `segments` and a sibling `<out-stem>.metadata.json` with the exact revision, device, inference time, and settings. Register the metadata as an additional run artifact and copy its revision into the run spec. The pinned Community-1 revision in the table is passed to the pipeline and its bundled models; `--revision <full-40-character-commit>` selects another immutable revision. It needs the Hugging Face terms accepted for `pyannote/speaker-diarization-community-1` and a logged-in token. With `HF_HUB_OFFLINE=1`, all assets for that exact revision must already be cached.
 
 ## Earlier findings
 

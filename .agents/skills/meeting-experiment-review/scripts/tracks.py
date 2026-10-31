@@ -44,7 +44,7 @@ def levels(path, frame_seconds):
     return out, count / rate, rate
 
 
-def activity(path, settings=SETTINGS):
+def activity(path, settings=SETTINGS, noise_floor_dbfs=None):
     """Return the active (start, end) spans of one track in seconds, and the track's duration."""
     for key in SETTINGS:
         number(settings[key], key, minimum=-200 if key == "floor_db" else 0)
@@ -54,8 +54,15 @@ def activity(path, settings=SETTINGS):
     dbs, duration, rate = levels(path, step)
     # Frames are whole samples, so a frame lasts slightly more or less than frame_seconds; time counts real frames.
     step = max(1, round(step * rate)) / rate
-    quiet = sorted(dbs)[len(dbs) // 10] if dbs else -math.inf
+    if noise_floor_dbfs is not None:
+        number(noise_floor_dbfs, "noise_floor_dbfs", minimum=-200)
+        if noise_floor_dbfs > 0:
+            raise ValueError("noise_floor_dbfs must be <= 0")
+    quiet = (sorted(dbs)[len(dbs) // 10] if dbs else -math.inf) if noise_floor_dbfs is None else noise_floor_dbfs
     threshold = max(quiet + settings["margin_db"], settings["floor_db"])
+    if noise_floor_dbfs is None and dbs and settings["floor_db"] <= max(dbs) < threshold:
+        raise ValueError(f"{path}: activity cannot be separated from the estimated noise floor; "
+                         "measure a quiet calibration clip and pass --noise-floor SPEAKER=DBFS")
     spans = []
     for i, db in enumerate(dbs):
         if db < threshold:
@@ -65,18 +72,22 @@ def activity(path, settings=SETTINGS):
             spans[-1][1] = end
         else:
             spans.append([start, end])
-    return [(round(a, 3), round(b, 3)) for a, b in spans if b - a >= settings["min_speech_seconds"]], duration
+    # Keep sample-derived bounds: rounding up can put the final span past the WAV's duration.
+    return [(a, b) for a, b in spans if b - a >= settings["min_speech_seconds"]], duration
 
 
-def track_segments(tracks, settings=SETTINGS, tolerance_seconds=1.0):
+def track_segments(tracks, settings=SETTINGS, tolerance_seconds=1.0, noise_floors=None):
     """Turn {speaker_id: wav path} into a segments artifact, checking that the tracks share one timeline."""
     if len(tracks) != 2:
         raise ValueError("a track reference needs exactly two tracks, one speaker each")
+    noise_floors = noise_floors or {}
+    if set(noise_floors) - set(tracks):
+        raise ValueError("noise-floor speaker IDs must name one of the supplied tracks")
     rows, durations = [], []
     for speaker, path in tracks.items():
         if not isinstance(speaker, str) or not speaker:
             raise ValueError("track speaker IDs must be nonempty strings")
-        spans, duration = activity(path, settings)
+        spans, duration = activity(path, settings, noise_floors.get(speaker))
         durations.append(duration)
         rows += [{"speaker_id": speaker, "start_seconds": a, "end_seconds": b} for a, b in spans]
     if max(durations) - min(durations) > tolerance_seconds:
@@ -94,13 +105,27 @@ def parse_tracks(values):
     return tracks
 
 
+def parse_noise_floors(values):
+    floors = {}
+    for value in values or []:
+        speaker, sep, level = value.partition("=")
+        if not sep or not speaker or not level or speaker in floors:
+            raise ValueError("pass each noise floor once as SPEAKER=DBFS")
+        floors[speaker] = float(level)
+        number(floors[speaker], "noise_floor_dbfs", minimum=-200)
+        if floors[speaker] > 0:
+            raise ValueError("noise_floor_dbfs must be <= 0")
+    return floors
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--track", action="append", required=True, help="SPEAKER=path.wav, once per track")
+    parser.add_argument("--noise-floor", action="append", help="SPEAKER=DBFS measured from quiet calibration audio")
     parser.add_argument("--out", required=True, help="segments JSON to write (private; keep it in the dataset or scratch)")
     args = parser.parse_args()
     out = outside_git(args.out)
-    rows, duration = track_segments(parse_tracks(args.track))
+    rows, duration = track_segments(parse_tracks(args.track), noise_floors=parse_noise_floors(args.noise_floor))
     with open(out, "x", encoding="utf-8") as handle:
         json.dump(rows, handle, indent=2)
         handle.write("\n")

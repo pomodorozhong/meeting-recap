@@ -2,22 +2,63 @@
 
 ## In progress
 
-### fix/capture-runner-alignment
+### codex/fix-review-findings
 
-- Task: fix two findings from the second review of `5332001`. The recorder now pads a track that goes quiet before the stop to the other track's end (finding 2). `run_full.sh` now refuses inputs that share a basename, or outputs already in `OUT`, before any model starts (finding 10). No issue. Built from `main` at `d0f6d19`, unlinked.
-- PR: https://github.com/pomodorozhong/meeting-recap/pull/24 (open, base `main`, ready for review; closes nothing; independent of #23).
-- Code checkpoint: see `git log`; one `fix(capture)` and one `fix(experiments)` commit.
-- Verification: `swiftc -typecheck` passes. A probe built from the recorder's own `Track`/`stop()` code with generated buffers gave files of 2.048 s and 0.512 s before the fix, and 2.048 s for both after. `run_full.sh` was run with fake model tools: same-name inputs and a rerun into the same `OUT` both exit 2, and unique inputs keep both outputs. Not run: a live recording.
-- Next action: review and merge PR #24 (in any order with #23).
+- Task: finish the approved review fixes against `main` at `b5a03ae`; plan approved 2026-10-31. Related to #18 and #5; neither is fully resolved. The branch is unlinked, closes no issues, and has no PR yet.
+- Code checkpoint: `e46e31e` plus this handoff commit; eight local commits cover exact timestamp bounds, explicit noise calibration, prediction padding, HushScribe export errors, model revision enforcement, sweep output reservation, historical recovery docs, and overlap regression coverage.
+- State: implementation is complete and committed locally. Existing private references, evaluations, recordings, and public scores were not changed. No model weights were downloaded. Prior review fixes already merged in #20–#24 were preserved.
+- Verification: 116 skill tests and 10 experiment tests pass. All eight commits were verified independently in a temporary detached worktree. MLX and pyannote locks check, sweep syntax checks, the HushScribe patch applies to its pinned public source, and historical recovery reproduces the original nine-file snapshot digest. Not run: live capture, private experiments, real model inference, or a full HushScribe GUI build.
+- Compatibility: uncertain automatic track gates now require an explicit measured noise floor; that value is recorded per speaker. New track times preserve sample precision. Sweep `OUT` must not already exist. Unlisted MLX models and revision overrides require a full commit SHA. Pyannote writes a metadata sidecar. Historical experiments use their frozen code, not the current skill.
+- Next action: resolve P-01, then push without force, open the approved ready PR, verify its contents and closing references, and attach it to the chat.
+- P-01 — Awaiting final publish approval: push `codex/fix-review-findings` and open a ready PR against `main`, titled `fix: close remaining experiment review and reproducibility gaps`, with the exact body below. The open-pr skill requires approval of the finished branch and body before any push. Plan approval does not cover publishing.
 
-### fix/skill-scoring-checks
+#### P-01 proposed PR body
 
-- Task: fix the skill findings from the second review of `5332001` that #20–#22 left open. Native playback now stays inside the clip (1). `--mappings` must name every run scored (3). Split same-label spans now score like continuous ones (4). `__unassigned__` can never be mapped (5). Validation lists run folders without `run.json` under `incomplete_runs` (6). Run times past the recording are refused (7). A fractional `skip_before` is no longer rounded down (8). A reused snapshot is checked file by file (9). No issue. Built from `main` at `d0f6d19`, unlinked.
-- PR: https://github.com/pomodorozhong/meeting-recap/pull/23 (open, base `main`, ready for review; closes nothing; independent of #24).
-- Code checkpoint: see `git log`; five `fix(skill)` commits, then this `docs:` commit.
-- Verification: 109 skill tests pass on the branch and on each commit. Each new test failed before its fix. The page test needs Node and is skipped without it. Not run: the review page in a real browser.
-- Compatibility: `validate` output has a new `incomplete_runs` key. Runs with times more than 1 s past the recording's `duration_seconds` now fail `add-run` and `validate`.
-- Next action: review and merge PR #23 (in any order with #24).
+```markdown
+## What changed
+
+- Preserve sample-derived track times and selected clip bounds so rounding cannot put generated artifacts past the recording's end.
+- Refuse an automatic noise gate that would erase all activity above the absolute floor. Both track commands accept an explicit per-speaker noise calibration, and references record it. This guard does not replace the listening check.
+- Include saved padding in displayed speaker and transcript predictions, matching the evaluated range.
+- Propagate HushScribe diarization-export and result-write failures into failed trial status and nonzero exits. Regenerate the patch against its pinned upstream revision.
+- Load immutable MLX and pyannote model revisions. MLX loads a verified local snapshot; pyannote passes the revision to the bundled pipeline and writes registration metadata. Reject moving revision names and document offline-cache requirements.
+- Reserve a fresh sweep output directory before any model starts and convert only the five declared raw CLI outputs. Retain earlier and partial runs.
+- Repair the two-track experiment's recovery instructions using a public commit verified to reproduce its original snapshot digest. Keep the actual run-time checkout commit explicitly unknown, and correct the runtime comparison.
+- Add regression coverage for these cases and the overlapping-word interval fix already present on main. No private data or experiment scores are changed.
+
+## Why
+
+The remaining review findings could erase an active speaker from a reference, reject valid generated timestamps, show predictions for a different range than scoring, report success without saved artifacts, load moving model revisions, or overwrite sweep results. The experiment recovery record also lacked a usable historical checkpoint.
+
+## Verification
+
+### Automated checks
+
+- `uv run --no-project --with opencc-python-reimplemented python -m unittest discover -s tests/skill -t tests/skill`: 116 tests pass.
+- `uv run --no-project python -m unittest discover -s tests/experiments`: 10 tests pass, using generated fixtures, mocked model calls, and the patch's actual Swift export/finalization functions.
+- `uv lock --check --project experiments/mlx` and `uv lock --check --project experiments/pyannote`: pass.
+- `zsh -n experiments/diarization/run_sweep.sh`: passes.
+- Each fix/test/documentation commit was checked independently in a temporary detached worktree with the suites available at that commit.
+- The HushScribe patch passes forward application checking against all three files at upstream commit `51103f0c8f97344ec7ecdf6480a2ee53cd9a0e92`.
+- The documented archive/replay procedure reproduces snapshot `cc24865fadea9fba01b8fe4ca722a978bbeb8b1faaa56ae671e0ccf4635b354a` from public commit `53320016ef6eaf07e95936ebbef51546d95ef59b`.
+- `git diff --check` and a scan of added lines for private paths/content: pass.
+- Not run: live capture, private-dataset experiments, real model inference, or a full HushScribe GUI build. These checks use generated data and avoid downloading model weights.
+
+### How to verify
+
+1. Run the two unittest commands above. Expected: all 126 tests pass on macOS with Swift, Node, and zsh available.
+2. The regressions verify fractional recording ends, calibration refusal/recovery and provenance, saved prediction padding, export failures, exact model revision loading, and sweep rerun preservation.
+3. Follow the recovery commands in `docs/experiments/2026-10-30-two-track-call.md` to extract the historical skill without changing the current checkout.
+
+Verified: all steps above on macOS using generated fixtures. Reviewer follow-up: real-model inference and full GUI validation remain available for the next scheduled experiment; neither was performed here.
+
+## Related issues
+
+Related to #18: improves track-reference correctness and recovery; its listening check remains pending.
+Related to #5: repairs this experiment's recovery instructions; the other summaries remain outside this change.
+
+No issues are closed, and the branch is not linked to an issue.
+```
 
 ## Ranked work
 
@@ -29,7 +70,7 @@
 6. #7 Decide where private experiment data is backed up
 7. #5 Add a Reproduce section to public experiment summaries
 8. #3 Migrate the 2026-10-24 experiment results into the private review dataset
-9. Remaining code review findings R-08–R-10 and R-13 in `experiments/` runners (no issue yet): model pinning, the no-VAD variant, runner completion checks, sweep output reuse. The second review's finding 20 (the two-track experiment summary's empty commit, malformed snapshot ID, and `git show :path` recovery command) goes with #18. The skill findings merged in #20 and the recorder fixes in #21; the skill follow-ups merged in #22; the remaining findings from the second review of `5332001` are in #23 (skill) and #24 (recorder and `run_full.sh`)
+9. Remaining runner follow-ups (no issue yet): external WhisperKit/FluidAudio model-cache verification, the no-VAD variant, and completion checks outside the HushScribe export fix. Earlier skill and recorder fixes merged in #20–#24; the approved remaining review fixes are implemented locally on `codex/fix-review-findings`, awaiting P-01.
 10. Build the minimal pipeline for saved recordings in `experiments/pipelines/`: ASR and Sortformer, attachment, naming, Markdown transcript (no issue yet)
 
 ## Pending

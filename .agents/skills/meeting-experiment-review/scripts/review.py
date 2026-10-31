@@ -133,12 +133,15 @@ def known_reference(root, recording_id, segments_path, reference_id, window=30.0
     return segments_reference(root, recording_id, rows, reference_id, window, source)
 
 
-def track_reference(root, recording_id, track_paths, reference_id, window=30.0, settings=tracks.SETTINGS):
+def track_reference(root, recording_id, track_paths, reference_id, window=30.0, settings=tracks.SETTINGS, noise_floors=None):
     """Build the reference from per-speaker tracks' activity, for a two-person call recorded on two tracks."""
-    rows, duration = tracks.track_segments(track_paths, settings)
+    rows, duration = tracks.track_segments(track_paths, settings, noise_floors=noise_floors)
     if abs(duration - recording(root, recording_id)["duration_seconds"]) > 1:
         raise ValueError("tracks and recording differ in length; mix the recording from these tracks")
-    source = {"kind": "two_tracks", "tracks": {speaker: {"sha256": digest(path)} for speaker, path in track_paths.items()},
+    source = {"kind": "two_tracks", "tracks": {
+        speaker: {"sha256": digest(path), **({"noise_floor_dbfs": noise_floors[speaker]}
+                                           if noise_floors and speaker in noise_floors else {})}
+        for speaker, path in track_paths.items()},
               "activity": dict(settings)}
     return segments_reference(root, recording_id, rows, reference_id, window, source)
 
@@ -189,6 +192,8 @@ def close_session(root, session_id, expected_revision=None):
 
 def prediction(root, item):
     result = {}
+    padding = item.get("padding_seconds", 1)
+    start, end = max(0, item["start_seconds"] - padding), item["end_seconds"] + padding
     for run_id in item.get("run_ids", []):
         info = run(root, run_id)
         name = "segments" if item["task"] == "speaker_order" else "transcript"
@@ -198,9 +203,9 @@ def prediction(root, item):
         data = artifact(root, info, name)
         if item["task"] == "speaker_order":
             data = [{"speaker_id": s["speaker_id"], "start_seconds": s["start_seconds"], "end_seconds": s["end_seconds"]}
-                    for s in data if s["start_seconds"] < item["end_seconds"] and s["end_seconds"] > item["start_seconds"]]
+                    for s in data if s["start_seconds"] < end and s["end_seconds"] > start]
         else:
-            data = [s for s in data["segments"] if s["start"] < item["end_seconds"] and s["end"] > item["start_seconds"]]
+            data = [s for s in data["segments"] if s["start"] < end and s["end"] > start]
         result[run_id] = data
     return result
 
@@ -334,6 +339,7 @@ def main():
     two.add_argument("dataset")
     two.add_argument("--recording", required=True, help="the recording mixed from these tracks")
     two.add_argument("--track", action="append", required=True, help="SPEAKER=path.wav, once per track")
+    two.add_argument("--noise-floor", action="append", help="SPEAKER=DBFS measured from quiet calibration audio")
     two.add_argument("--id", required=True)
     two.add_argument("--window", type=float, default=30.0, help="target clip length in seconds")
     for name in ("prepare", "serve", "answer", "reference", "close"):
@@ -354,7 +360,8 @@ def main():
     if args.command == "known":
         result = known_reference(root, args.recording, args.segments, args.id, args.window)
     elif args.command == "tracks":
-        result = track_reference(root, args.recording, tracks.parse_tracks(args.track), args.id, args.window)
+        result = track_reference(root, args.recording, tracks.parse_tracks(args.track), args.id, args.window,
+                                 noise_floors=tracks.parse_noise_floors(args.noise_floor))
     elif args.command == "prepare":
         result = prepare(root, args.plan)
     elif args.command == "answer":

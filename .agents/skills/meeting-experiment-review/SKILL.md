@@ -129,7 +129,7 @@ python3 scripts/review.py serve "$MEETING_REVIEW_DATA" --session turns-part1 --p
 - The server serves `assets/review.html` from the skill on each request, so moving or editing the skill breaks a running server. Restarting prints a new token; saved answers are kept.
 - Before the user starts, tell them to use the same speaker IDs for each person throughout (names or initials); these become the reference. Names stay in the dataset.
 - For a transcript clip that is too long to type, the user can save `unsure` and say in the feedback which run is closer. That answer is not a reference, but it can be reported as a preference.
-- The page plays each clip, can reveal predictions, and saves answers and text notes to the dataset. It refuses to play a recording whose digest no longer matches. Finishing is refused, like a save, when another tab or command saved answers this page has not loaded; reload and finish again. Stop the server when the user finishes.
+- The page plays each clip, can reveal predictions, and saves answers and text notes to the dataset. Predictions include saved padding, matching the evaluated range; extra playback context does not change it. It refuses to play a recording whose digest no longer matches. Finishing is refused, like a save, when another tab or command saved answers this page has not loaded; reload and finish again. Stop the server when the user finishes.
 
 If the user answers in chat instead, write their exact answer to a JSON file outside the repo and save it:
 
@@ -175,6 +175,8 @@ python3 scripts/review.py tracks "$DATASET" --recording call --track A=mic.wav -
 ```
 
 Keep the WAVs in scratch or the dataset, never in a checkout. `tracks.py` writes the per-track activity on its own, to inspect or to pick clips from; `review.py tracks` computes the same activity and cuts it into clips like `known`, recording `source.kind: two_tracks`, each track's SHA-256, and the activity settings. Activity is a level gate per track, not speech detection: overlaps and short sounds (laughs, backchannels) are where it is least certain, so before trusting it, prepare a few `speaker_order` clips around overlaps and have the user check them. A call with more than one remote speaker cannot use this.
+
+If a track is active almost continuously, its tenth-percentile level may be speech rather than noise. When the estimated gate would erase all activity above the absolute floor, both commands fail before writing a reference or segments. Measure the RMS noise level in a known quiet excerpt (for example, `ffmpeg -ss <quiet-start> -t <quiet-duration> -i mic.wav -af volumedetect -f null -`, using its `mean_volume` in dB), then pass `--noise-floor A=<measured-dbfs>` to both commands for that track. Do not guess a lower threshold to improve a score. The reference records each explicit calibration as `source.tracks.<speaker>.noise_floor_dbfs`; the usual margin and absolute floor still apply. This check catches a completely erased active track, not every unreliable noise estimate, so the listening check remains required.
 
 ### 6. Report in two parts
 

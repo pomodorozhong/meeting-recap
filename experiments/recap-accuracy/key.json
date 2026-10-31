@@ -1,0 +1,36 @@
+{
+ "description": "What a correct recap of the synthetic call (experiments/synthetic-call/script.json) must contain. Turn numbers index script.json's turns from 0. Speakers are the script's A, B and C, which the pipeline's default mapping names Speaker A, Speaker B and Speaker C. `accept` lists the recap sections where an item counts as correctly placed; `owner` and `due` are null when the call never states them.",
+ "items": [
+  {"id": "D1", "accept": ["decisions"], "text": "The iOS login-page crash goes into this sprint", "turns": [14]},
+  {"id": "D2", "accept": ["decisions"], "text": "The dashboard front end switches to lazy loading, loading the three most-used charts first", "turns": [19, 20, 23]},
+  {"id": "D3", "accept": ["decisions"], "text": "The mobile dashboard is left unchanged for now", "turns": [21, 22]},
+  {"id": "D4", "accept": ["decisions", "proposals"], "text": "The first notification version assumes only an on/off setting, pending the PM's answer", "turns": [32]},
+  {"id": "D5", "accept": ["decisions", "action_items"], "text": "iOS and Android push tokens are stored separately", "turns": [34, 35]},
+  {"id": "D6", "accept": ["decisions", "action_items"], "text": "Speaker B does the dashboard first, then helps with Android", "turns": [41, 43]},
+  {"id": "D7", "accept": ["decisions"], "text": "The CI snapshot change is not done this sprint; it goes to the backlog as a ticket for next sprint", "turns": [49, 50]},
+  {"id": "D8", "accept": ["decisions", "action_items"], "text": "The Docker multi-stage build is done this sprint, since it takes about half a day", "turns": [52, 53]},
+  {"id": "D9", "accept": ["decisions"], "text": "The demo to the product team is next Wednesday at 2 pm, about an hour", "turns": [55, 57]},
+  {"id": "D10", "accept": ["decisions"], "text": "The demo shows the unfinished notification feature, telling the audience it is not final", "turns": [61, 62]},
+  {"id": "T1", "accept": ["action_items"], "text": "Upgrade the iOS SDK for the login crash", "turns": [6, 64], "owner": "C", "due": "this week"},
+  {"id": "T2", "accept": ["action_items"], "text": "Comment on the ticket asking QA for the crash log", "turns": [12, 13], "owner": "C", "due": null},
+  {"id": "T3", "accept": ["action_items"], "text": "Dashboard performance work, API and front end (estimated three days with unit tests)", "turns": [23, 24, 64], "owner": "B", "due": null},
+  {"id": "T4", "accept": ["action_items"], "text": "Ask the PM about the notification requirements", "turns": [32, 64], "owner": "A", "due": "this afternoon"},
+  {"id": "T5", "accept": ["action_items"], "text": "Backend for notifications: a settings endpoint and the token schema (about two days)", "turns": [33, 35, 38], "owner": "B", "due": null},
+  {"id": "T6", "accept": ["action_items"], "text": "Client-side notifications, iOS (four to five days for both platforms)", "turns": [37, 64], "owner": "C", "due": null},
+  {"id": "T7", "accept": ["action_items"], "text": "Help with Android after the dashboard", "turns": [41, 43, 64], "owner": "B", "due": null},
+  {"id": "T8", "accept": ["action_items"], "text": "Open a CI ticket in the backlog", "turns": [50], "owner": null, "due": null},
+  {"id": "T9", "accept": ["action_items"], "text": "Docker multi-stage build (about half a day)", "turns": [52, 54, 64], "owner": "B", "due": null},
+  {"id": "T10", "accept": ["action_items"], "text": "Clean the staging test data", "turns": [58, 59, 60, 64], "owner": "B", "due": "before Tuesday"},
+  {"id": "T11", "accept": ["action_items"], "text": "Have the staging environment ready for the demo", "turns": [55], "owner": null, "due": "before next Wednesday's demo"},
+  {"id": "P1", "accept": ["proposals"], "text": "Paginate the API or add a cache (never chosen)", "turns": [16]},
+  {"id": "P2", "accept": ["proposals", "decisions"], "text": "Rebuild only changed test data with snapshots (deferred, needs research)", "turns": [48, 49]},
+  {"id": "Q1", "accept": ["open_questions"], "text": "Can users turn off specific kinds of notification? Unanswered; Speaker A will ask the PM", "turns": [31, 32]}
+ ],
+ "answered": [
+  {"id": "X1", "text": "Does the crash happen every time or only on some models? Answered: mostly older iPhones", "turns": [10, 11]},
+  {"id": "X2", "text": "Will Speaker C's sprint fit the login bug and notifications? Resolved: Speaker B helps with Android", "turns": [39, 40, 41, 43]},
+  {"id": "X3", "text": "What time is the demo? Answered: 2 pm", "turns": [56, 57]},
+  {"id": "X4", "text": "Should the demo show the notification feature? Answered: yes, with a caveat", "turns": [61, 62]},
+  {"id": "X5", "text": "How long will the dashboard work take? Answered: three days", "turns": [23, 24]}
+ ]
+}

@@ -9,6 +9,8 @@ The patch:
 - writes the diarizer's raw segments to `diarization.json` in `HUSHSCRIBE_TRIAL_OUTPUT`, and timings and status to `HUSHSCRIBE_TRIAL_RESULT`;
 - sends diagnostic logs to `HUSHSCRIBE_TRIAL_LOG`, also in release builds.
 
+`HUSHSCRIBE_TRIAL_OUTPUT` and `HUSHSCRIBE_TRIAL_RESULT` are required for an automated trial. A trial is completed only after diarization succeeds and its JSON is saved. Export failures are recorded as `failed` in the result JSON and exit nonzero; a failure to save the result itself also exits nonzero with a terminal error. Use a fresh output folder so an old artifact cannot be mistaken for this trial's output.
+
 ## Reproduce
 
 Needs Xcode 26.3+ on Apple Silicon with macOS 26.

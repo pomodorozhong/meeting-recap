@@ -53,10 +53,10 @@ index af5ac17..9526f20 100644
      }
  }
 diff --git a/HushScribe/Sources/HushScribe/Views/ContentView.swift b/HushScribe/Sources/HushScribe/Views/ContentView.swift
-index 7ef9c29..813e5ef 100644
+index 7ef9c29..faa1735 100644
 --- a/HushScribe/Sources/HushScribe/Views/ContentView.swift
 +++ b/HushScribe/Sources/HushScribe/Views/ContentView.swift
-@@ -49,6 +49,13 @@ struct ContentView: View {
+@@ -49,6 +49,14 @@ struct ContentView: View {
      @State private var speakerPreviewsForNaming: [String: [String]] = [:]
      @State private var speakerNamingContinuation: CheckedContinuation<[String: String], Never>?
      @State private var showFilePicker = false
@@ -65,12 +65,13 @@ index 7ef9c29..813e5ef 100644
 +    @State private var automatedTrialFileSessionStartedAt: Date?
 +    @State private var automatedTrialTranscriptionFinishedAt: Date?
 +    @State private var automatedTrialDiarizationSucceeded: Bool?
++    @State private var automatedTrialExportError: String?
 +    @State private var automatedTrialDiarizationSegmentCount: Int?
 +    @State private var automatedTrialDiarizationSpeakerCount: Int?
  
      var body: some View {
          coreContent
-@@ -122,6 +129,7 @@ struct ContentView: View {
+@@ -122,6 +130,7 @@ struct ContentView: View {
                  NSApp.mainWindow?.makeKeyAndOrderFront(nil)
              }
          }
@@ -78,7 +79,7 @@ index 7ef9c29..813e5ef 100644
      }
  
      @ViewBuilder
-@@ -663,7 +671,105 @@ struct ContentView: View {
+@@ -663,7 +672,123 @@ struct ContentView: View {
              recordingState.isRecording = true
              recordingState.isPaused = false
              await transcriptionEngine.startFileTranscription(url: url, locale: settings.locale)
@@ -103,6 +104,11 @@ index 7ef9c29..813e5ef 100644
 +        guard !automatedTrialStarted,
 +              let inputPath = environment["HUSHSCRIBE_TRIAL_FILE"] else { return }
 +
++        guard environment["HUSHSCRIBE_TRIAL_OUTPUT"]?.isEmpty == false,
++              environment["HUSHSCRIBE_TRIAL_RESULT"]?.isEmpty == false else {
++            fputs("trial requires HUSHSCRIBE_TRIAL_OUTPUT and HUSHSCRIBE_TRIAL_RESULT\n", stderr)
++            exit(2)
++        }
 +        automatedTrialStarted = true
 +        automatedTrialStartedAt = Date()
 +        hasCompletedOnboarding = true
@@ -132,15 +138,18 @@ index 7ef9c29..813e5ef 100644
 +
 +    private func writeAutomatedDiarization(
 +        _ segments: [(speakerId: String, startTime: Float, endTime: Float)]
-+    ) {
-+        guard let outputPath = ProcessInfo.processInfo.environment["HUSHSCRIBE_TRIAL_OUTPUT"] else { return }
++    ) throws {
++        guard let outputPath = ProcessInfo.processInfo.environment["HUSHSCRIBE_TRIAL_OUTPUT"], !outputPath.isEmpty else {
++            throw NSError(domain: "HushScribeTrial", code: 1,
++                          userInfo: [NSLocalizedDescriptionKey: "HUSHSCRIBE_TRIAL_OUTPUT is required"])
++        }
 +        let records: [[String: Any]] = segments.map {
 +            ["speaker_id": $0.speakerId, "start_seconds": $0.startTime, "end_seconds": $0.endTime]
          }
-+        guard let data = try? JSONSerialization.data(withJSONObject: records, options: [.prettyPrinted, .sortedKeys]) else { return }
++        let data = try JSONSerialization.data(withJSONObject: records, options: [.prettyPrinted, .sortedKeys])
 +        let url = URL(fileURLWithPath: outputPath).appendingPathComponent("diarization.json")
-+        try? FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
-+        try? data.write(to: url, options: .atomic)
++        try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
++        try data.write(to: url, options: .atomic)
 +    }
 +
 +    private func finishAutomatedTrial(savedPath: URL?) {
@@ -149,7 +158,8 @@ index 7ef9c29..813e5ef 100644
 +        let completed = savedPath != nil
 +            && transcriptionEngine.lastError == nil
 +            && !transcriptStore.utterances.isEmpty
-+            && automatedTrialDiarizationSucceeded != false
++            && automatedTrialDiarizationSucceeded == true
++            && automatedTrialExportError == nil
 +        var result: [String: Any] = [
 +            "status": completed ? "completed" : "failed",
 +            "model": "openai_whisper-large-v3",
@@ -170,21 +180,30 @@ index 7ef9c29..813e5ef 100644
 +            result["diarization_and_finalize_seconds"] = finishedAt.timeIntervalSince(transcriptionFinishedAt)
 +        }
 +        if let savedPath { result["transcript_path"] = savedPath.path }
-+        if let error = transcriptionEngine.lastError { result["error"] = error }
++        let errors = [transcriptionEngine.lastError, automatedTrialExportError].compactMap { $0 }
++        if !errors.isEmpty { result["error"] = errors.joined(separator: "; ") }
 +        if let value = automatedTrialDiarizationSucceeded { result["diarization_succeeded"] = value }
 +        if let value = automatedTrialDiarizationSegmentCount { result["diarization_segment_count"] = value }
 +        if let value = automatedTrialDiarizationSpeakerCount { result["diarization_speaker_count"] = value }
 +
-+        if let resultPath = environment["HUSHSCRIBE_TRIAL_RESULT"],
-+           let data = try? JSONSerialization.data(withJSONObject: result, options: [.prettyPrinted, .sortedKeys]) {
-+            try? data.write(to: URL(fileURLWithPath: resultPath), options: .atomic)
++        do {
++            guard let resultPath = environment["HUSHSCRIBE_TRIAL_RESULT"], !resultPath.isEmpty else {
++                throw NSError(domain: "HushScribeTrial", code: 2,
++                              userInfo: [NSLocalizedDescriptionKey: "HUSHSCRIBE_TRIAL_RESULT is required"])
++            }
++            let data = try JSONSerialization.data(withJSONObject: result, options: [.prettyPrinted, .sortedKeys])
++            try data.write(to: URL(fileURLWithPath: resultPath), options: .atomic)
++        } catch {
++            fputs("trial result could not be saved: \(error.localizedDescription)\n", stderr)
++            exit(1)
 +        }
 +        diagLog("[TRIAL] Finished automated trial: \(result)")
++        if !completed { exit(1) }
 +        NSApp.terminate(nil)
      }
  
      private func pauseFromMenu() {
-@@ -685,6 +791,7 @@ struct ContentView: View {
+@@ -685,6 +810,7 @@ struct ContentView: View {
          silenceSeconds = 0
          recordingState.isRecording = false
          recordingState.isPaused = false
@@ -192,7 +211,7 @@ index 7ef9c29..813e5ef 100644
  
          Task {
              await transcriptionEngine.stop()
-@@ -700,6 +807,13 @@ struct ContentView: View {
+@@ -700,6 +826,16 @@ struct ContentView: View {
                      segments = await transcriptionEngine.runFileTranscriptionDiarization()
                  }
  
@@ -200,13 +219,16 @@ index 7ef9c29..813e5ef 100644
 +                    automatedTrialDiarizationSucceeded = segments != nil
 +                    automatedTrialDiarizationSegmentCount = segments?.count
 +                    automatedTrialDiarizationSpeakerCount = segments.map { Set($0.map(\.speakerId)).count }
-+                    if let segments { writeAutomatedDiarization(segments) }
++                    if let segments {
++                        do { try writeAutomatedDiarization(segments) }
++                        catch { automatedTrialExportError = "diarization export failed: \(error.localizedDescription)" }
++                    }
 +                }
 +
                  if let segments {
                      transcriptionEngine.assetStatus = "Rewriting transcript..."
                      let speakerMap: [String: String]
-@@ -717,14 +831,18 @@ struct ContentView: View {
+@@ -717,14 +853,18 @@ struct ContentView: View {
                      if !genericLabels.isEmpty {
                          transcriptionEngine.assetStatus = "Ready"
  
@@ -233,7 +255,7 @@ index 7ef9c29..813e5ef 100644
                              }
                          }
  
-@@ -749,6 +867,8 @@ struct ContentView: View {
+@@ -749,6 +889,8 @@ struct ContentView: View {
                      if !Task.isCancelled { savedFileURL = nil }
                  }
              }

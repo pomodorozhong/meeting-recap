@@ -71,6 +71,10 @@ Patch for HushScribe `51103f0c8f97344ec7ecdf6480a2ee53cd9a0e92` that runs one fi
 - `run_variants.sh` (env `WHISPERKIT_CLI`, `WHISPER_MODEL_DIR`, `AUDIO`, `OUT`): WhisperKit with Chinese forced vs. detection, VAD vs. none, SpeakerKit, and Turbo. Optional prompt runs read `MEETING_RECAP_CONTEXT_PROMPT` and `MEETING_RECAP_NAME_PROMPT`; keep those values out of the repository.
 - `metrics.py <transcript.json>...`: proxy checks without a reference transcript. It counts Hangul or kana, segments with no CJK, stock hallucination phrases, the share of characters that change under `s2tw`, and optional expected terms from `MEETING_RECAP_EXPECTED_TERMS` (pipe-separated, kept private). Run with `uv run --project experiments/transcription`; the folder is a uv project.
 
+## `experiments/pipelines/whisper-sortformer/`
+
+The first end-to-end pipeline: saved audio to a speaker-labeled Markdown transcript and a local recap, with its own pinned FluidAudio build and uv project. Setup, the `run`/`render`/`summarize` commands, outputs, measurement and its synthetic baseline are in [its README](../experiments/pipelines/whisper-sortformer/README.md).
+
 ## `experiments/full-recordings/run_full.sh`
 
 Sortformer and WhisperKit Whisper Large v3 (Chinese forced, VAD, word timestamps) on whole recordings with `/usr/bin/time -l`. Env `WHISPERKIT_CLI`, `FLUIDAUDIO_CLI`, `WHISPER_MODEL_DIR`, `OUT`; arguments are WAV files.

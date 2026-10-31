@@ -1,0 +1,131 @@
+{
+ "run": "v2-script-relabeled",
+ "judged_by": "Claude, from the script, knowing the variant; check before relying on it",
+ "items": {
+  "decisions/0": {
+   "verdict": "correct",
+   "matches": [
+    "D1",
+    "T1",
+    "T2"
+   ]
+  },
+  "decisions/1": {
+   "verdict": "correct",
+   "matches": [
+    "D2"
+   ]
+  },
+  "decisions/2": {
+   "verdict": "correct",
+   "matches": [
+    "D4"
+   ]
+  },
+  "decisions/3": {
+   "verdict": "wrong",
+   "matches": [
+    "D6"
+   ],
+   "note": "says the helper also takes an Android SDK upgrade"
+  },
+  "decisions/4": {
+   "verdict": "correct",
+   "matches": [
+    "D7",
+    "D8"
+   ]
+  },
+  "decisions/5": {
+   "verdict": "correct",
+   "matches": [
+    "D9",
+    "T10"
+   ]
+  },
+  "action_items/0": {
+   "verdict": "correct",
+   "matches": [
+    "T1",
+    "T2"
+   ],
+   "due_ok": true
+  },
+  "action_items/1": {
+   "verdict": "correct",
+   "matches": [
+    "T3",
+    "D2"
+   ],
+   "note": "states paging or caching as chosen; gives the estimate as a deadline"
+  },
+  "action_items/2": {
+   "verdict": "correct",
+   "matches": [
+    "T4"
+   ],
+   "due_ok": true
+  },
+  "action_items/3": {
+   "verdict": "correct",
+   "matches": [
+    "T5"
+   ]
+  },
+  "action_items/4": {
+   "verdict": "correct",
+   "matches": [
+    "D5"
+   ]
+  },
+  "action_items/5": {
+   "verdict": "correct",
+   "matches": [
+    "T6"
+   ],
+   "note": "gives the estimate as a deadline"
+  },
+  "action_items/6": {
+   "verdict": "duplicate",
+   "matches": [
+    "T5"
+   ],
+   "note": "repeats the backend work"
+  },
+  "action_items/7": {
+   "verdict": "wrong",
+   "matches": [
+    "T7"
+   ],
+   "note": "an Android SDK upgrade, not Android notifications"
+  },
+  "action_items/8": {
+   "verdict": "correct",
+   "matches": [
+    "T9",
+    "D8"
+   ],
+   "note": "gives the estimate as a deadline"
+  },
+  "action_items/9": {
+   "verdict": "correct",
+   "matches": [
+    "T10"
+   ],
+   "due_ok": true
+  },
+  "proposals/0": {
+   "verdict": "correct",
+   "matches": [
+    "P1"
+   ],
+   "note": "garbled: 'fetch everything at once plus a cache'"
+  },
+  "proposals/1": {
+   "verdict": "correct",
+   "matches": [
+    "P2"
+   ]
+  }
+ }
+}

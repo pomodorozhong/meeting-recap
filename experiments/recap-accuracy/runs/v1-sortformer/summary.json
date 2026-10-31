@@ -1,0 +1,217 @@
+{
+ "model": "mlx-community/Qwen3.5-9B-4bit",
+ "model_revision": "8b2b98c00a6b4d291155e4890773ca8f769aee53",
+ "decoding": "greedy",
+ "thinking": false,
+ "variant": "v1",
+ "chunks": 1,
+ "mlx_peak_bytes": 6708137358,
+ "notes": {
+  "topics": [
+   {
+    "title": "Login Page Bug (iOS Crash)",
+    "summary": "確認 iOS 閃退問題源於 SDK 版本過舊，決定本週升級 SDK 並請 QA 補充 crash log。",
+    "evidence": [
+     "00:00:07",
+     "00:00:24",
+     "00:00:55",
+     "00:00:59"
+    ]
+   },
+   {
+    "title": "Dashboard Performance Optimization",
+    "summary": "針對載入過慢問題，決定將前端改為 Lazy loading 並加一層快取，Mobile 版暫不修改。",
+    "evidence": [
+     "00:01:03",
+     "00:01:12",
+     "00:01:26",
+     "00:01:42"
+    ]
+   },
+   {
+    "title": "Push Notification Scope & Implementation",
+    "summary": "釐清需求範圍為僅支援開/關兩種狀態，決定後端新增 settings endpoint 並分開存儲 token。",
+    "evidence": [
+     "00:02:01",
+     "00:02:14",
+     "00:02:24",
+     "00:02:33"
+    ]
+   },
+   {
+    "title": "CI Pipeline Optimization",
+    "summary": "討論 CI 執行時間過長問題，Snapshot 方案因需研究且時間不足被否決，決定延至下個 Sprint 處理。",
+    "evidence": [
+     "00:03:18",
+     "00:03:35",
+     "00:03:43",
+     "00:03:53"
+    ]
+   },
+   {
+    "title": "Docker Image Size Reduction",
+    "summary": "針對 Docker Image 過大問題，決定採用 Multi Stage Build 方式優化，預計半天內完成。",
+    "evidence": [
+     "00:03:59",
+     "00:04:07",
+     "00:04:13"
+    ]
+   },
+   {
+    "title": "Demo Preparation",
+    "summary": "確認下週三下午兩點進行 Demo，決定由特定成員負責準備 Staging 環境並清除舊測試資料。",
+    "evidence": [
+     "00:04:18",
+     "00:04:26",
+     "00:04:40",
+     "00:04:45"
+    ]
+   }
+  ],
+  "decisions": [
+   {
+    "text": "Login Page iOS 閃退問題，本週升級 SDK 版本，並請 QA 補充 crash log。",
+    "evidence": [
+     "00:00:24",
+     "00:00:55",
+     "00:00:59"
+    ]
+   },
+   {
+    "text": "Dashboard 效能優化方案：前端改為 Lazy loading 並加一層快取，Mobile 版暫不修改。",
+    "evidence": [
+     "00:01:26",
+     "00:01:36",
+     "00:01:42"
+    ]
+   },
+   {
+    "text": "Push Notification 需求範圍第一版僅支援開/關兩種狀態，後端需新增 settings endpoint 並分開存儲 token。",
+    "evidence": [
+     "00:02:01",
+     "00:02:24",
+     "00:02:33",
+     "00:02:37"
+    ]
+   },
+   {
+    "text": "CI 優化方案（Snapshot）因本 Sprint 時間不足被否決，決定放入 Backlog 延至下個 Sprint 處理。",
+    "evidence": [
+     "00:03:43",
+     "00:03:53"
+    ]
+   },
+   {
+    "text": "Docker Image 優化方案：採用 Multi Stage Build，預計半天內完成。",
+    "evidence": [
+     "00:04:07",
+     "00:04:13"
+    ]
+   },
+   {
+    "text": "Demo 時間定於下週三下午兩點，Staging 環境需於週二之前準備好並清除舊測試資料。",
+    "evidence": [
+     "00:04:18",
+     "00:04:26",
+     "00:04:40",
+     "00:04:45"
+    ]
+   }
+  ],
+  "action_items": [
+   {
+    "task": "升級 iOS SDK 版本以解決閃退問題",
+    "owner": "Speaker C",
+    "due": "這個禮拜",
+    "evidence": [
+     "00:00:24"
+    ]
+   },
+   {
+    "task": "請 QA 補充 Login Page 的 crash log",
+    "owner": "Speaker C",
+    "due": "我等一下就在 ticket 上面留言",
+    "evidence": [
+     "00:00:55",
+     "00:00:59"
+    ]
+   },
+   {
+    "task": "實作 Dashboard 效能優化（前端 Lazy loading 與快取）",
+    "owner": "Speaker B",
+    "due": "三天",
+    "evidence": [
+     "00:01:42",
+     "00:01:48"
+    ]
+   },
+   {
+    "task": "後端準備 Push Notification 的 settings endpoint 並分開存儲 iOS/Android token",
+    "owner": "Speaker B",
+    "due": "四到五天",
+    "evidence": [
+     "00:02:33",
+     "00:02:41",
+     "00:02:46"
+    ]
+   },
+   {
+    "task": "協助 Android 端實作 Push Notification 功能",
+    "owner": "Speaker B",
+    "due": null,
+    "evidence": [
+     "00:03:10",
+     "00:03:15"
+    ]
+   },
+   {
+    "task": "準備 Demo 用的 Staging 環境並清除舊測試資料",
+    "owner": "Speaker B",
+    "due": "週二之前",
+    "evidence": [
+     "00:04:40",
+     "00:04:45"
+    ]
+   },
+   {
+    "task": "跟 PM 確認 Push Notification 的需求細節",
+    "owner": "Speaker A",
+    "due": "今天下午",
+    "evidence": [
+     "00:02:24"
+    ]
+   }
+  ],
+  "proposals": [
+   {
+    "text": "Dashboard 效能優化改為將所有圖表一次載入",
+    "evidence": [
+     "00:01:12"
+    ]
+   },
+   {
+    "text": "Dashboard 效能優化改為加一層快取（未採納，最終決定用 Lazy loading）",
+    "evidence": [
+     "00:01:12"
+    ]
+   },
+   {
+    "text": "CI 優化方案：使用 Snapshot 只重建有變動的部分",
+    "evidence": [
+     "00:03:43",
+     "00:03:48"
+    ]
+   }
+  ],
+  "open_questions": []
+ },
+ "seconds": 70.21541404724121,
+ "replies": [
+  {
+   "kind": "extract",
+   "prompt_tokens": 2260,
+   "seconds": 70.21541404724121,
+   "reply": "{\n  \"topics\": [\n    {\n      \"title\": \"Login Page Bug (iOS Crash)\",\n      \"summary\": \"確認 iOS 閃退問題源於 SDK 版本過舊，決定本週升級 SDK 並請 QA 補充 crash log。\",\n      \"evidence\": [\n        \"00:00:07\",\n        \"00:00:24\",\n        \"00:00:55\",\n        \"00:00:59\"\n      ]\n    },\n    {\n      \"title\": \"Dashboard Performance Optimization\",\n      \"summary\": \"針對載入過慢問題，決定將前端改為 Lazy loading 並加一層快取，Mobile 版暫不修改。\",\n      \"evidence\": [\n        \"00:01:03\",\n        \"00:01:12\",\n        \"00:01:26\",\n        \"00:01:42\"\n      ]\n    },\n    {\n      \"title\": \"Push Notification Scope & Implementation\",\n      \"summary\": \"釐清需求範圍為僅支援開/關兩種狀態，決定後端新增 settings endpoint 並分開存儲 token。\",\n      \"evidence\": [\n        \"00:02:01\",\n        \"00:02:14\",\n        \"00:02:24\",\n        \"00:02:33\"\n      ]\n    },\n    {\n      \"title\": \"CI Pipeline Optimization\",\n      \"summary\": \"討論 CI 執行時間過長問題，Snapshot 方案因需研究且時間不足被否決，決定延至下個 Sprint 處理。\",\n      \"evidence\": [\n        \"00:03:18\",\n        \"00:03:35\",\n        \"00:03:43\",\n        \"00:03:53\"\n      ]\n    },\n    {\n      \"title\": \"Docker Image Size Reduction\",\n      \"summary\": \"針對 Docker Image 過大問題，決定採用 Multi Stage Build 方式優化，預計半天內完成。\",\n      \"evidence\": [\n        \"00:03:59\",\n        \"00:04:07\",\n        \"00:04:13\"\n      ]\n    },\n    {\n      \"title\": \"Demo Preparation\",\n      \"summary\": \"確認下週三下午兩點進行 Demo，決定由特定成員負責準備 Staging 環境並清除舊測試資料。\",\n      \"evidence\": [\n        \"00:04:18\",\n        \"00:04:26\",\n        \"00:04:40\",\n        \"00:04:45\"\n      ]\n    }\n  ],\n  \"decisions\": [\n    {\n      \"text\": \"Login Page iOS 閃退問題，本週升級 SDK 版本，並請 QA 補充 crash log。\",\n      \"evidence\": [\n        \"00:00:24\",\n        \"00:00:55\",\n        \"00:00:59\"\n      ]\n    },\n    {\n      \"text\": \"Dashboard 效能優化方案：前端改為 Lazy loading 並加一層快取，Mobile 版暫不修改。\",\n      \"evidence\": [\n        \"00:01:26\",\n        \"00:01:36\",\n        \"00:01:42\"\n      ]\n    },\n    {\n      \"text\": \"Push Notification 需求範圍第一版僅支援開/關兩種狀態，後端需新增 settings endpoint 並分開存儲 token。\",\n      \"evidence\": [\n        \"00:02:01\",\n        \"00:02:24\",\n        \"00:02:33\",\n        \"00:02:37\"\n      ]\n    },\n    {\n      \"text\": \"CI 優化方案（Snapshot）因本 Sprint 時間不足被否決，決定放入 Backlog 延至下個 Sprint 處理。\",\n      \"evidence\": [\n        \"00:03:43\",\n        \"00:03:53\"\n      ]\n    },\n    {\n      \"text\": \"Docker Image 優化方案：採用 Multi Stage Build，預計半天內完成。\",\n      \"evidence\": [\n        \"00:04:07\",\n        \"00:04:13\"\n      ]\n    },\n    {\n      \"text\": \"Demo 時間定於下週三下午兩點，Staging 環境需於週二之前準備好並清除舊測試資料。\",\n      \"evidence\": [\n        \"00:04:18\",\n        \"00:04:26\",\n        \"00:04:40\",\n        \"00:04:45\"\n      ]\n    }\n  ],\n  \"action_items\": [\n    {\n      \"task\": \"升級 iOS SDK 版本以解決閃退問題\",\n      \"owner\": \"Speaker C\",\n      \"due\": \"這個禮拜\",\n      \"evidence\": [\n        \"00:00:24\"\n      ]\n    },\n    {\n      \"task\": \"請 QA 補充 Login Page 的 crash log\",\n      \"owner\": \"Speaker C\",\n      \"due\": \"我等一下就在 ticket 上面留言\",\n      \"evidence\": [\n        \"00:00:55\",\n        \"00:00:59\"\n      ]\n    },\n    {\n      \"task\": \"實作 Dashboard 效能優化（前端 Lazy loading 與快取）\",\n      \"owner\": \"Speaker B\",\n      \"due\": \"三天\",\n      \"evidence\": [\n        \"00:01:42\",\n        \"00:01:48\"\n      ]\n    },\n    {\n      \"task\": \"後端準備 Push Notification 的 settings endpoint 並分開存儲 iOS/Android token\",\n      \"owner\": \"Speaker B\",\n      \"due\": \"四到五天\",\n      \"evidence\": [\n        \"00:02:33\",\n        \"00:02:41\",\n        \"00:02:46\"\n      ]\n    },\n    {\n      \"task\": \"協助 Android 端實作 Push Notification 功能\",\n      \"owner\": \"Speaker B\",\n      \"due\": null,\n      \"evidence\": [\n        \"00:03:10\",\n        \"00:03:15\"\n      ]\n    },\n    {\n      \"task\": \"準備 Demo 用的 Staging 環境並清除舊測試資料\",\n      \"owner\": \"Speaker B\",\n      \"due\": \"週二之前\",\n      \"evidence\": [\n        \"00:04:40\",\n        \"00:04:45\"\n      ]\n    },\n    {\n      \"task\": \"跟 PM 確認 Push Notification 的需求細節\",\n      \"owner\": \"Speaker A\",\n      \"due\": \"今天下午\",\n      \"evidence\": [\n        \"00:02:24\"\n      ]\n    }\n  ],\n  \"proposals\": [\n    {\n      \"text\": \"Dashboard 效能優化改為將所有圖表一次載入\",\n      \"evidence\": [\n        \"00:01:12\"\n      ]\n    },\n    {\n      \"text\": \"Dashboard 效能優化改為加一層快取（未採納，最終決定用 Lazy loading）\",\n      \"evidence\": [\n        \"00:01:12\"\n      ]\n    },\n    {\n      \"text\": \"CI 優化方案：使用 Snapshot 只重建有變動的部分\",\n      \"evidence\": [\n        \"00:03:43\",\n        \"00:03:48\"\n      ]\n    }\n  ],\n  \"open_questions\": []\n}"
+  }
+ ]
+}

@@ -135,7 +135,7 @@ Fix the summary stage before tuning ASR or diarization for the recap.
 
 ## Follow-up: summary stage variants
 
-**Status:** planned. This section was committed before any variant ran.
+**Status:** complete. Neither variant met the decision rule, so the pipeline keeps v0. The plan below was committed before any variant ran.
 
 **Question.** Do stricter prompt rules, or a second pass that checks the draft against the whole transcript, cut the errors found above without losing items? And how much does a recap move when only the speaker names change?
 
@@ -177,3 +177,59 @@ The four v0 runs on the other inputs are the three scored above.
 - it moves less between `script` and `script-relabeled`.
 
 If v1 and v2 both qualify, v2's extra prompt (about 90 s per recap) has to buy at least 3 fewer wrong items in total to be worth it.
+
+### Results
+
+Each recap was one draft prompt of about 2,300 tokens:
+- **v0 and v1:** 70–82 s per recap.
+- **v2:** 135–155 s, with the check pass.
+- **Memory:** 6.71 GB MLX peak throughout.
+
+Per input, scored with `score.py` (24 key items). The v0 rows other than `script-relabeled` are the runs scored above.
+
+| Variant | Input | Found | Correct / misplaced / wrong / duplicate | Owners | Deadlines |
+| --- | --- | --- | --- | --- | --- |
+| v0 | script | 21 | 20 / 4 / 4 / 0 | 9/10 | 9/10 |
+| v0 | script-relabeled | 15 | 14 / 1 / 8 / 1 | 7/7 | 6/7 |
+| v0 | sortformer | 13 | 9 / 3 / 7 / 0 | 5/5 | 5/5 |
+| v0 | who | 20 | 15 / 1 / 5 / 0 | 6/7 | 7/7 |
+| v1 | script | 16 | 11 / 0 / 2 / 0 | 8/10 | 5/10 |
+| v1 | script-relabeled | 17 | 15 / 0 / 2 / 1 | 8/8 | 4/8 |
+| v1 | sortformer | 19 | 15 / 0 / 1 / 0 | 7/8 | 5/8 |
+| v1 | who | 15 | 12 / 0 / 2 / 0 | 7/7 | 4/7 |
+| v2 | all four | same as v1 | same as v1 | same as v1 | same as v1 |
+
+Over the four inputs:
+
+| Variant | Found (of 96) | Wrong | Misplaced | Deadlines right | Script vs relabeled: key items found in only one |
+| --- | --- | --- | --- | --- | --- |
+| v0 | 69 | 24 | 9 | 27/29 | 6 |
+| v1 | 67 | 7 | 0 | 18/33 | 7 |
+| v2 | 67 | 7 | 0 | 18/33 | 7 |
+
+**Findings:**
+- **v1 removes most errors.** Wrong items fell from 24 to 7 and misplaced ones from 9 to 0, and no answered question was listed as open.
+- **But v1 overcorrects:**
+  - It never lists an open question, so the one real one (Q1) is always missed.
+  - It writes effort estimates such as 「三天」 or 「半天」 as deadlines.
+  - It finds 2 fewer key items in total.
+- **v2's check pass does nothing.** Given v1's draft and the whole transcript, it returned the draft with items reordered and wording cleaned up, every time. It doubles the recap time for nothing.
+- **The swing remains.**
+  - Renaming the speakers alone changes which key items v0 finds by 6 items and v1's by 7.
+  - v0 lost 6 items and made 4 more errors on the relabeled script than on the original.
+  - Prompt wording didn't make the recap stable.
+- **A repeated misreading.** One error survives every variant: three recaps (v0 relabeled, v1 script, v1 relabeled) say the helper takes over "the Android SDK upgrade" rather than Android notifications. Turns 39–43 mention the SDK just before the offer of help, which seems to mislead the model.
+
+**Against the decision rule:**
+- **v1 fails two of the three conditions:**
+  - 67 key items found against v0's 69, where it needed at least as many;
+  - a swing of 7 against 6, where it needed less.
+  - It passes only on fewer wrong items.
+- **v2:** the same results as v1 at twice the cost.
+- **Outcome:** the pipeline keeps v0. The rule is applied as committed, and not reinterpreted after seeing the data. The variants stay in `pipeline.py` for the next round.
+
+### Open questions from the follow-up
+
+- Can v1's wins be kept without its losses? It would need a rule that effort estimates are not deadlines, and that open questions include things someone has to go and find out. A new variant would need its own plan and the same rule. Each round tuned on this one call also makes it a weaker test.
+- Would sampling several recaps and keeping only the items most of them agree on fix both the swing and the misses? It needs temperature sampling, because greedy decoding repeats itself, and costs one prompt per sample.
+- Would a larger or different local model fit in 16 GB and misread less? This one changes its answers with speaker names.

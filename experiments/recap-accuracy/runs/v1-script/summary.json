@@ -1,0 +1,216 @@
+{
+ "model": "mlx-community/Qwen3.5-9B-4bit",
+ "model_revision": "8b2b98c00a6b4d291155e4890773ca8f769aee53",
+ "decoding": "greedy",
+ "thinking": false,
+ "variant": "v1",
+ "chunks": 1,
+ "mlx_peak_bytes": 6708138242,
+ "notes": {
+  "topics": [
+   {
+    "title": "Login Page Bug Fix",
+    "summary": "討論 iOS 閃退問題的原因為 SDK 版本過舊，決定升級 SDK 並請 QA 補上 crash log。",
+    "evidence": [
+     "00:00:16",
+     "00:00:23",
+     "00:00:55",
+     "00:01:03"
+    ]
+   },
+   {
+    "title": "Dashboard Performance Optimization",
+    "summary": "針對載入過慢問題，決定採用 lazy loading 策略，先載入常用圖表，並指派給 Speaker B 執行。",
+    "evidence": [
+     "00:01:07",
+     "00:01:12",
+     "00:01:26",
+     "00:01:41",
+     "00:01:48",
+     "00:01:55"
+    ]
+   },
+   {
+    "title": "Push Notification Scope & Implementation",
+    "summary": "確認通知功能需求模糊，決定第一版僅實作開關設定，並由 Speaker B 負責後端 schema 與 Speaker C 負責 client 端。",
+    "evidence": [
+     "00:02:01",
+     "00:02:14",
+     "00:02:24",
+     "00:02:40",
+     "00:02:46",
+     "00:02:52",
+     "00:02:54"
+    ]
+   },
+   {
+    "title": "Sprint Capacity & Task Reassignment",
+    "summary": "因 Sprint 排程過緊，決定將 Android 端的 SDK 升級工作交由 Speaker B 協助處理。",
+    "evidence": [
+     "00:03:01",
+     "00:03:10",
+     "00:03:18",
+     "00:03:24"
+    ]
+   },
+   {
+    "title": "Technical Debt: CI Optimization",
+    "summary": "討論 CI 執行時間過長的問題問題，因技術門檻較高，決定先開 ticket 延至下個 Sprint 再處理。",
+    "evidence": [
+     "00:03:25",
+     "00:03:37",
+     "00:03:42",
+     "00:03:48",
+     "00:03:53"
+    ]
+   },
+   {
+    "title": "Technical Debt: Docker Image Size",
+    "summary": "針對 Docker image 過大問題，決定採用 multi-stage build 方式優化，並指派給 Speaker B 執行。",
+    "evidence": [
+     "00:03:59",
+     "00:04:06",
+     "00:04:12",
+     "00:04:15"
+    ]
+   },
+   {
+    "title": "Demo Preparation",
+    "summary": "確認下週三下午兩點進行 Demo，決定展示半成品通知功能，並要求 Speaker B 於週二前清理 Staging 環境。",
+    "evidence": [
+     "00:04:17",
+     "00:04:26",
+     "00:04:28",
+     "00:04:34",
+     "00:04:40",
+     "00:04:45",
+     "00:04:46",
+     "00:04:50",
+     "00:04:58"
+    ]
+   }
+  ],
+  "decisions": [
+   {
+    "text": "決定第一版 Push notification 需求僅實作「開」與「關」兩種設定，暫不實作使用者自訂關閉某一類通知的功能。",
+    "evidence": [
+     "00:02:24"
+    ]
+   },
+   {
+    "text": "決定將 Android 端的 SDK 升級工作交由 Speaker B 協助處理，以解決 Sprint 排程過緊的問題的問題問題。",
+    "evidence": [
+     "00:03:18"
+    ]
+   },
+   {
+    "text": "決定將 CI 執行時間過長的技術債問題先開 ticket 放入 backlog，延至下個 Sprint 再處理。",
+    "evidence": [
+     "00:03:53"
+    ]
+   },
+   {
+    "text": "決定 Demo 時可以展示尚未完成的 Push notification 功能，但需事先告知與會者這不是最終版本。",
+    "evidence": [
+     "00:04:50"
+    ]
+   }
+  ],
+  "action_items": [
+   {
+    "task": "升級 iOS SDK 版本以修復閃退 bug，並請 QA 補上 crash log。",
+    "owner": "Speaker C",
+    "due": "這個禮拜",
+    "evidence": [
+     "00:00:23",
+     "00:00:55",
+     "00:00:59"
+    ]
+   },
+   {
+    "task": "實作 Dashboard 效能優化（lazy loading），包含 API 分頁/快取與前端延遲載入。",
+    "owner": "Speaker B",
+    "due": "三天",
+    "evidence": [
+     "00:01:12",
+     "00:01:28",
+     "00:01:41",
+     "00:01:48"
+    ]
+   },
+   {
+    "task": "實作 Push notification 後端 settings endpoint 與 token 分開儲存邏輯。",
+    "owner": "Speaker B",
+    "due": "兩天",
+    "evidence": [
+     "00:02:33",
+     "00:02:40",
+     "00:02:46"
+    ]
+   },
+   {
+    "task": "實作 Push notification iOS 與 Android client 端功能。",
+    "owner": "Speaker C",
+    "due": "四到五天",
+    "evidence": [
+     "00:02:46"
+    ]
+   },
+   {
+    "task": "協助處理 Android 端的 SDK 升級工作。",
+    "owner": "Speaker B",
+    "due": null,
+    "evidence": [
+     "00:03:10",
+     "00:03:18"
+    ]
+   },
+   {
+    "task": "開立 CI 執行時間過長的技術債 ticket 並放入 backlog。",
+    "owner": "Speaker A",
+    "due": null,
+    "evidence": [
+     "00:03:53"
+    ]
+   },
+   {
+    "task": "將 Docker image 改為 multi-stage build 以縮小體積。",
+    "owner": "Speaker B",
+    "due": "半天",
+    "evidence": [
+     "00:04:06",
+     "00:04:15"
+    ]
+   },
+   {
+    "task": "準備 Staging 環境並清理上次 demo 的測試資料。",
+    "owner": "Speaker B",
+    "due": "週二之前",
+    "evidence": [
+     "00:04:34",
+     "00:04:40",
+     "00:04:45"
+    ]
+   },
+   {
+    "task": "向 PM 確認 Push notification 的詳細需求文件。",
+    "owner": "Speaker A",
+    "due": "今天下午",
+    "evidence": [
+     "00:02:24"
+    ]
+   }
+  ],
+  "proposals": [],
+  "open_questions": []
+ },
+ "seconds": 72.63075470924377,
+ "replies": [
+  {
+   "kind": "extract",
+   "prompt_tokens": 2481,
+   "seconds": 72.63075470924377,
+   "reply": "{\n  \"topics\": [\n    {\n      \"title\": \"Login Page Bug Fix\",\n      \"summary\": \"討論 iOS 閃退問題的原因為 SDK 版本過舊，決定升級 SDK 並請 QA 補上 crash log。\",\n      \"evidence\": [\n        \"00:00:16\",\n        \"00:00:23\",\n        \"00:00:55\",\n        \"00:01:03\"\n      ]\n    },\n    {\n      \"title\": \"Dashboard Performance Optimization\",\n      \"summary\": \"針對載入過慢問題，決定採用 lazy loading 策略，先載入常用圖表，並指派給 Speaker B 執行。\",\n      \"evidence\": [\n        \"00:01:07\",\n        \"00:01:12\",\n        \"00:01:26\",\n        \"00:01:41\",\n        \"00:01:48\",\n        \"00:01:55\"\n      ]\n    },\n    {\n      \"title\": \"Push Notification Scope & Implementation\",\n      \"summary\": \"確認通知功能需求模糊，決定第一版僅實作開關設定，並由 Speaker B 負責後端 schema 與 Speaker C 負責 client 端。\",\n      \"evidence\": [\n        \"00:02:01\",\n        \"00:02:14\",\n        \"00:02:24\",\n        \"00:02:40\",\n        \"00:02:46\",\n        \"00:02:52\",\n        \"00:02:54\"\n      ]\n    },\n    {\n      \"title\": \"Sprint Capacity & Task Reassignment\",\n      \"summary\": \"因 Sprint 排程過緊，決定將 Android 端的 SDK 升級工作交由 Speaker B 協助處理。\",\n      \"evidence\": [\n        \"00:03:01\",\n        \"00:03:10\",\n        \"00:03:18\",\n        \"00:03:24\"\n      ]\n    },\n    {\n      \"title\": \"Technical Debt: CI Optimization\",\n      \"summary\": \"討論 CI 執行時間過長的問題問題，因技術門檻較高，決定先開 ticket 延至下個 Sprint 再處理。\",\n      \"evidence\": [\n        \"00:03:25\",\n        \"00:03:37\",\n        \"00:03:42\",\n        \"00:03:48\",\n        \"00:03:53\"\n      ]\n    },\n    {\n      \"title\": \"Technical Debt: Docker Image Size\",\n      \"summary\": \"針對 Docker image 過大問題，決定採用 multi-stage build 方式優化，並指派給 Speaker B 執行。\",\n      \"evidence\": [\n        \"00:03:59\",\n        \"00:04:06\",\n        \"00:04:12\",\n        \"00:04:15\"\n      ]\n    },\n    {\n      \"title\": \"Demo Preparation\",\n      \"summary\": \"確認下週三下午兩點進行 Demo，決定展示半成品通知功能，並要求 Speaker B 於週二前清理 Staging 環境。\",\n      \"evidence\": [\n        \"00:04:17\",\n        \"00:04:26\",\n        \"00:04:28\",\n        \"00:04:34\",\n        \"00:04:40\",\n        \"00:04:45\",\n        \"00:04:46\",\n        \"00:04:50\",\n        \"00:04:58\"\n      ]\n    }\n  ],\n  \"decisions\": [\n    {\n      \"text\": \"決定第一版 Push notification 需求僅實作「開」與「關」兩種設定，暫不實作使用者自訂關閉某一類通知的功能。\",\n      \"evidence\": [\n        \"00:02:24\"\n      ]\n    },\n    {\n      \"text\": \"決定將 Android 端的 SDK 升級工作交由 Speaker B 協助處理，以解決 Sprint 排程過緊的問題的問題問題。\",\n      \"evidence\": [\n        \"00:03:18\"\n      ]\n    },\n    {\n      \"text\": \"決定將 CI 執行時間過長的技術債問題先開 ticket 放入 backlog，延至下個 Sprint 再處理。\",\n      \"evidence\": [\n        \"00:03:53\"\n      ]\n    },\n    {\n      \"text\": \"決定 Demo 時可以展示尚未完成的 Push notification 功能，但需事先告知與會者這不是最終版本。\",\n      \"evidence\": [\n        \"00:04:50\"\n      ]\n    }\n  ],\n  \"action_items\": [\n    {\n      \"task\": \"升級 iOS SDK 版本以修復閃退 bug，並請 QA 補上 crash log。\",\n      \"owner\": \"Speaker C\",\n      \"due\": \"這個禮拜\",\n      \"evidence\": [\n        \"00:00:23\",\n        \"00:00:55\",\n        \"00:00:59\"\n      ]\n    },\n    {\n      \"task\": \"實作 Dashboard 效能優化（lazy loading），包含 API 分頁/快取與前端延遲載入。\",\n      \"owner\": \"Speaker B\",\n      \"due\": \"三天\",\n      \"evidence\": [\n        \"00:01:12\",\n        \"00:01:28\",\n        \"00:01:41\",\n        \"00:01:48\"\n      ]\n    },\n    {\n      \"task\": \"實作 Push notification 後端 settings endpoint 與 token 分開儲存邏輯。\",\n      \"owner\": \"Speaker B\",\n      \"due\": \"兩天\",\n      \"evidence\": [\n        \"00:02:33\",\n        \"00:02:40\",\n        \"00:02:46\"\n      ]\n    },\n    {\n      \"task\": \"實作 Push notification iOS 與 Android client 端功能。\",\n      \"owner\": \"Speaker C\",\n      \"due\": \"四到五天\",\n      \"evidence\": [\n        \"00:02:46\"\n      ]\n    },\n    {\n      \"task\": \"協助處理 Android 端的 SDK 升級工作。\",\n      \"owner\": \"Speaker B\",\n      \"due\": null,\n      \"evidence\": [\n        \"00:03:10\",\n        \"00:03:18\"\n      ]\n    },\n    {\n      \"task\": \"開立 CI 執行時間過長的技術債 ticket 並放入 backlog。\",\n      \"owner\": \"Speaker A\",\n      \"due\": null,\n      \"evidence\": [\n        \"00:03:53\"\n      ]\n    },\n    {\n      \"task\": \"將 Docker image 改為 multi-stage build 以縮小體積。\",\n      \"owner\": \"Speaker B\",\n      \"due\": \"半天\",\n      \"evidence\": [\n        \"00:04:06\",\n        \"00:04:15\"\n      ]\n    },\n    {\n      \"task\": \"準備 Staging 環境並清理上次 demo 的測試資料。\",\n      \"owner\": \"Speaker B\",\n      \"due\": \"週二之前\",\n      \"evidence\": [\n        \"00:04:34\",\n        \"00:04:40\",\n        \"00:04:45\"\n      ]\n    },\n    {\n      \"task\": \"向 PM 確認 Push notification 的詳細需求文件。\",\n      \"owner\": \"Speaker A\",\n      \"due\": \"今天下午\",\n      \"evidence\": [\n        \"00:02:24\"\n      ]\n    }\n  ],\n  \"proposals\": [],\n  \"open_questions\": []\n}"
+  }
+ ]
+}

@@ -1,0 +1,238 @@
+{
+ "model": "mlx-community/Qwen3.5-9B-4bit",
+ "model_revision": "8b2b98c00a6b4d291155e4890773ca8f769aee53",
+ "decoding": "greedy",
+ "thinking": false,
+ "variant": "v1",
+ "chunks": 1,
+ "mlx_peak_bytes": 6708138242,
+ "notes": {
+  "topics": [
+   {
+    "title": "Login Page Bug (iOS Crash)",
+    "summary": "討論 iOS 登入頁面閃退問題，原因疑似 SDK 版本過舊，決定升級 SDK 並請 QA 補上 crash log。",
+    "evidence": [
+     "00:00:16",
+     "00:00:23",
+     "00:00:55",
+     "00:00:59"
+    ]
+   },
+   {
+    "title": "Dashboard Performance",
+    "summary": "針對 Dashboard 載入慢的問題的問題問題，決定採用 lazy loading 策略，先載入常用圖表，並指派給 Speaker A 執行。",
+    "evidence": [
+     "00:01:07",
+     "00:01:12",
+     "00:01:26",
+     "00:01:41"
+    ]
+   },
+   {
+    "title": "Push Notification Feature",
+    "summary": "討論 Push Notification 需求範圍，決定第一版僅支援開/關設定，並由 Speaker A 負責後端 schema 與 Speaker B 負責 client 端。",
+    "evidence": [
+     "00:02:01",
+     "00:02:14",
+     "00:02:24",
+     "00:02:42"
+    ]
+   },
+   {
+    "title": "Sprint Capacity & Scope",
+    "summary": "確認 Sprint 排程，決定 Speaker A 先處理 Dashboard 與 Android 協助，Speaker B 處理 iOS 通知，並由 Speaker C 跟進 PM 確認需求細節。",
+    "evidence": [
+     "00:02:54",
+     "00:03:01",
+     "00:03:18",
+     "00:05:00"
+    ]
+   },
+   {
+    "title": "Technical Debt (CI & Docker)",
+    "summary": "討論 CI 執行時間過長與 Docker image 過大問題，決定將 CI 優化延後至下個 Sprint，Docker 優化則立即執行。",
+    "evidence": [
+     "00:03:25",
+     "00:03:42",
+     "00:04:06",
+     "00:04:12"
+    ]
+   },
+   {
+    "title": "Demo Preparation",
+    "summary": "確認下週三下午兩點進行 Demo，決定由 Speaker A 負責週二前清理 Staging 環境，並告知團隊展示版本非最終版。",
+    "evidence": [
+     "00:04:17",
+     "00:04:26",
+     "00:04:40",
+     "00:04:50"
+    ]
+   }
+  ],
+  "decisions": [
+   {
+    "text": "決定將 iOS 登入閃退問題升級 SDK 版本，並請 QA 補上 crash log。",
+    "evidence": [
+     "00:00:23",
+     "00:00:55",
+     "00:00:59",
+     "00:01:03"
+    ]
+   },
+   {
+    "text": "決定 Dashboard 效能問題採用 lazy loading 策略，先載入常用圖表。",
+    "evidence": [
+     "00:01:26",
+     "00:01:28",
+     "00:01:55"
+    ]
+   },
+   {
+    "text": "決定 Push Notification 第一版功能僅包含「開」與「關」兩種設定。",
+    "evidence": [
+     "00:02:24",
+     "00:02:42"
+    ]
+   },
+   {
+    "text": "決定 Sprint 範圍調整：Speaker A 負責 Dashboard 優化並協助 Android SDK 升級，Speaker B 負責 iOS 通知功能。",
+    "evidence": [
+     "00:03:18",
+     "00:03:24"
+    ]
+   },
+   {
+    "text": "決定 CI 優化（Snapshot）延後至下個 Sprint，Docker image 多階段構建（multi-stage build）立即執行。",
+    "evidence": [
+     "00:03:42",
+     "00:03:53",
+     "00:04:06",
+     "00:04:12"
+    ]
+   },
+   {
+    "text": "決定 Demo 時間為下週三下午兩點，Staging 環境資料由 Speaker A 於週二前清理。",
+    "evidence": [
+     "00:04:17",
+     "00:04:26",
+     "00:04:40",
+     "00:04:45"
+    ]
+   }
+  ],
+  "action_items": [
+   {
+    "task": "升級 iOS SDK 版本並請 QA 補上 crash log",
+    "owner": "Speaker B",
+    "due": "這個禮拜",
+    "evidence": [
+     "00:00:23",
+     "00:00:59"
+    ]
+   },
+   {
+    "task": "實作 Dashboard lazy loading 功能（API 分頁/快取、前端延遲載入）",
+    "owner": "Speaker A",
+    "due": "三天內（包含寫 unit test）",
+    "evidence": [
+     "00:01:41",
+     "00:01:48"
+    ]
+   },
+   {
+    "task": "跟進 PM 確認 Push Notification 需求細節",
+    "owner": "Speaker C",
+    "due": "今天下午",
+    "evidence": [
+     "00:02:24"
+    ]
+   },
+   {
+    "task": "後端準備 settings endpoint 並開 schema",
+    "owner": "Speaker A",
+    "due": null,
+    "evidence": [
+     "00:02:33",
+     "00:02:40"
+    ]
+   },
+   {
+    "task": "實作 iOS 與 Android 的 token 分開儲存邏輯",
+    "owner": "Speaker B",
+    "due": null,
+    "evidence": [
+     "00:02:36"
+    ]
+   },
+   {
+    "task": "實作 Push Notification client 端功能（iOS 與 Android）",
+    "owner": "Speaker B",
+    "due": "四到五天",
+    "evidence": [
+     "00:02:46"
+    ]
+   },
+   {
+    "task": "實作後端 Push Notification 邏輯",
+    "owner": "Speaker A",
+    "due": "兩天",
+    "evidence": [
+     "00:02:52"
+    ]
+   },
+   {
+    "task": "協助 Android 端升級 SDK",
+    "owner": "Speaker A",
+    "due": null,
+    "evidence": [
+     "00:03:10",
+     "00:03:18"
+    ]
+   },
+   {
+    "task": "實作 Docker image 多階段構建（multi-stage build）",
+    "owner": "Speaker A",
+    "due": "半天內",
+    "evidence": [
+     "00:04:06",
+     "00:04:12"
+    ]
+   },
+   {
+    "task": "清理 Staging 環境測試資料",
+    "owner": "Speaker A",
+    "due": "週二之前",
+    "evidence": [
+     "00:04:34",
+     "00:04:40",
+     "00:04:45"
+    ]
+   }
+  ],
+  "proposals": [
+   {
+    "text": "Dashboard 效能問題改為 API 一次撈取資料加一層快取",
+    "evidence": [
+     "00:01:12"
+    ]
+   },
+   {
+    "text": "CI 執行時間過長問題改為只重建有變動的部分（使用 snapshot）",
+    "evidence": [
+     "00:03:42",
+     "00:03:48"
+    ]
+   }
+  ],
+  "open_questions": []
+ },
+ "seconds": 77.32495498657227,
+ "replies": [
+  {
+   "kind": "extract",
+   "prompt_tokens": 2481,
+   "seconds": 77.32495498657227,
+   "reply": "{\n  \"topics\": [\n    {\n      \"title\": \"Login Page Bug (iOS Crash)\",\n      \"summary\": \"討論 iOS 登入頁面閃退問題，原因疑似 SDK 版本過舊，決定升級 SDK 並請 QA 補上 crash log。\",\n      \"evidence\": [\n        \"00:00:16\",\n        \"00:00:23\",\n        \"00:00:55\",\n        \"00:00:59\"\n      ]\n    },\n    {\n      \"title\": \"Dashboard Performance\",\n      \"summary\": \"針對 Dashboard 載入慢的問題的問題問題，決定採用 lazy loading 策略，先載入常用圖表，並指派給 Speaker A 執行。\",\n      \"evidence\": [\n        \"00:01:07\",\n        \"00:01:12\",\n        \"00:01:26\",\n        \"00:01:41\"\n      ]\n    },\n    {\n      \"title\": \"Push Notification Feature\",\n      \"summary\": \"討論 Push Notification 需求範圍，決定第一版僅支援開/關設定，並由 Speaker A 負責後端 schema 與 Speaker B 負責 client 端。\",\n      \"evidence\": [\n        \"00:02:01\",\n        \"00:02:14\",\n        \"00:02:24\",\n        \"00:02:42\"\n      ]\n    },\n    {\n      \"title\": \"Sprint Capacity & Scope\",\n      \"summary\": \"確認 Sprint 排程，決定 Speaker A 先處理 Dashboard 與 Android 協助，Speaker B 處理 iOS 通知，並由 Speaker C 跟進 PM 確認需求細節。\",\n      \"evidence\": [\n        \"00:02:54\",\n        \"00:03:01\",\n        \"00:03:18\",\n        \"00:05:00\"\n      ]\n    },\n    {\n      \"title\": \"Technical Debt (CI & Docker)\",\n      \"summary\": \"討論 CI 執行時間過長與 Docker image 過大問題，決定將 CI 優化延後至下個 Sprint，Docker 優化則立即執行。\",\n      \"evidence\": [\n        \"00:03:25\",\n        \"00:03:42\",\n        \"00:04:06\",\n        \"00:04:12\"\n      ]\n    },\n    {\n      \"title\": \"Demo Preparation\",\n      \"summary\": \"確認下週三下午兩點進行 Demo，決定由 Speaker A 負責週二前清理 Staging 環境，並告知團隊展示版本非最終版。\",\n      \"evidence\": [\n        \"00:04:17\",\n        \"00:04:26\",\n        \"00:04:40\",\n        \"00:04:50\"\n      ]\n    }\n  ],\n  \"decisions\": [\n    {\n      \"text\": \"決定將 iOS 登入閃退問題升級 SDK 版本，並請 QA 補上 crash log。\",\n      \"evidence\": [\n        \"00:00:23\",\n        \"00:00:55\",\n        \"00:00:59\",\n        \"00:01:03\"\n      ]\n    },\n    {\n      \"text\": \"決定 Dashboard 效能問題採用 lazy loading 策略，先載入常用圖表。\",\n      \"evidence\": [\n        \"00:01:26\",\n        \"00:01:28\",\n        \"00:01:55\"\n      ]\n    },\n    {\n      \"text\": \"決定 Push Notification 第一版功能僅包含「開」與「關」兩種設定。\",\n      \"evidence\": [\n        \"00:02:24\",\n        \"00:02:42\"\n      ]\n    },\n    {\n      \"text\": \"決定 Sprint 範圍調整：Speaker A 負責 Dashboard 優化並協助 Android SDK 升級，Speaker B 負責 iOS 通知功能。\",\n      \"evidence\": [\n        \"00:03:18\",\n        \"00:03:24\"\n      ]\n    },\n    {\n      \"text\": \"決定 CI 優化（Snapshot）延後至下個 Sprint，Docker image 多階段構建（multi-stage build）立即執行。\",\n      \"evidence\": [\n        \"00:03:42\",\n        \"00:03:53\",\n        \"00:04:06\",\n        \"00:04:12\"\n      ]\n    },\n    {\n      \"text\": \"決定 Demo 時間為下週三下午兩點，Staging 環境資料由 Speaker A 於週二前清理。\",\n      \"evidence\": [\n        \"00:04:17\",\n        \"00:04:26\",\n        \"00:04:40\",\n        \"00:04:45\"\n      ]\n    }\n  ],\n  \"action_items\": [\n    {\n      \"task\": \"升級 iOS SDK 版本並請 QA 補上 crash log\",\n      \"owner\": \"Speaker B\",\n      \"due\": \"這個禮拜\",\n      \"evidence\": [\n        \"00:00:23\",\n        \"00:00:59\"\n      ]\n    },\n    {\n      \"task\": \"實作 Dashboard lazy loading 功能（API 分頁/快取、前端延遲載入）\",\n      \"owner\": \"Speaker A\",\n      \"due\": \"三天內（包含寫 unit test）\",\n      \"evidence\": [\n        \"00:01:41\",\n        \"00:01:48\"\n      ]\n    },\n    {\n      \"task\": \"跟進 PM 確認 Push Notification 需求細節\",\n      \"owner\": \"Speaker C\",\n      \"due\": \"今天下午\",\n      \"evidence\": [\n        \"00:02:24\"\n      ]\n    },\n    {\n      \"task\": \"後端準備 settings endpoint 並開 schema\",\n      \"owner\": \"Speaker A\",\n      \"due\": null,\n      \"evidence\": [\n        \"00:02:33\",\n        \"00:02:40\"\n      ]\n    },\n    {\n      \"task\": \"實作 iOS 與 Android 的 token 分開儲存邏輯\",\n      \"owner\": \"Speaker B\",\n      \"due\": null,\n      \"evidence\": [\n        \"00:02:36\"\n      ]\n    },\n    {\n      \"task\": \"實作 Push Notification client 端功能（iOS 與 Android）\",\n      \"owner\": \"Speaker B\",\n      \"due\": \"四到五天\",\n      \"evidence\": [\n        \"00:02:46\"\n      ]\n    },\n    {\n      \"task\": \"實作後端 Push Notification 邏輯\",\n      \"owner\": \"Speaker A\",\n      \"due\": \"兩天\",\n      \"evidence\": [\n        \"00:02:52\"\n      ]\n    },\n    {\n      \"task\": \"協助 Android 端升級 SDK\",\n      \"owner\": \"Speaker A\",\n      \"due\": null,\n      \"evidence\": [\n        \"00:03:10\",\n        \"00:03:18\"\n      ]\n    },\n    {\n      \"task\": \"實作 Docker image 多階段構建（multi-stage build）\",\n      \"owner\": \"Speaker A\",\n      \"due\": \"半天內\",\n      \"evidence\": [\n        \"00:04:06\",\n        \"00:04:12\"\n      ]\n    },\n    {\n      \"task\": \"清理 Staging 環境測試資料\",\n      \"owner\": \"Speaker A\",\n      \"due\": \"週二之前\",\n      \"evidence\": [\n        \"00:04:34\",\n        \"00:04:40\",\n        \"00:04:45\"\n      ]\n    }\n  ],\n  \"proposals\": [\n    {\n      \"text\": \"Dashboard 效能問題改為 API 一次撈取資料加一層快取\",\n      \"evidence\": [\n        \"00:01:12\"\n      ]\n    },\n    {\n      \"text\": \"CI 執行時間過長問題改為只重建有變動的部分（使用 snapshot）\",\n      \"evidence\": [\n        \"00:03:42\",\n        \"00:03:48\"\n      ]\n    }\n  ],\n  \"open_questions\": []\n}"
+  }
+ ]
+}

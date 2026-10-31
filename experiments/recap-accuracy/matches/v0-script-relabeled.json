@@ -1,0 +1,164 @@
+{
+ "run": "v0-script-relabeled",
+ "judged_by": "Claude, from the script, knowing the variant; check before relying on it",
+ "items": {
+  "decisions/0": {
+   "verdict": "correct",
+   "matches": [
+    "D1",
+    "T2"
+   ]
+  },
+  "decisions/1": {
+   "verdict": "correct",
+   "matches": [
+    "D2",
+    "T3"
+   ]
+  },
+  "decisions/2": {
+   "verdict": "correct",
+   "matches": [
+    "D4",
+    "T5"
+   ]
+  },
+  "decisions/3": {
+   "verdict": "wrong",
+   "matches": [
+    "D6"
+   ],
+   "note": "says the helper takes an Android SDK upgrade, not Android notifications"
+  },
+  "decisions/4": {
+   "verdict": "correct",
+   "matches": [
+    "D7",
+    "D8"
+   ]
+  },
+  "decisions/5": {
+   "verdict": "misplaced",
+   "matches": [
+    "T10"
+   ],
+   "note": "an assignment listed as a decision"
+  },
+  "decisions/6": {
+   "verdict": "correct",
+   "matches": [
+    "D10"
+   ]
+  },
+  "decisions/7": {
+   "verdict": "wrong",
+   "matches": [
+    "T4"
+   ],
+   "note": "gives iOS notifications to the dashboard owner; the closing summary gives them to the SDK owner"
+  },
+  "action_items/0": {
+   "verdict": "correct",
+   "matches": [
+    "T2"
+   ]
+  },
+  "action_items/1": {
+   "verdict": "correct",
+   "matches": [
+    "T3"
+   ]
+  },
+  "action_items/2": {
+   "verdict": "correct",
+   "matches": [
+    "T5"
+   ]
+  },
+  "action_items/3": {
+   "verdict": "correct",
+   "matches": [
+    "T6"
+   ]
+  },
+  "action_items/4": {
+   "verdict": "duplicate",
+   "matches": [
+    "T5"
+   ],
+   "note": "repeats the backend work"
+  },
+  "action_items/5": {
+   "verdict": "wrong",
+   "matches": [
+    "T7"
+   ],
+   "note": "an Android SDK upgrade, not Android notifications"
+  },
+  "action_items/6": {
+   "verdict": "correct",
+   "matches": [
+    "T9"
+   ]
+  },
+  "action_items/7": {
+   "verdict": "correct",
+   "matches": [
+    "T10"
+   ],
+   "due_ok": true
+  },
+  "action_items/8": {
+   "verdict": "correct",
+   "matches": [
+    "T4"
+   ],
+   "note": "misses 'this afternoon'"
+  },
+  "proposals/0": {
+   "verdict": "correct",
+   "matches": [
+    "P1"
+   ]
+  },
+  "proposals/1": {
+   "verdict": "correct",
+   "matches": [
+    "P2"
+   ]
+  },
+  "open_questions/0": {
+   "verdict": "wrong",
+   "matches": [],
+   "note": "nobody asks whether QA will add the crash log"
+  },
+  "open_questions/1": {
+   "verdict": "wrong",
+   "matches": [
+    "X6"
+   ],
+   "note": "answered in the call"
+  },
+  "open_questions/2": {
+   "verdict": "wrong",
+   "matches": [
+    "X1"
+   ],
+   "note": "answered in the call"
+  },
+  "open_questions/3": {
+   "verdict": "wrong",
+   "matches": [
+    "X7"
+   ],
+   "note": "answered in the call"
+  },
+  "open_questions/4": {
+   "verdict": "wrong",
+   "matches": [
+    "X2"
+   ],
+   "note": "resolved in the call"
+  }
+ }
+}

@@ -1,0 +1,118 @@
+{
+ "run": "v1-sortformer",
+ "judged_by": "Claude, from the script, knowing the variant; check before relying on it",
+ "items": {
+  "decisions/0": {
+   "verdict": "correct",
+   "matches": [
+    "D1",
+    "T1",
+    "T2"
+   ]
+  },
+  "decisions/1": {
+   "verdict": "correct",
+   "matches": [
+    "D2",
+    "D3"
+   ],
+   "note": "also says a cache was chosen; the call never chose"
+  },
+  "decisions/2": {
+   "verdict": "correct",
+   "matches": [
+    "D4",
+    "D5"
+   ]
+  },
+  "decisions/3": {
+   "verdict": "correct",
+   "matches": [
+    "D7"
+   ]
+  },
+  "decisions/4": {
+   "verdict": "correct",
+   "matches": [
+    "D8"
+   ]
+  },
+  "decisions/5": {
+   "verdict": "correct",
+   "matches": [
+    "D9",
+    "T10"
+   ]
+  },
+  "action_items/0": {
+   "verdict": "correct",
+   "matches": [
+    "T1"
+   ],
+   "due_ok": true
+  },
+  "action_items/1": {
+   "verdict": "correct",
+   "matches": [
+    "T2"
+   ],
+   "note": "puts a sentence in the deadline field"
+  },
+  "action_items/2": {
+   "verdict": "correct",
+   "matches": [
+    "T3",
+    "D2"
+   ],
+   "note": "gives the estimate as a deadline"
+  },
+  "action_items/3": {
+   "verdict": "correct",
+   "matches": [
+    "T5",
+    "D5"
+   ],
+   "note": "gives the client estimate as the backend's deadline"
+  },
+  "action_items/4": {
+   "verdict": "correct",
+   "matches": [
+    "T7",
+    "D6"
+   ]
+  },
+  "action_items/5": {
+   "verdict": "correct",
+   "matches": [
+    "T10",
+    "T11"
+   ],
+   "note": "gives staging preparation for the demo to Speaker B alone",
+   "due_ok": true
+  },
+  "action_items/6": {
+   "verdict": "correct",
+   "matches": [
+    "T4"
+   ],
+   "due_ok": true
+  },
+  "proposals/0": {
+   "verdict": "wrong",
+   "matches": [],
+   "note": "says loading every chart at once was proposed; the opposite"
+  },
+  "proposals/1": {
+   "verdict": "correct",
+   "matches": [
+    "P1"
+   ]
+  },
+  "proposals/2": {
+   "verdict": "correct",
+   "matches": [
+    "P2"
+   ]
+  }
+ }
+}

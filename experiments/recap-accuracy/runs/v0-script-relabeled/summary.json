@@ -1,0 +1,286 @@
+{
+ "model": "mlx-community/Qwen3.5-9B-4bit",
+ "model_revision": "8b2b98c00a6b4d291155e4890773ca8f769aee53",
+ "decoding": "greedy",
+ "thinking": false,
+ "variant": "v0",
+ "chunks": 1,
+ "mlx_peak_bytes": 6708137602,
+ "notes": {
+  "topics": [
+   {
+    "title": "Login Page Bug (iOS Crash)",
+    "summary": "確認 iOS 登入頁面閃退問題源於 SDK 版本過舊，決定升級 SDK 並請 QA 補上 crash log。",
+    "evidence": [
+     "00:00:16",
+     "00:00:23",
+     "00:00:55",
+     "00:00:59"
+    ]
+   },
+   {
+    "title": "Dashboard Performance",
+    "summary": "針對載入過慢問題，決定採用 lazy loading 策略，先載入常用圖表，並由 Speaker A 負責。",
+    "evidence": [
+     "00:01:07",
+     "00:01:12",
+     "00:01:26",
+     "00:01:28",
+     "00:01:41",
+     "00:01:48"
+    ]
+   },
+   {
+    "title": "Push Notification Scope",
+    "summary": "因需求文件模糊，決定第一版僅實作「開/關」設定，後端需新增 settings endpoint 並分開存儲 token。",
+    "evidence": [
+     "00:02:01",
+     "00:02:14",
+     "00:02:24",
+     "00:02:33",
+     "00:02:36",
+     "00:02:40",
+     "00:02:42"
+    ]
+   },
+   {
+    "title": "Sprint Capacity & Android Help",
+    "summary": "因時間緊迫，決定 Speaker A 先負責 dashboard，待完成後再協助處理 Android 端的 SDK 升級。",
+    "evidence": [
+     "00:02:46",
+     "00:02:52",
+     "00:02:54",
+     "00:03:01",
+     "00:03:10",
+     "00:03:15",
+     "00:03:18",
+     "00:03:24"
+    ]
+   },
+   {
+    "title": "Technical Debt (CI & Docker)",
+    "summary": "CI 跑時過長與 Docker image 過大被提出，決定將 CI 優化延至下個 sprint，Docker 優化則立即執行。",
+    "evidence": [
+     "00:03:25",
+     "00:03:34",
+     "00:03:37",
+     "00:03:42",
+     "00:03:48",
+     "00:03:53",
+     "00:03:59",
+     "00:04:06",
+     "00:04:12",
+     "00:04:15"
+    ]
+   },
+   {
+    "title": "Demo Preparation",
+    "summary": "確認下週三下午兩點進行 demo，Speaker A 需在週二前清理 staging 環境，並告知團隊展示版本非最終版。",
+    "evidence": [
+     "00:04:17",
+     "00:04:26",
+     "00:04:28",
+     "00:04:34",
+     "00:04:40",
+     "00:04:45",
+     "00:04:46",
+     "00:04:50",
+     "00:04:58"
+    ]
+   }
+  ],
+  "decisions": [
+   {
+    "text": "決定將 iOS 登入閃退 bug 排入本 sprint，並請 QA 補上 crash log。",
+    "evidence": [
+     "00:00:55",
+     "00:00:59",
+     "00:01:03"
+    ]
+   },
+   {
+    "text": "決定 dashboard 效能優化採用 lazy loading 策略，由 Speaker A 負責，預計三天完成。",
+    "evidence": [
+     "00:01:26",
+     "00:01:28",
+     "00:01:41",
+     "00:01:48",
+     "00:01:55"
+    ]
+   },
+   {
+    "text": "決定 push notification 需求第一版僅實作「開/關」設定，後端需新增 settings endpoint。",
+    "evidence": [
+     "00:02:24",
+     "00:02:33",
+     "00:02:36"
+    ]
+   },
+   {
+    "text": "決定 Speaker A 先負責 dashboard，待完成後再協助處理 Android 端的 SDK 升級。",
+    "evidence": [
+     "00:03:18",
+     "00:03:24"
+    ]
+   },
+   {
+    "text": "決定 CI 優化延至下個 sprint，Docker image 多階段構建 (multi-stage build) 則在本 sprint 完成。",
+    "evidence": [
+     "00:03:48",
+     "00:03:53",
+     "00:04:12",
+     "00:04:15"
+    ]
+   },
+   {
+    "text": "決定 Speaker A 需在週二之前清理 staging 環境。",
+    "evidence": [
+     "00:04:40",
+     "00:04:45"
+    ]
+   },
+   {
+    "text": "決定 demo 時可以展示做到一半的版本，但需先跟 product team 說清楚這不是最後的樣子。",
+    "evidence": [
+     "00:04:50"
+    ]
+   },
+   {
+    "text": "確認待辦事項分配：Speaker A 負責 iOS 通知、dashboard、Docker image 優化、清 staging 及協助 Android；Speaker C 負責跟 PM 確認通知需求。",
+    "evidence": [
+     "00:05:00"
+    ]
+   }
+  ],
+  "action_items": [
+   {
+    "task": "請 QA 補上 iOS 登入閃退的 crash log。",
+    "owner": "Speaker B",
+    "due": null,
+    "evidence": [
+     "00:00:59"
+    ]
+   },
+   {
+    "task": "Speaker A 負責 dashboard 效能優化 (lazy loading)。",
+    "owner": "Speaker A",
+    "due": null,
+    "evidence": [
+     "00:01:48"
+    ]
+   },
+   {
+    "task": "Speaker A 負責後端 settings endpoint schema。",
+    "owner": "Speaker A",
+    "due": null,
+    "evidence": [
+     "00:02:40"
+    ]
+   },
+   {
+    "task": "Speaker B 負責 client 端 push notification 實作 (iOS/Android)。",
+    "owner": "Speaker B",
+    "due": null,
+    "evidence": [
+     "00:02:46"
+    ]
+   },
+   {
+    "task": "Speaker A 負責後端 push notification 實作。",
+    "owner": "Speaker A",
+    "due": null,
+    "evidence": [
+     "00:02:52"
+    ]
+   },
+   {
+    "task": "Speaker A 負責 Android 端 SDK 升級。",
+    "owner": "Speaker A",
+    "due": null,
+    "evidence": [
+     "00:03:18"
+    ]
+   },
+   {
+    "task": "Speaker A 負責 Docker image 多階段構建優化。",
+    "owner": "Speaker A",
+    "due": null,
+    "evidence": [
+     "00:04:15"
+    ]
+   },
+   {
+    "task": "Speaker A 負責清理 staging 環境。",
+    "owner": "Speaker A",
+    "due": "週二之前",
+    "evidence": [
+     "00:04:45"
+    ]
+   },
+   {
+    "task": "Speaker C 負責跟 PM 確認 push notification 的需求細節。",
+    "owner": "Speaker C",
+    "due": null,
+    "evidence": [
+     "00:02:24"
+    ]
+   }
+  ],
+  "proposals": [
+   {
+    "text": "建議 dashboard 效能問題改成分頁或加一層快取。",
+    "evidence": [
+     "00:01:12"
+    ]
+   },
+   {
+    "text": "建議 CI 跑時過長的問題問題改成只重建有變動的部分 (snapshot)。",
+    "evidence": [
+     "00:03:42",
+     "00:03:48"
+    ]
+   }
+  ],
+  "open_questions": [
+   {
+    "text": "QA 是否會補上 crash log？",
+    "evidence": [
+     "00:00:55"
+    ]
+   },
+   {
+    "text": "SDK 升級是否會影響 Android？",
+    "evidence": [
+     "00:00:32"
+    ]
+   },
+   {
+    "text": "閃退是每次都會發生，還是只有某些機型？",
+    "evidence": [
+     "00:00:40"
+    ]
+   },
+   {
+    "text": "mobile 版 dashboard 是否需要一起改？",
+    "evidence": [
+     "00:01:32"
+    ]
+   },
+   {
+    "text": "本 sprint 能否同時完成登入 bug、通知功能與 Android 升級？",
+    "evidence": [
+     "00:03:01"
+    ]
+   }
+  ]
+ },
+ "seconds": 81.50924777984619,
+ "replies": [
+  {
+   "kind": "extract",
+   "prompt_tokens": 2321,
+   "seconds": 81.50924777984619,
+   "reply": "{\n  \"topics\": [\n    {\n      \"title\": \"Login Page Bug (iOS Crash)\",\n      \"summary\": \"確認 iOS 登入頁面閃退問題源於 SDK 版本過舊，決定升級 SDK 並請 QA 補上 crash log。\",\n      \"evidence\": [\n        \"00:00:16\",\n        \"00:00:23\",\n        \"00:00:55\",\n        \"00:00:59\"\n      ]\n    },\n    {\n      \"title\": \"Dashboard Performance\",\n      \"summary\": \"針對載入過慢問題，決定採用 lazy loading 策略，先載入常用圖表，並由 Speaker A 負責。\",\n      \"evidence\": [\n        \"00:01:07\",\n        \"00:01:12\",\n        \"00:01:26\",\n        \"00:01:28\",\n        \"00:01:41\",\n        \"00:01:48\"\n      ]\n    },\n    {\n      \"title\": \"Push Notification Scope\",\n      \"summary\": \"因需求文件模糊，決定第一版僅實作「開/關」設定，後端需新增 settings endpoint 並分開存儲 token。\",\n      \"evidence\": [\n        \"00:02:01\",\n        \"00:02:14\",\n        \"00:02:24\",\n        \"00:02:33\",\n        \"00:02:36\",\n        \"00:02:40\",\n        \"00:02:42\"\n      ]\n    },\n    {\n      \"title\": \"Sprint Capacity & Android Help\",\n      \"summary\": \"因時間緊迫，決定 Speaker A 先負責 dashboard，待完成後再協助處理 Android 端的 SDK 升級。\",\n      \"evidence\": [\n        \"00:02:46\",\n        \"00:02:52\",\n        \"00:02:54\",\n        \"00:03:01\",\n        \"00:03:10\",\n        \"00:03:15\",\n        \"00:03:18\",\n        \"00:03:24\"\n      ]\n    },\n    {\n      \"title\": \"Technical Debt (CI & Docker)\",\n      \"summary\": \"CI 跑時過長與 Docker image 過大被提出，決定將 CI 優化延至下個 sprint，Docker 優化則立即執行。\",\n      \"evidence\": [\n        \"00:03:25\",\n        \"00:03:34\",\n        \"00:03:37\",\n        \"00:03:42\",\n        \"00:03:48\",\n        \"00:03:53\",\n        \"00:03:59\",\n        \"00:04:06\",\n        \"00:04:12\",\n        \"00:04:15\"\n      ]\n    },\n    {\n      \"title\": \"Demo Preparation\",\n      \"summary\": \"確認下週三下午兩點進行 demo，Speaker A 需在週二前清理 staging 環境，並告知團隊展示版本非最終版。\",\n      \"evidence\": [\n        \"00:04:17\",\n        \"00:04:26\",\n        \"00:04:28\",\n        \"00:04:34\",\n        \"00:04:40\",\n        \"00:04:45\",\n        \"00:04:46\",\n        \"00:04:50\",\n        \"00:04:58\"\n      ]\n    }\n  ],\n  \"decisions\": [\n    {\n      \"text\": \"決定將 iOS 登入閃退 bug 排入本 sprint，並請 QA 補上 crash log。\",\n      \"evidence\": [\n        \"00:00:55\",\n        \"00:00:59\",\n        \"00:01:03\"\n      ]\n    },\n    {\n      \"text\": \"決定 dashboard 效能優化採用 lazy loading 策略，由 Speaker A 負責，預計三天完成。\",\n      \"evidence\": [\n        \"00:01:26\",\n        \"00:01:28\",\n        \"00:01:41\",\n        \"00:01:48\",\n        \"00:01:55\"\n      ]\n    },\n    {\n      \"text\": \"決定 push notification 需求第一版僅實作「開/關」設定，後端需新增 settings endpoint。\",\n      \"evidence\": [\n        \"00:02:24\",\n        \"00:02:33\",\n        \"00:02:36\"\n      ]\n    },\n    {\n      \"text\": \"決定 Speaker A 先負責 dashboard，待完成後再協助處理 Android 端的 SDK 升級。\",\n      \"evidence\": [\n        \"00:03:18\",\n        \"00:03:24\"\n      ]\n    },\n    {\n      \"text\": \"決定 CI 優化延至下個 sprint，Docker image 多階段構建 (multi-stage build) 則在本 sprint 完成。\",\n      \"evidence\": [\n        \"00:03:48\",\n        \"00:03:53\",\n        \"00:04:12\",\n        \"00:04:15\"\n      ]\n    },\n    {\n      \"text\": \"決定 Speaker A 需在週二之前清理 staging 環境。\",\n      \"evidence\": [\n        \"00:04:40\",\n        \"00:04:45\"\n      ]\n    },\n    {\n      \"text\": \"決定 demo 時可以展示做到一半的版本，但需先跟 product team 說清楚這不是最後的樣子。\",\n      \"evidence\": [\n        \"00:04:50\"\n      ]\n    },\n    {\n      \"text\": \"確認待辦事項分配：Speaker A 負責 iOS 通知、dashboard、Docker image 優化、清 staging 及協助 Android；Speaker C 負責跟 PM 確認通知需求。\",\n      \"evidence\": [\n        \"00:05:00\"\n      ]\n    }\n  ],\n  \"action_items\": [\n    {\n      \"task\": \"請 QA 補上 iOS 登入閃退的 crash log。\",\n      \"owner\": \"Speaker B\",\n      \"due\": null,\n      \"evidence\": [\n        \"00:00:59\"\n      ]\n    },\n    {\n      \"task\": \"Speaker A 負責 dashboard 效能優化 (lazy loading)。\",\n      \"owner\": \"Speaker A\",\n      \"due\": null,\n      \"evidence\": [\n        \"00:01:48\"\n      ]\n    },\n    {\n      \"task\": \"Speaker A 負責後端 settings endpoint schema。\",\n      \"owner\": \"Speaker A\",\n      \"due\": null,\n      \"evidence\": [\n        \"00:02:40\"\n      ]\n    },\n    {\n      \"task\": \"Speaker B 負責 client 端 push notification 實作 (iOS/Android)。\",\n      \"owner\": \"Speaker B\",\n      \"due\": null,\n      \"evidence\": [\n        \"00:02:46\"\n      ]\n    },\n    {\n      \"task\": \"Speaker A 負責後端 push notification 實作。\",\n      \"owner\": \"Speaker A\",\n      \"due\": null,\n      \"evidence\": [\n        \"00:02:52\"\n      ]\n    },\n    {\n      \"task\": \"Speaker A 負責 Android 端 SDK 升級。\",\n      \"owner\": \"Speaker A\",\n      \"due\": null,\n      \"evidence\": [\n        \"00:03:18\"\n      ]\n    },\n    {\n      \"task\": \"Speaker A 負責 Docker image 多階段構建優化。\",\n      \"owner\": \"Speaker A\",\n      \"due\": null,\n      \"evidence\": [\n        \"00:04:15\"\n      ]\n    },\n    {\n      \"task\": \"Speaker A 負責清理 staging 環境。\",\n      \"owner\": \"Speaker A\",\n      \"due\": \"週二之前\",\n      \"evidence\": [\n        \"00:04:45\"\n      ]\n    },\n    {\n      \"task\": \"Speaker C 負責跟 PM 確認 push notification 的需求細節。\",\n      \"owner\": \"Speaker C\",\n      \"due\": null,\n      \"evidence\": [\n        \"00:02:24\"\n      ]\n    }\n  ],\n  \"proposals\": [\n    {\n      \"text\": \"建議 dashboard 效能問題改成分頁或加一層快取。\",\n      \"evidence\": [\n        \"00:01:12\"\n      ]\n    },\n    {\n      \"text\": \"建議 CI 跑時過長的問題問題改成只重建有變動的部分 (snapshot)。\",\n      \"evidence\": [\n        \"00:03:42\",\n        \"00:03:48\"\n      ]\n    }\n  ],\n  \"open_questions\": [\n    {\n      \"text\": \"QA 是否會補上 crash log？\",\n      \"evidence\": [\n        \"00:00:55\"\n      ]\n    },\n    {\n      \"text\": \"SDK 升級是否會影響 Android？\",\n      \"evidence\": [\n        \"00:00:32\"\n      ]\n    },\n    {\n      \"text\": \"閃退是每次都會發生，還是只有某些機型？\",\n      \"evidence\": [\n        \"00:00:40\"\n      ]\n    },\n    {\n      \"text\": \"mobile 版 dashboard 是否需要一起改？\",\n      \"evidence\": [\n        \"00:01:32\"\n      ]\n    },\n    {\n      \"text\": \"本 sprint 能否同時完成登入 bug、通知功能與 Android 升級？\",\n      \"evidence\": [\n        \"00:03:01\"\n      ]\n    }\n  ]\n}"
+  }
+ ]
+}

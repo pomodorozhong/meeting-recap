@@ -1,0 +1,101 @@
+{
+ "run": "v1-script",
+ "judged_by": "Claude, from the script, knowing the variant; check before relying on it",
+ "items": {
+  "decisions/0": {
+   "verdict": "correct",
+   "matches": [
+    "D4"
+   ]
+  },
+  "decisions/1": {
+   "verdict": "wrong",
+   "matches": [
+    "D6"
+   ],
+   "note": "says Speaker B helps with an Android SDK upgrade; Speaker B helps with Android notifications. The text also repeats words"
+  },
+  "decisions/2": {
+   "verdict": "correct",
+   "matches": [
+    "D7",
+    "T8"
+   ]
+  },
+  "decisions/3": {
+   "verdict": "correct",
+   "matches": [
+    "D10"
+   ]
+  },
+  "action_items/0": {
+   "verdict": "correct",
+   "matches": [
+    "T1",
+    "T2"
+   ],
+   "due_ok": true
+  },
+  "action_items/1": {
+   "verdict": "correct",
+   "matches": [
+    "T3",
+    "D2"
+   ],
+   "note": "states paging or caching as chosen; gives the estimate as a deadline"
+  },
+  "action_items/2": {
+   "verdict": "correct",
+   "matches": [
+    "T5",
+    "D5"
+   ],
+   "note": "gives the estimate as a deadline"
+  },
+  "action_items/3": {
+   "verdict": "correct",
+   "matches": [
+    "T6"
+   ],
+   "note": "gives the estimate as a deadline"
+  },
+  "action_items/4": {
+   "verdict": "wrong",
+   "matches": [
+    "T7"
+   ],
+   "note": "an Android SDK upgrade, not Android notifications"
+  },
+  "action_items/5": {
+   "verdict": "correct",
+   "matches": [
+    "T8"
+   ],
+   "note": "names Speaker A as owner; the call names nobody"
+  },
+  "action_items/6": {
+   "verdict": "correct",
+   "matches": [
+    "T9",
+    "D8"
+   ],
+   "note": "gives the estimate as a deadline"
+  },
+  "action_items/7": {
+   "verdict": "correct",
+   "matches": [
+    "T10",
+    "T11"
+   ],
+   "note": "gives staging preparation for the demo to Speaker B alone",
+   "due_ok": true
+  },
+  "action_items/8": {
+   "verdict": "correct",
+   "matches": [
+    "T4"
+   ],
+   "due_ok": true
+  }
+ }
+}

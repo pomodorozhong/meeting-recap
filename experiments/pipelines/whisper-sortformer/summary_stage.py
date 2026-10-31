@@ -1,4 +1,5 @@
-"""Summary stage: Qwen3.5 9B through mlx-lm. One prompt per transcript chunk, then one merge prompt if needed.
+"""Summary stage: Qwen3.5 9B through mlx-lm. One prompt per transcript chunk, then one merge prompt if needed,
+then (variant v2) one check prompt against the whole transcript.
 
 Reads the named transcript lines (JSON list) and writes every prompt's reply with timings; the final
 reply holds the notes. Runs in its own process so the model's memory is released when it ends.
@@ -13,7 +14,9 @@ import pipeline
 MAX_TOKENS = 4096
 
 
-def main(lines_path, out):
+def main(lines_path, out, variant="v0"):
+    if variant not in pipeline.VARIANTS:
+        raise SystemExit(f"unknown recap variant {variant}")
     from mlx_lm import generate, load
 
     with open(lines_path, encoding="utf-8") as handle:
@@ -31,16 +34,18 @@ def main(lines_path, out):
         return reply
 
     parts = pipeline.chunks(lines)
-    notes = [pipeline.parse_notes(ask("extract", pipeline.extract_prompt(part, i + 1, len(parts))))
+    notes = [pipeline.parse_notes(ask("extract", pipeline.extract_prompt(part, i + 1, len(parts), variant)))
              for i, part in enumerate(parts)]
     if len(parts) > 1:
-        ask("merge", pipeline.merge_prompt(notes))
+        notes = [pipeline.parse_notes(ask("merge", pipeline.merge_prompt(notes, variant)))]
+    if variant == "v2":
+        ask("check", pipeline.check_prompt(lines, notes[0]))
     with open(out, "w", encoding="utf-8") as handle:
         json.dump({"model": SUMMARY_REPO, "model_revision": SUMMARY_REVISION, "max_tokens": MAX_TOKENS,
-                   "decoding": "greedy", "thinking": False, "chunk_characters": pipeline.CHUNK_CHARACTERS,
+                   "decoding": "greedy", "thinking": False, "variant": variant, "chunk_characters": pipeline.CHUNK_CHARACTERS,
                    "chunks": len(parts), "mlx_peak_bytes": mlx_peak_bytes(), "replies": replies},
                   handle, ensure_ascii=False, indent=1)
 
 
 if __name__ == "__main__":
-    main(*sys.argv[1:3])
+    main(*sys.argv[1:4])

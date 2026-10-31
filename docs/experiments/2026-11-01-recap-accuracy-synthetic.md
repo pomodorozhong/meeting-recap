@@ -132,3 +132,48 @@ Fix the summary stage before tuning ASR or diarization for the recap.
 - How much do the prompt changes above reduce errors on the `script` condition, and do they hold on the pipeline transcripts?
 - How large is the recap's swing? Some small input changes that keep the meaning, such as renaming a speaker or moving one turn boundary, would measure it.
 - Do the same error kinds appear on a real call? The private-recording review for #28 checks usefulness and omissions there.
+
+## Follow-up: summary stage variants
+
+**Status:** planned. This section was committed before any variant ran.
+
+**Question.** Do stricter prompt rules, or a second pass that checks the draft against the whole transcript, cut the errors found above without losing items? And how much does a recap move when only the speaker names change?
+
+**Variants** (in `pipeline.py`, selected by the summary stage's third argument):
+- **v0:** the prompt scored above.
+- **v1:** stricter rules:
+  - read the whole call first, because later lines can answer earlier questions;
+  - decisions hold agreed approaches, including adopted proposals, but not who-does-what;
+  - an action item's owner is the person assigned or volunteering, and any stated deadline is copied;
+  - proposals are only ideas never adopted;
+  - open questions are only those still unanswered at the end;
+  - invent no tasks, tickets or questions.
+- **v2:** v1 plus a check prompt. It gets the whole transcript and v1's draft, and removes unsupported items and answered questions, moves misplaced items, fixes owners and deadlines, and adds missed decisions and tasks. This costs one more prompt.
+
+The rules are written for meetings in general. They name no topic or item from this call, but they were written after reading its recaps, so this call can't show how they generalize. That is left to the private-recording review.
+
+**Inputs:**
+
+| Input | What it is |
+| --- | --- |
+| `script` | The script's text and speakers, as above |
+| `script-relabeled` | The same script with the speaker names rotated (A is called Speaker C, B Speaker A, C Speaker B). Same meaning, different text. It measures how much a recap moves on a change that should not matter |
+| `sortformer`, `who` | The two pipeline transcripts scored above (`runs/*/transcript.md`) |
+
+**Runs.** `recap_variant.py <input> runs/<variant>-<input> <variant>`:
+- v1 and v2 on all four inputs;
+- v0 on `script-relabeled`.
+
+The four v0 runs on the other inputs are the three scored above.
+
+**Scoring.**
+- The same `score.py` and key, with hand verdicts in `matches/<variant>-<input>.json` using the rules above. The key is frozen as committed.
+- `score.py` maps relabeled owners back through `names.json`.
+- I judge each recap knowing its variant, so a reader should spot-check `matches/`.
+
+**Decision rule.** A variant replaces v0 in the pipeline if, summed over the four inputs:
+- it finds at least as many key items;
+- it has fewer wrong items;
+- it moves less between `script` and `script-relabeled`.
+
+If v1 and v2 both qualify, v2's extra prompt (about 90 s per recap) has to buy at least 3 fewer wrong items in total to be worth it.

@@ -39,11 +39,15 @@ def line_spans(transcript):
     return spans
 
 
-def owner(value):
+def owner(value, names=None):
+    """The script speaker (A, B, C) a recap's owner names; `names` undoes a relabeled transcript's names."""
     if value is None or not str(value).strip():
         return None
-    match = re.fullmatch(r"(?:Speaker\s*)?([A-Z])", str(value).strip())
-    return match.group(1) if match else str(value).strip()
+    value = str(value).strip()
+    if names and value in names:
+        return names[value]
+    match = re.fullmatch(r"(?:Speaker\s*)?([A-Z])", value)
+    return match.group(1) if match else value
 
 
 def score(run_dir, matches):
@@ -53,6 +57,8 @@ def score(run_dir, matches):
     turns = json.loads(REFERENCE.read_text())["segments"]
     notes = json.loads((Path(run_dir) / "summary.json").read_text())["notes"]
     spans = line_spans((Path(run_dir) / "transcript.md").read_text())
+    names_path = Path(run_dir) / "names.json"
+    names = json.loads(names_path.read_text()) if names_path.exists() else None
 
     recap = {f"{section}/{i}": item for section in SECTIONS for i, item in enumerate(notes[section])}
     missing = sorted(set(recap) - set(matches["items"]))
@@ -88,7 +94,7 @@ def score(run_dir, matches):
             if any(a < te and ts < b for a, b in cited for ts, te in key_turns):
                 evidenced.add(i)
             if section == "action_items" and i.startswith("T"):
-                given, wanted = owner(recap[ref].get("owner")), items[i]["owner"]
+                given, wanted = owner(recap[ref].get("owner"), names), items[i]["owner"]
                 owners.append((ref, i, given, wanted, given == wanted))
                 due_given = bool(str(recap[ref].get("due") or "").strip())
                 if items[i]["due"] is None:

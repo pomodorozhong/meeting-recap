@@ -195,16 +195,53 @@ RULES = """規則：
 - 只輸出一個 JSON 物件，格式如下，不要輸出其他文字："""
 
 
-def extract_prompt(lines, part=None, parts=None):
+# Stricter rules from the recap accuracy check (docs/experiments/2026-11-01-recap-accuracy-synthetic.md): read the
+# whole call before deciding what is open, keep assignments out of decisions, and invent nothing.
+RULES_V1 = """規則：
+- 只根據逐字稿內容，不要推測，也不要補充逐字稿沒說的事。全部使用繁體中文，英文術語保留原文。
+- 先讀完整份逐字稿再整理：後面的發言可能回答前面的問題，或採納、否決前面的提議。
+- decisions：會議中同意或拍板的做法、範圍、時間與取捨，包含後來被採納的提議。單純「誰負責做什麼」的分工不放這裡，放 action_items。
+- action_items：有人被指派或主動答應的具體工作，同一件工作只列一次。owner 只填逐字稿中被指派或自己答應的人（使用逐字稿中的說話者標籤），沒有明確負責人就填 null。due 只要逐字稿提到期限（例如「這個禮拜」「週二之前」「今天下午」）就照原文填寫，否則為 null。
+- proposals：有人提出，但到會議結束都沒有被採納或拍板的想法。
+- open_questions：到會議結束仍然沒有答案、也沒有結論的問題。逐字稿中已經被回答或已有結論的問題不要列出。
+- 不要建立逐字稿沒有提到的工作、ticket 或問題。
+- 每個項目的 evidence 列出支持它的逐字稿行首時間戳（HH:MM:SS），必須是逐字稿中實際出現的時間戳；優先引用做出決定、指派工作或回答問題的那幾行。
+- topics 最多 8 個，每個 summary 一到兩句。
+- 只輸出一個 JSON 物件，格式如下，不要輸出其他文字："""
+
+CHECK = """以下是一場會議的逐字稿，以及根據它整理出的 JSON 筆記草稿。請逐項對照逐字稿檢查並修正草稿，然後輸出修正後的完整 JSON：
+1. 每個項目都必須在逐字稿中找到依據；找不到的刪除。
+2. open_questions：逐字稿之後已經有回答或結論的，刪除。
+3. proposals：之後被採納的，改放 decisions；只是分工的，改放 action_items。
+4. decisions：只是「誰負責做什麼」的分工，移到 action_items；action_items 已有相同工作就直接刪除。
+5. action_items：owner 必須是逐字稿中被指派或自己答應的人，否則改為 null；due 只保留逐字稿說出的期限，草稿漏掉的期限要補上；合併重複的工作。
+6. 逐字稿中明確的決定或指派的工作，草稿漏掉的要補上。
+7. evidence 必須是逐字稿中實際出現的行首時間戳。
+"""
+
+# v0: the first prompt; v1: stricter rules; v2: v1 plus a check pass against the whole transcript.
+VARIANTS = ("v0", "v1", "v2")
+
+
+def rules(variant):
+    return RULES if variant == "v0" else RULES_V1
+
+
+def extract_prompt(lines, part=None, parts=None, variant="v0"):
     where = f"這是會議逐字稿的第 {part}/{parts} 段。" if parts and parts > 1 else "這是一場會議的逐字稿。"
-    return (f"{where}請整理出主題、決議、待辦事項、提議與未解決問題。\n\n{RULES}\n{SCHEMA}\n\n"
+    return (f"{where}請整理出主題、決議、待辦事項、提議與未解決問題。\n\n{rules(variant)}\n{SCHEMA}\n\n"
             "逐字稿：\n" + "\n".join(lines))
 
 
-def merge_prompt(notes):
+def merge_prompt(notes, variant="v0"):
     return ("以下是同一場會議各段逐字稿整理出的 JSON 筆記，依時間順序排列。請合併成一份：合併重複項目並保留所有 evidence 時間戳，"
-            "不要新增筆記中沒有的內容。\n\n" + RULES + "\n" + SCHEMA + "\n\n筆記：\n"
+            "不要新增筆記中沒有的內容。\n\n" + rules(variant) + "\n" + SCHEMA + "\n\n筆記：\n"
             + "\n".join(json.dumps(n, ensure_ascii=False) for n in notes))
+
+
+def check_prompt(lines, notes):
+    return (CHECK + "\n" + RULES_V1 + "\n" + SCHEMA + "\n\n逐字稿：\n" + "\n".join(lines)
+            + "\n\n草稿：\n" + json.dumps(notes, ensure_ascii=False))
 
 
 SECTIONS = ("topics", "decisions", "action_items", "proposals", "open_questions")

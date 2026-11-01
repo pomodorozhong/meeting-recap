@@ -30,6 +30,10 @@ turns = [{"speaker_id": t["speaker"], "text": t["text"], "start_seconds": t["sta
 (out / "speakers.json").write_text(json.dumps({"labels": {t["speaker_id"]: "Speaker " + t["speaker_id"] for t in turns}}))
 CODE
         uv run --locked --project "$pipe" "$pipe/recap.py" summarize "$oracle"
+        fast="$out/extension/fast-pipeline"
+        uv run --locked --project "$pipe" "$pipe/recap.py" run "$source_dir/call.wav" "$fast" --asr turbo-q4 --diarizer who
+        uv run --locked --project "$here" "$here/score_speakers.py" --reference "$source_dir" --audio "$source_dir/call.wav" \
+            --segments "$fast/diarization.json" --asr "$fast/asr.json" --turns "$fast/turns.json" --json >"$fast/speakers-score.json"
         ;;
 esac
 case "$(basename "$out")" in

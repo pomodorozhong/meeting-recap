@@ -233,6 +233,16 @@ The point of this baseline is to see where the whole pipeline loses most before 
 4. **ASR errors and punctuation.** Homophones land in the transcript and the recap (「分頁」 as 「糞頁」, 「時間」 as 「實踐」). Whisper writes mostly half-width punctuation (34 of 38 marks), which reads oddly in Chinese. `opencc-python-reimplemented` converts 「只有」 to 「隻有」 under both `s2tw` and `s2twp`.
 5. **A spare speaker label** appears for a few characters. Naming handles it; nothing to change yet.
 
+## Faster ASR on the M2 Pro
+
+Use `--asr turbo-q4` on both setup and run to select the pinned quantized Whisper Turbo model. It supports the same word timestamps, transcript editing and recap stages. To prioritize speaker separation on four-person calls, pair it with the default Sortformer. To try the lower-latency combination, add Who as below. See the [collection benchmark](../../../docs/experiments/2026-11-01-synthetic-collection.md) for measured tradeoffs.
+
+```bash
+P=experiments/pipelines/whisper-sortformer
+uv run --locked --project "$P" "$P/recap.py" setup --asr turbo-q4 --who
+uv run --locked --project "$P" "$P/recap.py" run "$AUDIO" "$OUT" --asr turbo-q4 --diarizer who
+```
+
 ## Known limits
 
 - **Speakers:** the speaker count is not set. Sortformer handles at most four speakers; Who is built for at most four per five-minute piece.

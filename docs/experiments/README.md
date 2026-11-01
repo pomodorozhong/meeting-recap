@@ -14,3 +14,5 @@ Each summary is written from [TEMPLATE.md](TEMPLATE.md) and committed **before**
 | 2026-10-30 | [Sortformer on a two-person two-track call](2026-10-30-two-track-call.md) | Planned |
 | 2026-11-01 | [Synthetic collection and local model matrix](2026-11-01-synthetic-collection.md) | Seven recordings. Turbo Q4 was fastest and matched or beat full Whisper CER on each speech input. Who merged voices on the clean four-speaker call |
 | 2026-11-01 | [Evidence-backed actions on ten calls](2026-11-01-action-evidence.md) | 70 conditions. Full Whisper + focused extraction recovered 7/14 fully supported commitments, Turbo + focused 4/14 |
+| 2026-11-01 | [Review of action experiments](2026-11-01-action-evidence-review.md) | Audit complete. Reference validity, causal grounding, attribution and transfer remain unproven |
+| 2026-11-01 | [Grounding falsification plan](2026-11-01-action-grounding-plan.md) | Designed, not run. 60 extraction probes and 36 verifier controls ready to prepare |

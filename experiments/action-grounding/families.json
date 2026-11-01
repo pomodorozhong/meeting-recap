@@ -1,0 +1,74 @@
+[
+  {
+    "id": "scanner",
+    "split": "development",
+    "topic": "借用設備",
+    "object": "掃描器",
+    "recipient": "設備室",
+    "alternate_recipient": "接待處",
+    "verb": "送回",
+    "paraphrase_verb": "歸還",
+    "due": "明天中午前",
+    "alternate_due": "星期五下班前"
+  },
+  {
+    "id": "samples",
+    "split": "development",
+    "topic": "檢驗材料",
+    "object": "樣本盒",
+    "recipient": "實驗室",
+    "alternate_recipient": "收件室",
+    "verb": "送到",
+    "paraphrase_verb": "送交",
+    "due": "明天中午前",
+    "alternate_due": "星期五下班前"
+  },
+  {
+    "id": "slides",
+    "split": "development",
+    "topic": "講座資料",
+    "object": "講義檔",
+    "recipient": "講師信箱",
+    "alternate_recipient": "助教信箱",
+    "verb": "寄到",
+    "paraphrase_verb": "寄送到",
+    "due": "明天中午前",
+    "alternate_due": "星期五下班前"
+  },
+  {
+    "id": "badges",
+    "split": "holdout",
+    "topic": "識別用品",
+    "object": "識別證",
+    "recipient": "行政室",
+    "alternate_recipient": "警衛室",
+    "verb": "送到",
+    "paraphrase_verb": "送交",
+    "due": "明天中午前",
+    "alternate_due": "星期五下班前"
+  },
+  {
+    "id": "contracts",
+    "split": "holdout",
+    "topic": "簽署資料",
+    "object": "合約副本",
+    "recipient": "法務信箱",
+    "alternate_recipient": "採購信箱",
+    "verb": "寄到",
+    "paraphrase_verb": "寄送到",
+    "due": "明天中午前",
+    "alternate_due": "星期五下班前"
+  },
+  {
+    "id": "batteries",
+    "split": "holdout",
+    "topic": "備用耗材",
+    "object": "備用電池",
+    "recipient": "攝影棚",
+    "alternate_recipient": "器材室",
+    "verb": "送到",
+    "paraphrase_verb": "送交",
+    "due": "明天中午前",
+    "alternate_due": "星期五下班前"
+  }
+]

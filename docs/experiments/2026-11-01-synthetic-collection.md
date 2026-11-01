@@ -1,6 +1,8 @@
 # 2026-11-01 synthetic recording collection
 
-**Status** Runs in progress.
+**Status** Complete.
+
+Seven files cover 10 minutes 14 seconds of audio, four distinct scripts, one through four speakers, two matched stress tests and digital silence. Turbo Q4 was the fastest ASR on every input, and matched or beat full Whisper's CER on all six speech recordings. Breeze was substantially better on the sparse single-speaker holdout. [Per-case metrics and audio digests](2026-11-01-synthetic-collection-results.json).
 
 ## Question
 
@@ -58,7 +60,7 @@ Turbo Q4 matched or improved full Whisper CER on the first five speech mixes, at
 
 The [collection instructions](../../experiments/synthetic-call/README.md#recording-collection-and-unattended-benchmark) cover generating the seven WAVs, loading the pinned models and running the whole matrix with one command. Each additional condition has its own audio SHA-256 and a matching text and speaker reference. The original planning recording matched the repository's published digest. Rebuilding the three derived controls reproduced their WAV, text and speaker intervals byte for byte. On a different MLX build, score against the freshly generated references.
 
-The supplementary timing and turn-order checks reuse the base pipeline outputs. The review skill at baseline `01eb50d` creates a sealed evaluation and validates its dataset independently for each speech recording. Code and input recipes for this round are at `cb784e9`. Commit `68e2da3` adds an output-location check before running them. All fixture audio and raw model outputs stay local.
+The supplementary timing and turn-order checks reuse the base pipeline outputs. The review skill at baseline `01eb50d` creates a sealed evaluation and validates its dataset independently for each speech recording. Code and input recipes for this round are at `cb784e9`. Commit `68e2da3` adds an output-location check, `ed76684` adds the exact-silence diagnostic and `b73b045` exposes the pinned fast ASR in the normal pipeline. All fixture audio and raw model outputs stay local.
 
 ## Runtime and memory
 
@@ -73,6 +75,41 @@ On the 329.88-second planning input, the baseline Whisper ASR took 43.37 s and S
 Character error rate (CER) is the Levenshtein edit count divided by script characters, after OpenCC Traditional-to-Simplified conversion, case folding and removal of punctuation and whitespace. Numbers, English spellings and homophones receive no special equivalences. Overlapping utterances use their scripted start order. A lower score means fewer edits to recover the script.
 
 Speaker-time error is (missed + false-alarm + confused speaker-seconds) divided by reference speaker-seconds, with one-to-one maximum-overlap label mapping per recording, overlap included and zero collar. Generated turn intervals include pauses inside each utterance, so the timing metric can penalize a model that correctly detects an internal pause. The separate word-label metric uses the repository scorer's more forgiving many-to-one mapping. All are script-based measurements.
+
+| Recording | Script characters | Whisper CER | Breeze CER | Turbo Q4 CER | Sortformer speaker-time error | Who speaker-time error |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| handoff | 223 | 6.3% | 27.8% | 6.3% | 11.5% | 7.1% |
+| handoff-channel | 223 | 12.6% | 11.2% | 12.1% | 19.0% | 4.0% |
+| logistics | 197 | 15.2% | 7.6% | 12.7% | 15.7% | 22.7% |
+| logistics-overlap | 197 | 16.2% | 27.4% | 14.2% | 12.1% | 25.2% |
+| planning | 1377 | 4.9% | 12.2% | 4.2% | 14.9% | 6.1% |
+| stocktake | 116 | 41.4% | 14.7% | 41.4% | 11.2% | 28.7% |
+
+On the four distinct scripts, micro-averaged CER was 7.6% for Turbo Q4 (145/1,913 edits), 8.3% for full Whisper (159/1,913) and 13.7% for Breeze (262/1,913). The planning call supplies 72% of these characters. The two derived mixes share their parents' words and are omitted from this aggregate. Overlap raised Breeze's error from 7.6% to 27.4%. On the quiet-microphone mix, Breeze made fewer errors than on the clean version. These are observations on the paired recordings, each with one fixed noise realization or overlap pattern.
+
+### Speed, memory and repeatability
+
+| ASR on 329.88 s of planning audio | Wall time | Peak process footprint | CER |
+| --- | ---: | ---: | ---: |
+| Turbo Q4 | 22.32 s | 4.26 GB | 4.2% |
+| Full Whisper | 43.37 s | 9.29 GB | 4.9% |
+| Breeze | 90.84 s | 13.09 GB | 12.2% |
+
+The two extra decodes on the clean handoff and on digital silence reproduced each model's original normalized text in all 12 comparisons. For the handoff, full Whisper took 73.18 s on first use and 11.97 / 11.89 s on replay. Breeze took 83.98 s and 20.31 / 21.00 s. Turbo Q4 took 7.24 s and 7.08 / 7.15 s. The first two were the first uses of their respective freshly provisioned Python environments. A Swift build briefly overlapped the start of that first pipeline, and model cache preparation overlapped part of it. Treat its elapsed time as a cold observation.
+
+Across all seven inputs, Who took 4.15 s total and peaked at 0.28 GB. Sortformer took 265.50 s and peaked at 0.86 GB. Who merged two voices in the clean four-person run and split the one voice in the holdout. Sortformer recovered four and one labels respectively. On the overlap mix both produced four labels, with markedly different speaker-time error.
+
+### Silence and pauses
+
+On 12 s of digital silence, full Whisper emitted 20 normalized characters, Turbo Q4 emitted 35 and Breeze emitted zero. Both diarizers reported zero speaker-seconds. CER is undefined for this input. A five-second exact-zero gate returned empty text for all three without invoking a model. Five speech recordings passed through byte-for-byte, with no inference repeated for them.
+
+Only stocktake contained a qualifying internal gap. Splitting it into two chunks reduced full Whisper from 48 to 18 edits (41.4% to 15.5%) and Turbo Q4 from 48 to 21 (41.4% to 18.1%). Breeze went from 17 to 25 (14.7% to 21.6%). Split times were 12.71, 6.87 and 14.03 s for full Whisper, Turbo Q4 and Breeze respectively. These sum chunk process time and in-process scan/write time. Full Whisper and Turbo placed zero word midpoints in the long gap before splitting, Breeze placed three. All three placed one midpoint inside its edge after restoring timestamps. A midpoint in a gap can be a timestamp error. Exact-zero detection does not cover pauses with room noise. This exploratory result needs another sparse recording.
+
+### Speaker turn order and delivered text
+
+The review skill validated six sealed synthetic datasets. All 72 attachments and 12 raw diarizer outputs were scored, with no registration failures or excluded clips. Each speech case used about 30-second windows and its own fitted one-to-one label map. Metric scores count recovered turns in sequence and wholly correct clips. Adjacent same-speaker intervals collapse, so the six stocktake utterances yield two reference turns across two clips.
+
+On planning, raw Sortformer recovered 67/72 turns and 7/10 complete clips, compared with Who at 64/72 and 6/10. Whisper plus Sortformer recovered 66 turns with word attachment, 65 with segment attachment and 63 with line-end lookup. On overlapping logistics, Whisper plus Who recovered 14/14 with words and 11/14 with either coarser method. The full results include counterexamples where segment attachment won. Word overlap remains the useful general setting.
 
 ### Alternative diarizers
 
@@ -104,3 +141,15 @@ The four handoff checks and five logistics checks were fixed before inference. A
 | Logistics, interpreter budget remains open | Partial. An open budget survived, its subject changed | Pass |
 
 Four of nine checks passed in full from the pipeline transcript and nine of nine from the exact script. The notes can satisfy a targeted check and still introduce an error elsewhere in that item. In a separate audit of non-topic items, two handoff action rows and three logistics rows contained unsupported or garbled details. Neither exact-input recap contained those factual substitutions. Both input conditions still put a rejected or superseded option in the undecided-proposals section of each meeting. The exact-input handoff also listed two already-answered formulations as open while its topics correctly identified the underlying uncertainty. These judgments concern two fictional meetings and a single unblinded reader.
+
+### Fast saved-audio pipeline
+
+The ordinary `run --asr turbo-q4 --diarizer who` command produced a labeled transcript and a Qwen recap for both clean new scripts. On the handoff it took 47.05 s end to end, with 7.13 s in ASR, 1.31 s in diarization and 38.50 s in the recap. On logistics it took 44.00 s, with 6.23 s in ASR, 0.37 s in diarization and 37.29 s in the recap. The peak stage footprints were 6.74 and 6.72 GB. The full Whisper / Sortformer totals were 150.23 and 71.19 s respectively. The first handoff timing includes the cold start described above.
+
+On handoff, the fast pipeline correctly attributed 205/209 aligned characters, versus 202/209 for the baseline. On logistics it correctly attributed 134/172, versus 144/167. In both fast recaps, the same four of nine checks passed in full. The handoff captured the log deadline, but the destination and the rollback term remained corrupted. On logistics, Who merged B and D. The sign-count owner could not be distinguished from the map owner, while the projector assignment and the venue decision survived. The notes also reopened the already-settled entrance question. Readable formatting and valid timestamps did not guarantee factual correctness.
+
+## Decision and limits
+
+Offer Turbo Q4 as the fast ASR option on this Mac. Pair it with Sortformer for four-speaker work where keeping people distinct matters, or use Who when diarization latency matters more. The collection supports keeping word-level overlap attachment. Use exact-zero splitting as an experimental diagnostic for sparse recordings. The clean-source recap controls show that improving text and speaker labeling can recover missed assignments, while proposal and open-question classification still need separate evaluation.
+
+The seven recordings comprise four independent scripts, generated with four preset voices. A script is a reference for intended speech, so TTS pronunciation differences can also count as recognition errors. Counts and peak footprints describe this machine, model revisions and recording lengths. Private meetings, background conversation, voices sharing a room and calls beyond four people need independent evidence. Default pipeline settings remain as in decision 7.

@@ -67,6 +67,7 @@ uv run --project experiments/pipelines/whisper-sortformer experiments/pipelines/
 - `setup` downloads the two pinned Hugging Face snapshots (Whisper about 3 GB, Qwen about 5.6 GB) to the Hugging Face cache. It also runs Sortformer once on generated silence, so FluidAudio downloads its models to `~/Library/Application Support/FluidAudio/Models`.
 - `ffmpeg` and `ffprobe` must be on `PATH` (`brew install ffmpeg`).
 - For `--diarizer who`, run `setup --who` as well. It downloads Who's int8 weights (44 MB) to `~/Library/Application Support/meeting-recap/who`, or to `$WHO_MODELS` if set.
+- **Weight digests:** FluidAudio fetches Sortformer's weights from its model repo's `main` branch, not a fixed revision. So `setup` hashes every downloaded diarizer file and refuses weights whose SHA-256 differs from `pins.py`. If it refuses after a fresh download, the upstream weights changed and the baseline below no longer applies to them.
 
 ## Run (offline)
 
@@ -76,7 +77,7 @@ uv run --project experiments/pipelines/whisper-sortformer experiments/pipelines/
 
 - **Input:** any file ffmpeg reads.
 - **Output folder:** must be new or empty, and outside this Git checkout. An existing run is never replaced.
-- **Offline:** both Python model stages run with `HF_HUB_OFFLINE=1`, so they fail rather than download a different revision. Sortformer loads FluidAudio's cached models.
+- **Offline:** both Python model stages run with `HF_HUB_OFFLINE=1`, so they fail rather than download a different revision. Sortformer loads FluidAudio's cached models. Before any stage runs, `run` checks the chosen diarizer's weights against their pinned SHA-256 (about 0.2 s), and refuses on a mismatch.
 - **Order:** stages run one after another. Each model runs in its own process, so its memory is freed before the next model loads.
 - **`--no-summary`:** stops after the transcript.
 - **`--diarizer who`:** uses Desert Ant Labs Who (int8) instead of Sortformer. It labels speakers in seconds instead of minutes. It refuses to run when its weights are missing rather than downloading them. Each load sends the SDK's licence check (an install ID, versions and platform, no audio) to `events.desertant.com`; the Who experiment ([#25](https://github.com/pomodorozhong/meeting-recap/pull/25)) found inference still works when that server is unreachable. Its licence is source-available. Sortformer stays the default until #25's long-call scores are in. A resumed run must use the diarizer it started with.
@@ -90,7 +91,7 @@ uv run --project experiments/pipelines/whisper-sortformer experiments/pipelines/
 | `transcript` | `transcript.md` | Speaker names applied, OpenCC `s2tw` to Traditional characters, one `**[HH:MM:SS] Name:**` paragraph per turn |
 | `summary` | `summary.json`, `summary.md` | Qwen3.5 9B through `mlx-lm`, described below |
 
-`run.json` records the input's name and SHA-256, the code commit, the pinned models and the machine. `stages.json` records each stage's status, wall time, peak memory and output digests, or its error. `logs/` holds each process's output and `/usr/bin/time -l` report.
+`run.json` records the input's name and SHA-256, the code commit, the pinned models and the diarizer weights' SHA-256. It also records the environment: macOS, Mac model, chip, memory, and the Python, MLX, `mlx-whisper`, `mlx-lm`, Swift and ffmpeg versions. `stages.json` records each stage's status, wall time, peak memory and output digests, or its error. `logs/` holds each process's output and `/usr/bin/time -l` report.
 
 ### Names and merging speakers
 
@@ -142,14 +143,11 @@ Neither of the last two counts Metal buffers fully. For an MLX model they can sh
 
 ## Pins
 
-| Part | Pin |
-| --- | --- |
-| Whisper | [`mlx-community/whisper-large-v3-mlx`](https://huggingface.co/mlx-community/whisper-large-v3-mlx) at `49e6aa286ad60c14352c404340ded53710378a11`, through `mlx-whisper` 0.4.2 |
-| Sortformer | FluidAudio `ea500621819cadc46d6212af44624f2b45ab3240` (`Package.swift`, `Package.resolved`); model `Sortformer_v2.1.mlmodelc` as in [docs/runners.md](../../../docs/runners.md) |
-| Who (optional) | `desert-ant-core` `1a5efed67f44731b5eb5433aa9be3eebae05e269` (tag `v4.2.1`), which pins the weights `desert-ant-labs/who` `v0.3.4`, Core ML int8; Desert Ant Labs Source-Available License |
-| Recap | [`mlx-community/Qwen3.5-9B-4bit`](https://huggingface.co/mlx-community/Qwen3.5-9B-4bit) at `8b2b98c00a6b4d291155e4890773ca8f769aee53` (Apache-2.0), through `mlx-lm` 0.32.2 |
-| Python packages | `uv.lock` |
-| Script conversion | `opencc-python-reimplemented` 0.1.7, `s2tw` |
+Each pin is written down once:
+
+- **Model revisions and weight digests:** [`pins.py`](pins.py) holds the Whisper and Qwen Hugging Face revisions and the SHA-256 of the Sortformer and Who weight folders. Whisper runs through `mlx-whisper` and the recap through `mlx-lm`. Licences: Qwen3.5 is Apache-2.0, and Who is under the Desert Ant Labs Source-Available License.
+- **Swift packages:** [`Package.resolved`](Package.resolved) holds the FluidAudio and `desert-ant-core` revisions. `pins.py` reads them from there, and a test checks that `Package.swift` asks for the same ones. The `desert-ant-core` revision is tag `v4.2.1`, which names the Who weights `desert-ant-labs/who` `v0.3.4`, Core ML int8. Sortformer's model is `Sortformer_v2.1.mlmodelc`, as in [docs/runners.md](../../../docs/runners.md).
+- **Python packages and interpreter:** [`uv.lock`](uv.lock) and [`.python-version`](.python-version). Script conversion uses `opencc-python-reimplemented`'s `s2tw`.
 
 Python dependencies are in this folder's uv project. Rerun `uv lock` here after changing them.
 

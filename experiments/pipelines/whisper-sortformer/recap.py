@@ -73,6 +73,34 @@ def git_commit():
         return "unknown"
 
 
+def first_line(argv):
+    """The first output line of a version or sysctl command, or "unknown" when it can't run."""
+    try:
+        result = subprocess.run(argv, capture_output=True, text=True, check=True)
+        return (result.stdout or result.stderr).strip().splitlines()[0]
+    except (OSError, subprocess.CalledProcessError, IndexError):
+        return "unknown"
+
+
+def environment():
+    """The tool versions and hardware a run's numbers depend on."""
+    from importlib import metadata
+
+    def package(name):
+        try:
+            return metadata.version(name)
+        except metadata.PackageNotFoundError:
+            return "unknown"
+
+    memory = first_line(["sysctl", "-n", "hw.memsize"])
+    return {"macos": platform.mac_ver()[0] or "unknown", "mac_model": first_line(["sysctl", "-n", "hw.model"]),
+            "chip": first_line(["sysctl", "-n", "machdep.cpu.brand_string"]),
+            "memory_gb": round(int(memory) / 2**30) if memory.isdigit() else "unknown",
+            "python": platform.python_version(),
+            "mlx": package("mlx"), "mlx_whisper": package("mlx-whisper"), "mlx_lm": package("mlx-lm"),
+            "swift": first_line(["swift", "--version"]), "ffmpeg": first_line(["ffmpeg", "-version"])}
+
+
 def parse_time(path):
     """Wall time, peak RSS and peak memory footprint from `/usr/bin/time -l -o`."""
     text = Path(path).read_text()
@@ -141,7 +169,7 @@ class Run:
         print(f"[{name}] completed in {record['seconds']:.1f} s", flush=True)
 
 
-def prepare(audio, out, resume, diarizer="sortformer"):
+def prepare(audio, out, resume, diarizer="sortformer", weights_sha256=None):
     audio, out = Path(audio).resolve(), Path(out).resolve()
     if not audio.is_file():
         raise ValueError(f"{audio} is not a file")
@@ -166,9 +194,10 @@ def prepare(audio, out, resume, diarizer="sortformer"):
         "pipeline": "whisper-sortformer", "code_commit": git_commit(), "created_at": now(),
         "input_name": audio.name, "input_sha256": digest, "diarizer": diarizer,
         "models": {"asr": f"{pins.WHISPER_REPO}@{pins.WHISPER_REVISION}",
-                   "diarization": DIARIZERS[diarizer],
+                   "diarization": DIARIZERS[diarizer], "diarization_weights_sha256": weights_sha256,
                    "summary": f"{pins.SUMMARY_REPO}@{pins.SUMMARY_REVISION}"},
-        "machine": {"platform": platform.platform(), "processor": platform.processor()}})
+        "machine": {"platform": platform.platform(), "processor": platform.processor()},
+        "environment": environment()})
     return audio, out
 
 
@@ -274,7 +303,10 @@ def summary(out, replace=False):
 
 
 def run(args):
-    audio, out = prepare(args.audio, args.out, args.resume, args.diarizer)
+    out = Path(args.out).resolve()
+    # Checked before any stage runs, so a changed download fails in seconds rather than after ASR.
+    weights = None if args.resume and Run(out).done("diarize") else pins.check_weights(args.diarizer)
+    audio, out = prepare(args.audio, args.out, args.resume, args.diarizer, weights)
     record = Run(out)
     plan = [("convert", lambda: convert(audio, out), ["audio.wav"]),
             ("asr", lambda: asr(out), ["asr.json"]),
@@ -326,12 +358,14 @@ def setup(args):
                        capture_output=True, check=True)
         if not result.exists():
             raise ValueError("Sortformer could not run; check the network and FluidAudio's model download")
+    print(f"Sortformer weights: {pins.check_weights('sortformer')}")
     if args.who:
         if not pins.WHO_CLI.exists():
             raise ValueError("build Who first: swift build -c release --product who-diarize")
         models = pins.who_models()
         models.mkdir(parents=True, exist_ok=True)
         subprocess.run([str(pins.WHO_CLI), "-", "-", str(models), "--download"], check=True)
+        print(f"Who weights: {pins.check_weights('who')}")
     print("setup complete; `run` now works offline")
 
 

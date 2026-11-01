@@ -162,9 +162,15 @@ class Runs(unittest.TestCase):
         (out / "diarization.json").write_text(json.dumps(pipeline.sortformer_segments(SORTFORMER)))
         return {}
 
+    def fake_check_weights(self, diarizer):
+        if "weights" in self.failing:
+            raise ValueError(f"the {diarizer} weights have SHA-256 other, not the pinned one")
+        return f"{diarizer}-digest"
+
     def main(self, *argv):
         with mock.patch.object(recap, "python_stage", self.fake_python_stage), \
              mock.patch.object(recap, "diarize", self.fake_diarize), \
+             mock.patch.object(recap.pins, "check_weights", self.fake_check_weights), \
              contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
             return recap.main(list(argv))
 
@@ -247,6 +253,24 @@ class Runs(unittest.TestCase):
         self.assertIn("**[00:00:00] Host:** 我們週五 demo好的", text)
         self.assertNotIn("Speaker A", text)
 
+    def test_run_json_records_the_weights_and_environment(self):
+        self.assertEqual(self.main("run", str(self.audio), str(self.out), "--no-summary"), 0)
+        manifest = json.loads((self.out / "run.json").read_text())
+        self.assertEqual(manifest["models"]["diarization_weights_sha256"], "sortformer-digest")
+        for key in ("macos", "mac_model", "chip", "memory_gb", "python", "mlx", "swift", "ffmpeg"):
+            self.assertIn(key, manifest["environment"])
+
+    def test_changed_weights_are_refused_before_any_stage(self):
+        self.failing = {"weights"}
+        self.assertEqual(self.main("run", str(self.audio), str(self.out)), 1)
+        self.assertFalse(self.out.exists())
+
+    def test_resume_after_diarize_skips_the_weights_check(self):
+        self.failing = {"summary"}
+        self.main("run", str(self.audio), str(self.out))
+        self.failing = {"weights"}
+        self.assertEqual(self.main("run", str(self.audio), str(self.out), "--resume"), 0)
+
     def test_summarize_refuses_to_replace_without_asking(self):
         self.main("run", str(self.audio), str(self.out))
         before = (self.out / "summary.md").read_text()
@@ -254,6 +278,29 @@ class Runs(unittest.TestCase):
         self.assertEqual((self.out / "summary.md").read_text(), before)
         self.assertEqual(self.stages()["summary"]["status"], "completed")
         self.assertEqual(self.main("summarize", str(self.out), "--replace"), 0)
+
+
+class Pins(unittest.TestCase):
+    def test_swift_revisions_come_from_package_resolved_and_match_package_swift(self):
+        manifest = (ROOT / "experiments/pipelines/whisper-sortformer/Package.swift").read_text()
+        for revision in (recap.pins.FLUIDAUDIO_REVISION, recap.pins.WHO_SDK_REVISION):
+            self.assertRegex(revision, r"^[0-9a-f]{40}$")
+            self.assertIn(f'revision: "{revision}"', manifest)
+
+    def test_weights_are_checked_by_digest(self):
+        with tempfile.TemporaryDirectory() as directory:
+            folder = Path(directory) / "coreml-int8"
+            (folder / "model.mlmodelc").mkdir(parents=True)
+            (folder / "model.mlmodelc" / "weight.bin").write_bytes(b"weights")
+            digest = recap.pins.tree_sha256(folder)
+            with mock.patch.object(recap.pins, "diarizer_weights", return_value=(folder, digest)):
+                self.assertEqual(recap.pins.check_weights("who"), digest)
+                (folder / "model.mlmodelc" / "weight.bin").write_bytes(b"updated")
+                with self.assertRaisesRegex(ValueError, "not the pinned"):
+                    recap.pins.check_weights("who")
+            with mock.patch.object(recap.pins, "diarizer_weights", return_value=(Path(directory) / "none", digest)):
+                with self.assertRaisesRegex(ValueError, "setup --who"):
+                    recap.pins.check_weights("who")
 
 
 if __name__ == "__main__":

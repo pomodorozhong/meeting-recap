@@ -2,6 +2,17 @@
 
 ## In progress
 
+### feat/pipeline-baseline
+
+- Task: make the synthetic-call baseline in #29's README reproducible, as the user asked: the speaker scoring script and saved run outputs, kept out of #29. Related to #28; it closes nothing. Stacked on `feat/saved-audio-pipeline` (PR #29). Unlinked.
+- Code checkpoint: the baseline commit plus this handoff commit, pushed. No PR yet.
+- State: `score_speakers.py` (with tests) recomputes 98.2%/95.1% (Sortformer) and 98.5%/95.8% (Who). `baseline/2026-11-01/` holds a second run of each diarizer at `07a547a`, with no audio or local paths. It reproduced the first runs' Whisper output, Sortformer segments and recaps exactly.
+- Verification: 26 pipeline tests pass; both saved runs score as documented.
+- Next action:
+  1. Resolve P-01.
+  2. The other reproducibility fixes belong on #29's branch and wait for the user: checking model-weight hashes, recording tool versions in `run.json`, `.python-version`, and removing the duplicated pins.
+- P-01 — Awaiting approval of this branch's PR title and body before opening it against `feat/saved-audio-pipeline`.
+
 ### feat/saved-audio-pipeline
 
 - Task: #28, the first saved-audio to Markdown pipeline. Plan approved 2026-11-01, using Qwen3.5 9B through MLX for the recap and never Ollama: if MLX breaks, stop and ask. The private-recording trial goes in a later PR. The branch is unlinked; PR [#29](https://github.com/pomodorozhong/meeting-recap/pull/29) (ready, open) says `Related to #28`; its body was updated on 2026-11-01 with the user's approval to cover the Who option.

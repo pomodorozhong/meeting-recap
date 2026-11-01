@@ -19,3 +19,7 @@ Run locally in serial on the M2 Pro / 16 GB. Record wall time and peak process f
 ## Reproduce
 
 Build the action scripts using the synthetic-call generator, run the two-by-two matrix and replay its verdicts. Commands and measured outcomes follow after execution.
+
+### Registered speaker-label diagnostic
+
+The main exact/audio contrast changes both words and speakers. Add a focused-only replay for all ten calls that keeps every recovered line's wording, timestamp and boundary fixed. Replace its displayed speaker with the script speaker with the greatest time overlap with that ASR turn (unknown for no overlap). Run the identical focused prompt, then score identically with script identities. This tests line-level attribution without using the action key. A mixed-speaker line or incorrect ASR timing can still defeat the repair. Keep this diagnostic separate from the four primary cells.

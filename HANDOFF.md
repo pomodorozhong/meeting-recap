@@ -2,6 +2,20 @@
 
 ## In progress
 
+### feat/recap-accuracy
+
+- Task: measure and improve the pipeline's recap accuracy, as the user asked after #29 opened. Related to #28; it closes nothing. Stacked on `feat/saved-audio-pipeline` (PR #29), so its PR targets that branch until #29 merges. Unlinked.
+- Code checkpoint: the variant-results commit plus this handoff commit, pushed. No PR yet.
+- State:
+  - `experiments/recap-accuracy/` holds a 24-item answer key written from the synthetic script, `score.py`, hand verdicts and every scored recap. `docs/experiments/2026-11-01-recap-accuracy-synthetic.md` has the plan and results.
+  - v0 (current prompt): a recap of the perfect script found 21/24 items but listed answered questions as open; the pipeline recaps found 13 and 20.
+  - v1 (stricter rules) cut wrong items 24→7 over four inputs but failed the committed rule (67 vs 69 found, swing 7 vs 6). v2's check pass returned v1's draft unchanged. The default stays v0; the variants stay in `pipeline.py`.
+- Verification: 24 pipeline tests pass; `score.py` reproduces every table in the summary.
+- Next action:
+  1. Resolve P-01.
+  2. The user chooses the next summary round: a v3 fixing v1's open-question and deadline losses (planned and committed first, same rule), sampling several recaps and keeping agreed items, or a different local model.
+- P-01 — Awaiting approval of this branch's PR title and body before opening it against `feat/saved-audio-pipeline`.
+
 ### feat/saved-audio-pipeline
 
 - Task: #28, the first saved-audio to Markdown pipeline. Plan approved 2026-11-01, using Qwen3.5 9B through MLX for the recap and never Ollama: if MLX breaks, stop and ask. The private-recording trial goes in a later PR. The branch is unlinked; PR [#29](https://github.com/pomodorozhong/meeting-recap/pull/29) (ready, open) says `Related to #28`; its body was updated on 2026-11-01 with the user's approval to cover the Who option.

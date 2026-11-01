@@ -1,0 +1,71 @@
+{
+ "convert": {
+  "status": "completed",
+  "started_at": "2026-11-01T03:14:15+00:00",
+  "seconds": 0.12,
+  "wall_seconds": 0.11,
+  "max_rss_bytes": 16777216,
+  "peak_footprint_bytes": 3998200,
+  "outputs": {
+   "audio.wav": "a09e594ec487beb586103d490f34a4a02b69f3270f1a8a4012c267539cd094fa"
+  }
+ },
+ "asr": {
+  "status": "completed",
+  "started_at": "2026-11-01T03:14:15+00:00",
+  "seconds": 49.37,
+  "wall_seconds": 49.34,
+  "max_rss_bytes": 1022459904,
+  "peak_footprint_bytes": 9289207720,
+  "mlx_peak_bytes": 3961759786,
+  "outputs": {
+   "asr.json": "53573fe2ea53b2aa7272d1c9752364afe516a63aa8855cf07f06013ff5a3cd42"
+  }
+ },
+ "diarize": {
+  "status": "completed",
+  "started_at": "2026-11-01T03:15:04+00:00",
+  "seconds": 138.07,
+  "wall_seconds": 138.06,
+  "max_rss_bytes": 1037303808,
+  "peak_footprint_bytes": 767821192,
+  "outputs": {
+   "sortformer.raw.json": "915d01d4e7cad8620c51b4b12915818abcb266b5db1cd66b7aacfd333f358fd5",
+   "diarization.json": "741d106fcb037a73690bc3e6681971ff9af7f73ca21c7a8b212be8ba44258fb9"
+  }
+ },
+ "attach": {
+  "status": "completed",
+  "started_at": "2026-11-01T03:17:22+00:00",
+  "seconds": 0.02,
+  "outputs": {
+   "turns.json": "310620f7ac0ac9991674d6016abb7d0310f513b1c4961eb24942ffa56d786ace",
+   "speakers.json": "aad38dc244285e4577b4aa41afd03d84480d00d4be01b6e67f61f0a9abaefcf9"
+  }
+ },
+ "transcript": {
+  "status": "completed",
+  "started_at": "2026-11-01T03:17:22+00:00",
+  "seconds": 0.08,
+  "outputs": {
+   "transcript.md": "a058f2bc142086f22d0b279b63ab07e8bb8dbdee55b8965cd693ae24a746f822"
+  }
+ },
+ "summary": {
+  "status": "completed",
+  "started_at": "2026-11-01T03:17:22+00:00",
+  "seconds": 104.42,
+  "wall_seconds": 104.39,
+  "max_rss_bytes": 3160129536,
+  "peak_footprint_bytes": 7559074688,
+  "mlx_peak_bytes": 6708136718,
+  "outputs": {
+   "summary.json": "856f665acf8f2192afe9be94a8558a65b7ecfdbd2d1eb59dfe6e7d4d59268f65",
+   "summary.md": "981bbbcadca457bbb147f46e974ab0d037d1afb5753f562700ecca5bd9404555"
+  }
+ },
+ "total": {
+  "seconds": 292.1,
+  "note": "this invocation only; stages skipped by --resume add nothing"
+ }
+}

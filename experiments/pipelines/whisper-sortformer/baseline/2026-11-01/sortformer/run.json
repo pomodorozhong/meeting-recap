@@ -1,0 +1,17 @@
+{
+ "pipeline": "whisper-sortformer",
+ "code_commit": "07a547ad5cde82c40ef44f1c8b81fb2b0c6ca094",
+ "created_at": "2026-11-01T03:14:14+00:00",
+ "input_name": "call.wav",
+ "input_sha256": "6b7011c6057821e04fe1b3cd78659297218e83d0ed899496e769eb4992a25d48",
+ "diarizer": "sortformer",
+ "models": {
+  "asr": "mlx-community/whisper-large-v3-mlx@49e6aa286ad60c14352c404340ded53710378a11",
+  "diarization": "FluidAudio Sortformer, fluidaudiocli@ea500621819cadc46d6212af44624f2b45ab3240",
+  "summary": "mlx-community/Qwen3.5-9B-4bit@8b2b98c00a6b4d291155e4890773ca8f769aee53"
+ },
+ "machine": {
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "processor": "arm"
+ }
+}

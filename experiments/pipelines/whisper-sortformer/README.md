@@ -165,6 +165,8 @@ uv run --project experiments/pipelines/whisper-sortformer python -m unittest dis
 
 The [synthetic call](../../synthetic-call/README.md) (seed 7, 5:29, three speakers, 73 turns) ran through every stage with `run`, on an M2 Pro with 16 GB of memory running macOS 26.6.2. Nothing else heavy was running.
 
+**Reproduce:** [`baseline/2026-11-01/`](baseline/2026-11-01/README.md) holds the saved outputs of a second run with each diarizer at a recorded commit, with the exact environment. `score_speakers.py` recomputes the speaker agreement figures below from them. The second run reproduced the first's transcripts, speaker segments and recaps, and its stage times came within 6% (Who's 2-second diarize step aside).
+
 ### Time and memory
 
 | Stage | Wall time | × audio length | Peak memory |
@@ -194,7 +196,7 @@ With Who, Whisper and the summary model are the slow stages. An hour-long call w
 
 | Measure | Result | How |
 | --- | --- | --- |
-| Speaker agreement, diarization alone | 98.2% of characters | Each Whisper word's time is checked against the known turns, with the best label mapping |
+| Speaker agreement, diarization alone | 98.2% of characters | Each Whisper word's time is checked against the known turns, with the best label mapping (`score_speakers.py`) |
 | Speaker agreement, in the transcript | 95.1% of 1,317 aligned characters | Transcript characters are aligned to the script's text (OpenCC `t2s`, punctuation dropped), so text Whisper placed in the wrong turn counts as an error |
 | Script characters recovered | 1,317 of 1,377 aligned | Same alignment; the rest are ASR errors |
 | Labels | 4, for 3 speakers | The fourth holds 2 characters; renaming it in `speakers.json` merges it |

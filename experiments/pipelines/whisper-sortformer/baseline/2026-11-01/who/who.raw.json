@@ -1,0 +1,522 @@
+{
+  "diarize_seconds" : 0.74115502834320068,
+  "duration_seconds" : 329.88,
+  "load_seconds" : 0.32607698440551758,
+  "model" : "desert-ant-labs\/who",
+  "model_revision" : "v0.3.4",
+  "sdk_version" : "4.2.1",
+  "segments" : [
+    {
+      "end_seconds" : 2.6899999999999999,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 0.42999999999999999
+    },
+    {
+      "end_seconds" : 3.7599999999999998,
+      "speaker_id" : "Who_1",
+      "start_seconds" : 3.1000000000000001
+    },
+    {
+      "end_seconds" : 6.4199999999999999,
+      "speaker_id" : "Who_2",
+      "start_seconds" : 4.0099999999999998
+    },
+    {
+      "end_seconds" : 19.59,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 6.9199999999999999
+    },
+    {
+      "end_seconds" : 16.129999999999999,
+      "speaker_id" : "Who_1",
+      "start_seconds" : 15.99
+    },
+    {
+      "end_seconds" : 19.609999999999999,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 19.600000000000001
+    },
+    {
+      "end_seconds" : 19.639999999999997,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 19.629999999999999
+    },
+    {
+      "end_seconds" : 19.669999999999998,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 19.650000000000002
+    },
+    {
+      "end_seconds" : 19.719999999999999,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 19.68
+    },
+    {
+      "end_seconds" : 23.629999999999999,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 19.73
+    },
+    {
+      "end_seconds" : 31.98,
+      "speaker_id" : "Who_2",
+      "start_seconds" : 23.960000000000001
+    },
+    {
+      "end_seconds" : 34.460000000000008,
+      "speaker_id" : "Who_1",
+      "start_seconds" : 32.240000000000002
+    },
+    {
+      "end_seconds" : 39.580000000000005,
+      "speaker_id" : "Who_2",
+      "start_seconds" : 34.75
+    },
+    {
+      "end_seconds" : 40.480000000000004,
+      "speaker_id" : "Who_1",
+      "start_seconds" : 39.719999999999999
+    },
+    {
+      "end_seconds" : 46.240000000000009,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 40.800000000000004
+    },
+    {
+      "end_seconds" : 55.420000000000009,
+      "speaker_id" : "Who_2",
+      "start_seconds" : 46.530000000000001
+    },
+    {
+      "end_seconds" : 59.430000000000007,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 55.630000000000003
+    },
+    {
+      "end_seconds" : 62.760000000000005,
+      "speaker_id" : "Who_2",
+      "start_seconds" : 59.68
+    },
+    {
+      "end_seconds" : 69.459999999999994,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 63.130000000000003
+    },
+    {
+      "end_seconds" : 69.489999999999995,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 69.480000000000004
+    },
+    {
+      "end_seconds" : 69.509999999999991,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 69.5
+    },
+    {
+      "end_seconds" : 69.629999999999995,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 69.579999999999998
+    },
+    {
+      "end_seconds" : 69.72999999999999,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 69.680000000000007
+    },
+    {
+      "end_seconds" : 69.809999999999988,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 69.780000000000001
+    },
+    {
+      "end_seconds" : 70.379999999999995,
+      "speaker_id" : "Who_1",
+      "start_seconds" : 69.820000000000007
+    },
+    {
+      "end_seconds" : 72.179999999999993,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 70.040000000000006
+    },
+    {
+      "end_seconds" : 70.489999999999995,
+      "speaker_id" : "Who_1",
+      "start_seconds" : 70.480000000000004
+    },
+    {
+      "end_seconds" : 85.759999999999991,
+      "speaker_id" : "Who_1",
+      "start_seconds" : 72.439999999999998
+    },
+    {
+      "end_seconds" : 88.359999999999999,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 86.129999999999995
+    },
+    {
+      "end_seconds" : 92.329999999999998,
+      "speaker_id" : "Who_1",
+      "start_seconds" : 88.629999999999995
+    },
+    {
+      "end_seconds" : 95.679999999999993,
+      "speaker_id" : "Who_2",
+      "start_seconds" : 92.680000000000007
+    },
+    {
+      "end_seconds" : 101.27999999999999,
+      "speaker_id" : "Who_1",
+      "start_seconds" : 95.960000000000008
+    },
+    {
+      "end_seconds" : 102.83,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 102.01000000000001
+    },
+    {
+      "end_seconds" : 103.63,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 103.62
+    },
+    {
+      "end_seconds" : 103.66,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 103.65000000000001
+    },
+    {
+      "end_seconds" : 107.97999999999999,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 103.69
+    },
+    {
+      "end_seconds" : 115.38,
+      "speaker_id" : "Who_1",
+      "start_seconds" : 108.67
+    },
+    {
+      "end_seconds" : 116.61,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 115.57000000000001
+    },
+    {
+      "end_seconds" : 117.47999999999999,
+      "speaker_id" : "Who_2",
+      "start_seconds" : 117.05
+    },
+    {
+      "end_seconds" : 119.64999999999999,
+      "speaker_id" : "Who_2",
+      "start_seconds" : 118.02
+    },
+    {
+      "end_seconds" : 121.66999999999999,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 119.95
+    },
+    {
+      "end_seconds" : 130.90000000000001,
+      "speaker_id" : "Who_2",
+      "start_seconds" : 121.96000000000001
+    },
+    {
+      "end_seconds" : 133.81,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 131.25999999999999
+    },
+    {
+      "end_seconds" : 137.22999999999999,
+      "speaker_id" : "Who_1",
+      "start_seconds" : 134.09999999999999
+    },
+    {
+      "end_seconds" : 143.75999999999999,
+      "speaker_id" : "Who_2",
+      "start_seconds" : 137.53999999999999
+    },
+    {
+      "end_seconds" : 145.03999999999999,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 144.18000000000001
+    },
+    {
+      "end_seconds" : 145.06999999999999,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 145.05000000000001
+    },
+    {
+      "end_seconds" : 148.19,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 145.28
+    },
+    {
+      "end_seconds" : 153.57999999999998,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 148.22999999999999
+    },
+    {
+      "end_seconds" : 156.59999999999999,
+      "speaker_id" : "Who_1",
+      "start_seconds" : 153.75
+    },
+    {
+      "end_seconds" : 160.53,
+      "speaker_id" : "Who_2",
+      "start_seconds" : 156.84999999999999
+    },
+    {
+      "end_seconds" : 162.44999999999999,
+      "speaker_id" : "Who_1",
+      "start_seconds" : 160.72
+    },
+    {
+      "end_seconds" : 166.32999999999998,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 162.93000000000001
+    },
+    {
+      "end_seconds" : 171.94999999999999,
+      "speaker_id" : "Who_2",
+      "start_seconds" : 166.68000000000001
+    },
+    {
+      "end_seconds" : 173.88,
+      "speaker_id" : "Who_1",
+      "start_seconds" : 172.19
+    },
+    {
+      "end_seconds" : 181.19,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 174.19
+    },
+    {
+      "end_seconds" : 190,
+      "speaker_id" : "Who_2",
+      "start_seconds" : 181.77000000000001
+    },
+    {
+      "end_seconds" : 195.22999999999999,
+      "speaker_id" : "Who_1",
+      "start_seconds" : 190.33000000000001
+    },
+    {
+      "end_seconds" : 196.53,
+      "speaker_id" : "Who_2",
+      "start_seconds" : 195.48000000000002
+    },
+    {
+      "end_seconds" : 197.88,
+      "speaker_id" : "Who_2",
+      "start_seconds" : 196.75999999999999
+    },
+    {
+      "end_seconds" : 204.03,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 198.33000000000001
+    },
+    {
+      "end_seconds" : 214.71000000000001,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 205.18000000000001
+    },
+    {
+      "end_seconds" : 217.53,
+      "speaker_id" : "Who_2",
+      "start_seconds" : 214.94
+    },
+    {
+      "end_seconds" : 222.38999999999999,
+      "speaker_id" : "Who_1",
+      "start_seconds" : 217.78999999999999
+    },
+    {
+      "end_seconds" : 227.85999999999999,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 222.98000000000002
+    },
+    {
+      "end_seconds" : 233.37,
+      "speaker_id" : "Who_1",
+      "start_seconds" : 228.13
+    },
+    {
+      "end_seconds" : 239.44,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 233.62
+    },
+    {
+      "end_seconds" : 246.13,
+      "speaker_id" : "Who_2",
+      "start_seconds" : 239.75999999999999
+    },
+    {
+      "end_seconds" : 246.93000000000001,
+      "speaker_id" : "Who_1",
+      "start_seconds" : 246.53
+    },
+    {
+      "end_seconds" : 252.65000000000001,
+      "speaker_id" : "Who_1",
+      "start_seconds" : 247.34
+    },
+    {
+      "end_seconds" : 255.68000000000001,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 252.94
+    },
+    {
+      "end_seconds" : 257.15999999999997,
+      "speaker_id" : "Who_1",
+      "start_seconds" : 255.87
+    },
+    {
+      "end_seconds" : 260.13999999999999,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 257.89999999999998
+    },
+    {
+      "end_seconds" : 260.17000000000002,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 260.14999999999998
+    },
+    {
+      "end_seconds" : 260.19,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 260.18000000000001
+    },
+    {
+      "end_seconds" : 260.26999999999998,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 260.23000000000002
+    },
+    {
+      "end_seconds" : 266.56,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 260.28000000000003
+    },
+    {
+      "end_seconds" : 268.43000000000001,
+      "speaker_id" : "Who_2",
+      "start_seconds" : 266.88
+    },
+    {
+      "end_seconds" : 270.81,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 269.07999999999998
+    },
+    {
+      "end_seconds" : 270.83999999999997,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 270.82999999999998
+    },
+    {
+      "end_seconds" : 270.86000000000001,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 270.85000000000002
+    },
+    {
+      "end_seconds" : 271.08999999999997,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 271.07999999999998
+    },
+    {
+      "end_seconds" : 271.11000000000001,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 271.10000000000002
+    },
+    {
+      "end_seconds" : 273.63999999999999,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 271.12
+    },
+    {
+      "end_seconds" : 280.63,
+      "speaker_id" : "Who_1",
+      "start_seconds" : 274.01999999999998
+    },
+    {
+      "end_seconds" : 285.23000000000002,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 280.91000000000003
+    },
+    {
+      "end_seconds" : 286.04000000000002,
+      "speaker_id" : "Who_1",
+      "start_seconds" : 285.32999999999998
+    },
+    {
+      "end_seconds" : 290.31,
+      "speaker_id" : "Who_2",
+      "start_seconds" : 286.48000000000002
+    },
+    {
+      "end_seconds" : 293.38999999999999,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 290.65000000000003
+    },
+    {
+      "end_seconds" : 298.11000000000001,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 294.25
+    },
+    {
+      "end_seconds" : 300.27999999999997,
+      "speaker_id" : "Who_2",
+      "start_seconds" : 298.56
+    },
+    {
+      "end_seconds" : 305.44999999999999,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 300.81
+    },
+    {
+      "end_seconds" : 311.22000000000003,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 305.45999999999998
+    },
+    {
+      "end_seconds" : 315.66000000000003,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 311.93000000000001
+    },
+    {
+      "end_seconds" : 316.23000000000002,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 315.85000000000002
+    },
+    {
+      "end_seconds" : 317.17000000000002,
+      "speaker_id" : "Who_2",
+      "start_seconds" : 315.86000000000001
+    },
+    {
+      "end_seconds" : 319.77999999999997,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 317.51999999999998
+    },
+    {
+      "end_seconds" : 322.54000000000002,
+      "speaker_id" : "Who_2",
+      "start_seconds" : 320.44999999999999
+    },
+    {
+      "end_seconds" : 325.25,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 322.87
+    },
+    {
+      "end_seconds" : 325.31,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 325.27999999999997
+    },
+    {
+      "end_seconds" : 327.43000000000001,
+      "speaker_id" : "Who_0",
+      "start_seconds" : 325.38
+    },
+    {
+      "end_seconds" : 329.38,
+      "speaker_id" : "Who_2",
+      "start_seconds" : 327.67000000000002
+    }
+  ],
+  "speaker_count" : 3,
+  "variant" : "int8"
+}

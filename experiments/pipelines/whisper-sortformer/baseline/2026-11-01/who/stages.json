@@ -1,0 +1,73 @@
+{
+ "convert": {
+  "status": "completed",
+  "started_at": "2026-11-01T03:19:07+00:00",
+  "seconds": 0.12,
+  "wall_seconds": 0.11,
+  "max_rss_bytes": 16826368,
+  "peak_footprint_bytes": 4047352,
+  "outputs": {
+   "audio.wav": "a09e594ec487beb586103d490f34a4a02b69f3270f1a8a4012c267539cd094fa"
+  }
+ },
+ "asr": {
+  "status": "completed",
+  "started_at": "2026-11-01T03:19:07+00:00",
+  "seconds": 49.41,
+  "wall_seconds": 49.38,
+  "max_rss_bytes": 3480485888,
+  "peak_footprint_bytes": 9281146864,
+  "mlx_peak_bytes": 4055459890,
+  "outputs": {
+   "asr.json": "2b3dc758e2419fbf65c9eb1a75fa25e7c42d50ee4df6f6a0f80bb31a1467b964"
+  }
+ },
+ "diarize": {
+  "status": "completed",
+  "started_at": "2026-11-01T03:19:56+00:00",
+  "seconds": 1.13,
+  "wall_seconds": 1.12,
+  "max_rss_bytes": 341508096,
+  "peak_footprint_bytes": 277791704,
+  "load_seconds": 0.3260769844055176,
+  "diarize_seconds": 0.7411550283432007,
+  "outputs": {
+   "who.raw.json": "52172de63e093fe211580597255594ffe43573c1d22978c2645214a53ab704f3",
+   "diarization.json": "7d39e5bcb541d9dde7d8adb6f82d2ea2a137a4cc2c062db652f9c3f1b03479b0"
+  }
+ },
+ "attach": {
+  "status": "completed",
+  "started_at": "2026-11-01T03:19:57+00:00",
+  "seconds": 0.02,
+  "outputs": {
+   "turns.json": "6c6ee4576bc4abd4370c33c32f300c0a11f91d693e51a09e9914eed5e407c93f",
+   "speakers.json": "734d5d94950de20814baca33a1b97b9390b54c548ea21ef8a86d44c7d819f581"
+  }
+ },
+ "transcript": {
+  "status": "completed",
+  "started_at": "2026-11-01T03:19:58+00:00",
+  "seconds": 0.08,
+  "outputs": {
+   "transcript.md": "57292d68c55921aa577b4d78ba0474c934e62c6a568d20091b810055c370bdb9"
+  }
+ },
+ "summary": {
+  "status": "completed",
+  "started_at": "2026-11-01T03:19:58+00:00",
+  "seconds": 86.59,
+  "wall_seconds": 86.56,
+  "max_rss_bytes": 4127391744,
+  "peak_footprint_bytes": 7560156056,
+  "mlx_peak_bytes": 6708136606,
+  "outputs": {
+   "summary.json": "0a66f826843c1e306395c5d078536431e51a1d8fed05eb1de257b5e6554d2211",
+   "summary.md": "4e72edadd8e623e4a88ef66813aa539c06caea49c91253655a0dd4f9e7616ce2"
+  }
+ },
+ "total": {
+  "seconds": 137.36,
+  "note": "this invocation only; stages skipped by --resume add nothing"
+ }
+}

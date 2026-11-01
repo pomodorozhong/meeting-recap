@@ -1,0 +1,392 @@
+[
+ {
+  "speaker_id": "Who_0",
+  "start_seconds": 0.0,
+  "end_seconds": 2.28,
+  "text": "哈喽,听得到吗?"
+ },
+ {
+  "speaker_id": "Who_1",
+  "start_seconds": 2.64,
+  "end_seconds": 4.1,
+  "text": "听得到可以,"
+ },
+ {
+  "speaker_id": "Who_2",
+  "start_seconds": 4.5,
+  "end_seconds": 7.02,
+  "text": "我这边也OK好,"
+ },
+ {
+  "speaker_id": "Who_0",
+  "start_seconds": 7.3,
+  "end_seconds": 24.08,
+  "text": "那我们开始吧今天主要是看下个Sprint的Backlog然后最后再对一下Demo的实践嗯第一个是Login Page的Bug上周QA有回报,iOS尚会闪退对,"
+ },
+ {
+  "speaker_id": "Who_2",
+  "start_seconds": 24.4,
+  "end_seconds": 32.38,
+  "text": "那个我有看过应该是SDK版本太旧我这个礼拜可以先把它升级升"
+ },
+ {
+  "speaker_id": "Who_1",
+  "start_seconds": 32.38,
+  "end_seconds": 34.92,
+  "text": "级会不会影响到安卓的不会"
+ },
+ {
+  "speaker_id": "Who_2",
+  "start_seconds": 34.92,
+  "end_seconds": 39.46,
+  "text": "安卓的那边是另一个package版本是分开管的"
+ },
+ {
+  "speaker_id": "Who_1",
+  "start_seconds": 39.46,
+  "end_seconds": 40.94,
+  "text": "OK那"
+ },
+ {
+  "speaker_id": "Who_0",
+  "start_seconds": 40.94,
+  "end_seconds": 46.0,
+  "text": "闪退是每次都会发生还是只有某些机型"
+ },
+ {
+  "speaker_id": "Who_2",
+  "start_seconds": 46.0,
+  "end_seconds": 55.72,
+  "text": "目前看起来是够一点的iPhone比较多新的机器我自己擦不太出来了"
+ },
+ {
+  "speaker_id": "Who_0",
+  "start_seconds": 55.72,
+  "end_seconds": 59.22,
+  "text": "解那可以请QA再补一下crash log啊"
+ },
+ {
+  "speaker_id": "Who_2",
+  "start_seconds": 59.22,
+  "end_seconds": 63.3,
+  "text": "可以我等一下就在ticket上面留言好"
+ },
+ {
+  "speaker_id": "Who_0",
+  "start_seconds": 63.96000000000001,
+  "end_seconds": 68.98,
+  "text": "那这一张就先排进来那第二个是dashboard的效能"
+ },
+ {
+  "speaker_id": "Who_1",
+  "start_seconds": 69.46000000000001,
+  "end_seconds": 70.24,
+  "text": "有客户"
+ },
+ {
+  "speaker_id": "Who_0",
+  "start_seconds": 70.24,
+  "end_seconds": 71.88,
+  "text": "说载入要十几秒"
+ },
+ {
+  "speaker_id": "Who_1",
+  "start_seconds": 72.34,
+  "end_seconds": 85.6,
+  "text": "我觉得是API一次漏太多资料可以改成粪页或是加一层快取对对对而且前端现在是一进来就把所有图表都画出来其实很多是使用者根本不会看的"
+ },
+ {
+  "speaker_id": "Who_0",
+  "start_seconds": 86.04,
+  "end_seconds": 88.06,
+  "text": "所以你的意思是改成Lizzi loading?"
+ },
+ {
+  "speaker_id": "Who_1",
+  "start_seconds": 88.34,
+  "end_seconds": 92.76,
+  "text": "对,先载入上面那三个最常用的,下面这群都在在按"
+ },
+ {
+  "speaker_id": "Who_2",
+  "start_seconds": 92.76,
+  "end_seconds": 96.04,
+  "text": "Mobile,本也要一起改,吗?M"
+ },
+ {
+  "speaker_id": "Who_1",
+  "start_seconds": 96.04,
+  "end_seconds": 100.84,
+  "text": "obile的Dashboard只有两张图,应该还好,先不用"
+ },
+ {
+  "speaker_id": "Who_0",
+  "start_seconds": 102.82000000000001,
+  "end_seconds": 107.64,
+  "text": "好,那这个就交给你,一共大概要几天?"
+ },
+ {
+  "speaker_id": "Who_1",
+  "start_seconds": 108.46000000000001,
+  "end_seconds": 115.66,
+  "text": "API那边,两天,前端一天,总共三天吧包含写Unitest没"
+ },
+ {
+  "speaker_id": "Who_0",
+  "start_seconds": 115.66,
+  "end_seconds": 117.18,
+  "text": "问题啊诶"
+ },
+ {
+  "speaker_id": "Who_2",
+  "start_seconds": 117.18,
+  "end_seconds": 119.42,
+  "text": "我可以查一下吗"
+ },
+ {
+  "speaker_id": "Who_0",
+  "start_seconds": 119.42,
+  "end_seconds": 121.86,
+  "text": "可以 你说就是"
+ },
+ {
+  "speaker_id": "Who_2",
+  "start_seconds": 121.86,
+  "end_seconds": 130.78,
+  "text": "push notification那个需求上次product teamswa这个sprint一定要做我们是不是要先讨论一下范围"
+ },
+ {
+  "speaker_id": "Who_0",
+  "start_seconds": 130.78,
+  "end_seconds": 133.58,
+  "text": "哦 对 差点忘了"
+ },
+ {
+  "speaker_id": "Who_1",
+  "start_seconds": 133.58,
+  "end_seconds": 137.08,
+  "text": "那个需求文件我有看过 写得蛮模糊的"
+ },
+ {
+  "speaker_id": "Who_2",
+  "start_seconds": 137.08,
+  "end_seconds": 144.28,
+  "text": "对 像是使用者可不可以自己关掉某一类通知上面完全没写嗯,"
+ },
+ {
+  "speaker_id": "Who_0",
+  "start_seconds": 144.64,
+  "end_seconds": 153.82,
+  "text": "这个我下午去问PM我们先假设第一版只有开根关两种车订就好那"
+ },
+ {
+  "speaker_id": "Who_1",
+  "start_seconds": 153.82,
+  "end_seconds": 157.0,
+  "text": "后端要准备一个settings的endpoint然后"
+ },
+ {
+  "speaker_id": "Who_2",
+  "start_seconds": 157.0,
+  "end_seconds": 160.8,
+  "text": "iOS跟Android的token要分开存对,"
+ },
+ {
+  "speaker_id": "Who_1",
+  "start_seconds": 161.0,
+  "end_seconds": 163.06,
+  "text": "这个我来开schema哦,"
+ },
+ {
+  "speaker_id": "Who_0",
+  "start_seconds": 163.44,
+  "end_seconds": 166.78,
+  "text": "那这样估起来要多久cl"
+ },
+ {
+  "speaker_id": "Who_2",
+  "start_seconds": 166.78,
+  "end_seconds": 172.32,
+  "text": "ient,对,我觉得要四到五天因为两个平台都要做后"
+ },
+ {
+  "speaker_id": "Who_1",
+  "start_seconds": 172.32,
+  "end_seconds": 174.3,
+  "text": "端大概两天嗯"
+ },
+ {
+  "speaker_id": "Who_0",
+  "start_seconds": 174.3,
+  "end_seconds": 181.84,
+  "text": "那这样有点紧登入的bug加上通知你这个sprint会不会塞不下嗯"
+ },
+ {
+  "speaker_id": "Who_2",
+  "start_seconds": 182.58,
+  "end_seconds": 189.84,
+  "text": "有一点如果SDK升级很顺的话应该还可以但如果要改很多东西就不一定了"
+ },
+ {
+  "speaker_id": "Who_1",
+  "start_seconds": 189.84,
+  "end_seconds": 195.74,
+  "text": "还是Android那边我先帮忙我之前有写过一点calling真的"
+ },
+ {
+  "speaker_id": "Who_2",
+  "start_seconds": 195.74,
+  "end_seconds": 197.56,
+  "text": "吗那太好了"
+ },
+ {
+  "speaker_id": "Who_0",
+  "start_seconds": 198.08,
+  "end_seconds": 215.18,
+  "text": "可以那就这样分你先做Dashboard做完再去帮Android好那接下来是技术站的部分我们的CI最近常常跑超过20分钟大家应该都有感觉有"
+ },
+ {
+  "speaker_id": "Who_2",
+  "start_seconds": 215.52,
+  "end_seconds": 217.84,
+  "text": "超有感主"
+ },
+ {
+  "speaker_id": "Who_1",
+  "start_seconds": 217.84,
+  "end_seconds": 223.08,
+  "text": "要是Integration Test每次都把整个资料库重建一次那"
+ },
+ {
+  "speaker_id": "Who_0",
+  "start_seconds": 223.08,
+  "end_seconds": 228.36,
+  "text": "有办法改成只重建有变动的部分吗可以"
+ },
+ {
+  "speaker_id": "Who_1",
+  "start_seconds": 228.36,
+  "end_seconds": 233.7,
+  "text": "用Snapshot但要花一点时间研究我觉得这个Sprint不太可能好"
+ },
+ {
+  "speaker_id": "Who_0",
+  "start_seconds": 233.7,
+  "end_seconds": 239.18,
+  "text": "那这个先开一张Ticket放在Backlog下个Sprint再看"
+ },
+ {
+  "speaker_id": "Who_2",
+  "start_seconds": 239.18,
+  "end_seconds": 246.58,
+  "text": "然后Docker Image好像也很大每次Pool都很久嗯"
+ },
+ {
+  "speaker_id": "Who_1",
+  "start_seconds": 247.18,
+  "end_seconds": 253.02,
+  "text": "那个可以先改成Multi Stage Beat应该半天就可以弄好半"
+ },
+ {
+  "speaker_id": "Who_0",
+  "start_seconds": 253.02,
+  "end_seconds": 256.1,
+  "text": "天的话可以顺便做OK"
+ },
+ {
+  "speaker_id": "Who_1",
+  "start_seconds": 256.1,
+  "end_seconds": 258.0,
+  "text": "我记下来好"
+ },
+ {
+  "speaker_id": "Who_0",
+  "start_seconds": 258.0,
+  "end_seconds": 266.18,
+  "text": "好,最后一件事,下周三要demo与product team,大家记得先把staging环境准备好。"
+ },
+ {
+  "speaker_id": "Who_2",
+  "start_seconds": 266.5,
+  "end_seconds": 268.18,
+  "text": "下周三是几点?"
+ },
+ {
+  "speaker_id": "Who_0",
+  "start_seconds": 269.02,
+  "end_seconds": 272.94,
+  "text": "下午两点,大概一个小时。"
+ },
+ {
+  "speaker_id": "Who_1",
+  "start_seconds": 273.64,
+  "end_seconds": 280.44,
+  "text": "那staging的资料要不要先清一下?上次demo的时候有一堆测试账号。"
+ },
+ {
+  "speaker_id": "Who_0",
+  "start_seconds": 280.6,
+  "end_seconds": 284.86,
+  "text": "对,这个很重要,可以麻烦你周二之前弄好吗?"
+ },
+ {
+  "speaker_id": "Who_1",
+  "start_seconds": 285.12,
+  "end_seconds": 285.6,
+  "text": "可以。"
+ },
+ {
+  "speaker_id": "Who_2",
+  "start_seconds": 286.08000000000004,
+  "end_seconds": 290.1,
+  "text": "那demo的时候通知功能应该还没好要展示吗"
+ },
+ {
+  "speaker_id": "Who_0",
+  "start_seconds": 290.1,
+  "end_seconds": 298.02,
+  "text": "可以展示做到一半的版本但要先跟他们说清楚这不是最后的样子"
+ },
+ {
+  "speaker_id": "Who_2",
+  "start_seconds": 298.02,
+  "end_seconds": 299.86,
+  "text": "好 了解"
+ },
+ {
+  "speaker_id": "Who_0",
+  "start_seconds": 300.42,
+  "end_seconds": 316.06,
+  "text": "那我整理一下登入的bug跟iOS的通知是你的dashboard docker image清staging还有帮忙Android是你的我去跟PM求认通知的需求这样对吗对"
+ },
+ {
+  "speaker_id": "Who_2",
+  "start_seconds": 316.06,
+  "end_seconds": 317.7,
+  "text": "没错好"
+ },
+ {
+  "speaker_id": "Who_0",
+  "start_seconds": 317.7,
+  "end_seconds": 319.5,
+  "text": "还有其他问题吗"
+ },
+ {
+  "speaker_id": "Who_2",
+  "start_seconds": 319.5,
+  "end_seconds": 323.0,
+  "text": "没有了我也没有好"
+ },
+ {
+  "speaker_id": "Who_0",
+  "start_seconds": 323.0,
+  "end_seconds": 327.88,
+  "text": "那今天就先这样大家辛苦了拜拜拜拜"
+ },
+ {
+  "speaker_id": "Who_2",
+  "start_seconds": 327.88,
+  "end_seconds": 328.5,
+  "text": "拜拜"
+ }
+]

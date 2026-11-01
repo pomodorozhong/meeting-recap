@@ -1,6 +1,6 @@
 # 2026-11-01 synthetic recording collection
 
-**Status** Planned.
+**Status** Runs in progress.
 
 ## Question
 
@@ -27,6 +27,12 @@ Use recording IDs planning, handoff, handoff-channel, logistics, logistics-overl
 | End-to-end recaps on the two clean new scripts | Default Whisper / Sortformer / Qwen3.5-9B 4-bit pipeline, revisions in pipeline pins | recap.py run |
 
 Freeze these recap checks before inference. For the handoff, look for the decision to keep the retry limit at two, Speaker B's log export by noon, Speaker A's rollback checklist by Friday and the unresolved cause of the timeout. For logistics, look for the indoor venue decision, Speaker B's sign count by Wednesday, Speaker C's projector test on Thursday, Speaker D's accessibility map by Friday and the unresolved interpreter budget. Judge presence, correct attribution and dates from the generated notes. Count unsupported claims separately.
+
+### Registered extension
+
+Add a faster ASR candidate because the original matrix compares two full-size models. Run the same MLX CLI and decoding settings with [Whisper Large v3 Turbo Q4](https://huggingface.co/mlx-community/whisper-large-v3-turbo-q4/tree/660c343bbf4e52ac257f0b7d952e5388e6f93bef), revision `660c343bbf4e52ac257f0b7d952e5388e6f93bef`, on all six recordings. Download the weights once before timing. Compare character errors, wall time and footprint.
+
+Also test whether the actual attached transcript keeps turn order. Register the two full-size ASR runs and both primary diarizers for every non-silent input in an isolated synthetic review dataset. Use `review.py known` with its 30-second window and 0.3-second minimum, then compare the original diarizers and the skill's word, segment and line attachment methods (1-second maximum gap). Use reference IDs `ref-<case>` and evaluation IDs `eval-<case>`. No listening session is needed. Keep any refused inputs visible. This adds a text-delivery check beyond agreement at ASR word timestamps.
 
 ## Restart from scratch
 

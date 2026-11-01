@@ -42,6 +42,10 @@ Before seeing the cross-model rankings, reserve one additional independent scrip
 
 The first handoff recap propagated misrecognized task terms. Before running this diagnostic, fix both inputs and the scoring rule. For handoff and logistics, feed the original timed script with correct speaker IDs to the same pipeline summary stage. Keep the model, prompts and frozen checks identical. A check passes only if its subject, outcome and any specified owner and deadline survive. Report partial matches separately. This isolates errors that persist even when upstream text and attribution are exact.
 
+### Repeatability and first-use cost
+
+The first clean handoff included substantial first-use overhead, and the two full-size ASRs reversed order across recordings. Repeat all three ASRs twice on the identical clean handoff and on identical digital silence after the first pass. Keep each model's original runner, interpreter, language and word-timestamp settings. Compare the three normalized text outputs, error counts and wall times for each model/input. Treat a single improvement on a degraded pair as descriptive.
+
 ## Restart from scratch
 
 Generate both scripts and the two paired conditions, then run the matrix serially. Use each generated call's own references after verifying its audio digest. Commands and per-case timings will accompany results.

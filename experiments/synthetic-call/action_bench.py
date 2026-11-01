@@ -51,6 +51,14 @@ def accepted_items(accepted, candidates, lines):
     return kept
 
 
+def parse_reply(reply, mode):
+    reply = re.sub(r"<think>.*?</think>", "", reply, flags=re.S).strip()
+    # The negative control can yield a literal empty array instead of the requested wrapper.
+    if mode == "focused" and re.fullmatch(r"\[\s*\]", reply):
+        return {"action_items": []}, "bare-empty-array"
+    return json.loads(reply[reply.index("{"):reply.rindex("}") + 1]), "object"
+
+
 def extract(lines, run, mode, python, candidates_path=None):
     run.mkdir()
     write(run / "lines.json", lines)
@@ -68,14 +76,13 @@ def extract(lines, run, mode, python, candidates_path=None):
         subprocess.run(["/usr/bin/time", "-l", "-o", run / "stage.time", *cmd], check=True,
                        stdout=log, stderr=subprocess.STDOUT)
     raw = load(run / "raw.json")
-    reply = re.sub(r"<think>.*?</think>", "", raw["replies"][-1]["reply"], flags=re.S)
-    parsed = json.loads(reply[reply.index("{"):reply.rindex("}") + 1])
+    parsed, reply_format = parse_reply(raw["replies"][-1]["reply"], mode)
     items = (parsed["action_items"] if candidates_path is None
              else accepted_items(parsed["accepted"], candidates, lines))
     if not isinstance(items, list) or not all(isinstance(it, dict) for it in items):
         raise ValueError(f"malformed action_items in {run}")
     write(run / "items.json", items)
-    return {**time_stats(run / "stage.time"), "model_revision": raw["model_revision"],
+    return {**time_stats(run / "stage.time"), "model_revision": raw["model_revision"], "reply_format": reply_format,
             "lines_sha256": digest(run / "lines.json"), "items_sha256": digest(run / "items.json")}
 
 

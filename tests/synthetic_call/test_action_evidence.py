@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "experiments/synthetic-call"))
-from action_bench import CASES, accepted_items, relabel_lines, speaker_map
+from action_bench import CASES, accepted_items, parse_reply, relabel_lines, speaker_map
 from score_actions import count_items, load, summarize
 
 
@@ -27,6 +27,11 @@ class ActionEvidence(unittest.TestCase):
             return dict(speaker_id=label, start_seconds=start, end_seconds=end)
         truth = [seg("B", 0, 1), seg("A", 1, 5)]
         self.assertEqual(speaker_map(truth, [seg("x", 0, 5)], {"x": "Speaker B"}), {"Speaker B": "A"})
+
+    def test_explicit_negative_reply_preserves_the_format_deviation(self):
+        self.assertEqual(parse_reply("[]", "focused"), ({"action_items":[]}, "bare-empty-array"))
+        with self.assertRaises(ValueError):
+            parse_reply("[1]", "focused")
 
     def test_verifier_cannot_change_fields_or_create_candidates(self):
         items = [dict(task="deliver", owner="B", due=None, evidence=["00:00:02"])]

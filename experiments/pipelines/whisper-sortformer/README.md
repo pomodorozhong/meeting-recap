@@ -159,6 +159,23 @@ From the repository root, with generated audio and the model processes replaced 
 uv run --project experiments/pipelines/whisper-sortformer python -m unittest discover -s tests/pipelines -t tests/pipelines
 ```
 
+## Reproduce
+
+The baseline below ran on this environment, as `run.json` now records it (the baseline runs predate that record; these are the same machine's versions on the same day):
+- an M2 Pro (Mac14,9) with 16 GB of memory, on macOS 26.6.2;
+- Python 3.12.13, MLX 0.32.4, `mlx-whisper` 0.4.2 and `mlx-lm` 0.32.2, from `uv.lock`;
+- Swift 6.3.3 and ffmpeg 9.0.2.
+
+To reproduce it, generate the call (see [its README](../../synthetic-call/README.md)), run the pipeline on it, and score the run against the call's known turns:
+
+```bash
+uv run --project experiments/synthetic-call experiments/synthetic-call/generate.py
+uv run --project experiments/pipelines/whisper-sortformer experiments/pipelines/whisper-sortformer/recap.py run experiments/synthetic-call/out/script/call.wav ~/meeting-notes/synthetic-call
+uv run --project experiments/synthetic-call experiments/synthetic-call/score_speakers.py --asr ~/meeting-notes/synthetic-call/asr.json --segments ~/meeting-notes/synthetic-call/diarization.json --turns ~/meeting-notes/synthetic-call/turns.json --audio experiments/synthetic-call/out/script/call.wav
+```
+
+Add `--diarizer who` to `run`, into a new folder, for the Who column. On the same hardware and versions, expect the speaker agreement figures below. On other hardware or versions, expect close but not identical results: Whisper's word times, Sortformer's turns and the recap's wording can all shift slightly. Times scale with the chip and with what else is running. Compare the call's `call_sha256` first, as its README says.
+
 ## Baseline on the synthetic call (2026-11-01)
 
 The [synthetic call](../../synthetic-call/README.md) (seed 7, 5:29, three speakers, 73 turns) ran through every stage with `run`, on an M2 Pro with 16 GB of memory running macOS 26.6.2. Nothing else heavy was running.

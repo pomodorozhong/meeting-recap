@@ -34,6 +34,10 @@ Add a faster ASR candidate because the original matrix compares two full-size mo
 
 Also test whether the actual attached transcript keeps turn order. Register the two full-size ASR runs and both primary diarizers for every non-silent input in an isolated synthetic review dataset. Use `review.py known` with its 30-second window and 0.3-second minimum, then compare the original diarizers and the skill's word, segment and line attachment methods (1-second maximum gap). Use reference IDs `ref-<case>` and evaluation IDs `eval-<case>`. No listening session is needed. Keep any refused inputs visible. This adds a text-delivery check beyond agreement at ASR word timestamps.
 
+### Held-out stocktake
+
+Before seeing the cross-model rankings, reserve one additional independent script for confirmation. It covers the missing one-speaker case and inserts 18 seconds of silence between two spoken sections. Run the same three ASRs and two primary diarizers on it after the initial matrix, using the same metrics and settings. Count timestamped word midpoints strictly inside the long scripted gap as a silence diagnostic. Compare the existing candidates without tuning on this script.
+
 ## Restart from scratch
 
 Generate both scripts and the two paired conditions, then run the matrix serially. Use each generated call's own references after verifying its audio digest. Commands and per-case timings will accompany results.

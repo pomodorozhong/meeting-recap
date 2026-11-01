@@ -4,6 +4,25 @@ The first end-to-end pipeline for a saved recording ([#28](https://github.com/po
 
 It assembles the baseline from [decision 1](../../../docs/decisions.md) without further model comparison. It is made for an online call with two or three speakers in Mandarin with English terms. Everything runs locally on an M2 Pro with 16 GB of memory.
 
+```mermaid
+flowchart TD
+    input[/"Saved recording<br>(any format ffmpeg reads)"/] --> convert["convert<br>ffmpeg → audio.wav<br>16 kHz mono"]
+    convert --> asr["asr<br>Whisper Large v3 · MLX<br>Chinese forced, word timestamps<br>→ asr.json"]
+    asr --> diarize{"diarize<br>--diarizer"}
+    diarize -- "sortformer (default)" --> sortformer["FluidAudio Sortformer<br>fluidaudiocli, Swift<br>→ sortformer.raw.json"]
+    diarize -- "who" --> who["Desert Ant Labs Who, int8<br>who-diarize, Swift<br>→ who.raw.json"]
+    sortformer --> segments["diarization.json"]
+    who --> segments
+    segments --> attach["attach<br>label per word by overlap<br>→ turns.json"]
+    attach --> speakers[("speakers.json<br>Speaker A/B/C<br>edit to rename or merge")]
+    speakers --> transcript["transcript<br>names + OpenCC s2tw<br>→ transcript.md"]
+    transcript --> summary["summary<br>Qwen3.5 9B · MLX<br>→ summary.json, summary.md"]
+    speakers -. "after editing: recap.py render" .-> transcript
+    speakers -. "recap.py summarize --replace" .-> summary
+```
+
+Each box is one stage. Stages run in order, and each model runs in its own process, so only one model is in memory at a time. `stages.json` records every stage's status, time and memory, and `--resume` continues from the first stage that didn't complete. The dotted lines are the commands that rebuild outputs after `speakers.json` is edited, without rerunning ASR or diarization.
+
 ## Setup (once, needs the network)
 
 From the repository root:

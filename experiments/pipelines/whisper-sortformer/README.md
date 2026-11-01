@@ -5,23 +5,51 @@ The first end-to-end pipeline for a saved recording ([#28](https://github.com/po
 It assembles the baseline from [decision 1](../../../docs/decisions.md) without further model comparison. It is made for an online call with two or three speakers in Mandarin with English terms. Everything runs locally on an M2 Pro with 16 GB of memory.
 
 ```mermaid
-flowchart TD
-    input[/"Saved recording<br>(any format ffmpeg reads)"/] --> convert["convert<br>ffmpeg → audio.wav<br>16 kHz mono"]
-    convert --> asr["asr<br>Whisper Large v3 · MLX<br>Chinese forced, word timestamps<br>→ asr.json"]
-    asr --> diarize{"diarize<br>--diarizer"}
-    diarize -- "sortformer (default)" --> sortformer["FluidAudio Sortformer<br>fluidaudiocli, Swift<br>→ sortformer.raw.json"]
-    diarize -- "who" --> who["Desert Ant Labs Who, int8<br>who-diarize, Swift<br>→ who.raw.json"]
-    sortformer --> segments["diarization.json"]
-    who --> segments
-    segments --> attach["attach<br>label per word by overlap<br>→ turns.json"]
-    attach --> speakers[("speakers.json<br>Speaker A/B/C<br>edit to rename or merge")]
-    speakers --> transcript["transcript<br>names + OpenCC s2tw<br>→ transcript.md"]
-    transcript --> summary["summary<br>Qwen3.5 9B · MLX<br>→ summary.json, summary.md"]
-    speakers -. "after editing: recap.py render" .-> transcript
-    speakers -. "recap.py summarize --replace" .-> summary
+sequenceDiagram
+    actor U as User
+    participant R as recap.py
+    participant F as ffmpeg
+    participant A as asr_stage.py (Whisper, MLX)
+    participant D as fluidaudiocli / who-diarize (Swift)
+    participant S as summary_stage.py (Qwen3.5, MLX)
+    participant O as OUT folder
+
+    U->>R: run AUDIO OUT [--diarizer who]
+    R->>O: run.json (input SHA-256, code commit, models)
+    R->>F: convert AUDIO
+    F->>O: audio.wav (16 kHz mono)
+    R->>A: start process
+    O-->>A: audio.wav
+    A->>O: asr.json (text, word timestamps)
+    R->>D: start process
+    O-->>D: audio.wav
+    D->>O: sortformer.raw.json or who.raw.json
+    O-->>R: raw diarizer output
+    R->>O: diarization.json (speaker segments)
+    O-->>R: asr.json + diarization.json
+    Note over R: attach: each word gets the label it overlaps most
+    R->>O: turns.json, speakers.json (Speaker A/B/C)
+    O-->>R: turns.json + speakers.json
+    Note over R: apply names, OpenCC s2tw
+    R->>O: transcript.md, .summary-input.json
+    R->>S: start process
+    O-->>S: .summary-input.json (named transcript lines)
+    S->>O: summary.json (raw replies)
+    O-->>R: summary.json
+    Note over R: parse notes, keep only real timestamps
+    R->>O: summary.json (+ notes, checks), summary.md
+    Note over R,O: after every stage, R updates stages.json (status, time, memory) and logs/
+
+    U->>O: edit speakers.json (rename or merge labels)
+    U->>R: render OUT
+    O-->>R: turns.json + speakers.json
+    R->>O: transcript.md
+    U->>R: summarize OUT --replace
+    R->>S: start process with the new names
+    S->>O: summary.json, summary.md
 ```
 
-Each box is one stage. Stages run in order, and each model runs in its own process, so only one model is in memory at a time. `stages.json` records every stage's status, time and memory, and `--resume` continues from the first stage that didn't complete. The dotted lines are the commands that rebuild outputs after `speakers.json` is edited, without rerunning ASR or diarization.
+`recap.py` drives every stage, and the stages pass data only through files in the output folder. Each model (Whisper, the diarizer, Qwen) runs in its own process, one at a time, so only one model is in memory at once. `--resume` continues from the first stage that `stages.json` doesn't record as completed. Editing `speakers.json` and running `render` or `summarize --replace` rebuilds the transcript or recap from saved files, without rerunning ASR or diarization.
 
 ## Setup (once, needs the network)
 

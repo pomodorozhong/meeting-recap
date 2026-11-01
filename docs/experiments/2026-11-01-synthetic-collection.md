@@ -46,18 +46,43 @@ The first handoff recap propagated misrecognized task terms. Before running this
 
 The first clean handoff included substantial first-use overhead, and the two full-size ASRs reversed order across recordings. Repeat all three ASRs twice on the identical clean handoff and on identical digital silence after the first pass. Keep each model's original runner, interpreter, language and word-timestamp settings. Compare the three normalized text outputs, error counts and wall times for each model/input. Treat a single improvement on a degraded pair as descriptive.
 
-## Restart from scratch
+### Follow-up for silent inputs and long pauses
 
-Generate both scripts and the two paired conditions, then run the matrix serially. Use each generated call's own references after verifying its audio digest. Commands and per-case timings will accompany results.
+After the held-out base run, register an exploratory repair for exact digital silence. Find runs of at least five seconds of zero-valued PCM16 samples. On all-zero input return an empty transcript without loading an ASR model. Otherwise split only at those spans, retaining 250 ms at each speech edge. Run the same three pinned ASRs on the resulting stocktake chunks, shift word and segment times back to the original timeline, and compare CER, pause timestamps, wall time and footprint with the unmodified base runs. Scan all seven WAVs and check which ones this rule actually changes. This follow-up uses stocktake for development and needs a new independent sparse recording for confirmation.
+
+## Reproduce
+
+The [collection instructions](../../experiments/synthetic-call/README.md#recording-collection-and-unattended-benchmark) cover generating the seven WAVs, loading the pinned models and running the whole matrix with one command. Each additional condition has its own audio SHA-256 and a matching text and speaker reference. The original planning recording matched the repository's published digest. Rebuilding the three derived controls reproduced their WAV, text and speaker intervals byte for byte. On a different MLX build, score against the freshly generated references.
+
+The supplementary timing and turn-order checks reuse the base pipeline outputs. The review skill at baseline `01eb50d` creates a sealed evaluation and validates its dataset independently for each speech recording. Code and input recipes for this round are at `cb784e9`. Commit `68e2da3` adds an output-location check before running them. All fixture audio and raw model outputs stay local.
 
 ## Runtime and memory
 
-Pending.
+The benchmark ran one inference process at a time on an M2 Pro with 16 GB, macOS 26.6.2, Python 3.12.13 and MLX 0.32.4. ASR wall time includes Python process startup, model loading and decoding. Diarizer wall time includes command startup and model loading. Peak memory is the per-process macOS peak memory footprint reported by `/usr/bin/time -l`, in decimal GB. It includes memory that peak resident set size alone can miss.
+
+On the 329.88-second planning input, the baseline Whisper ASR took 43.37 s and Sortformer 136.90 s. Who took 1.23 s on the same converted input. Their ASR-plus-diarization stage sums are 180.27 s and 44.60 s, respectively. These sums exclude conversion, Markdown rendering and recap generation. The two clean new end-to-end runs took 150.2 s (61 s of handoff audio, including first-use startup) and 71.2 s (56 s of logistics audio).
 
 ## Results
 
-Pending. Character error rate will use edit distance after script conversion, case folding and punctuation/space removal. Report absolute false characters on silence. TTS turn boundaries include short pauses within synthesized utterances, which can inflate missed speaker time. Paired variants share content and must not be counted as independent meetings.
+### Text and speakers
 
-## Decision and open questions
+Character error rate (CER) is the Levenshtein edit count divided by script characters, after OpenCC Traditional-to-Simplified conversion, case folding and removal of punctuation and whitespace. Numbers, English spellings and homophones receive no special equivalences. Overlapping utterances use their scripted start order. A lower score means fewer edits to recover the script.
 
-Pending. These synthetic voices and read speech cover only part of the target microphone and meeting conditions.
+Speaker-time error is (missed + false-alarm + confused speaker-seconds) divided by reference speaker-seconds, with one-to-one maximum-overlap label mapping per recording, overlap included and zero collar. Generated turn intervals include pauses inside each utterance, so the timing metric can penalize a model that correctly detects an internal pause. The separate word-label metric uses the repository scorer's more forgiving many-to-one mapping. All are script-based measurements.
+
+### Alternative diarizers
+
+| Local runner | Handoff speaker-time error | Logistics speaker-time error |
+| --- | ---: | ---: |
+| Community-1 automatic count | 57.1% | 70.5% |
+| Community-1 given the correct count | 57.1% | 60.6% |
+| LS-EEND DIHARD III | 57.7% | 53.1% |
+| LS-EEND AMI | 52.7% | 45.4% |
+| LS-EEND CALLHOME | 33.1% | 50.6% |
+| LS-EEND DIHARD II | 57.7% | 49.3% |
+
+These runs took 0.9–1.8 seconds each. Specifying how many people spoke sometimes fixed the label count while leaving most speaker-time errors in place. Each alternative had one run per recording.
+
+### Recaps
+
+The four handoff checks and five logistics checks were fixed before inference. An agent read the generated notes against the fictional script. Owner checks map the anonymous output labels back to script speakers before judging them. In the four-person run, the displayed labels C and D corresponded to script speakers D and C. A repeated statement counts once. These are targeted semantic checks, separate from transcript or diarization scores.

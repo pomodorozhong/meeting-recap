@@ -27,13 +27,9 @@
   4. A README "Reproduce" note listing the environment used, and saying other hardware gives close, not identical, results.
   Doing these changes #29 after its body was approved, so its body needs a matching update and approval.
 
-### feat/synthetic-call-scoring
-
-- Scorers next to the synthetic call, from `main`, to merge first; PR awaiting approval. Read that branch's own `HANDOFF.md`.
-
 ## Ranked work
 
-1. #28 First saved-audio to Markdown pipeline. A PR stack, in merge order: `feat/synthetic-call-scoring` (scorers next to the synthetic call; merge first) and #29 (the pipeline; independent of it), then `feat/pipeline-baseline` and `feat/recap-accuracy`, rebuilt on both. Then the private-recording trial and review, with a public plan committed first
+1. #28 First saved-audio to Markdown pipeline. The scorers next to the synthetic call merged in #30. A PR stack, in merge order: #29 (the pipeline), then `feat/pipeline-baseline` and `feat/recap-accuracy`, rebuilt on both. Then the private-recording trial and review, with a public plan committed first
 2. #18 Use a two-person two-track call as its own speaker reference: recorder, decision 6, and `review.py tracks` merged in #19. Left: the user listens to session `check-two-track-call` (command in `docs/experiments/2026-10-30-two-track-call.md`), then freeze `ref-check-two-track-call`, run `eval-check-two-track-call` on both runs, write the private report, and finish the summary (Sortformer's 528/629 turns is provisional until then)
 3. #4 Add a shareable synthetic test recording (the call merged in #17; the remaining runners still need to run on it)
 4. #1 Evaluate Desert Ant Labs Who for on-device speaker diarization (next, as the user asked; its issue still cites `experiments/diarization/score.py`, now the skill's `evaluate.py`)

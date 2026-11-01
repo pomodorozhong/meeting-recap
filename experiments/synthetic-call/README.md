@@ -52,11 +52,11 @@ The original planning call also serves as the three-speaker baseline in a seven-
 | stocktake | Held-out single-speaker inventory update with a correction, quantities and an 18-second silent break |
 | silence | Twelve seconds of digital silence, with empty text and speaker references |
 
-Build the collection from the repository root. The generator reuses matching seed-7 recordings, stages each new recording before publishing it, and verifies regenerated controls byte for byte. Each folder has its own WAV, manifest, transcript and speaker intervals.
+Build the seven-recording baseline from the repository root. Omit `--suite baseline` to build all 17 recordings, including the [action-evidence calls](#action-evidence-benchmark). The generator reuses matching seed-7 recordings, stages each new recording before publishing it, and verifies regenerated controls byte for byte. Each folder has its own WAV, manifest, transcript and speaker intervals.
 
 ```bash
 S=experiments/synthetic-call
-uv run --locked --project "$S" "$S/collection.py"
+uv run --locked --project "$S" "$S/collection.py" --suite baseline
 ```
 
 Build and set up the [pipeline including Who](../pipelines/whisper-sortformer/README.md#setup-once-needs-the-network), and build `diarexp` as in the [runner guide](../../docs/runners.md). The extended comparisons on the clean scripts use the cached LS-EEND and Community-1 weights from that guide's diarizer sweep. The benchmark checks the cache digests. The pipeline setup caches Whisper. Cache Breeze and the 442 MiB quantized Turbo snapshot with the commands below. The benchmark then runs the models serially and preserves logs and prior cases on failure.
@@ -72,6 +72,23 @@ RESULTS=$(mktemp -d)
 ```
 
 Each case writes `scores.json` for the base matrix and `extension/scores.json` including Turbo with text errors, one-to-one speaker-time errors, word-label agreement, wall time and peak footprint, along with the raw model outputs. A case requires a fresh output folder. To retry one case, run `benchmark.sh COLLECTION_DIR NEW_RESULTS_ROOT CASE`, then `compare_fast.sh RECORDING_DIR NEW_RESULTS_ROOT/CASE`. If just the extension fails, move its partial folder aside and rerun `compare_fast.sh` on the completed base case. The extension repeats each ASR twice on the handoff and on silence. It also scores turn order for each speech case with the review skill and validates the resulting dataset. The full benchmark also scans all cases for five-second runs of exact digital silence, then tries splitting and restoring timestamps on affected recordings. Its separate `silence-split/scores.json` records which inputs passed through untouched. The two clean scripts run the normal recap stage and the same summary model on the exact scripted transcript. See the [experiment report](../../docs/experiments/2026-11-01-synthetic-collection.md) for results, limitations and benchmark audio digests.
+
+## Action evidence benchmark
+
+The ten [action scripts and keys](action-scripts/) contain 14 final commitments and one meeting with none. Each key names the deliverable, final owner, deadline and supporting turns. The extractor receives only named, timestamped transcript lines. See the [experiment report](../../docs/experiments/2026-11-01-action-evidence.md).
+
+From the repository root, use the pipeline's Swift build and `setup --asr turbo-q4` as documented in its README. Choose an output directory outside Git. One run creates four extractions per recording and preserves the raw replies, exact inputs, timing logs, audio-stage outputs and speaker mapping.
+
+```bash
+S=experiments/synthetic-call
+uv run --locked --project "$S" "$S/collection.py" --suite actions
+RESULTS=$(mktemp -d)
+uv run --locked --project "$S" "$S/action_bench.py" "$RESULTS"
+python3 "$S/score_actions.py" inspect "$RESULTS" --case poster
+python3 "$S/score_actions.py" score "$RESULTS"
+```
+
+Each case needs a fresh case directory. Use repeated `--case ID` options to run a subset or complete cases after an interruption. Preserve an incomplete case directory elsewhere before retrying it. Scoring replays the recorded semantic judgments only when the script, audio, speaker map, inputs and predictions match. When outputs change, inspect the anonymized prediction IDs and actual cited lines, supply a new verdict file with `--verdicts`, and keep it with that run.
 
 ## Use with the review skill
 

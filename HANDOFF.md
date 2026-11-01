@@ -4,81 +4,63 @@
 
 ### codex/synthetic-collection
 
-- Related to #4, #11 and #28. Local, unlinked branch without a PR. Latest source/audit checkpoint `0249985`; inference source `cac52ea`, measured results and replayable verdicts `742cc5d`. These commits are unpushed and unavailable on another computer.
-- Seventeen materialized synthetic recordings. The [collection report](docs/experiments/2026-11-01-synthetic-collection.md) covers seven recordings; the [action benchmark](docs/experiments/2026-11-01-action-evidence.md) covers ten independent calls, 14 intended commitments and 70 case/condition results. Full Whisper + focused recovered 7/14 strict actions, Turbo + focused 4/14; the staged verifier rejected every candidate. Generated audio and raw outputs remain local outside tracked files. Regenerate audio with the synthetic-call collection commands if needed.
-- The [audit](docs/experiments/2026-11-01-action-evidence-review.md) identifies the shared unproven assumption that intended-script agreement plus citations measures faithful recovery of useful commitments. TTS fidelity, evidence dependence, grader validity and transfer remain unverified; words, timing, boundaries and attribution are confounded. Existing scores remain unchanged.
-- The [falsification plan](docs/experiments/2026-11-01-action-grounding-plan.md) and [probe generator](experiments/action-grounding/README.md) define 60 exact-text extraction cases and 36 verifier controls, with a family-level development/holdout split. Fixtures were materialized and validated. No new inference has run. Stage 1 still needs evaluator calibration and batch orchestration; later component, acoustic-transfer and long-context stages are designs, not implemented runners.
-- Verification on `f8b6fb9`, 2026-11-02: 18 synthetic, 30 pipeline, 116 skill, 10 experiment and five grounding-fixture tests passed. The first pipeline attempt hit the execution sandbox's restriction on `/usr/bin/time` reading `kern.clockrate`; the unchanged suite passed outside that sandbox. Fixture CLI generation produced 60 extraction cases and 36 verifier controls. Shell syntax, diff whitespace, JSON parsing and all 70 result cells' aggregate counts passed. Model inference and raw-output verdict replay were not rerun during PR preparation; the earlier replay at `cac52ea` remains historical verification.
-- Next action: obtain P-02 publication approval for this independent foundation PR against `main`. The user asked to prioritize an existing branch with no unmerged prerequisites. This branch meets that criterion and is the prerequisite of `codex/action-grounding-sequence`; the latter should be rebuilt after this PR merges. The baseline and recap-accuracy branches can each be rebuilt independently on `main`.
-- Remote handoff notes posted and verified on [#4](https://github.com/pomodorozhong/meeting-recap/issues/4#issuecomment-6559734124) and [#28](https://github.com/pomodorozhong/meeting-recap/issues/28#issuecomment-6559734484). These notes describe local work; they do not publish its commits.
-- P-02 — Awaiting approval to push `codex/synthetic-collection` and open a draft PR against `main`, titled `feat(experiments): add synthetic benchmarks for ASR and action recovery`, with the exact body below. The open-pr skill requires approval of the finished branch and body before publication. The review request is prepared locally under the ignored `.agents/propose-stack/synthetic-collection/` folder. No push or PR creation is authorized. The branch is unlinked, and the PR closes no issues.
+- Related to #4, #11 and #28. Local, unlinked branch without a PR. Source checkpoint `d4021b4`; original inference source `cac52ea`, measured results and semantic verdicts `742cc5d`. The prepared branch remains unpushed.
+- Seventeen synthetic recordings: the [collection report](docs/experiments/2026-11-01-synthetic-collection.md) covers seven, and the [action benchmark](docs/experiments/2026-11-01-action-evidence.md) covers ten calls, 14 commitments and 70 case/condition results. Full Whisper + focused recovered 7/14 strict actions, Turbo + focused 4/14; the verifier rejected every candidate. A public synthetic-only bundle now preserves 200 original scoring files; audio and remaining raw outputs stay outside tracked files.
+- The [methodology audit](docs/experiments/2026-11-01-action-evidence-review.md) and [falsification plan](docs/experiments/2026-11-01-action-grounding-plan.md) remain applicable: intended-script agreement plus citations does not establish faithful recovery of useful commitments. The 60 extraction probes and 36 verifier controls are prepared; calibration and batch execution follow on `codex/action-grounding-sequence`. No model inference has run on those probes in this branch.
+- All four reproducibility findings are fixed: original score inputs are replayable without models, setup caches both ASRs and preflights the full action matrix, shell helpers use locked project interpreters, and the three FluidAudio model folders have immutable recovery sources with verified file hashes. The original result report and semantic verdicts are unchanged.
+- Verification at `d4021b4`, 2026-11-02: all 192 tests passed in a separate detached checkout (24 synthetic, 37 pipeline, 116 skill, 10 experiment, five grounding). Model-free replay matched every published cell, aggregate and recorded timing. All three uv locks, shell syntax and diff checks passed. An initial new integration-test fixture omitted an HTML asset; the corrected fixture passes. Tests requiring macOS `/usr/bin/time` ran outside its restrictive execution sandbox.
+- Recovery/setup checks: all 61 model files downloaded into an empty temporary cache and matched the three original folder hashes. A fresh Swift build completed at the pinned revisions. Real setup with both cached ASRs/Qwen and a three-second Sortformer silence warmup passed. An isolated cache missing full Whisper failed before creating results; complete-cache preflight passed. Earlier repeat checks matched one synthetic call's published audio hash twice, all 229 grounding files, and derived-control artifacts. Full inference matrices and independent semantic regrading were not rerun.
+- Next action: obtain P-02 publication approval for this finished branch and body, then push and open one draft PR against `main`. This is the first independent PR and the prerequisite of `codex/action-grounding-sequence`, which should be rebuilt after merge. The baseline and recap-accuracy branches can each be rebuilt independently on `main`.
+- Existing remote handoff notes: [#4](https://github.com/pomodorozhong/meeting-recap/issues/4#issuecomment-6559734124) and [#28](https://github.com/pomodorozhong/meeting-recap/issues/28#issuecomment-6559734484). They predate these reproducibility fixes; no new remote comments were posted.
+- P-02 — Publication remains unapproved. Branch/base: `codex/synthetic-collection` → `main`; status: draft; title: `feat(experiments): add synthetic benchmarks for ASR and action recovery`. The exact revised body is below. The open-pr skill requires approval of the finished branch and body before publication. Local review files under ignored `.agents/propose-stack/synthetic-collection/` record the final tip, tree and commit list. No push or PR creation is authorized. This branch is unlinked and closes no issues.
 
 #### P-02 proposed PR body
 
 ````markdown
-## What changed
+The original synthetic call could not show how transcription and speaker attribution affect action recovery across different meetings. Add seven ASR/speaker benchmark inputs and ten fictional action calls with 14 frozen commitments, along with repeatable runners and saved measurements.
 
-- Add a reproducible synthetic collection: seven ASR/speaker benchmark inputs and ten action-recovery calls with 14 frozen commitments. The runners preserve per-case outputs, timings, input digests and failures.
-- Add pinned `--asr turbo-q4` support to pipeline setup and execution. Record the selected ASR in `run.json` and reject resuming with a different model. Full Whisper remains the default.
-- Add experimental focused-action and citation-verification modes, seven-condition action scoring, digest-bound semantic verdicts, and reports for 70 case/condition results.
-- Add a methodology audit and a grounding probe generator with 60 extraction cases, 36 verifier controls and a family-level development/holdout split. Calibration and batch execution follow in a separate change.
+- Add pinned Turbo Q4 as an opt-in ASR; full Whisper remains the default.
+- Add focused-action extraction, citation verification, seven-condition scoring, a methodology audit, and 60 extraction probes plus 36 verifier controls.
+- Include 200 original synthetic scoring artifacts so a fresh checkout can replay all 70 published results without models.
+- Cache both ASRs with `setup --asr all`, preflight the complete action matrix, use locked Python environments in shell helpers, and restore Sortformer, LS-EEND and Community-1 from immutable revisions with file and folder hashes.
 
-## Why
-
-The original synthetic call could not show how transcription, speaker attribution and recap quality vary across different scripts and recording conditions. This change makes those comparisons reproducible and measures whether final tasks, owners, deadlines and supporting evidence survive the complete pipeline.
-
-The recorded experiments found lower ASR latency with Turbo Q4, while full Whisper plus focused extraction recovered 7/14 strictly supported actions versus Turbo's 4/14 on the ten new calls. The experimental verifier rejected all nine candidates. These are exploratory synthetic results; the audit records limitations in spoken-reference validity, grading, timestamp identity and transfer to real meetings.
+The historical synthetic comparison recovered 7/14 strictly supported actions with full Whisper plus focused extraction, versus 4/14 with Turbo. The verifier rejected all nine candidates. These results remain exploratory; the audit documents limits in reference validity, grading and transfer.
 
 ## Verification
 
-### Automated checks
+All 192 tests passed, including in a separate detached checkout of the committed fix:
 
-- `uv run --locked --project experiments/synthetic-call python -m unittest discover -s tests/synthetic_call -t tests/synthetic_call`: 18 passed.
-- `uv run --locked --project experiments/pipelines/whisper-sortformer python -m unittest discover -s tests/pipelines -t tests/pipelines`: 30 passed.
-- `uv run --no-project --with opencc-python-reimplemented python -m unittest discover -s tests/skill -t tests/skill`: 116 passed.
-- `uv run --no-project python -m unittest discover -s tests/experiments -t tests/experiments`: 10 passed.
-- `uv run --no-project python -m unittest discover -s experiments/action-grounding/tests -v`: 5 passed.
-- `bash -n experiments/synthetic-call/benchmark.sh experiments/synthetic-call/compare_fast.sh` and `git diff --check origin/main...HEAD`: passed.
-- Parsed all 17 changed JSON files and checked that the 70 action-result cells reproduce the committed aggregate counts.
+- `uv run --locked --project experiments/synthetic-call python -m unittest discover -s tests/synthetic_call -t tests/synthetic_call` — 24 passed.
+- `uv run --locked --project experiments/pipelines/whisper-sortformer python -m unittest discover -s tests/pipelines -t tests/pipelines` — 37 passed.
+- `uv run --no-project --with opencc-python-reimplemented python -m unittest discover -s tests/skill -t tests/skill` — 116 passed.
+- `uv run --no-project python -m unittest discover -s tests/experiments -t tests/experiments` — 10 passed.
+- `uv run --no-project python -m unittest discover -s experiments/action-grounding/tests -v` — 5 passed.
 
-The first pipeline test attempt failed because the execution sandbox denied `/usr/bin/time` access to `kern.clockrate`; the same suite passed outside that sandbox. Model stages in these tests use generated data and fakes.
+The tests cover changed replay inputs, missing models/shards, interrupted downloads, preservation of changed caches, and real review-skill subprocesses with an unusable system Python. An initial integration-test fixture omitted the skill's HTML asset; the corrected fixture passes. Model inference is stubbed in the unit suites.
 
-Not rerun during PR preparation: audio synthesis, model inference, or semantic-verdict replay against the original local raw outputs. The experiment reports document the earlier runs; the aggregate check above checks their arithmetic.
+Verified model-free replay:
 
-### How to verify
+```bash
+uv run --no-project --python 3.12 python experiments/synthetic-call/replay_actions.py check
+```
 
-1. Generate the grounding fixtures without loading models:
+Expected and observed: all 70 results, aggregate fields and recorded timings match the original report.
 
-   ```bash
-   PROBES_PARENT=$(mktemp -d)
-   uv run --no-project python experiments/action-grounding/prepare.py "$PROBES_PARENT/pack"
-   ```
+Also verified:
 
-   Expected: 60 extraction cases, 36 verification cases, and a `prepared-not-run` manifest. Reusing the destination must fail.
+- Downloaded all 61 diarizer files into an empty temporary cache with `weights.py setup sortformer ls-eend speaker-diarization --root RESTORED`; all three original folder hashes matched.
+- Built `fluidaudiocli` from pinned Swift dependencies. `recap.py setup --asr all` completed using cached pinned ASRs/Qwen and a real three-second silence warmup; `preflight --asr all` passed.
+- An isolated cache missing full Whisper stopped the action runner before it created results. Adding the snapshot made preflight pass.
+- Two regenerations of the existing 21.78-second synthetic negative control matched its published audio hash. Two grounding preparations matched all 229 files; derived-control transformations also repeated exactly.
+- All three `uv lock --check` commands, shell syntax checks and `git diff --check` passed.
 
-2. Follow the pipeline README's Swift-build prerequisites, then use synthetic audio and a fresh output directory outside Git:
+Not rerun: the complete seven-recording or 70-condition inference matrices, or independent semantic regrading. Replay checks saved measurements; it does not establish identical model output on other hardware. The READMEs provide full benchmark commands for reviewer follow-up.
 
-   ```bash
-   P=experiments/pipelines/whisper-sortformer
-   uv run --locked --project "$P" "$P/recap.py" setup --asr turbo-q4 --who
-   uv run --locked --project "$P" "$P/recap.py" run "$AUDIO" "$OUT" --asr turbo-q4 --diarizer who
-   ```
+## Dependencies and issues
 
-   Expected: timestamped `transcript.md`, `summary.md`, and the pinned Turbo model in `run.json`. The synthetic-call README documents the full collection and action matrices.
+Targets `main` with no unmerged prerequisites. The follow-on `codex/action-grounding-sequence` branch depends on this change and should be rebuilt after merge.
 
-Verified during PR preparation: step 1 and all automated checks. Reviewer follow-up: step 2 and optional full benchmark reproduction.
-
-## Dependencies
-
-Targets `main` with no unmerged prerequisites. The follow-on `codex/action-grounding-sequence` branch uses the prompts and fixtures introduced here and should be rebuilt after this PR merges.
-
-## Related issues
-
-- Related to #4: expands the shareable synthetic inputs and runner coverage.
-- Related to #11: adds synthetic ASR comparisons; the confirmed real-speech comparison remains open.
-- Related to #28: measures downstream action recovery; the private-recording review remains open.
-
-Closes no issues.
+Related to #4 (synthetic inputs), #11 (ASR comparisons), and #28 (downstream action recovery). Confirmed real-speech evaluation and private-recording review remain open. Closes no issues.
 ````
 
 ### feat/pipeline-baseline

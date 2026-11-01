@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 import sys
+import subprocess
 import tempfile
 import unittest
 
@@ -27,6 +28,17 @@ class CollectionTest(unittest.TestCase):
         self.assertEqual(result["false_alarm_s"], 1)
         self.assertEqual(result["confusion_s"], 1)
         self.assertEqual(result["error_rate"], 0.75)
+
+    def test_full_benchmark_refuses_another_checkout_before_generating(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp) / "checkout"
+            (repo / ".git").mkdir(parents=True)
+            alias = Path(tmp) / "linked"
+            alias.symlink_to(repo, target_is_directory=True)
+            result = subprocess.run([HERE / "benchmark.sh", alias / "runs"], text=True, capture_output=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("outside any Git checkout", result.stderr)
+            self.assertFalse((repo / "runs").exists())
 
     def test_silence_has_no_rate_and_counts_false_activity(self):
         self.assertEqual(edit_distance("", "word"), 4)

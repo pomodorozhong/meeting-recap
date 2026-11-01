@@ -8,6 +8,20 @@ mlx="$experiments/mlx"
 fluid="$pipe/.build/release/fluidaudiocli"
 offline="$experiments/diarization/.build/release/diarexp"
 export HF_HUB_OFFLINE=1
+case "$#" in
+    1) destination=$1 ;;
+    3) destination=$2 ;;
+    *) echo "usage: benchmark.sh RESULTS_ROOT | benchmark.sh COLLECTION_DIR RESULTS_ROOT CASE" >&2; exit 2 ;;
+esac
+root=$(python3 - "$destination" <<'CODE'
+from pathlib import Path
+import sys
+path = Path(sys.argv[1]).resolve()
+if any((p / ".git").exists() for p in (path, *path.parents)):
+    sys.exit("results must be outside any Git checkout")
+print(path)
+CODE
+)
 if [[ $# == 1 ]]; then
     # The full sweep has one destination and uses the stock collection beside this script.
     uv run --locked --project "$here" "$here/collection.py"
@@ -19,14 +33,8 @@ if [[ $# == 1 ]]; then
     done
     exit 0
 fi
-if [[ $# != 3 ]]; then
-    echo "usage: benchmark.sh RESULTS_ROOT | benchmark.sh COLLECTION_DIR RESULTS_ROOT CASE" >&2
-    exit 2
-fi
 collection=$(cd "$1" && pwd)
-mkdir -p "$2"
-root=$(cd "$2" && pwd)
-case "$root/" in "$(dirname "$experiments")/"*) echo "results must be outside the checkout" >&2; exit 2;; esac
+mkdir -p "$root"
 id=$3
 case "$id" in
     planning) source_dir="$collection/script" ;;

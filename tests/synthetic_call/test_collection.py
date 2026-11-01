@@ -12,6 +12,7 @@ HERE = Path(__file__).resolve().parents[2] / "experiments/synthetic-call"
 sys.path.insert(0, str(HERE))
 from collection import digest, make
 from score_case import edit_distance, speaker_time
+from silence_split import chunks
 
 
 def seg(who, start, end):
@@ -19,6 +20,12 @@ def seg(who, start, end):
 
 
 class CollectionTest(unittest.TestCase):
+    def test_exact_silence_split_threshold_and_time_offsets(self):
+        pcm = np.r_[np.zeros(23), 1, np.zeros(19), -1, np.zeros(20), 2, np.zeros(21)]
+        self.assertEqual(chunks(pcm, rate=4), [(22, 45), (63, 66)])
+        self.assertEqual(chunks(np.zeros(27), rate=4), [])
+        self.assertEqual(chunks(np.array([0, 1, 0]), rate=4), [(0, 3)])
+
     def test_overlap_counts_both_voices_and_penalizes_split_labels(self):
         truth = [seg("A", 0, 2), seg("B", 1, 3)]
         hyp = [seg("X", 0, 1), seg("Y", 1, 2), seg("Z", 2, 4)]

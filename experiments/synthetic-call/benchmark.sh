@@ -30,6 +30,7 @@ if [[ $# == 1 ]]; then
         source_id="$id"
         [[ "$id" != planning ]] || source_id=script
         "$here/compare_fast.sh" "$here/out/$source_id" "$1/$id"
+        uv run --locked --project "$here" "$here/silence_split.py" "$here/out/$source_id" "$1/$id"
     done
     exit 0
 fi

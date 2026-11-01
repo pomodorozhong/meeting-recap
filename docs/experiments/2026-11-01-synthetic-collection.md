@@ -50,6 +50,10 @@ The first clean handoff included substantial first-use overhead, and the two ful
 
 After the held-out base run, register an exploratory repair for exact digital silence. Find runs of at least five seconds of zero-valued PCM16 samples. On all-zero input return an empty transcript without loading an ASR model. Otherwise split only at those spans, retaining 250 ms at each speech edge. Run the same three pinned ASRs on the resulting stocktake chunks, shift word and segment times back to the original timeline, and compare CER, pause timestamps, wall time and footprint with the unmodified base runs. Scan all seven WAVs and check which ones this rule actually changes. This follow-up uses stocktake for development and needs a new independent sparse recording for confirmation.
 
+### Usable fast pipeline
+
+Turbo Q4 matched or improved full Whisper CER on the first five speech mixes, at lower footprint. Verify the combination in the ordinary saved-audio pipeline with an opt-in ASR selector. Run `recap.py run AUDIO OUT --asr turbo-q4 --diarizer who` on the clean handoff and logistics recordings, with the default Qwen summary. Use the existing checks, original audio digests, fitted speaker identities, per-stage timing and footprint. Compare against the two completed full Whisper / Sortformer pipelines and keep the defaults fixed.
+
 ## Reproduce
 
 The [collection instructions](../../experiments/synthetic-call/README.md#recording-collection-and-unattended-benchmark) cover generating the seven WAVs, loading the pinned models and running the whole matrix with one command. Each additional condition has its own audio SHA-256 and a matching text and speaker reference. The original planning recording matched the repository's published digest. Rebuilding the three derived controls reproduced their WAV, text and speaker intervals byte for byte. On a different MLX build, score against the freshly generated references.
@@ -86,3 +90,17 @@ These runs took 0.9–1.8 seconds each. Specifying how many people spoke sometim
 ### Recaps
 
 The four handoff checks and five logistics checks were fixed before inference. An agent read the generated notes against the fictional script. Owner checks map the anonymous output labels back to script speakers before judging them. In the four-person run, the displayed labels C and D corresponded to script speakers D and C. A repeated statement counts once. These are targeted semantic checks, separate from transcript or diarization scores.
+
+| Preregistered check | Pipeline transcript | Exact transcript |
+| --- | --- | --- |
+| Handoff, keep the retry limit at two | Pass | Pass |
+| Handoff, B exports logs by noon | Partial. Owner survived, destination and deadline were garbled | Pass |
+| Handoff, A prepares rollback checklist by Friday | Partial. Owner and day survived, checklist subject changed | Pass |
+| Handoff, timeout cause remains unresolved | Pass in topics | Pass in topics |
+| Logistics, choose indoor venue | Pass | Pass |
+| Logistics, B counts signs by Wednesday | Partial. Owner and day survived, count narrowed to elevator signs | Pass |
+| Logistics, C tests projector on Thursday | Pass after label mapping, with an unrelated corrupted equipment detail | Pass |
+| Logistics, D delivers accessibility map by Friday | Partial. One map detail survived, accessibility and deadline were missing | Pass |
+| Logistics, interpreter budget remains open | Partial. An open budget survived, its subject changed | Pass |
+
+Four of nine checks passed in full from the pipeline transcript and nine of nine from the exact script. The notes can satisfy a targeted check and still introduce an error elsewhere in that item. In a separate audit of non-topic items, two handoff action rows and three logistics rows contained unsupported or garbled details. Neither exact-input recap contained those factual substitutions. Both input conditions still put a rejected or superseded option in the undecided-proposals section of each meeting. The exact-input handoff also listed two already-answered formulations as open while its topics correctly identified the underlying uncertainty. These judgments concern two fictional meetings and a single unblinded reader.

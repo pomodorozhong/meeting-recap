@@ -109,6 +109,12 @@ class Recap(unittest.TestCase):
         with self.assertRaises(ValueError):
             score_recap.score(self.run, self.matches, self.key)
 
+    def test_chinese_key_text_covers_every_key_item(self):
+        key = json.loads(score_recap.KEY.read_text())
+        chinese = json.loads((score_recap.KEY.parent / "recap-key.zh-TW.json").read_text())["text"]
+        self.assertEqual(list(chinese), [item["id"] for item in key["items"] + key["answered"]])
+        self.assertTrue(all(text.strip() for text in chinese.values()))
+
 
 if __name__ == "__main__":
     unittest.main()

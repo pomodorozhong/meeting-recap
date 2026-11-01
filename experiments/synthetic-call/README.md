@@ -86,7 +86,7 @@ python3 experiments/synthetic-call/score_recap.py RUN_DIR MATCHES.json
 - 2 proposals;
 - 1 open question.
 
-It also lists 7 questions the call answers, which a recap must not list as open. Each item gives its script turns and the recap sections where it counts.
+It also lists 7 questions the call answers, which a recap must not list as open. Each item gives its script turns and the recap sections where it counts. The key's wording is English, but no scorer compares wording: a person matches recap items to key ids by hand. For judging a Chinese recap, [`reference/recap-key.zh-TW.json`](reference/recap-key.zh-TW.json) gives each id's wording in Traditional Chinese, in the call's own terms. `recap-key.json` stays the key, and only it is read.
 
 **Inputs:**
 - `RUN_DIR`: holds the recap's `summary.json`, whose `notes` has the sections `topics`, `decisions`, `action_items`, `proposals` and `open_questions`. It also holds the `transcript.md` it was made from, plus an optional `names.json`. `score_recap.py` describes each one.

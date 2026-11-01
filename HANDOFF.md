@@ -12,20 +12,19 @@
 
 ### feat/saved-audio-pipeline
 
-- Task: #28, the first saved-audio to Markdown pipeline. Plan approved 2026-11-01, using Qwen3.5 9B through MLX for the recap and never Ollama: if MLX breaks, stop and ask. PR [#29](https://github.com/pomodorozhong/meeting-recap/pull/29) is ready and open, and says `Related to #28`. Its body was last updated with the user's approval to cover the Who option, and still matches the branch. The branch is unlinked.
-- Code checkpoint: `07a547a` plus this handoff commit, pushed. On 2026-11-01 the branch was rebuilt with force-with-lease to hold only the pipeline, the Who option, and README diagrams. The summary accuracy and baseline work moved to stacked branches.
+- Task: #28, the first saved-audio to Markdown pipeline. Plan approved 2026-11-01, using Qwen3.5 9B through MLX for the recap and never Ollama: if MLX breaks, stop and ask. PR [#29](https://github.com/pomodorozhong/meeting-recap/pull/29) is ready and open, and says `Related to #28`. The branch is unlinked.
+- Code checkpoint: `67c85f7`, on top of a merge of `main` (with #30). The approved reproducibility fixes (old P-01) are committed but not pushed, so #29 still shows `3aa501a`.
 - State:
   - `experiments/pipelines/whisper-sortformer/` runs convert → MLX Whisper → Sortformer (or `--diarizer who`) → attach → `speakers.json` → transcript → recap.
-  - The README has a sequence diagram of which process reads and writes which file.
-  - Synthetic call: 283 s with Sortformer and 132 s with Who, 6.71 GB MLX peak, transcript speaker agreement 95.1% and 95.8%.
-- Verification: 24 pipeline tests, 116 skill tests and 10 experiment tests pass. A second run at `07a547a` reproduced the outputs (see `feat/pipeline-baseline`).
-- Next action: wait for review of #29. P-01 is the follow-up the user hasn't approved yet.
-- P-01 — Awaiting the user's go-ahead for reproducibility fixes on this branch, raised 2026-11-01 and not answered:
-  1. `setup` and `run` check the SHA-256 of the Sortformer weights (FluidAudio downloads them from the repo's `main`, not a revision) and of the Who weights (tag `v0.3.4`, currently commit `f026f46`), and refuse on a mismatch.
-  2. Record the Swift, ffmpeg, Python and MLX versions, the Mac model and the memory in `run.json`. Add `.python-version`.
-  3. Remove the repeated pins: the README's pin table points at `pins.py`, `Package.resolved` and `uv.lock`, and `pins.py` reads the Swift revisions from `Package.resolved`.
-  4. A README "Reproduce" note listing the environment used, and saying other hardware gives close, not identical, results.
-  Doing these changes #29 after its body was approved, so its body needs a matching update and approval.
+  - `setup` and `run` refuse diarizer weights whose folder SHA-256 differs from `pins.py` (Sortformer `a5cb7e5…`, Who `b19f474…`). `run.json` records those digests and the environment. `.python-version` is 3.12. `pins.py` reads the Swift revisions from `Package.resolved`.
+  - The README has a Reproduce note that scores the call with `experiments/synthetic-call/score_speakers.py`.
+- Verification at `67c85f7`:
+  - 29 pipeline tests, 116 skill tests, 10 experiment tests and 7 synthetic-call tests pass.
+  - `setup --who` printed both pinned digests.
+  - `run --no-summary` on the call, scored with the README's command, gave Sortformer 98.2%/95.1% and Who 98.5%/95.8%.
+  - `render`, `summarize` and the recap stage were not rerun after the change.
+- Next action: resolve P-02, then wait for review of #29.
+- P-02 — Awaiting approval to push `67c85f7` and replace #29's body with the updated draft shown in the session. That draft adds the weight digests, the environment record, the single-place pins, the Reproduce note, 29 tests, and step 6 of How to verify. Pushing is authorized, but changing the approved body is not.
 
 ## Ranked work
 

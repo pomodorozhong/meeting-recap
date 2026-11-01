@@ -1,0 +1,41 @@
+{
+  "description": "Negative control with completed work, a rejected proposal and an unanswered question.",
+  "speakers": {
+    "A": {
+      "voice": "dylan"
+    },
+    "B": {
+      "voice": "vivian"
+    },
+    "C": {
+      "voice": "ryan"
+    }
+  },
+  "turns": [
+    {
+      "speaker": "A",
+      "text": "昨天展品的照片都上傳完了。"
+    },
+    {
+      "speaker": "B",
+      "text": "要不要再拍一套夜景照片？"
+    },
+    {
+      "speaker": "C",
+      "text": "這次不用拍夜景，這個提案撤掉。"
+    },
+    {
+      "speaker": "A",
+      "text": "那下季的展期已經決定了嗎？"
+    },
+    {
+      "speaker": "B",
+      "text": "還不知道，今天只交換消息，不指派任何工作。"
+    },
+    {
+      "speaker": "C",
+      "text": "好，今天到這裡。"
+    }
+  ],
+  "actions": []
+}

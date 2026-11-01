@@ -13,3 +13,4 @@ Each summary is written from [TEMPLATE.md](TEMPLATE.md) and committed **before**
 | 2026-10-24 | [Both full recordings](2026-10-24-full-recordings.md) | Stable labels over 87 minutes, one voice split across two labels; stop testing models |
 | 2026-10-30 | [Sortformer on a two-person two-track call](2026-10-30-two-track-call.md) | Planned |
 | 2026-11-01 | [Synthetic collection and local model matrix](2026-11-01-synthetic-collection.md) | Seven recordings. Turbo Q4 was fastest and matched or beat full Whisper CER on each speech input. Who merged voices on the clean four-speaker call |
+| 2026-11-01 | [Evidence-backed actions on ten calls](2026-11-01-action-evidence.md) | Registered |

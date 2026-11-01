@@ -1,0 +1,44 @@
+{
+  "description": "Completed inventory and one new task without a deadline.",
+  "speakers": {
+    "A": {
+      "voice": "ryan"
+    },
+    "B": {
+      "voice": "vivian"
+    }
+  },
+  "turns": [
+    {
+      "speaker": "A",
+      "text": "倉庫的紙箱昨天都清點完了，數字已經登記。"
+    },
+    {
+      "speaker": "B",
+      "text": "好。破掉的棧板還堆在走道嗎？"
+    },
+    {
+      "speaker": "A",
+      "text": "還在。我會把破棧板搬到回收區。"
+    },
+    {
+      "speaker": "B",
+      "text": "好，搬運沒有訂期限。"
+    },
+    {
+      "speaker": "A",
+      "text": "知道，紙箱那件就結案。"
+    }
+  ],
+  "actions": [
+    {
+      "id": "T1",
+      "task": "Move the damaged pallets to the recycling area",
+      "owner": "A",
+      "due": null,
+      "support_turns": [
+        3
+      ]
+    }
+  ]
+}

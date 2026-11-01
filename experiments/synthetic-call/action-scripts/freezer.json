@@ -1,0 +1,48 @@
+{
+  "description": "Revised deadline and a proposal explicitly declined.",
+  "speakers": {
+    "A": {
+      "voice": "dylan"
+    },
+    "B": {
+      "voice": "vivian"
+    }
+  },
+  "turns": [
+    {
+      "speaker": "A",
+      "text": "冷凍庫的溫度紀錄，我星期三以前交給你。"
+    },
+    {
+      "speaker": "B",
+      "text": "星期三太早，改成星期五下班以前，可以嗎？"
+    },
+    {
+      "speaker": "A",
+      "text": "可以，溫度紀錄改到星期五下班前交。"
+    },
+    {
+      "speaker": "B",
+      "text": "要不要再加買兩支溫度計？"
+    },
+    {
+      "speaker": "A",
+      "text": "先不要買，現有的夠用。"
+    },
+    {
+      "speaker": "B",
+      "text": "了解，那採購單我不開了。"
+    }
+  ],
+  "actions": [
+    {
+      "id": "T1",
+      "task": "Deliver the freezer temperature log",
+      "owner": "A",
+      "due": "by close of business Friday",
+      "support_turns": [
+        3
+      ]
+    }
+  ]
+}

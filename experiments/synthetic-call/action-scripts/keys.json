@@ -1,0 +1,63 @@
+{
+  "description": "A deadline supplied in response to a question.",
+  "speakers": {
+    "A": {
+      "voice": "dylan"
+    },
+    "B": {
+      "voice": "vivian"
+    },
+    "C": {
+      "voice": "aiden"
+    }
+  },
+  "turns": [
+    {
+      "speaker": "A",
+      "text": "辦公室換鎖後，備用鑰匙要交給警衛。"
+    },
+    {
+      "speaker": "B",
+      "text": "我來交備用鑰匙。什麼時候以前要交？"
+    },
+    {
+      "speaker": "A",
+      "text": "明天下班以前。"
+    },
+    {
+      "speaker": "B",
+      "text": "好，就照這個時間。"
+    },
+    {
+      "speaker": "C",
+      "text": "我的部分是更新門禁名冊，我星期一以前弄好。"
+    },
+    {
+      "speaker": "A",
+      "text": "收到，名冊交電子檔就好。"
+    }
+  ],
+  "actions": [
+    {
+      "id": "T1",
+      "task": "Deliver the spare keys to the guard",
+      "owner": "B",
+      "due": "by close of business tomorrow",
+      "support_turns": [
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "id": "T2",
+      "task": "Update the access roster",
+      "owner": "C",
+      "due": "by Monday",
+      "support_turns": [
+        5
+      ]
+    }
+  ]
+}

@@ -138,25 +138,46 @@ def run_verifier(script, collection, out):
     write(target / "run.json", stats)
 
 
+def transcribe(src, audio, model):
+    python = PIPE / ".venv/bin/python"
+    subprocess.run([python, PIPE / "recap.py", "run", src / "call.wav", audio,
+                    "--asr", model, "--diarizer", "sortformer", "--no-summary"], check=True)
+    # Read exactly the named, timestamped lines supplied by the normal transcript renderer.
+    lines = [f"[{t}] {who}: {text}" for t, who, text in re.findall(
+        r"^\*\*\[([\d:]+)\] (.+?):\*\* (.*)$", (audio / "transcript.md").read_text(), re.M)]
+    if not lines:
+        raise ValueError(f"empty rendered transcript in {audio}")
+    mapping = speaker_map(load(src / "segments.json"), load(audio / "diarization.json"),
+                          load(audio / "speakers.json")["labels"])
+    return lines, mapping
+
+
+def run_large(script, collection, out):
+    src = collection / script.stem
+    check_clean(src, script)
+    meta = load(out / "case.json")
+    if digest(src / "call.wav") != meta["audio_sha256"] or digest(script) != meta["script_sha256"]:
+        raise ValueError("ASR comparison inputs differ from the primary run")
+    audio = out / "large-pipeline"
+    lines, mapping = transcribe(src, audio, "large-v3")
+    target = out / "large-focused"
+    stats = extract(lines, target, "focused", PIPE / ".venv/bin/python")
+    stats["audio_speaker_map"] = mapping
+    stats["same_diarization"] = digest(audio / "diarization.json") == digest(out / "pipeline/diarization.json")
+    write(target / "run.json", stats)
+
+
 def run_case(script, collection, out):
     src = collection / script.stem
     check_clean(src, script)
     out.mkdir()
-    audio = out / "pipeline"
     python = PIPE / ".venv/bin/python"
-    subprocess.run([python, PIPE / "recap.py", "run", src / "call.wav", audio,
-                    "--asr", "turbo-q4", "--diarizer", "sortformer", "--no-summary"], check=True)
-    # Read exactly the named, timestamped lines supplied by the normal transcript renderer.
-    lines = [f"[{t}] {who}: {text}" for t, who, text in re.findall(
-        r"^\*\*\[([\d:]+)\] (.+?):\*\* (.*)$", (audio / "transcript.md").read_text(), re.M)]
+    lines, mapping = transcribe(src, out / "pipeline", "turbo-q4")
     exact = []
     for t in load(src / "transcript.json")["segments"]:
         sec = int(t["start"])
         exact.append(f"[{sec//3600:02}:{sec//60%60:02}:{sec%60:02}] Speaker {t['speaker']}: {t['text']}")
-    if not lines:
-        raise ValueError(f"empty rendered transcript in {audio}")
     runs = {}
-    mapping = speaker_map(load(src / "segments.json"), load(audio / "diarization.json"), load(audio / "speakers.json")["labels"])
     for source, inputs in (("exact", exact), ("audio", lines)):
         for mode in ("ordinary", "focused"):
             name = f"{source}-{mode}"
@@ -175,6 +196,7 @@ if __name__ == "__main__":
     phase = parser.add_mutually_exclusive_group()
     phase.add_argument("--labels-only", action="store_true", help="run registered label repair on completed primary outputs")
     phase.add_argument("--verify-only", action="store_true", help="verify citations in completed audio-focused outputs")
+    phase.add_argument("--large-only", action="store_true", help="compare full Whisper with the audio-focused baseline")
     args = parser.parse_args()
     root = args.results.resolve()
     if any((p / ".git").exists() for p in (root, *root.parents)):
@@ -187,6 +209,8 @@ if __name__ == "__main__":
         run = run_labels
     elif args.verify_only:
         run = run_verifier
+    elif args.large_only:
+        run = run_large
     for script in sorted(CASES.glob("*.json")):
         if not args.case or script.stem in args.case:
             run(script, args.collection, root / script.stem)

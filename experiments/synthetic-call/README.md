@@ -86,6 +86,7 @@ RESULTS=$(mktemp -d)
 uv run --locked --project "$S" "$S/action_bench.py" "$RESULTS"
 uv run --locked --project "$S" "$S/action_bench.py" "$RESULTS" --labels-only
 uv run --locked --project "$S" "$S/action_bench.py" "$RESULTS" --verify-only
+uv run --locked --project "$S" "$S/action_bench.py" "$RESULTS" --large-only
 python3 "$S/score_actions.py" inspect "$RESULTS" --case poster
 python3 "$S/score_actions.py" score "$RESULTS"
 ```

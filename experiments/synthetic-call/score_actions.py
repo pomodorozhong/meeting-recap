@@ -13,6 +13,9 @@ SCRIPTS = HERE / "action-scripts"
 MODES = ("exact-ordinary", "exact-focused", "audio-ordinary", "audio-focused")
 
 
+EXTRAS = ("labels-focused", "audio-verified", "large-focused")
+
+
 def fingerprint(value):
     return hashlib.sha256(json.dumps(value, ensure_ascii=False, sort_keys=True,
                                      separators=(",", ":")).encode()).hexdigest()
@@ -32,7 +35,7 @@ def read_case(root, script):
     bindings = {"script": meta["script_sha256"], "audio": meta["audio_sha256"],
                 "mapping": meta["audio_speaker_map"]}
     runs = dict(meta["runs"])
-    for name in ("labels-focused", "audio-verified"):
+    for name in EXTRAS:
         diagnostic = run / name / "run.json"
         if diagnostic.is_file():
             runs[name] = load(diagnostic)
@@ -44,6 +47,9 @@ def read_case(root, script):
             raise ValueError(f"changed benchmark output: {folder}")
         bindings[mode] = pair
         names = meta["audio_speaker_map"] if mode.startswith("audio-") else {f"Speaker {k}": k for k in gold["speakers"]}
+        if mode == "large-focused":
+            names = runs[mode]["audio_speaker_map"]
+            bindings["large_mapping"] = names
         orders[mode] = []
         for item in items:
             value = item.get("owner")
@@ -109,7 +115,7 @@ def main():
     parser.add_argument("--case")
     parser.add_argument("--verdicts", type=Path, default=HERE / "reference/action-verdicts.json")
     args = parser.parse_args()
-    overall = {m: Counter() for m in (*MODES, "labels-focused", "audio-verified")}
+    overall = {m: Counter() for m in (*MODES, *EXTRAS)}
     cases, inputs = {}, {}
     times = {m: [] for m in overall}
     peaks = {m: [] for m in overall}
@@ -133,8 +139,11 @@ def main():
         inputs[script.stem] = {k: meta[k] for k in ("script_sha256", "audio_sha256", "duration_seconds")}
         inputs[script.stem]["transcript_pipeline_seconds"] = stages["total"]["seconds"]
         run_stats = dict(meta["runs"])
-        for mode in ("labels-focused", "audio-verified"):
+        for mode in EXTRAS:
             run_stats[mode] = load(folder / mode / "run.json")
+        inputs[script.stem]["same_diarization"] = run_stats["large-focused"]["same_diarization"]
+        for model, stage_data in (("turbo", stages), ("large", load(folder / "large-pipeline/stages.json"))):
+            inputs[script.stem][model + "_asr"] = {k: stage_data["asr"][k] for k in ("wall_seconds", "peak_footprint_bytes")}
         paired = zip(load(folder / "audio-focused/lines.json"), load(folder / "labels-focused/lines.json"), strict=True)
         inputs[script.stem]["changed_line_labels"] = sum(a != b for a, b in paired)
         inputs[script.stem]["same_actions_after_relabeling"] = (

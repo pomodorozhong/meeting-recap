@@ -16,7 +16,7 @@ A short, shareable three-person call for running the runners, the pipeline, and 
 | `transcript.json` | Ground-truth text per turn in the `transcript` shape (no word times) |
 | `manifest.json` | Model revision, seed, voices, duration, run time, and the call's sha256 |
 
-The audio (10.5 MB) is not committed. [`reference/`](reference/) holds the `segments.json`, `transcript.json` and `manifest.json` of the run with seed 7. That run reproduces exactly: two runs on an M2 Pro (macOS 26.6.2) gave the same `call_sha256`. On other hardware or MLX builds, compare your manifest's `call_sha256` with the committed one before trusting `reference/`; if they differ, use your own `out/script/` files as the ground truth.
+The audio (10.5 MB) is not committed. [`reference/`](reference/) holds the `segments.json`, `transcript.json` and `manifest.json` of the run with seed 7. It also holds `recap-key.json`, the answer key for scoring a recap of the call (see [Score a run](#score-a-run)). That run reproduces exactly: two runs on an M2 Pro (macOS 26.6.2) gave the same `call_sha256`. On other hardware or MLX builds, compare your manifest's `call_sha256` with the committed one before trusting `reference/`; if they differ, use your own `out/script/` files as the ground truth.
 
 ### Intelligibility
 
@@ -52,6 +52,60 @@ python3 $SKILL/review.py known "$DATASET" --recording synthetic --segments exper
 Then run a diarization runner from [docs/runners.md](../../docs/runners.md) on `call.wav`, register its `segments` with `dataset.py add-run`, and score it with `evaluate.py --reference truth`. `review.py known` cuts the call into 10 clips of about 30 seconds with 72 reference turns.
 
 Smoke test, 2026-10-29: Sortformer (FluidAudio, as pinned in docs/runners.md) recovered 67 of 72 turns and got 7 of 10 clips fully right, with the best-fitting label mapping. The misses were in clips 1, 7 and 10: two short B turns and an A turn went unnoticed, and near the end one C turn went to a fourth label that Sortformer used for only 0.6 s.
+
+## Score a run
+
+Two scorers compare a run on `call.wav` with the call's ground truth, so any pipeline or experiment can be measured the same way. Run them from the repository root through this folder's uv project. Its environment is the one that generated the call.
+
+### Who spoke when
+
+```bash
+uv run --project experiments/synthetic-call experiments/synthetic-call/score_speakers.py \
+  --asr asr.json --segments segments.json --turns turns.json --audio experiments/synthetic-call/out/script/call.wav
+```
+
+**Inputs:**
+- `--asr`: WhisperKit-shaped JSON with word timestamps.
+- `--segments`: the run's diarization, in the `segments` format of [docs/runners.md](../../docs/runners.md).
+- `--turns` (optional): the attached transcript, `[{"speaker_id", "text"}]` in spoken order.
+- `--audio`, or `--audio-sha256` instead: the run's audio. It must be the call `reference/manifest.json` describes, or the scorer refuses.
+
+**What it reports**, over characters and with the best label mapping (two labels may map to one speaker):
+- **Diarization agreement:** each Whisper word is labelled at its own time by the run and by the known turns, so ASR timing errors don't count.
+- **Transcript agreement**, with `--turns`: the turns are aligned to the script's text after OpenCC `t2s`, with punctuation and spaces dropped, so a word placed in the wrong turn counts as an error.
+
+### Recap
+
+```bash
+python3 experiments/synthetic-call/score_recap.py RUN_DIR MATCHES.json
+```
+
+[`reference/recap-key.json`](reference/recap-key.json) lists 24 items a correct recap of this call holds:
+- 10 decisions;
+- 11 action items, with owners and deadlines, or null when the call states none;
+- 2 proposals;
+- 1 open question.
+
+It also lists 7 questions the call answers, which a recap must not list as open. Each item gives its script turns and the recap sections where it counts.
+
+**Inputs:**
+- `RUN_DIR`: holds the recap's `summary.json`, whose `notes` has the sections `topics`, `decisions`, `action_items`, `proposals` and `open_questions`. It also holds the `transcript.md` it was made from, plus an optional `names.json`. `score_recap.py` describes each one.
+- `MATCHES.json`: a hand verdict for every recap item (correct, misplaced, wrong or duplicate) and the key items it states.
+
+**What it reports:**
+- key items found, and placed in an accepted section;
+- whether the cited timestamps cover each item's script turns;
+- recap items by verdict;
+- action owners right;
+- deadlines right.
+
+**Where the key came from:** it was written from the script on 2026-11-01 for the [recap accuracy check](https://github.com/pomodorozhong/meeting-recap/issues/28) and frozen before any recap was scored. Two answered questions (X6, X7) were added after the first recap was read. Its SHA-256 is `4ef8c91b657d56528bf76b74d8301eb4e11f426636322a8867807a473ecac2e1`. Change it only with a note here, because scores made with different keys can't be compared.
+
+### Tests
+
+```bash
+uv run --project experiments/synthetic-call python -m unittest discover -s tests/synthetic_call -t tests/synthetic_call
+```
 
 ## Pins and licenses
 

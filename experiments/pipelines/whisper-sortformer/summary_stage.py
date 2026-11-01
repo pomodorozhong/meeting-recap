@@ -22,7 +22,14 @@ ACTION_PROMPT = """從逐字稿抽取會議結束時仍然成立的待辦。逐�
 """
 
 
-def main(lines_path, out, actions_only=False):
+VERIFY_PROMPT = """核對候選待辦是否有完整、最終的逐字稿證據。逐項核對工作內容和範圍、負責人、期限。
+不要修改候選值。未指定可保留 null；不可把提案、假設、已取消、已完成或已被取代的指派視為待辦。
+若缺任一必要證據，排除整項。若通過，列出能共同證明所有欄位的逐字稿行號。
+只輸出 JSON：{"accepted":[{"id":1,"lines":[1,2]}]}。候選編號和行號都從 1 開始。沒有通過時輸出空陣列。
+"""
+
+
+def main(lines_path, out, actions_only=False, verify_actions=None):
     from mlx_lm import generate, load
 
     with open(lines_path, encoding="utf-8") as handle:
@@ -40,9 +47,17 @@ def main(lines_path, out, actions_only=False):
         return reply
 
     parts = pipeline.chunks(lines)
-    if actions_only and len(parts) != 1:
+    if (actions_only or verify_actions) and len(parts) != 1:
         raise ValueError("the experimental focused prompt requires a single transcript chunk")
-    if actions_only:
+    if verify_actions:
+        with open(verify_actions, encoding="utf-8") as handle:
+            candidates = json.load(handle)
+        numbered = [f"{n}. {line}" for n, line in enumerate(lines, 1)]
+        rows = [{"id": n, **{k: it.get(k) for k in ("task", "owner", "due")}}
+                for n, it in enumerate(candidates, 1)]
+        ask("verify", VERIFY_PROMPT + "\n逐字稿：\n" + "\n".join(numbered)
+            + "\n候選：\n" + json.dumps(rows, ensure_ascii=False))
+    elif actions_only:
         ask("actions", ACTION_PROMPT + "\n".join(lines))
     else:
         full_recap(parts, ask)
@@ -63,6 +78,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("lines_path")
     parser.add_argument("out")
-    parser.add_argument("--actions-only", action="store_true", help="experimental single-chunk action extractor")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--actions-only", action="store_true", help="experimental single-chunk action extractor")
+    mode.add_argument("--verify-actions", metavar="ITEMS", help="experimental citation-only verifier")
     args = parser.parse_args()
-    main(args.lines_path, args.out, args.actions_only)
+    main(args.lines_path, args.out, args.actions_only, args.verify_actions)

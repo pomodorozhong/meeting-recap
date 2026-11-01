@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "experiments/synthetic-call"))
-from action_bench import CASES, relabel_lines, speaker_map
+from action_bench import CASES, accepted_items, relabel_lines, speaker_map
 from score_actions import count_items, load, summarize
 
 
@@ -27,6 +27,15 @@ class ActionEvidence(unittest.TestCase):
             return dict(speaker_id=label, start_seconds=start, end_seconds=end)
         truth = [seg("B", 0, 1), seg("A", 1, 5)]
         self.assertEqual(speaker_map(truth, [seg("x", 0, 5)], {"x": "Speaker B"}), {"Speaker B": "A"})
+
+    def test_verifier_cannot_change_fields_or_create_candidates(self):
+        items = [dict(task="deliver", owner="B", due=None, evidence=["00:00:02"])]
+        lines = ["[00:00:01] Speaker B: OK"]
+        accepted = [dict(id=1, lines=[1], owner="A")]
+        self.assertEqual(accepted_items(accepted, items, lines), [{**items[0], "evidence": ["00:00:01"]}])
+        for bad in ([dict(id=2, lines=[1])], [dict(id=1, lines=[2])], accepted * 2):
+            with self.assertRaises(ValueError):
+                accepted_items(bad, items, lines)
 
     def test_label_repair_changes_only_name_and_can_abstain(self):
         lines = ["[00:00:01] Speaker B: first: detail", "[00:00:04] Speaker B: second"]

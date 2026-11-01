@@ -32,9 +32,10 @@ def read_case(root, script):
     bindings = {"script": meta["script_sha256"], "audio": meta["audio_sha256"],
                 "mapping": meta["audio_speaker_map"]}
     runs = dict(meta["runs"])
-    diagnostic = run / "labels-focused/run.json"
-    if diagnostic.is_file():
-        runs["labels-focused"] = load(diagnostic)
+    for name in ("labels-focused", "audio-verified"):
+        diagnostic = run / name / "run.json"
+        if diagnostic.is_file():
+            runs[name] = load(diagnostic)
     for mode in runs:
         folder = run / mode
         lines, items = load(folder / "lines.json"), load(folder / "items.json")
@@ -108,7 +109,7 @@ def main():
     parser.add_argument("--case")
     parser.add_argument("--verdicts", type=Path, default=HERE / "reference/action-verdicts.json")
     args = parser.parse_args()
-    overall = {m: Counter() for m in (*MODES, "labels-focused")}
+    overall = {m: Counter() for m in (*MODES, "labels-focused", "audio-verified")}
     cases, inputs = {}, {}
     times = {m: [] for m in overall}
     peaks = {m: [] for m in overall}
@@ -131,7 +132,9 @@ def main():
         stages = load(folder / "pipeline/stages.json")
         inputs[script.stem] = {k: meta[k] for k in ("script_sha256", "audio_sha256", "duration_seconds")}
         inputs[script.stem]["transcript_pipeline_seconds"] = stages["total"]["seconds"]
-        run_stats = {**meta["runs"], "labels-focused": load(folder / "labels-focused/run.json")}
+        run_stats = dict(meta["runs"])
+        for mode in ("labels-focused", "audio-verified"):
+            run_stats[mode] = load(folder / mode / "run.json")
         paired = zip(load(folder / "audio-focused/lines.json"), load(folder / "labels-focused/lines.json"), strict=True)
         inputs[script.stem]["changed_line_labels"] = sum(a != b for a, b in paired)
         inputs[script.stem]["same_actions_after_relabeling"] = (

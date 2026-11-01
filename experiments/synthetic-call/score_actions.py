@@ -30,14 +30,18 @@ def read_case(root, script):
     packet, orders = {}, {}
     bindings = {"script": meta["script_sha256"], "audio": meta["audio_sha256"],
                 "mapping": meta["audio_speaker_map"]}
-    for mode in MODES:
+    runs = dict(meta["runs"])
+    diagnostic = run / "labels-focused/run.json"
+    if diagnostic.is_file():
+        runs["labels-focused"] = load(diagnostic)
+    for mode in runs:
         folder = run / mode
         lines, items = load(folder / "lines.json"), load(folder / "items.json")
         pair = [sha256(folder / "lines.json"), sha256(folder / "items.json")]
-        if pair != [meta["runs"][mode][k] for k in ("lines_sha256", "items_sha256")]:
+        if pair != [runs[mode][k] for k in ("lines_sha256", "items_sha256")]:
             raise ValueError(f"changed benchmark output: {folder}")
         bindings[mode] = pair
-        names = meta["audio_speaker_map"] if mode.startswith("audio") else {f"Speaker {k}": k for k in gold["speakers"]}
+        names = meta["audio_speaker_map"] if mode.startswith("audio-") else {f"Speaker {k}": k for k in gold["speakers"]}
         orders[mode] = []
         for item in items:
             value = item.get("owner")
@@ -103,7 +107,7 @@ def main():
     parser.add_argument("--case")
     parser.add_argument("--verdicts", type=Path, default=HERE / "reference/action-verdicts.json")
     args = parser.parse_args()
-    overall = {m: Counter() for m in MODES}
+    overall = {m: Counter() for m in (*MODES, "labels-focused")}
     cases = {}
     verdicts = load(args.verdicts) if args.command == "score" else {}
     scripts = [s for s in sorted(SCRIPTS.glob("*.json")) if args.case in (None, s.stem)]
@@ -114,6 +118,8 @@ def main():
         if args.command == "inspect":
             cases[script.stem] = {"binding": binding, "gold": gold, "predictions": dict(sorted(packet.items()))}
             continue
+        if set(orders) != set(overall):
+            raise ValueError(f"{script.stem}: missing registered conditions")
         case = verdicts[script.stem]
         if binding != case["binding"] or set(case["rows"]) != set(packet):
             raise ValueError(f"{script.stem}: these verdicts do not describe these model outputs")

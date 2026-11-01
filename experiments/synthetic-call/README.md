@@ -77,13 +77,14 @@ Each case writes `scores.json` for the base matrix and `extension/scores.json` i
 
 The ten [action scripts and keys](action-scripts/) contain 14 final commitments and one meeting with none. Each key names the deliverable, final owner, deadline and supporting turns. The extractor receives only named, timestamped transcript lines. See the [experiment report](../../docs/experiments/2026-11-01-action-evidence.md).
 
-From the repository root, use the pipeline's Swift build and `setup --asr turbo-q4` as documented in its README. Choose an output directory outside Git. One run creates four extractions per recording and preserves the raw replies, exact inputs, timing logs, audio-stage outputs and speaker mapping.
+From the repository root, use the pipeline's Swift build and `setup --asr turbo-q4` as documented in its README. Choose an output directory outside Git. The primary run creates four extractions per recording and preserves the raw replies, exact inputs, timing logs, audio-stage outputs and speaker mapping.
 
 ```bash
 S=experiments/synthetic-call
 uv run --locked --project "$S" "$S/collection.py" --suite actions
 RESULTS=$(mktemp -d)
 uv run --locked --project "$S" "$S/action_bench.py" "$RESULTS"
+uv run --locked --project "$S" "$S/action_bench.py" "$RESULTS" --labels-only
 python3 "$S/score_actions.py" inspect "$RESULTS" --case poster
 python3 "$S/score_actions.py" score "$RESULTS"
 ```

@@ -54,6 +54,41 @@ def extract(lines, run, mode, python):
             "lines_sha256": digest(run / "lines.json"), "items_sha256": digest(run / "items.json")}
 
 
+def relabel_lines(lines, turns, truth):
+    corrected = []
+    for line, turn in zip(lines, turns, strict=True):
+        seconds = int(turn["start_seconds"])
+        stamp = f"[{seconds//3600:02}:{seconds//60%60:02}:{seconds%60:02}]"
+        if not line.startswith(stamp + " "):
+            raise ValueError("displayed line and ASR turn start differ")
+        overlaps = {}
+        for ref in truth:
+            duration = min(turn["end_seconds"], ref["end_seconds"]) - max(turn["start_seconds"], ref["start_seconds"])
+            if duration > 0:
+                speaker = ref["speaker_id"]
+                overlaps[speaker] = overlaps.get(speaker, 0.0) + duration
+        label = "Speaker " + max(overlaps, key=overlaps.get) if overlaps else "Unknown speaker"
+        _, text = line.split(": ", 1)
+        corrected.append(f"{stamp} {label}: {text}")
+    return corrected
+
+
+def run_labels(script, collection, out):
+    src = collection / script.stem
+    check_clean(src, script)
+    meta = load(out / "case.json")
+    if meta["script_sha256"] != digest(script) or meta["audio_sha256"] != digest(src / "call.wav"):
+        raise ValueError("the primary run belongs to different inputs")
+    original = out / "audio-focused/lines.json"
+    if digest(original) != meta["runs"]["audio-focused"]["lines_sha256"]:
+        raise ValueError("the primary lines changed")
+    lines = relabel_lines(load(original), load(out / "pipeline/turns.json"), load(src / "segments.json"))
+    run = out / "labels-focused"
+    print(f"[{script.stem}] labels-focused", flush=True)
+    stats = extract(lines, run, "focused", PIPE / ".venv/bin/python")
+    write(run / "run.json", stats)
+
+
 def run_case(script, collection, out):
     src = collection / script.stem
     check_clean(src, script)
@@ -88,6 +123,7 @@ if __name__ == "__main__":
     parser.add_argument("results", type=Path)
     parser.add_argument("--collection", type=Path, default=HERE / "out")
     parser.add_argument("--case", choices=[s.stem for s in sorted(CASES.glob("*.json"))], action="append")
+    parser.add_argument("--labels-only", action="store_true", help="run registered label repair on completed primary outputs")
     args = parser.parse_args()
     root = args.results.resolve()
     if any((p / ".git").exists() for p in (root, *root.parents)):
@@ -97,4 +133,5 @@ if __name__ == "__main__":
     subprocess.run(["uv", "sync", "--locked", "--project", PIPE], check=True)
     for script in sorted(CASES.glob("*.json")):
         if not args.case or script.stem in args.case:
-            run_case(script, args.collection, root / script.stem)
+            run = run_labels if args.labels_only else run_case
+            run(script, args.collection, root / script.stem)

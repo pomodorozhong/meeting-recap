@@ -188,7 +188,7 @@ def run_case(script, collection, out):
                               "audio_speaker_map": mapping, "runs": runs})
 
 
-if __name__ == "__main__":
+def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("results", type=Path)
     parser.add_argument("--collection", type=Path, default=HERE / "out")
@@ -197,13 +197,15 @@ if __name__ == "__main__":
     phase.add_argument("--labels-only", action="store_true", help="run registered label repair on completed primary outputs")
     phase.add_argument("--verify-only", action="store_true", help="verify citations in completed audio-focused outputs")
     phase.add_argument("--large-only", action="store_true", help="compare full Whisper with the audio-focused baseline")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     root = args.results.resolve()
     if any((p / ".git").exists() for p in (root, *root.parents)):
         parser.error("results must be outside any Git checkout")
-    root.mkdir(parents=True, exist_ok=True)
     os.environ["HF_HUB_OFFLINE"] = "1"
     subprocess.run(["uv", "sync", "--locked", "--project", PIPE], check=True)
+    # The registered matrix includes both ASRs, even when this invocation only runs its first phase.
+    subprocess.run([PIPE / ".venv/bin/python", PIPE / "recap.py", "preflight", "--asr", "all"], check=True)
+    root.mkdir(parents=True, exist_ok=True)
     run = run_case
     if args.labels_only:
         run = run_labels
@@ -214,3 +216,7 @@ if __name__ == "__main__":
     for script in sorted(CASES.glob("*.json")):
         if not args.case or script.stem in args.case:
             run(script, args.collection, root / script.stem)
+
+
+if __name__ == "__main__":
+    main()

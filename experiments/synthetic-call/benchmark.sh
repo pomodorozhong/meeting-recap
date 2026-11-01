@@ -13,7 +13,7 @@ case "$#" in
     3) destination=$2 ;;
     *) echo "usage: benchmark.sh RESULTS_ROOT | benchmark.sh COLLECTION_DIR RESULTS_ROOT CASE" >&2; exit 2 ;;
 esac
-root=$(python3 - "$destination" <<'CODE'
+root=$(uv run --locked --project "$here" python - "$destination" <<'CODE'
 from pathlib import Path
 import sys
 path = Path(sys.argv[1]).resolve()
@@ -46,7 +46,7 @@ out="$root/$id"
 wav="$source_dir/call.wav"
 # Atomically reserve a fresh case folder. A failed run keeps its logs.
 mkdir "$out"
-python3 - "$source_dir" "$out" <<'PY'
+uv run --locked --project "$here" python - "$source_dir" "$out" <<'PY'
 from pathlib import Path
 import hashlib, json, sys
 source, out = map(Path, sys.argv[1:])
@@ -70,27 +70,18 @@ audio="$out/pipeline/audio.wav"
 uv sync --locked --project "$mlx" --quiet
 timed breeze "$mlx/.venv/bin/python" "$mlx/run.py" "$audio" "$out/breeze.json" eoleedi/Breeze-ASR-25-mlx zh
 # Check the same pinned weight bytes as the release pipeline before calling the Swift binary directly.
-(cd "$pipe" && python3 -c 'import pins; pins.check_weights("who")')
+(cd "$pipe" && uv run --locked python -c 'import pins; pins.check_weights("who")')
 timed who "$pipe/.build/release/who-diarize" "$audio" "$out/who.json" "${WHO_MODELS:-$HOME/Library/Application Support/meeting-recap/who}"
 if [[ "$id" == handoff || "$id" == logistics ]]; then
     count=2
     [[ "$id" != logistics ]] || count=4
-    (cd "$pipe" && python3 - <<'PY'
-import pins
-for folder, sha in (
-    ("ls-eend", "d375290fbaf031b22ee72cd4539f781bbf0c58add15fc64c457c3be89610ba04"),
-    ("speaker-diarization", "94e171fd88406ba786232eb86860767185a57b47d89bda6dc8dd8b914563dafb"),
-):
-    if pins.tree_sha256(pins.SORTFORMER_MODELS.parent / folder) != sha:
-        raise SystemExit(f"missing or changed {folder} model cache")
-PY
-    )
+    uv run --locked --project "$pipe" "$pipe/weights.py" check ls-eend speaker-diarization
     timed community "$offline" "$audio" "$out/community.json"
     timed community-count "$offline" "$audio" "$out/community-count.json" "num=$count"
     for variant in dihard3 ami callhome dihard2; do
         name="lseend-$variant"
         timed "$name" "$fluid" lseend "$audio" --variant "$variant" --output "$out/$name.raw.json"
-        python3 "$experiments/diarization/sortformer_to_segments.py" "$out/$name.raw.json" "$out/$name.json"
+        uv run --locked --project "$here" python "$experiments/diarization/sortformer_to_segments.py" "$out/$name.raw.json" "$out/$name.json"
     done
 fi
 uv run --locked --project "$here" "$here/score_case.py" "$source_dir" "$out" > "$out/scores.partial"

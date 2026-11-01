@@ -108,24 +108,20 @@ def summarize(counts):
             "f1": 2*hit/(emitted+gold) if emitted+gold else None}
 
 
-def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["inspect", "score"])
-    parser.add_argument("results", type=Path)
-    parser.add_argument("--case")
-    parser.add_argument("--verdicts", type=Path, default=HERE / "reference/action-verdicts.json")
-    args = parser.parse_args()
+def evaluate(results, verdicts_path=HERE / "reference/action-verdicts.json", *, case=None, inspect=False):
+    """Replay original inputs and hash-bound judgments; no model or network is needed."""
+    results = Path(results)
     overall = {m: Counter() for m in (*MODES, *EXTRAS)}
     cases, inputs = {}, {}
     times = {m: [] for m in overall}
     peaks = {m: [] for m in overall}
-    verdicts = load(args.verdicts) if args.command == "score" else {}
-    scripts = [s for s in sorted(SCRIPTS.glob("*.json")) if args.case in (None, s.stem)]
+    verdicts = {} if inspect else load(verdicts_path)
+    scripts = [s for s in sorted(SCRIPTS.glob("*.json")) if case in (None, s.stem)]
     if not scripts:
-        parser.error("unknown case")
+        raise ValueError("unknown case")
     for script in scripts:
-        gold, packet, orders, binding = read_case(args.results, script)
-        if args.command == "inspect":
+        gold, packet, orders, binding = read_case(results, script)
+        if inspect:
             cases[script.stem] = {"binding": binding, "gold": gold, "predictions": dict(sorted(packet.items()))}
             continue
         if set(orders) != set(overall):
@@ -133,7 +129,7 @@ def main():
         case = verdicts[script.stem]
         if binding != case["binding"] or set(case["rows"]) != set(packet):
             raise ValueError(f"{script.stem}: these verdicts do not describe these model outputs")
-        folder = args.results / script.stem
+        folder = results / script.stem
         meta = load(folder / "case.json")
         stages = load(folder / "pipeline/stages.json")
         inputs[script.stem] = {k: meta[k] for k in ("script_sha256", "audio_sha256", "duration_seconds")}
@@ -160,11 +156,22 @@ def main():
                                        "reply_format": ("skipped-empty" if timing.get("skipped_empty")
                                                         else timing.get("reply_format", "object"))}
     result = {"cases": cases}
-    if args.command == "score":
+    if not inspect:
         result["inputs"] = inputs
         result["micro"] = {m: {**summarize(c), "median_seconds": median(times[m]),
                                "total_seconds": round(sum(times[m]), 2), "max_peak_footprint_bytes": max(peaks[m])}
                            for m, c in overall.items()}
+    return result
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("command", choices=["inspect", "score"])
+    parser.add_argument("results", type=Path)
+    parser.add_argument("--case")
+    parser.add_argument("--verdicts", type=Path, default=HERE / "reference/action-verdicts.json")
+    args = parser.parse_args()
+    result = evaluate(args.results, args.verdicts, case=args.case, inspect=args.command == "inspect")
     print(json.dumps(result, ensure_ascii=False, indent=2))
 
 

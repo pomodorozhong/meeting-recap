@@ -23,6 +23,7 @@ import time
 
 import pins
 import pipeline
+import weights
 
 HERE = Path(__file__).resolve().parent
 STAGES = ("convert", "asr", "diarize", "attach", "transcript", "summary")
@@ -347,15 +348,17 @@ def summarize(args):
 
 
 def setup(args):
-    for repo, revision in (pins.ASR_MODELS[args.asr], (pins.SUMMARY_REPO, pins.SUMMARY_REVISION)):
+    selected = list(pins.ASR_MODELS.values()) if args.asr == "all" else [pins.ASR_MODELS[args.asr]]
+    for repo, revision in [*selected, (pins.SUMMARY_REPO, pins.SUMMARY_REVISION)]:
         print(f"{repo}@{revision}: {pins.snapshot(repo, revision)}")
     if not pins.FLUIDAUDIO_CLI.exists():
         raise ValueError("build the diarizer first: swift build -c release --product fluidaudiocli")
+    weights.install("sortformer")
     with tempfile.TemporaryDirectory() as directory:
         wav, result = Path(directory) / "silence.wav", Path(directory) / "out.json"
         subprocess.run(["ffmpeg", "-nostdin", "-loglevel", "error", "-f", "lavfi", "-i", "anullsrc=r=16000:cl=mono",
                         "-t", "3", str(wav)], check=True)
-        # The first Sortformer run downloads FluidAudio's models.
+        # Warm the exact restored weights, without depending on upstream main.
         subprocess.run([str(pins.FLUIDAUDIO_CLI), "sortformer", str(wav), "--output", str(result)],
                        capture_output=True, check=True)
         if not result.exists():
@@ -371,13 +374,39 @@ def setup(args):
     print("setup complete; `run` now works offline")
 
 
+def preflight(args):
+    """Check every model needed by a comparison before starting its first expensive stage."""
+    selected = list(pins.ASR_MODELS.values()) if args.asr == "all" else [pins.ASR_MODELS[args.asr]]
+    for repo, revision in [*selected, (pins.SUMMARY_REPO, pins.SUMMARY_REVISION)]:
+        try:
+            cached = Path(pins.snapshot(repo, revision, local_files_only=True))
+            required = {"config.json", "weights.npz"}
+            if repo == pins.SUMMARY_REPO:
+                index = read_json(cached / "model.safetensors.index.json")
+                required = {"config.json", "tokenizer.json", "tokenizer_config.json", *index["weight_map"].values()}
+            if any(not (cached / name).is_file() or not (cached / name).stat().st_size for name in required):
+                raise ValueError("incomplete snapshot")
+        except (OSError, ValueError, KeyError, TypeError) as error:
+            raise ValueError(f"missing cached {repo}@{revision}; run recap.py setup --asr {args.asr}") from error
+    if not pins.FLUIDAUDIO_CLI.is_file() or not os.access(pins.FLUIDAUDIO_CLI, os.X_OK):
+        raise ValueError("build the diarizer first: swift build -c release --product fluidaudiocli")
+    for binary in ("ffmpeg", "ffprobe"):
+        if not shutil.which(binary):
+            raise ValueError(f"missing executable: {binary}")
+    pins.check_weights("sortformer")
+    print(f"preflight complete: {args.asr}, Qwen and Sortformer are available offline")
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     commands = parser.add_subparsers(dest="command", required=True)
     p = commands.add_parser("setup", help="download pinned models")
     p.add_argument("--who", action="store_true", help="also download Who's weights for --diarizer who")
-    p.add_argument("--asr", choices=pins.ASR_MODELS, default="large-v3", help="ASR snapshot to cache")
+    p.add_argument("--asr", choices=[*pins.ASR_MODELS, "all"], default="large-v3", help="ASR snapshots to cache")
     p.set_defaults(func=setup)
+    p = commands.add_parser("preflight", help="check cached models and executables without downloading")
+    p.add_argument("--asr", choices=[*pins.ASR_MODELS, "all"], default="large-v3")
+    p.set_defaults(func=preflight)
     p = commands.add_parser("run", help="run every stage")
     p.add_argument("audio")
     p.add_argument("out", help="a new folder outside the Git checkout")

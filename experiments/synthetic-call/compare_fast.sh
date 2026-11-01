@@ -14,13 +14,13 @@ pipe=$(dirname "$here")/pipelines/whisper-sortformer
     "$out/pipeline/audio.wav" "$out/extension/turbo.json" mlx-community/whisper-large-v3-turbo-q4 zh \
     --revision 660c343bbf4e52ac257f0b7d952e5388e6f93bef >"$out/extension/turbo.log" 2>&1
 if [[ $(basename "$out") != silence ]]; then
-    python3 "$here/turn_order.py" "$source_dir" "$out" "$out/extension/review" >"$out/extension/turn-order.json"
+    uv run --locked --project "$here" "$here/turn_order.py" "$source_dir" "$out" "$out/extension/review" >"$out/extension/turn-order.json"
 fi
 case "$(basename "$out")" in
     handoff|logistics)
         oracle="$out/extension/exact-script"
         mkdir "$oracle"
-        python3 - "$source_dir/transcript.json" "$oracle" <<'CODE'
+        uv run --locked --project "$here" python - "$source_dir/transcript.json" "$oracle" <<'CODE'
 import json, sys
 from pathlib import Path
 source, out = map(Path, sys.argv[1:])

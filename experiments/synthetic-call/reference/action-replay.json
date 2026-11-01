@@ -1,0 +1,808 @@
+{
+  "schema": 1,
+  "scoring_source_commit": "cac52ea83f8101b11dca8b2d0ab2357a9738dae6",
+  "report_sha256": "3ec2b5c004725a7a0af1b1f1d12739dc8210280bf8c453f6b663e850d3382a74",
+  "verdicts_sha256": "705251b12aa7bc851c4674e53dbc61547b31b78b43a204b52704048383fc21d9",
+  "files": {
+    "archive/audio-focused/items.json": {
+      "sha256": "0062d2c57ffb6594e9751cc7d875d7b1494d135b078c0ab436966b4b8877ec7e",
+      "text": "[\n  {\n    \"task\": \"把舊當萬備份\",\n    \"owner\": \"Speaker A\",\n    \"due\": \"星期四\",\n    \"evidence\": [\n      \"00:00:00\"\n    ]\n  },\n  {\n    \"task\": \"更新資料嘎索引\",\n    \"owner\": \"Speaker C\",\n    \"due\": null,\n    \"evidence\": [\n      \"00:00:09\"\n    ]\n  }\n]\n"
+    },
+    "archive/audio-focused/lines.json": {
+      "sha256": "6a6e06abf5ab7ad6716eedc4961e1aa1267a2921567051f7dab9cffe47eb8b56",
+      "text": "[\n  \"[00:00:00] Speaker A: 我們確定星期四前要把舊當萬備份對\",\n  \"[00:00:04] Speaker B: 但負責備份的人還沒決定先不要填名字\",\n  \"[00:00:09] Speaker C: 另一件事我來更新資料嘎索引沒有截止日期收\",\n  \"[00:00:14] Speaker A: 到索引和備份是分開的兩件事那\",\n  \"[00:00:17] Speaker B: 今天\",\n  \"[00:00:18] Speaker C: 先到這裡\"\n]\n"
+    },
+    "archive/audio-ordinary/items.json": {
+      "sha256": "107131412ebbf852a90abaa9abdca6410f7c47d55055c198038e70bc29d6a7e5",
+      "text": "[\n  {\n    \"task\": \"負責備份\",\n    \"owner\": null,\n    \"due\": null,\n    \"evidence\": [\n      \"00:00:04\"\n    ]\n  }\n]\n"
+    },
+    "archive/audio-ordinary/lines.json": {
+      "sha256": "6a6e06abf5ab7ad6716eedc4961e1aa1267a2921567051f7dab9cffe47eb8b56",
+      "text": "[\n  \"[00:00:00] Speaker A: 我們確定星期四前要把舊當萬備份對\",\n  \"[00:00:04] Speaker B: 但負責備份的人還沒決定先不要填名字\",\n  \"[00:00:09] Speaker C: 另一件事我來更新資料嘎索引沒有截止日期收\",\n  \"[00:00:14] Speaker A: 到索引和備份是分開的兩件事那\",\n  \"[00:00:17] Speaker B: 今天\",\n  \"[00:00:18] Speaker C: 先到這裡\"\n]\n"
+    },
+    "archive/audio-verified/items.json": {
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "text": "[]\n"
+    },
+    "archive/audio-verified/lines.json": {
+      "sha256": "6a6e06abf5ab7ad6716eedc4961e1aa1267a2921567051f7dab9cffe47eb8b56",
+      "text": "[\n  \"[00:00:00] Speaker A: 我們確定星期四前要把舊當萬備份對\",\n  \"[00:00:04] Speaker B: 但負責備份的人還沒決定先不要填名字\",\n  \"[00:00:09] Speaker C: 另一件事我來更新資料嘎索引沒有截止日期收\",\n  \"[00:00:14] Speaker A: 到索引和備份是分開的兩件事那\",\n  \"[00:00:17] Speaker B: 今天\",\n  \"[00:00:18] Speaker C: 先到這裡\"\n]\n"
+    },
+    "archive/audio-verified/run.json": {
+      "sha256": "06d59bce504a3015c85b729f027e1e19f1c20fb67b0414cbe783bbac2d56fd9a",
+      "text": "{\n  \"wall_seconds\": 8.42,\n  \"peak_footprint_bytes\": 6433920040,\n  \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n  \"reply_format\": \"object\",\n  \"lines_sha256\": \"6a6e06abf5ab7ad6716eedc4961e1aa1267a2921567051f7dab9cffe47eb8b56\",\n  \"items_sha256\": \"37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570\"\n}\n"
+    },
+    "archive/case.json": {
+      "sha256": "748cb332041df51aa60f520b8872c62608174142459a946a3c09eac59b699a62",
+      "text": "{\n  \"script_sha256\": \"8216c1896866107c543b7bc14f18e32a8978dcdcfc0ade87c2b2191d38748ed0\",\n  \"audio_sha256\": \"d2c88b74baa6ee5f9e3c94381a50ed333d9344896b02fc2405173e1993e33696\",\n  \"duration_seconds\": 20.2,\n  \"audio_speaker_map\": {\n    \"Speaker A\": \"A\",\n    \"Speaker B\": \"B\",\n    \"Speaker C\": \"C\"\n  },\n  \"runs\": {\n    \"exact-ordinary\": {\n      \"wall_seconds\": 18.55,\n      \"peak_footprint_bytes\": 6581965816,\n      \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n      \"lines_sha256\": \"10842095a7cb27d39fc874f388fb914eae5b20cd774b3836406fa80c7444a438\",\n      \"items_sha256\": \"9fa81f1029269e20883ea4c9085a22e9b6fbc342c2c06f27f3878540867bd948\"\n    },\n    \"exact-focused\": {\n      \"wall_seconds\": 10.52,\n      \"peak_footprint_bytes\": 6457939032,\n      \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n      \"lines_sha256\": \"10842095a7cb27d39fc874f388fb914eae5b20cd774b3836406fa80c7444a438\",\n      \"items_sha256\": \"c1bbcc2aaeffd7ac3e65132dcbb922088eb9e635011f97ed2d605ae575016f67\"\n    },\n    \"audio-ordinary\": {\n      \"wall_seconds\": 18.75,\n      \"peak_footprint_bytes\": 6595990568,\n      \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n      \"lines_sha256\": \"6a6e06abf5ab7ad6716eedc4961e1aa1267a2921567051f7dab9cffe47eb8b56\",\n      \"items_sha256\": \"107131412ebbf852a90abaa9abdca6410f7c47d55055c198038e70bc29d6a7e5\"\n    },\n    \"audio-focused\": {\n      \"wall_seconds\": 10.92,\n      \"peak_footprint_bytes\": 6470702240,\n      \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n      \"lines_sha256\": \"6a6e06abf5ab7ad6716eedc4961e1aa1267a2921567051f7dab9cffe47eb8b56\",\n      \"items_sha256\": \"0062d2c57ffb6594e9751cc7d875d7b1494d135b078c0ab436966b4b8877ec7e\"\n    }\n  }\n}\n"
+    },
+    "archive/exact-focused/items.json": {
+      "sha256": "c1bbcc2aaeffd7ac3e65132dcbb922088eb9e635011f97ed2d605ae575016f67",
+      "text": "[\n  {\n    \"task\": \"把舊檔案備份\",\n    \"owner\": \"Speaker A\",\n    \"due\": \"星期四前\",\n    \"evidence\": [\n      \"00:00:00\"\n    ]\n  },\n  {\n    \"task\": \"更新資料夾索引\",\n    \"owner\": \"Speaker C\",\n    \"due\": null,\n    \"evidence\": [\n      \"00:00:09\"\n    ]\n  }\n]\n"
+    },
+    "archive/exact-focused/lines.json": {
+      "sha256": "10842095a7cb27d39fc874f388fb914eae5b20cd774b3836406fa80c7444a438",
+      "text": "[\n  \"[00:00:00] Speaker A: 我們確定星期四前要把舊檔案備份。\",\n  \"[00:00:04] Speaker B: 對，但負責備份的人還沒決定，先不要填名字。\",\n  \"[00:00:09] Speaker C: 另一件事，我來更新資料夾索引，沒有截止日期。\",\n  \"[00:00:13] Speaker A: 收到，索引和備份是分開的兩件事。\",\n  \"[00:00:17] Speaker B: 那今天先到這裡。\"\n]\n"
+    },
+    "archive/exact-ordinary/items.json": {
+      "sha256": "9fa81f1029269e20883ea4c9085a22e9b6fbc342c2c06f27f3878540867bd948",
+      "text": "[\n  {\n    \"task\": \"更新資料夾索引\",\n    \"owner\": \"Speaker C\",\n    \"due\": null,\n    \"evidence\": [\n      \"00:00:09\"\n    ]\n  }\n]\n"
+    },
+    "archive/exact-ordinary/lines.json": {
+      "sha256": "10842095a7cb27d39fc874f388fb914eae5b20cd774b3836406fa80c7444a438",
+      "text": "[\n  \"[00:00:00] Speaker A: 我們確定星期四前要把舊檔案備份。\",\n  \"[00:00:04] Speaker B: 對，但負責備份的人還沒決定，先不要填名字。\",\n  \"[00:00:09] Speaker C: 另一件事，我來更新資料夾索引，沒有截止日期。\",\n  \"[00:00:13] Speaker A: 收到，索引和備份是分開的兩件事。\",\n  \"[00:00:17] Speaker B: 那今天先到這裡。\"\n]\n"
+    },
+    "archive/labels-focused/items.json": {
+      "sha256": "6ac01eb1825bbbc8bdcd185850be94441e229809af25d3f175747711474b0044",
+      "text": "[\n  {\n    \"task\": \"把舊當萬備份\",\n    \"owner\": \"Speaker A\",\n    \"due\": \"星期四\",\n    \"evidence\": [\n      \"00:00:00\"\n    ]\n  }\n]\n"
+    },
+    "archive/labels-focused/lines.json": {
+      "sha256": "15079c7fe8bee659743e879048281e593dec5b2d2bbac42b5fc47ea909cf67f3",
+      "text": "[\n  \"[00:00:00] Speaker A: 我們確定星期四前要把舊當萬備份對\",\n  \"[00:00:04] Speaker B: 但負責備份的人還沒決定先不要填名字\",\n  \"[00:00:09] Speaker C: 另一件事我來更新資料嘎索引沒有截止日期收\",\n  \"[00:00:14] Speaker A: 到索引和備份是分開的兩件事那\",\n  \"[00:00:17] Speaker B: 今天\",\n  \"[00:00:18] Speaker B: 先到這裡\"\n]\n"
+    },
+    "archive/labels-focused/run.json": {
+      "sha256": "e21e0073005c413232de8751d02bb0a0bf67638470d4e1dcdf844b6b96177804",
+      "text": "{\n  \"wall_seconds\": 11.0,\n  \"peak_footprint_bytes\": 6469440624,\n  \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n  \"reply_format\": \"object\",\n  \"lines_sha256\": \"15079c7fe8bee659743e879048281e593dec5b2d2bbac42b5fc47ea909cf67f3\",\n  \"items_sha256\": \"6ac01eb1825bbbc8bdcd185850be94441e229809af25d3f175747711474b0044\"\n}\n"
+    },
+    "archive/large-focused/items.json": {
+      "sha256": "6a76cc96cb6f5aefe36fdcf02ed38eae279b428d1c7a14f52e8a4f23256a8615",
+      "text": "[\n  {\n    \"task\": \"備份舊當案\",\n    \"owner\": null,\n    \"due\": \"星期四\",\n    \"evidence\": [\n      \"00:00:00\"\n    ]\n  }\n]\n"
+    },
+    "archive/large-focused/lines.json": {
+      "sha256": "a9558faea5c4fead6744db4eb380127e0200b7b7e7f8a229129090a64da6c539",
+      "text": "[\n  \"[00:00:00] Speaker A: 我們確定星期四前要把舊當案備份對,\",\n  \"[00:00:04] Speaker B: 但負責備份的人還沒確定先不要填名字另\",\n  \"[00:00:09] Speaker C: 一件事,我來更新資料嘎索引,沒有截止日期收\",\n  \"[00:00:13] Speaker A: 到,索引和備份是分開的兩件事那\",\n  \"[00:00:17] Speaker B: 今天\",\n  \"[00:00:18] Speaker C: 先到這裡\"\n]\n"
+    },
+    "archive/large-focused/run.json": {
+      "sha256": "7a4a572ef550ffcfbc2219da880e325a3cb4e1ea90b20449dfc8e81803512ab9",
+      "text": "{\n  \"wall_seconds\": 10.25,\n  \"peak_footprint_bytes\": 6480975008,\n  \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n  \"reply_format\": \"object\",\n  \"lines_sha256\": \"a9558faea5c4fead6744db4eb380127e0200b7b7e7f8a229129090a64da6c539\",\n  \"items_sha256\": \"6a76cc96cb6f5aefe36fdcf02ed38eae279b428d1c7a14f52e8a4f23256a8615\",\n  \"audio_speaker_map\": {\n    \"Speaker A\": \"A\",\n    \"Speaker B\": \"B\",\n    \"Speaker C\": \"C\"\n  },\n  \"same_diarization\": true\n}\n"
+    },
+    "archive/large-pipeline/stages.json": {
+      "sha256": "a64548e6cd990100766d28355ac807273328a1bef101b9ef71d761fe2b908069",
+      "text": "{\n \"convert\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:23:22+00:00\",\n  \"seconds\": 0.05,\n  \"wall_seconds\": 0.05,\n  \"max_rss_bytes\": 16498688,\n  \"peak_footprint_bytes\": 3736056,\n  \"outputs\": {\n   \"audio.wav\": \"9e41c367e460e8cafe59161c1f25e5f3a3ad422f1cf590d495e77a3024f9304d\"\n  }\n },\n \"asr\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:23:22+00:00\",\n  \"seconds\": 6.9,\n  \"wall_seconds\": 6.89,\n  \"max_rss_bytes\": 3241181184,\n  \"peak_footprint_bytes\": 5296738000,\n  \"mlx_peak_bytes\": 3960154166,\n  \"outputs\": {\n   \"asr.json\": \"27e737e4a7a197b49b34e3188a720b9411c1a234b80d69387c03cfa49dbcba1e\"\n  }\n },\n \"diarize\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:23:29+00:00\",\n  \"seconds\": 9.9,\n  \"wall_seconds\": 9.89,\n  \"max_rss_bytes\": 1034354688,\n  \"peak_footprint_bytes\": 766477632,\n  \"outputs\": {\n   \"sortformer.raw.json\": \"b1ae8130160f096ac056ee219f695d41d9020d2e03f02fdfa5add922d4bf52e7\",\n   \"diarization.json\": \"8d89cb67a644a1f7eef54ace5dcdb361138fa4192f2fd39ac8258fa51ecd45c1\"\n  }\n },\n \"attach\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:23:39+00:00\",\n  \"seconds\": 0.0,\n  \"outputs\": {\n   \"turns.json\": \"da5447de13426cde8514f66b1d53b73035d620a7df3a1f929bf74e360e62b607\",\n   \"speakers.json\": \"198882ac58dd2c424242bfbf1b42687b3aac9c59b2200652d40611cf8024f85a\"\n  }\n },\n \"transcript\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:23:39+00:00\",\n  \"seconds\": 0.04,\n  \"outputs\": {\n   \"transcript.md\": \"79dee7c2408591fb1cf1d5fbdd3710b921bc9f8d26a2e0c779d7deb1b0e0eff2\"\n  }\n },\n \"total\": {\n  \"seconds\": 16.91,\n  \"note\": \"this invocation only; stages skipped by --resume add nothing\"\n }\n}\n"
+    },
+    "archive/pipeline/stages.json": {
+      "sha256": "e1b9a2b4580a09119e5ecf2a807af89f97f62a2fd3fc8329d2787100247d3bfa",
+      "text": "{\n \"convert\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:05:08+00:00\",\n  \"seconds\": 0.05,\n  \"wall_seconds\": 0.04,\n  \"max_rss_bytes\": 16449536,\n  \"peak_footprint_bytes\": 3686904,\n  \"outputs\": {\n   \"audio.wav\": \"9e41c367e460e8cafe59161c1f25e5f3a3ad422f1cf590d495e77a3024f9304d\"\n  }\n },\n \"asr\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:05:08+00:00\",\n  \"seconds\": 4.2,\n  \"wall_seconds\": 4.19,\n  \"max_rss_bytes\": 912359424,\n  \"peak_footprint_bytes\": 1954678416,\n  \"mlx_peak_bytes\": 1346146614,\n  \"outputs\": {\n   \"asr.json\": \"128ebf9390e493b1dcbeef69cffaefcd80b23de1539c3f5b7a4a4775e5a3d04c\"\n  }\n },\n \"diarize\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:05:12+00:00\",\n  \"seconds\": 8.92,\n  \"wall_seconds\": 8.91,\n  \"max_rss_bytes\": 1075085312,\n  \"peak_footprint_bytes\": 804898184,\n  \"outputs\": {\n   \"sortformer.raw.json\": \"fbbc35238b9d41ce7463173cc472adac781e6a01ff6ae5beb14b6da1ac4895ab\",\n   \"diarization.json\": \"8d89cb67a644a1f7eef54ace5dcdb361138fa4192f2fd39ac8258fa51ecd45c1\"\n  }\n },\n \"attach\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:05:21+00:00\",\n  \"seconds\": 0.0,\n  \"outputs\": {\n   \"turns.json\": \"067d9cff7647bb25989067abf1747139405723acc412fe06c2f7b49c389b107c\",\n   \"speakers.json\": \"198882ac58dd2c424242bfbf1b42687b3aac9c59b2200652d40611cf8024f85a\"\n  }\n },\n \"transcript\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:05:21+00:00\",\n  \"seconds\": 0.04,\n  \"outputs\": {\n   \"transcript.md\": \"1fd5154ca0f3e1a1d1240f81a790fc947306b7a5010e8b5b15724fccade9727e\"\n  }\n },\n \"total\": {\n  \"seconds\": 13.22,\n  \"note\": \"this invocation only; stages skipped by --resume add nothing\"\n }\n}\n"
+    },
+    "freezer/audio-focused/items.json": {
+      "sha256": "ce7b386996f74c6ba1f55c986bed545585d906b458811369b5977da3577fb58b",
+      "text": "[\n  {\n    \"task\": \"提交冷凍鋪溫度記錄\",\n    \"owner\": \"Speaker A\",\n    \"due\": \"星期五下班前\",\n    \"evidence\": [\n      \"00:00:08\"\n    ]\n  }\n]\n"
+    },
+    "freezer/audio-focused/lines.json": {
+      "sha256": "f525b44e45ca1f6e8bf175ff7398ee7a351de45cd277f10d02b662ccbfc9d8ae",
+      "text": "[\n  \"[00:00:00] Speaker A: 冷凍鋪的溫度記錄我星期三以前交給你\",\n  \"[00:00:03] Speaker B: 星期三太早改成星期五下班以前可以嗎\",\n  \"[00:00:08] Speaker A: 可以溫度記錄改在星期五下班前交要\",\n  \"[00:00:13] Speaker B: 不要在家買兩隻溫度鍵先\",\n  \"[00:00:16] Speaker A: 不要買現有的夠用\",\n  \"[00:00:17] Speaker B: 瞭解那採購單我不開了\"\n]\n"
+    },
+    "freezer/audio-ordinary/items.json": {
+      "sha256": "387e0dd3946246e45db2dfde18e9147141190d8835b99201838b1430cf713e71",
+      "text": "[\n  {\n    \"task\": \"於星期五下班前提交冷凍鋪溫度記錄\",\n    \"owner\": \"Speaker A\",\n    \"due\": \"星期五下班前\",\n    \"evidence\": [\n      \"00:00:08\"\n    ]\n  }\n]\n"
+    },
+    "freezer/audio-ordinary/lines.json": {
+      "sha256": "f525b44e45ca1f6e8bf175ff7398ee7a351de45cd277f10d02b662ccbfc9d8ae",
+      "text": "[\n  \"[00:00:00] Speaker A: 冷凍鋪的溫度記錄我星期三以前交給你\",\n  \"[00:00:03] Speaker B: 星期三太早改成星期五下班以前可以嗎\",\n  \"[00:00:08] Speaker A: 可以溫度記錄改在星期五下班前交要\",\n  \"[00:00:13] Speaker B: 不要在家買兩隻溫度鍵先\",\n  \"[00:00:16] Speaker A: 不要買現有的夠用\",\n  \"[00:00:17] Speaker B: 瞭解那採購單我不開了\"\n]\n"
+    },
+    "freezer/audio-verified/items.json": {
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "text": "[]\n"
+    },
+    "freezer/audio-verified/lines.json": {
+      "sha256": "f525b44e45ca1f6e8bf175ff7398ee7a351de45cd277f10d02b662ccbfc9d8ae",
+      "text": "[\n  \"[00:00:00] Speaker A: 冷凍鋪的溫度記錄我星期三以前交給你\",\n  \"[00:00:03] Speaker B: 星期三太早改成星期五下班以前可以嗎\",\n  \"[00:00:08] Speaker A: 可以溫度記錄改在星期五下班前交要\",\n  \"[00:00:13] Speaker B: 不要在家買兩隻溫度鍵先\",\n  \"[00:00:16] Speaker A: 不要買現有的夠用\",\n  \"[00:00:17] Speaker B: 瞭解那採購單我不開了\"\n]\n"
+    },
+    "freezer/audio-verified/run.json": {
+      "sha256": "bbab2ab55be61ef94cc8016d1399b7d5d7737b24a4537e0bce680d896c13db1e",
+      "text": "{\n  \"wall_seconds\": 7.99,\n  \"peak_footprint_bytes\": 6437262448,\n  \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n  \"reply_format\": \"bare-empty-array\",\n  \"lines_sha256\": \"f525b44e45ca1f6e8bf175ff7398ee7a351de45cd277f10d02b662ccbfc9d8ae\",\n  \"items_sha256\": \"37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570\"\n}\n"
+    },
+    "freezer/case.json": {
+      "sha256": "1ae8175eb481519dcb9d5f7ff1ddf32582d3caec39b5da2276ddbf2c094359cb",
+      "text": "{\n  \"script_sha256\": \"26cc6739ac077b17c5b9478051230d9505b45dce18a489d1770bf288d177050d\",\n  \"audio_sha256\": \"ab76f0d16f1e740ceecb7e5afc86a713d26071fbe3f7b92a4d2c03548a87a7b5\",\n  \"duration_seconds\": 21.54,\n  \"audio_speaker_map\": {\n    \"Speaker A\": \"A\",\n    \"Speaker B\": \"B\"\n  },\n  \"runs\": {\n    \"exact-ordinary\": {\n      \"wall_seconds\": 18.49,\n      \"peak_footprint_bytes\": 6614930304,\n      \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n      \"lines_sha256\": \"edb8a91709d81a7516f74ef57585fd8c115a470a5cb4b5d79a983c7903e46ad8\",\n      \"items_sha256\": \"b3895d713dfc106b829eaee9cbb472e0541103a90e14aa1034bd96c34216d62f\"\n    },\n    \"exact-focused\": {\n      \"wall_seconds\": 9.36,\n      \"peak_footprint_bytes\": 6433723456,\n      \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n      \"lines_sha256\": \"edb8a91709d81a7516f74ef57585fd8c115a470a5cb4b5d79a983c7903e46ad8\",\n      \"items_sha256\": \"5c7757756af112262b97578135c959c03867e5f3ba1c630551127e874e208635\"\n    },\n    \"audio-ordinary\": {\n      \"wall_seconds\": 19.13,\n      \"peak_footprint_bytes\": 6599103384,\n      \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n      \"lines_sha256\": \"f525b44e45ca1f6e8bf175ff7398ee7a351de45cd277f10d02b662ccbfc9d8ae\",\n      \"items_sha256\": \"387e0dd3946246e45db2dfde18e9147141190d8835b99201838b1430cf713e71\"\n    },\n    \"audio-focused\": {\n      \"wall_seconds\": 9.48,\n      \"peak_footprint_bytes\": 6477468784,\n      \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n      \"lines_sha256\": \"f525b44e45ca1f6e8bf175ff7398ee7a351de45cd277f10d02b662ccbfc9d8ae\",\n      \"items_sha256\": \"ce7b386996f74c6ba1f55c986bed545585d906b458811369b5977da3577fb58b\"\n    }\n  }\n}\n"
+    },
+    "freezer/exact-focused/items.json": {
+      "sha256": "5c7757756af112262b97578135c959c03867e5f3ba1c630551127e874e208635",
+      "text": "[\n  {\n    \"task\": \"提交冷凍庫溫度紀錄\",\n    \"owner\": \"Speaker A\",\n    \"due\": \"星期五下班前\",\n    \"evidence\": [\n      \"00:00:09\"\n    ]\n  }\n]\n"
+    },
+    "freezer/exact-focused/lines.json": {
+      "sha256": "edb8a91709d81a7516f74ef57585fd8c115a470a5cb4b5d79a983c7903e46ad8",
+      "text": "[\n  \"[00:00:00] Speaker A: 冷凍庫的溫度紀錄，我星期三以前交給你。\",\n  \"[00:00:03] Speaker B: 星期三太早，改成星期五下班以前，可以嗎？\",\n  \"[00:00:09] Speaker A: 可以，溫度紀錄改到星期五下班前交。\",\n  \"[00:00:13] Speaker B: 要不要再加買兩支溫度計？\",\n  \"[00:00:16] Speaker A: 先不要買，現有的夠用。\",\n  \"[00:00:18] Speaker B: 了解，那採購單我不開了。\"\n]\n"
+    },
+    "freezer/exact-ordinary/items.json": {
+      "sha256": "b3895d713dfc106b829eaee9cbb472e0541103a90e14aa1034bd96c34216d62f",
+      "text": "[\n  {\n    \"task\": \"提交冷凍庫溫度紀錄\",\n    \"owner\": \"Speaker A\",\n    \"due\": \"星期五下班以前\",\n    \"evidence\": [\n      \"00:00:09\"\n    ]\n  }\n]\n"
+    },
+    "freezer/exact-ordinary/lines.json": {
+      "sha256": "edb8a91709d81a7516f74ef57585fd8c115a470a5cb4b5d79a983c7903e46ad8",
+      "text": "[\n  \"[00:00:00] Speaker A: 冷凍庫的溫度紀錄，我星期三以前交給你。\",\n  \"[00:00:03] Speaker B: 星期三太早，改成星期五下班以前，可以嗎？\",\n  \"[00:00:09] Speaker A: 可以，溫度紀錄改到星期五下班前交。\",\n  \"[00:00:13] Speaker B: 要不要再加買兩支溫度計？\",\n  \"[00:00:16] Speaker A: 先不要買，現有的夠用。\",\n  \"[00:00:18] Speaker B: 了解，那採購單我不開了。\"\n]\n"
+    },
+    "freezer/labels-focused/items.json": {
+      "sha256": "ce7b386996f74c6ba1f55c986bed545585d906b458811369b5977da3577fb58b",
+      "text": "[\n  {\n    \"task\": \"提交冷凍鋪溫度記錄\",\n    \"owner\": \"Speaker A\",\n    \"due\": \"星期五下班前\",\n    \"evidence\": [\n      \"00:00:08\"\n    ]\n  }\n]\n"
+    },
+    "freezer/labels-focused/lines.json": {
+      "sha256": "f525b44e45ca1f6e8bf175ff7398ee7a351de45cd277f10d02b662ccbfc9d8ae",
+      "text": "[\n  \"[00:00:00] Speaker A: 冷凍鋪的溫度記錄我星期三以前交給你\",\n  \"[00:00:03] Speaker B: 星期三太早改成星期五下班以前可以嗎\",\n  \"[00:00:08] Speaker A: 可以溫度記錄改在星期五下班前交要\",\n  \"[00:00:13] Speaker B: 不要在家買兩隻溫度鍵先\",\n  \"[00:00:16] Speaker A: 不要買現有的夠用\",\n  \"[00:00:17] Speaker B: 瞭解那採購單我不開了\"\n]\n"
+    },
+    "freezer/labels-focused/run.json": {
+      "sha256": "f4bf1e9195fcbadd7ff40aac2101a5961b0076b294eae4dcca0ef4824221d4e0",
+      "text": "{\n  \"wall_seconds\": 10.2,\n  \"peak_footprint_bytes\": 6473651072,\n  \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n  \"reply_format\": \"object\",\n  \"lines_sha256\": \"f525b44e45ca1f6e8bf175ff7398ee7a351de45cd277f10d02b662ccbfc9d8ae\",\n  \"items_sha256\": \"ce7b386996f74c6ba1f55c986bed545585d906b458811369b5977da3577fb58b\"\n}\n"
+    },
+    "freezer/large-focused/items.json": {
+      "sha256": "98736a2b0327a766511119a96569ddb7b8bc470aa2900082e6e45365b9a54a12",
+      "text": "[\n  {\n    \"task\": \"冷凍鋪溫度記錄\",\n    \"owner\": \"Speaker A\",\n    \"due\": \"星期五下班前\",\n    \"evidence\": [\n      \"00:00:09\"\n    ]\n  }\n]\n"
+    },
+    "freezer/large-focused/lines.json": {
+      "sha256": "2aecf43393b5bf3e5cc9f3e32092c70ad964674b78dbfd4c359b9fcc0d77f677",
+      "text": "[\n  \"[00:00:00] Speaker A: 冷凍鋪的溫度記錄我星期三以前交給你星\",\n  \"[00:00:03] Speaker B: 期三太早改成星期五下班以前可以嗎可以\",\n  \"[00:00:09] Speaker A: 溫度記錄改到星期五下班前交要\",\n  \"[00:00:13] Speaker B: 不要在家買兩隻溫度計先\",\n  \"[00:00:16] Speaker A: 不要買現有的夠用了\",\n  \"[00:00:18] Speaker B: 解那採購單我不開了\"\n]\n"
+    },
+    "freezer/large-focused/run.json": {
+      "sha256": "725d6a56c934c419ff6e7cddc73d412d419d2489b4f3aef146f7081fd6ff1586",
+      "text": "{\n  \"wall_seconds\": 10.57,\n  \"peak_footprint_bytes\": 6476993408,\n  \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n  \"reply_format\": \"object\",\n  \"lines_sha256\": \"2aecf43393b5bf3e5cc9f3e32092c70ad964674b78dbfd4c359b9fcc0d77f677\",\n  \"items_sha256\": \"98736a2b0327a766511119a96569ddb7b8bc470aa2900082e6e45365b9a54a12\",\n  \"audio_speaker_map\": {\n    \"Speaker A\": \"A\",\n    \"Speaker B\": \"B\"\n  },\n  \"same_diarization\": true\n}\n"
+    },
+    "freezer/large-pipeline/stages.json": {
+      "sha256": "c149c577d48e422896a370e9751d02df2296c5d97be6b207a5720bebefef8562",
+      "text": "{\n \"convert\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:23:50+00:00\",\n  \"seconds\": 0.05,\n  \"wall_seconds\": 0.04,\n  \"max_rss_bytes\": 16416768,\n  \"peak_footprint_bytes\": 3654112,\n  \"outputs\": {\n   \"audio.wav\": \"40a732dd6f186f278134b244564aa6c3fa3798f13121f238285213dacdf3b184\"\n  }\n },\n \"asr\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:23:50+00:00\",\n  \"seconds\": 7.14,\n  \"wall_seconds\": 7.13,\n  \"max_rss_bytes\": 3368009728,\n  \"peak_footprint_bytes\": 5371825920,\n  \"mlx_peak_bytes\": 3961153590,\n  \"outputs\": {\n   \"asr.json\": \"256d126ba532c8d66a811b29f34e4bd65b4709dcd4c383de6ad4d6c3a46e32aa\"\n  }\n },\n \"diarize\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:23:57+00:00\",\n  \"seconds\": 10.24,\n  \"wall_seconds\": 10.23,\n  \"max_rss_bytes\": 981991424,\n  \"peak_footprint_bytes\": 712607016,\n  \"outputs\": {\n   \"sortformer.raw.json\": \"65433aa5e68225330b65e0332a0b53527d28953f1d301a1eb76ae415feacc531\",\n   \"diarization.json\": \"a3860cdcb218dde27f8de343ceab6a83723fb35dd1edfdbedc0badbe6b321896\"\n  }\n },\n \"attach\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:24:07+00:00\",\n  \"seconds\": 0.0,\n  \"outputs\": {\n   \"turns.json\": \"f621c3deae9e09cdfcfef5235275c5b8759c6b04f432bf1415e1810303620004\",\n   \"speakers.json\": \"11f4002cb7cad36d04dd852ac6d3a8ea9bf5922930931a8561d62f055abad3cc\"\n  }\n },\n \"transcript\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:24:07+00:00\",\n  \"seconds\": 0.05,\n  \"outputs\": {\n   \"transcript.md\": \"cd6bda69526db53bb3a96d2916651886b10d918195c3922cc9b5381a0dccbb6d\"\n  }\n },\n \"total\": {\n  \"seconds\": 17.49,\n  \"note\": \"this invocation only; stages skipped by --resume add nothing\"\n }\n}\n"
+    },
+    "freezer/pipeline/stages.json": {
+      "sha256": "adf69c19236016625028eaec01df0d75fc2bbb206aa7d739e769afd5022b686c",
+      "text": "{\n \"convert\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:06:20+00:00\",\n  \"seconds\": 0.05,\n  \"wall_seconds\": 0.04,\n  \"max_rss_bytes\": 16515072,\n  \"peak_footprint_bytes\": 3752416,\n  \"outputs\": {\n   \"audio.wav\": \"40a732dd6f186f278134b244564aa6c3fa3798f13121f238285213dacdf3b184\"\n  }\n },\n \"asr\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:06:21+00:00\",\n  \"seconds\": 4.15,\n  \"wall_seconds\": 4.14,\n  \"max_rss_bytes\": 923385856,\n  \"peak_footprint_bytes\": 1985218240,\n  \"mlx_peak_bytes\": 1347146038,\n  \"outputs\": {\n   \"asr.json\": \"9b50a2e2e301b72da6dd567ead7af306728f27ad90b5a60ad9599614ad838faf\"\n  }\n },\n \"diarize\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:06:25+00:00\",\n  \"seconds\": 9.35,\n  \"wall_seconds\": 9.34,\n  \"max_rss_bytes\": 998326272,\n  \"peak_footprint_bytes\": 728728920,\n  \"outputs\": {\n   \"sortformer.raw.json\": \"3a5df476c189146475392ee664bcb117d7baeb82ef41ad62fc762791e0a176eb\",\n   \"diarization.json\": \"a3860cdcb218dde27f8de343ceab6a83723fb35dd1edfdbedc0badbe6b321896\"\n  }\n },\n \"attach\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:06:34+00:00\",\n  \"seconds\": 0.0,\n  \"outputs\": {\n   \"turns.json\": \"0a45ce56b5c5acd0cee5b3e692848e25c46cea64005410201521ddf48082587b\",\n   \"speakers.json\": \"11f4002cb7cad36d04dd852ac6d3a8ea9bf5922930931a8561d62f055abad3cc\"\n  }\n },\n \"transcript\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:06:34+00:00\",\n  \"seconds\": 0.05,\n  \"outputs\": {\n   \"transcript.md\": \"ef7d301d0fad007fac5d751b595b517aac6abb7f87dab53ae1b5b851851ebee3\"\n  }\n },\n \"total\": {\n  \"seconds\": 13.61,\n  \"note\": \"this invocation only; stages skipped by --resume add nothing\"\n }\n}\n"
+    },
+    "inventory/audio-focused/items.json": {
+      "sha256": "c9a46b5cf3bb3078a9a604b96df23b8691ced1256f49033c0abfc63aafc63091",
+      "text": "[\n  {\n    \"task\": \"把破磚板搬到回收區\",\n    \"owner\": \"Speaker A\",\n    \"due\": null,\n    \"evidence\": [\n      \"00:00:14\",\n      \"00:00:18\"\n    ]\n  }\n]\n"
+    },
+    "inventory/audio-focused/lines.json": {
+      "sha256": "ada3c212cb3a991637fe34db4ad65a9dc034ff241fbe5734e28f3364ca0436bd",
+      "text": "[\n  \"[00:00:00] Speaker A: 你怎麼會啊這個書的藏藏的攔除可以被動起哼錯問的這些才早就趕著該他一樣\",\n  \"[00:00:11] Speaker B: 好破掉的磚板還對再走道嗎\",\n  \"[00:00:14] Speaker A: 我會把破磚板搬到回收區\",\n  \"[00:00:18] Speaker B: 好搬運沒有定期限\",\n  \"[00:00:23] Speaker A: 知道紙箱內建就解案\"\n]\n"
+    },
+    "inventory/audio-ordinary/items.json": {
+      "sha256": "aeb1d2da5b8c89652d88cfebbf27d8b930e22d3df67639ef2553136863e00e69",
+      "text": "[\n  {\n    \"task\": \"把破磚板搬到回收區\",\n    \"owner\": \"Speaker A\",\n    \"due\": null,\n    \"evidence\": [\n      \"00:00:14\"\n    ]\n  }\n]\n"
+    },
+    "inventory/audio-ordinary/lines.json": {
+      "sha256": "ada3c212cb3a991637fe34db4ad65a9dc034ff241fbe5734e28f3364ca0436bd",
+      "text": "[\n  \"[00:00:00] Speaker A: 你怎麼會啊這個書的藏藏的攔除可以被動起哼錯問的這些才早就趕著該他一樣\",\n  \"[00:00:11] Speaker B: 好破掉的磚板還對再走道嗎\",\n  \"[00:00:14] Speaker A: 我會把破磚板搬到回收區\",\n  \"[00:00:18] Speaker B: 好搬運沒有定期限\",\n  \"[00:00:23] Speaker A: 知道紙箱內建就解案\"\n]\n"
+    },
+    "inventory/audio-verified/items.json": {
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "text": "[]\n"
+    },
+    "inventory/audio-verified/lines.json": {
+      "sha256": "ada3c212cb3a991637fe34db4ad65a9dc034ff241fbe5734e28f3364ca0436bd",
+      "text": "[\n  \"[00:00:00] Speaker A: 你怎麼會啊這個書的藏藏的攔除可以被動起哼錯問的這些才早就趕著該他一樣\",\n  \"[00:00:11] Speaker B: 好破掉的磚板還對再走道嗎\",\n  \"[00:00:14] Speaker A: 我會把破磚板搬到回收區\",\n  \"[00:00:18] Speaker B: 好搬運沒有定期限\",\n  \"[00:00:23] Speaker A: 知道紙箱內建就解案\"\n]\n"
+    },
+    "inventory/audio-verified/run.json": {
+      "sha256": "03755acb644155e9a8bc004fb23e6375ad532a6b7d1c5bbf5b79d4a97b336c9f",
+      "text": "{\n  \"wall_seconds\": 8.35,\n  \"peak_footprint_bytes\": 6429201472,\n  \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n  \"reply_format\": \"object\",\n  \"lines_sha256\": \"ada3c212cb3a991637fe34db4ad65a9dc034ff241fbe5734e28f3364ca0436bd\",\n  \"items_sha256\": \"37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570\"\n}\n"
+    },
+    "inventory/case.json": {
+      "sha256": "421776e714bd18aed5650744305d98e592abe3543e38405cf3d382d4d3941058",
+      "text": "{\n  \"script_sha256\": \"cae405851936360cb90656e0af3c5bc4d3c1b3184aed894695831e5411bd08d4\",\n  \"audio_sha256\": \"fe0df883e8b65d6bffad10b60f4b60f404507dcfa009292be7d83bc13b027089\",\n  \"duration_seconds\": 27.4,\n  \"audio_speaker_map\": {\n    \"Speaker A\": \"A\",\n    \"Speaker B\": \"B\"\n  },\n  \"runs\": {\n    \"exact-ordinary\": {\n      \"wall_seconds\": 18.34,\n      \"peak_footprint_bytes\": 6593418304,\n      \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n      \"lines_sha256\": \"fa9ed8c6bcf53d71f5130266d2027b5511f08e8c704e45fc21de09c7ec3d6b21\",\n      \"items_sha256\": \"e1250fb9a84c5dc47c18514bb6b860da960ef5930ca4ca1032cf916b9e3dbc71\"\n    },\n    \"exact-focused\": {\n      \"wall_seconds\": 9.8,\n      \"peak_footprint_bytes\": 6461756552,\n      \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n      \"lines_sha256\": \"fa9ed8c6bcf53d71f5130266d2027b5511f08e8c704e45fc21de09c7ec3d6b21\",\n      \"items_sha256\": \"08abc2491ef2c25b05b5839cb6f7fd7db49b2d0cde28debdddff84b4a709be19\"\n    },\n    \"audio-ordinary\": {\n      \"wall_seconds\": 24.36,\n      \"peak_footprint_bytes\": 6589748336,\n      \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n      \"lines_sha256\": \"ada3c212cb3a991637fe34db4ad65a9dc034ff241fbe5734e28f3364ca0436bd\",\n      \"items_sha256\": \"aeb1d2da5b8c89652d88cfebbf27d8b930e22d3df67639ef2553136863e00e69\"\n    },\n    \"audio-focused\": {\n      \"wall_seconds\": 9.66,\n      \"peak_footprint_bytes\": 6466376792,\n      \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n      \"lines_sha256\": \"ada3c212cb3a991637fe34db4ad65a9dc034ff241fbe5734e28f3364ca0436bd\",\n      \"items_sha256\": \"c9a46b5cf3bb3078a9a604b96df23b8691ced1256f49033c0abfc63aafc63091\"\n    }\n  }\n}\n"
+    },
+    "inventory/exact-focused/items.json": {
+      "sha256": "08abc2491ef2c25b05b5839cb6f7fd7db49b2d0cde28debdddff84b4a709be19",
+      "text": "[\n  {\n    \"task\": \"把破棧板搬到回收區\",\n    \"owner\": \"Speaker A\",\n    \"due\": null,\n    \"evidence\": [\n      \"00:00:15\",\n      \"00:00:19\"\n    ]\n  }\n]\n"
+    },
+    "inventory/exact-focused/lines.json": {
+      "sha256": "fa9ed8c6bcf53d71f5130266d2027b5511f08e8c704e45fc21de09c7ec3d6b21",
+      "text": "[\n  \"[00:00:00] Speaker A: 倉庫的紙箱昨天都清點完了，數字已經登記。\",\n  \"[00:00:11] Speaker B: 好。破掉的棧板還堆在走道嗎？\",\n  \"[00:00:15] Speaker A: 還在。我會把破棧板搬到回收區。\",\n  \"[00:00:19] Speaker B: 好，搬運沒有訂期限。\",\n  \"[00:00:23] Speaker A: 知道，紙箱那件就結案。\"\n]\n"
+    },
+    "inventory/exact-ordinary/items.json": {
+      "sha256": "e1250fb9a84c5dc47c18514bb6b860da960ef5930ca4ca1032cf916b9e3dbc71",
+      "text": "[\n  {\n    \"task\": \"將破棧板搬到回收區\",\n    \"owner\": \"Speaker A\",\n    \"due\": null,\n    \"evidence\": [\n      \"00:00:15\"\n    ]\n  }\n]\n"
+    },
+    "inventory/exact-ordinary/lines.json": {
+      "sha256": "fa9ed8c6bcf53d71f5130266d2027b5511f08e8c704e45fc21de09c7ec3d6b21",
+      "text": "[\n  \"[00:00:00] Speaker A: 倉庫的紙箱昨天都清點完了，數字已經登記。\",\n  \"[00:00:11] Speaker B: 好。破掉的棧板還堆在走道嗎？\",\n  \"[00:00:15] Speaker A: 還在。我會把破棧板搬到回收區。\",\n  \"[00:00:19] Speaker B: 好，搬運沒有訂期限。\",\n  \"[00:00:23] Speaker A: 知道，紙箱那件就結案。\"\n]\n"
+    },
+    "inventory/labels-focused/items.json": {
+      "sha256": "c9a46b5cf3bb3078a9a604b96df23b8691ced1256f49033c0abfc63aafc63091",
+      "text": "[\n  {\n    \"task\": \"把破磚板搬到回收區\",\n    \"owner\": \"Speaker A\",\n    \"due\": null,\n    \"evidence\": [\n      \"00:00:14\",\n      \"00:00:18\"\n    ]\n  }\n]\n"
+    },
+    "inventory/labels-focused/lines.json": {
+      "sha256": "ada3c212cb3a991637fe34db4ad65a9dc034ff241fbe5734e28f3364ca0436bd",
+      "text": "[\n  \"[00:00:00] Speaker A: 你怎麼會啊這個書的藏藏的攔除可以被動起哼錯問的這些才早就趕著該他一樣\",\n  \"[00:00:11] Speaker B: 好破掉的磚板還對再走道嗎\",\n  \"[00:00:14] Speaker A: 我會把破磚板搬到回收區\",\n  \"[00:00:18] Speaker B: 好搬運沒有定期限\",\n  \"[00:00:23] Speaker A: 知道紙箱內建就解案\"\n]\n"
+    },
+    "inventory/labels-focused/run.json": {
+      "sha256": "f09066b883712e5fe1d78fe89d8692101446606af96d5ddb0ae4c87618c0ba3b",
+      "text": "{\n  \"wall_seconds\": 10.96,\n  \"peak_footprint_bytes\": 6469538928,\n  \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n  \"reply_format\": \"object\",\n  \"lines_sha256\": \"ada3c212cb3a991637fe34db4ad65a9dc034ff241fbe5734e28f3364ca0436bd\",\n  \"items_sha256\": \"c9a46b5cf3bb3078a9a604b96df23b8691ced1256f49033c0abfc63aafc63091\"\n}\n"
+    },
+    "inventory/large-focused/items.json": {
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "text": "[]\n"
+    },
+    "inventory/large-focused/lines.json": {
+      "sha256": "6ef7174a2d73f5ea94fde6242ba97c75a66ba71299293e8e0204207965809cab",
+      "text": "[\n  \"[00:00:00] Speaker A: 阿尼扎諾尤阿,得個書的長長的軟處可以背東西。哼,錯問了這句,才早就感受該他言。\",\n  \"[00:00:11] Speaker B: 好,破掉的展板還堆在走道嗎?\",\n  \"[00:00:14] Speaker A: 我還在,我會把破展板搬到回收區。好,\",\n  \"[00:00:20] Speaker B: 搬運沒有定期限。\",\n  \"[00:00:23] Speaker A: 知道,紙箱那件就解案。\"\n]\n"
+    },
+    "inventory/large-focused/run.json": {
+      "sha256": "7857a63e6e04d740fcf5b42ea5cce5880d347d5e6393ff181801450a580fed58",
+      "text": "{\n  \"wall_seconds\": 8.47,\n  \"peak_footprint_bytes\": 6427333768,\n  \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n  \"reply_format\": \"bare-empty-array\",\n  \"lines_sha256\": \"6ef7174a2d73f5ea94fde6242ba97c75a66ba71299293e8e0204207965809cab\",\n  \"items_sha256\": \"37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570\",\n  \"audio_speaker_map\": {\n    \"Speaker A\": \"A\",\n    \"Speaker B\": \"B\"\n  },\n  \"same_diarization\": true\n}\n"
+    },
+    "inventory/large-pipeline/stages.json": {
+      "sha256": "ca08cd653b48e46af8c9efe3d87826ffb7db12799f56cd6aa472bae8c4736dab",
+      "text": "{\n \"convert\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:24:18+00:00\",\n  \"seconds\": 0.05,\n  \"wall_seconds\": 0.04,\n  \"max_rss_bytes\": 16482304,\n  \"peak_footprint_bytes\": 3719672,\n  \"outputs\": {\n   \"audio.wav\": \"e451489528c848452be721ba020b198a4ecbbd4054538d7a5c886caa382a0bac\"\n  }\n },\n \"asr\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:24:18+00:00\",\n  \"seconds\": 7.36,\n  \"wall_seconds\": 7.36,\n  \"max_rss_bytes\": 3205529600,\n  \"peak_footprint_bytes\": 5484121856,\n  \"mlx_peak_bytes\": 3965413430,\n  \"outputs\": {\n   \"asr.json\": \"464c65cfdbfa39bc4b2484f0bfe282793f3e97443e7edc267802f4abaec061bb\"\n  }\n },\n \"diarize\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:24:26+00:00\",\n  \"seconds\": 12.45,\n  \"wall_seconds\": 12.44,\n  \"max_rss_bytes\": 982106112,\n  \"peak_footprint_bytes\": 712820080,\n  \"outputs\": {\n   \"sortformer.raw.json\": \"943469c9be9522ba869a88ff8c99bb799c8af4c3ce987a40776bdd4fa897c363\",\n   \"diarization.json\": \"287deddb1268a508a76a8d43bc8d9cd3243aa8dff60080882b28e2151988efa6\"\n  }\n },\n \"attach\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:24:38+00:00\",\n  \"seconds\": 0.0,\n  \"outputs\": {\n   \"turns.json\": \"b272081f600c2d4462962a83acabf3e6bbdd954015cf86a16daa559200b12c16\",\n   \"speakers.json\": \"11f4002cb7cad36d04dd852ac6d3a8ea9bf5922930931a8561d62f055abad3cc\"\n  }\n },\n \"transcript\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:24:38+00:00\",\n  \"seconds\": 0.05,\n  \"outputs\": {\n   \"transcript.md\": \"c3cb779bd26e5ad94853c419fb57f6f29a28248e11b780f55b1247a116ee7570\"\n  }\n },\n \"total\": {\n  \"seconds\": 19.92,\n  \"note\": \"this invocation only; stages skipped by --resume add nothing\"\n }\n}\n"
+    },
+    "inventory/pipeline/stages.json": {
+      "sha256": "81fbc89dd934d435d39c5a6bce3473195b220d07ea9a4d705e2333c56ca7784c",
+      "text": "{\n \"convert\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:07:31+00:00\",\n  \"seconds\": 0.05,\n  \"wall_seconds\": 0.04,\n  \"max_rss_bytes\": 16465920,\n  \"peak_footprint_bytes\": 3686904,\n  \"outputs\": {\n   \"audio.wav\": \"e451489528c848452be721ba020b198a4ecbbd4054538d7a5c886caa382a0bac\"\n  }\n },\n \"asr\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:07:31+00:00\",\n  \"seconds\": 4.2,\n  \"wall_seconds\": 4.2,\n  \"max_rss_bytes\": 883834880,\n  \"peak_footprint_bytes\": 1953105456,\n  \"mlx_peak_bytes\": 1351405878,\n  \"outputs\": {\n   \"asr.json\": \"09422a26a1c84b81f8b2d1bbebe3845d924575bd7ef4bddd162d22cd5dd2b1e8\"\n  }\n },\n \"diarize\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:07:36+00:00\",\n  \"seconds\": 11.75,\n  \"wall_seconds\": 11.74,\n  \"max_rss_bytes\": 1046298624,\n  \"peak_footprint_bytes\": 778569072,\n  \"outputs\": {\n   \"sortformer.raw.json\": \"438f8a1e037bd808d07f2271505538d868519105c1e9eeafa23a80801c3039a7\",\n   \"diarization.json\": \"287deddb1268a508a76a8d43bc8d9cd3243aa8dff60080882b28e2151988efa6\"\n  }\n },\n \"attach\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:07:47+00:00\",\n  \"seconds\": 0.0,\n  \"outputs\": {\n   \"turns.json\": \"cf003cd87e86276b643891e52563886345c79b241a85fa588159af996c4a53f4\",\n   \"speakers.json\": \"11f4002cb7cad36d04dd852ac6d3a8ea9bf5922930931a8561d62f055abad3cc\"\n  }\n },\n \"transcript\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:07:47+00:00\",\n  \"seconds\": 0.05,\n  \"outputs\": {\n   \"transcript.md\": \"665c7be1cf2140515c19505ac60d3d4f4844989edc426de6f4eefbe5fe350b11\"\n  }\n },\n \"total\": {\n  \"seconds\": 16.06,\n  \"note\": \"this invocation only; stages skipped by --resume add nothing\"\n }\n}\n"
+    },
+    "keys/audio-focused/items.json": {
+      "sha256": "c0356452174d6360ddd24e1759b0cf53d1b904dcc657f9f398fe5156de0b2487",
+      "text": "[\n  {\n    \"task\": \"更新門禁名冊\",\n    \"owner\": \"Speaker C\",\n    \"due\": \"星期一\",\n    \"evidence\": [\n      \"00:00:12\"\n    ]\n  },\n  {\n    \"task\": \"交備用戲池\",\n    \"owner\": \"Speaker B\",\n    \"due\": \"天下班以前\",\n    \"evidence\": [\n      \"00:00:04\",\n      \"00:00:08\",\n      \"00:00:09\"\n    ]\n  }\n]\n"
+    },
+    "keys/audio-focused/lines.json": {
+      "sha256": "4743acf29c8e6190fd0a5bd2b9f245440680ff76d2b8b66a87a63c8d23f7f8e9",
+      "text": "[\n  \"[00:00:00] Speaker A: 辦公室換所後備用認識又交給警衛\",\n  \"[00:00:04] Speaker B: 我來交備用戲池什麼時候以前要交明\",\n  \"[00:00:08] Speaker A: 天下班以前好\",\n  \"[00:00:09] Speaker B: 就照這個時間我的\",\n  \"[00:00:12] Speaker C: 部分是更新門禁名冊我星期一以前弄好\",\n  \"[00:00:15] Speaker A: 收到 名冊交電子檔就好\"\n]\n"
+    },
+    "keys/audio-ordinary/items.json": {
+      "sha256": "c4c2c6ac22a6fcbe431e342db756edae1af3307554b7a8a0fede5b7c8d7b9337",
+      "text": "[\n  {\n    \"task\": \"將備用鑰匙交給警衛\",\n    \"owner\": \"Speaker B\",\n    \"due\": \"天下班以前\",\n    \"evidence\": [\n      \"00:00:04\",\n      \"00:00:08\",\n      \"00:00:09\"\n    ]\n  },\n  {\n    \"task\": \"更新門禁名冊並交電子檔\",\n    \"owner\": \"Speaker C\",\n    \"due\": \"星期一以前\",\n    \"evidence\": [\n      \"00:00:12\",\n      \"00:00:15\"\n    ]\n  }\n]\n"
+    },
+    "keys/audio-ordinary/lines.json": {
+      "sha256": "4743acf29c8e6190fd0a5bd2b9f245440680ff76d2b8b66a87a63c8d23f7f8e9",
+      "text": "[\n  \"[00:00:00] Speaker A: 辦公室換所後備用認識又交給警衛\",\n  \"[00:00:04] Speaker B: 我來交備用戲池什麼時候以前要交明\",\n  \"[00:00:08] Speaker A: 天下班以前好\",\n  \"[00:00:09] Speaker B: 就照這個時間我的\",\n  \"[00:00:12] Speaker C: 部分是更新門禁名冊我星期一以前弄好\",\n  \"[00:00:15] Speaker A: 收到 名冊交電子檔就好\"\n]\n"
+    },
+    "keys/audio-verified/items.json": {
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "text": "[]\n"
+    },
+    "keys/audio-verified/lines.json": {
+      "sha256": "4743acf29c8e6190fd0a5bd2b9f245440680ff76d2b8b66a87a63c8d23f7f8e9",
+      "text": "[\n  \"[00:00:00] Speaker A: 辦公室換所後備用認識又交給警衛\",\n  \"[00:00:04] Speaker B: 我來交備用戲池什麼時候以前要交明\",\n  \"[00:00:08] Speaker A: 天下班以前好\",\n  \"[00:00:09] Speaker B: 就照這個時間我的\",\n  \"[00:00:12] Speaker C: 部分是更新門禁名冊我星期一以前弄好\",\n  \"[00:00:15] Speaker A: 收到 名冊交電子檔就好\"\n]\n"
+    },
+    "keys/audio-verified/run.json": {
+      "sha256": "a9d44823e14b37cef115069e27985c0d77fe2e014131323c6c00331083f261ea",
+      "text": "{\n  \"wall_seconds\": 7.9,\n  \"peak_footprint_bytes\": 6448124992,\n  \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n  \"reply_format\": \"bare-empty-array\",\n  \"lines_sha256\": \"4743acf29c8e6190fd0a5bd2b9f245440680ff76d2b8b66a87a63c8d23f7f8e9\",\n  \"items_sha256\": \"37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570\"\n}\n"
+    },
+    "keys/case.json": {
+      "sha256": "af7469924c6e7576845ff252e142e4f4f534bf1a9df095bf3d43f2b342d6f601",
+      "text": "{\n  \"script_sha256\": \"2bb2adcdb62f5e90b161000f8a2aca50cc0cf3902a145803612045be0803cda0\",\n  \"audio_sha256\": \"f5b8d0ef310b779aa4348d1c6cfbe1de6c7bf1d1dd65e122d818204220720758\",\n  \"duration_seconds\": 19.06,\n  \"audio_speaker_map\": {\n    \"Speaker A\": \"A\",\n    \"Speaker B\": \"B\",\n    \"Speaker C\": \"C\"\n  },\n  \"runs\": {\n    \"exact-ordinary\": {\n      \"wall_seconds\": 22.89,\n      \"peak_footprint_bytes\": 6572200832,\n      \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n      \"lines_sha256\": \"1fa88fc888bb57ba971a676f65af877aa1b451af5953ba0bb2ca2e944a67707c\",\n      \"items_sha256\": \"8a893533613646e852b5f56989a1f70e8716e5021c1723a83cc4fa0c0aefd293\"\n    },\n    \"exact-focused\": {\n      \"wall_seconds\": 13.01,\n      \"peak_footprint_bytes\": 6442898544,\n      \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n      \"lines_sha256\": \"1fa88fc888bb57ba971a676f65af877aa1b451af5953ba0bb2ca2e944a67707c\",\n      \"items_sha256\": \"4d71448698b30f6093de88a5789b4fb820acb4f1d4425df863eb9d30e0a02557\"\n    },\n    \"audio-ordinary\": {\n      \"wall_seconds\": 23.31,\n      \"peak_footprint_bytes\": 6604723072,\n      \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n      \"lines_sha256\": \"4743acf29c8e6190fd0a5bd2b9f245440680ff76d2b8b66a87a63c8d23f7f8e9\",\n      \"items_sha256\": \"c4c2c6ac22a6fcbe431e342db756edae1af3307554b7a8a0fede5b7c8d7b9337\"\n    },\n    \"audio-focused\": {\n      \"wall_seconds\": 12.04,\n      \"peak_footprint_bytes\": 6479434936,\n      \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n      \"lines_sha256\": \"4743acf29c8e6190fd0a5bd2b9f245440680ff76d2b8b66a87a63c8d23f7f8e9\",\n      \"items_sha256\": \"c0356452174d6360ddd24e1759b0cf53d1b904dcc657f9f398fe5156de0b2487\"\n    }\n  }\n}\n"
+    },
+    "keys/exact-focused/items.json": {
+      "sha256": "4d71448698b30f6093de88a5789b4fb820acb4f1d4425df863eb9d30e0a02557",
+      "text": "[\n  {\n    \"task\": \"交備用鑰匙給警衛\",\n    \"owner\": \"Speaker B\",\n    \"due\": \"明天下班以前\",\n    \"evidence\": [\n      \"00:00:00\",\n      \"00:00:07\",\n      \"00:00:09\"\n    ]\n  },\n  {\n    \"task\": \"更新門禁名冊並交電子檔\",\n    \"owner\": \"Speaker C\",\n    \"due\": \"星期一以前\",\n    \"evidence\": [\n      \"00:00:12\",\n      \"00:00:16\"\n    ]\n  }\n]\n"
+    },
+    "keys/exact-focused/lines.json": {
+      "sha256": "1fa88fc888bb57ba971a676f65af877aa1b451af5953ba0bb2ca2e944a67707c",
+      "text": "[\n  \"[00:00:00] Speaker A: 辦公室換鎖後，備用鑰匙要交給警衛。\",\n  \"[00:00:04] Speaker B: 我來交備用鑰匙。什麼時候以前要交？\",\n  \"[00:00:07] Speaker A: 明天下班以前。\",\n  \"[00:00:09] Speaker B: 好，就照這個時間。\",\n  \"[00:00:12] Speaker C: 我的部分是更新門禁名冊，我星期一以前弄好。\",\n  \"[00:00:16] Speaker A: 收到，名冊交電子檔就好。\"\n]\n"
+    },
+    "keys/exact-ordinary/items.json": {
+      "sha256": "8a893533613646e852b5f56989a1f70e8716e5021c1723a83cc4fa0c0aefd293",
+      "text": "[\n  {\n    \"task\": \"將備用鑰匙交給警衛\",\n    \"owner\": \"Speaker B\",\n    \"due\": \"明天下班以前\",\n    \"evidence\": [\n      \"00:00:04\",\n      \"00:00:07\",\n      \"00:00:09\"\n    ]\n  },\n  {\n    \"task\": \"更新門禁名冊並提交電子檔\",\n    \"owner\": \"Speaker C\",\n    \"due\": \"星期一以前\",\n    \"evidence\": [\n      \"00:00:12\",\n      \"00:00:16\"\n    ]\n  }\n]\n"
+    },
+    "keys/exact-ordinary/lines.json": {
+      "sha256": "1fa88fc888bb57ba971a676f65af877aa1b451af5953ba0bb2ca2e944a67707c",
+      "text": "[\n  \"[00:00:00] Speaker A: 辦公室換鎖後，備用鑰匙要交給警衛。\",\n  \"[00:00:04] Speaker B: 我來交備用鑰匙。什麼時候以前要交？\",\n  \"[00:00:07] Speaker A: 明天下班以前。\",\n  \"[00:00:09] Speaker B: 好，就照這個時間。\",\n  \"[00:00:12] Speaker C: 我的部分是更新門禁名冊，我星期一以前弄好。\",\n  \"[00:00:16] Speaker A: 收到，名冊交電子檔就好。\"\n]\n"
+    },
+    "keys/labels-focused/items.json": {
+      "sha256": "c0356452174d6360ddd24e1759b0cf53d1b904dcc657f9f398fe5156de0b2487",
+      "text": "[\n  {\n    \"task\": \"更新門禁名冊\",\n    \"owner\": \"Speaker C\",\n    \"due\": \"星期一\",\n    \"evidence\": [\n      \"00:00:12\"\n    ]\n  },\n  {\n    \"task\": \"交備用戲池\",\n    \"owner\": \"Speaker B\",\n    \"due\": \"天下班以前\",\n    \"evidence\": [\n      \"00:00:04\",\n      \"00:00:08\",\n      \"00:00:09\"\n    ]\n  }\n]\n"
+    },
+    "keys/labels-focused/lines.json": {
+      "sha256": "4743acf29c8e6190fd0a5bd2b9f245440680ff76d2b8b66a87a63c8d23f7f8e9",
+      "text": "[\n  \"[00:00:00] Speaker A: 辦公室換所後備用認識又交給警衛\",\n  \"[00:00:04] Speaker B: 我來交備用戲池什麼時候以前要交明\",\n  \"[00:00:08] Speaker A: 天下班以前好\",\n  \"[00:00:09] Speaker B: 就照這個時間我的\",\n  \"[00:00:12] Speaker C: 部分是更新門禁名冊我星期一以前弄好\",\n  \"[00:00:15] Speaker A: 收到 名冊交電子檔就好\"\n]\n"
+    },
+    "keys/labels-focused/run.json": {
+      "sha256": "727f6cf0425e99bd6aaec52fa2d08d349f790b95078a6af3d536029b0a570eed",
+      "text": "{\n  \"wall_seconds\": 12.8,\n  \"peak_footprint_bytes\": 6481286256,\n  \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n  \"reply_format\": \"object\",\n  \"lines_sha256\": \"4743acf29c8e6190fd0a5bd2b9f245440680ff76d2b8b66a87a63c8d23f7f8e9\",\n  \"items_sha256\": \"c0356452174d6360ddd24e1759b0cf53d1b904dcc657f9f398fe5156de0b2487\"\n}\n"
+    },
+    "keys/large-focused/items.json": {
+      "sha256": "c0356452174d6360ddd24e1759b0cf53d1b904dcc657f9f398fe5156de0b2487",
+      "text": "[\n  {\n    \"task\": \"更新門禁名冊\",\n    \"owner\": \"Speaker C\",\n    \"due\": \"星期一\",\n    \"evidence\": [\n      \"00:00:12\"\n    ]\n  },\n  {\n    \"task\": \"交備用戲池\",\n    \"owner\": \"Speaker B\",\n    \"due\": \"天下班以前\",\n    \"evidence\": [\n      \"00:00:04\",\n      \"00:00:08\",\n      \"00:00:09\"\n    ]\n  }\n]\n"
+    },
+    "keys/large-focused/lines.json": {
+      "sha256": "b49d43654be2b05fcde64ef5bdbfd273ed6799b96ac96bb15414aa8049a48329",
+      "text": "[\n  \"[00:00:00] Speaker A: 辦公室換鎖後備用任時又交給警衛我\",\n  \"[00:00:04] Speaker B: 來交備用戲池什麼時候以前要交明\",\n  \"[00:00:08] Speaker A: 天下班以前好\",\n  \"[00:00:09] Speaker B: 就照這個時間我的\",\n  \"[00:00:12] Speaker C: 部分是更新門禁名冊我星期一以前弄好收\",\n  \"[00:00:16] Speaker A: 到名冊交電子檔就好\"\n]\n"
+    },
+    "keys/large-focused/run.json": {
+      "sha256": "f0d4bf57421f7ff0447393c0bdfddfca080dfaa3a4f1d658ad7aadcd17ecd890",
+      "text": "{\n  \"wall_seconds\": 12.58,\n  \"peak_footprint_bytes\": 6481204264,\n  \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n  \"reply_format\": \"object\",\n  \"lines_sha256\": \"b49d43654be2b05fcde64ef5bdbfd273ed6799b96ac96bb15414aa8049a48329\",\n  \"items_sha256\": \"c0356452174d6360ddd24e1759b0cf53d1b904dcc657f9f398fe5156de0b2487\",\n  \"audio_speaker_map\": {\n    \"Speaker A\": \"A\",\n    \"Speaker B\": \"B\",\n    \"Speaker C\": \"C\"\n  },\n  \"same_diarization\": true\n}\n"
+    },
+    "keys/large-pipeline/stages.json": {
+      "sha256": "be533103521cba46f13477ac4987b6a57111025fc1e91548a56cd2e90747c6de",
+      "text": "{\n \"convert\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:24:48+00:00\",\n  \"seconds\": 0.05,\n  \"wall_seconds\": 0.04,\n  \"max_rss_bytes\": 16498688,\n  \"peak_footprint_bytes\": 3736032,\n  \"outputs\": {\n   \"audio.wav\": \"4b966bf6e5023dc84328de6a29699a1dc8d121ff10cb8f9bd0c0137c20e23fce\"\n  }\n },\n \"asr\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:24:48+00:00\",\n  \"seconds\": 7.57,\n  \"wall_seconds\": 7.56,\n  \"max_rss_bytes\": 2750300160,\n  \"peak_footprint_bytes\": 5283057336,\n  \"mlx_peak_bytes\": 3959334966,\n  \"outputs\": {\n   \"asr.json\": \"4d80baeddd78dd5d78c4c87fd09f017327550e11dfc48adaec9c8bff00fa1517\"\n  }\n },\n \"diarize\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:24:55+00:00\",\n  \"seconds\": 9.4,\n  \"wall_seconds\": 9.38,\n  \"max_rss_bytes\": 990052352,\n  \"peak_footprint_bytes\": 723567936,\n  \"outputs\": {\n   \"sortformer.raw.json\": \"8d2652011546cc1d139c4e5b8bc72b66905cfd8ed782f76f73053234d8086158\",\n   \"diarization.json\": \"d833ef4f59646fa3ddff9284fae247165725bb0b63831de44d790df500f80da7\"\n  }\n },\n \"attach\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:25:05+00:00\",\n  \"seconds\": 0.0,\n  \"outputs\": {\n   \"turns.json\": \"d291a87707cc2482141c16c016a533d5ec035e58307195c4329991c9884cdb40\",\n   \"speakers.json\": \"198882ac58dd2c424242bfbf1b42687b3aac9c59b2200652d40611cf8024f85a\"\n  }\n },\n \"transcript\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:25:05+00:00\",\n  \"seconds\": 0.05,\n  \"outputs\": {\n   \"transcript.md\": \"4e389c2dcd9184d37aa345210c32114d6e6c236a2ade757d169bc666800eb04b\"\n  }\n },\n \"total\": {\n  \"seconds\": 17.07,\n  \"note\": \"this invocation only; stages skipped by --resume add nothing\"\n }\n}\n"
+    },
+    "keys/pipeline/stages.json": {
+      "sha256": "2002578c9ecc7d0159b14d39ba4c3ea00b1561e48ab03b990e9adaac64becf2c",
+      "text": "{\n \"convert\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:08:51+00:00\",\n  \"seconds\": 0.05,\n  \"wall_seconds\": 0.04,\n  \"max_rss_bytes\": 16449536,\n  \"peak_footprint_bytes\": 3703288,\n  \"outputs\": {\n   \"audio.wav\": \"4b966bf6e5023dc84328de6a29699a1dc8d121ff10cb8f9bd0c0137c20e23fce\"\n  }\n },\n \"asr\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:08:51+00:00\",\n  \"seconds\": 4.07,\n  \"wall_seconds\": 4.06,\n  \"max_rss_bytes\": 907558912,\n  \"peak_footprint_bytes\": 1937196688,\n  \"mlx_peak_bytes\": 1345327414,\n  \"outputs\": {\n   \"asr.json\": \"57df537be38a739c921ce79745201854fd5887cc2d3dafa2de8dd1a867eccf90\"\n  }\n },\n \"diarize\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:08:55+00:00\",\n  \"seconds\": 8.45,\n  \"wall_seconds\": 8.44,\n  \"max_rss_bytes\": 973438976,\n  \"peak_footprint_bytes\": 704070952,\n  \"outputs\": {\n   \"sortformer.raw.json\": \"e7109c04525d795247cec4e93b7c329a00d72bd38fbd6480eb34091a74986c5a\",\n   \"diarization.json\": \"d833ef4f59646fa3ddff9284fae247165725bb0b63831de44d790df500f80da7\"\n  }\n },\n \"attach\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:09:03+00:00\",\n  \"seconds\": 0.0,\n  \"outputs\": {\n   \"turns.json\": \"ea17db3ce84adcbc5b83ee7600b963d5ae9d911dcd5d010189f01e7680faa63c\",\n   \"speakers.json\": \"198882ac58dd2c424242bfbf1b42687b3aac9c59b2200652d40611cf8024f85a\"\n  }\n },\n \"transcript\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:09:03+00:00\",\n  \"seconds\": 0.05,\n  \"outputs\": {\n   \"transcript.md\": \"859fbba39251dcbad59cd2c6e5cb4884ba494a32cbe975ae2e2a2026cdccb7d2\"\n  }\n },\n \"total\": {\n  \"seconds\": 12.62,\n  \"note\": \"this invocation only; stages skipped by --resume add nothing\"\n }\n}\n"
+    },
+    "menu/audio-focused/items.json": {
+      "sha256": "4c7e20a5450e0885f3fc46529ca464780048c8c16a4132d81d71e3e8637a98a5",
+      "text": "[\n  {\n    \"task\": \"把電子菜單放上網站\",\n    \"owner\": \"Speaker A\",\n    \"due\": \"星期四\",\n    \"evidence\": [\n      \"00:00:06\"\n    ]\n  }\n]\n"
+    },
+    "menu/audio-focused/lines.json": {
+      "sha256": "5a98f604a8c20d98777485b6f19493be47b8586ec375ca65480a3c3924533fa7",
+      "text": "[\n  \"[00:00:00] Speaker A: 原先排了星期二印紙本菜單\",\n  \"[00:00:02] Speaker B: 紙本取消這次只做電子版知道\",\n  \"[00:00:06] Speaker A: 了我星期四把電子菜單放上網站\",\n  \"[00:00:09] Speaker B: 好就等星期四的網站更新\",\n  \"[00:00:13] Speaker A: 印刷的那張公單已經撤掉了\"\n]\n"
+    },
+    "menu/audio-ordinary/items.json": {
+      "sha256": "4c7e20a5450e0885f3fc46529ca464780048c8c16a4132d81d71e3e8637a98a5",
+      "text": "[\n  {\n    \"task\": \"把電子菜單放上網站\",\n    \"owner\": \"Speaker A\",\n    \"due\": \"星期四\",\n    \"evidence\": [\n      \"00:00:06\"\n    ]\n  }\n]\n"
+    },
+    "menu/audio-ordinary/lines.json": {
+      "sha256": "5a98f604a8c20d98777485b6f19493be47b8586ec375ca65480a3c3924533fa7",
+      "text": "[\n  \"[00:00:00] Speaker A: 原先排了星期二印紙本菜單\",\n  \"[00:00:02] Speaker B: 紙本取消這次只做電子版知道\",\n  \"[00:00:06] Speaker A: 了我星期四把電子菜單放上網站\",\n  \"[00:00:09] Speaker B: 好就等星期四的網站更新\",\n  \"[00:00:13] Speaker A: 印刷的那張公單已經撤掉了\"\n]\n"
+    },
+    "menu/audio-verified/items.json": {
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "text": "[]\n"
+    },
+    "menu/audio-verified/lines.json": {
+      "sha256": "5a98f604a8c20d98777485b6f19493be47b8586ec375ca65480a3c3924533fa7",
+      "text": "[\n  \"[00:00:00] Speaker A: 原先排了星期二印紙本菜單\",\n  \"[00:00:02] Speaker B: 紙本取消這次只做電子版知道\",\n  \"[00:00:06] Speaker A: 了我星期四把電子菜單放上網站\",\n  \"[00:00:09] Speaker B: 好就等星期四的網站更新\",\n  \"[00:00:13] Speaker A: 印刷的那張公單已經撤掉了\"\n]\n"
+    },
+    "menu/audio-verified/run.json": {
+      "sha256": "a77a132b079d0e5f8a940ef8a9b2c0b429f2a0baae2c03fd51cae185b4155523",
+      "text": "{\n  \"wall_seconds\": 7.67,\n  \"peak_footprint_bytes\": 6436115616,\n  \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n  \"reply_format\": \"bare-empty-array\",\n  \"lines_sha256\": \"5a98f604a8c20d98777485b6f19493be47b8586ec375ca65480a3c3924533fa7\",\n  \"items_sha256\": \"37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570\"\n}\n"
+    },
+    "menu/case.json": {
+      "sha256": "21647e3274b653131f852abe61a09cbfa94e638fe0580f54174a84d05dd99b47",
+      "text": "{\n  \"script_sha256\": \"e9baf32237127889bc8c4fa50b0cef08c951e6adf1db43f8338e2c4419074dcd\",\n  \"audio_sha256\": \"9d8e5594282331136d3aa81094dbebe13996755601e402813c0c3e432686fe89\",\n  \"duration_seconds\": 17.0,\n  \"audio_speaker_map\": {\n    \"Speaker A\": \"A\",\n    \"Speaker B\": \"B\"\n  },\n  \"runs\": {\n    \"exact-ordinary\": {\n      \"wall_seconds\": 22.25,\n      \"peak_footprint_bytes\": 6569448464,\n      \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n      \"lines_sha256\": \"80c02a43c4879188e58dcdd42d128af4bc474a46f3aee883ab9dba438fea5a86\",\n      \"items_sha256\": \"4c7e20a5450e0885f3fc46529ca464780048c8c16a4132d81d71e3e8637a98a5\"\n    },\n    \"exact-focused\": {\n      \"wall_seconds\": 10.21,\n      \"peak_footprint_bytes\": 6437770328,\n      \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n      \"lines_sha256\": \"80c02a43c4879188e58dcdd42d128af4bc474a46f3aee883ab9dba438fea5a86\",\n      \"items_sha256\": \"4c7e20a5450e0885f3fc46529ca464780048c8c16a4132d81d71e3e8637a98a5\"\n    },\n    \"audio-ordinary\": {\n      \"wall_seconds\": 19.41,\n      \"peak_footprint_bytes\": 6557242408,\n      \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n      \"lines_sha256\": \"5a98f604a8c20d98777485b6f19493be47b8586ec375ca65480a3c3924533fa7\",\n      \"items_sha256\": \"4c7e20a5450e0885f3fc46529ca464780048c8c16a4132d81d71e3e8637a98a5\"\n    },\n    \"audio-focused\": {\n      \"wall_seconds\": 10.75,\n      \"peak_footprint_bytes\": 6422877344,\n      \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n      \"lines_sha256\": \"5a98f604a8c20d98777485b6f19493be47b8586ec375ca65480a3c3924533fa7\",\n      \"items_sha256\": \"4c7e20a5450e0885f3fc46529ca464780048c8c16a4132d81d71e3e8637a98a5\"\n    }\n  }\n}\n"
+    },
+    "menu/exact-focused/items.json": {
+      "sha256": "4c7e20a5450e0885f3fc46529ca464780048c8c16a4132d81d71e3e8637a98a5",
+      "text": "[\n  {\n    \"task\": \"把電子菜單放上網站\",\n    \"owner\": \"Speaker A\",\n    \"due\": \"星期四\",\n    \"evidence\": [\n      \"00:00:06\"\n    ]\n  }\n]\n"
+    },
+    "menu/exact-focused/lines.json": {
+      "sha256": "80c02a43c4879188e58dcdd42d128af4bc474a46f3aee883ab9dba438fea5a86",
+      "text": "[\n  \"[00:00:00] Speaker A: 原先排了星期二印紙本菜單。\",\n  \"[00:00:03] Speaker B: 紙本取消，這次只做電子版。\",\n  \"[00:00:06] Speaker A: 知道了。我星期四把電子菜單放上網站。\",\n  \"[00:00:10] Speaker B: 好，就等星期四的網站更新。\",\n  \"[00:00:13] Speaker A: 印刷的那張工單已經撤掉了。\"\n]\n"
+    },
+    "menu/exact-ordinary/items.json": {
+      "sha256": "4c7e20a5450e0885f3fc46529ca464780048c8c16a4132d81d71e3e8637a98a5",
+      "text": "[\n  {\n    \"task\": \"把電子菜單放上網站\",\n    \"owner\": \"Speaker A\",\n    \"due\": \"星期四\",\n    \"evidence\": [\n      \"00:00:06\"\n    ]\n  }\n]\n"
+    },
+    "menu/exact-ordinary/lines.json": {
+      "sha256": "80c02a43c4879188e58dcdd42d128af4bc474a46f3aee883ab9dba438fea5a86",
+      "text": "[\n  \"[00:00:00] Speaker A: 原先排了星期二印紙本菜單。\",\n  \"[00:00:03] Speaker B: 紙本取消，這次只做電子版。\",\n  \"[00:00:06] Speaker A: 知道了。我星期四把電子菜單放上網站。\",\n  \"[00:00:10] Speaker B: 好，就等星期四的網站更新。\",\n  \"[00:00:13] Speaker A: 印刷的那張工單已經撤掉了。\"\n]\n"
+    },
+    "menu/labels-focused/items.json": {
+      "sha256": "4c7e20a5450e0885f3fc46529ca464780048c8c16a4132d81d71e3e8637a98a5",
+      "text": "[\n  {\n    \"task\": \"把電子菜單放上網站\",\n    \"owner\": \"Speaker A\",\n    \"due\": \"星期四\",\n    \"evidence\": [\n      \"00:00:06\"\n    ]\n  }\n]\n"
+    },
+    "menu/labels-focused/lines.json": {
+      "sha256": "5a98f604a8c20d98777485b6f19493be47b8586ec375ca65480a3c3924533fa7",
+      "text": "[\n  \"[00:00:00] Speaker A: 原先排了星期二印紙本菜單\",\n  \"[00:00:02] Speaker B: 紙本取消這次只做電子版知道\",\n  \"[00:00:06] Speaker A: 了我星期四把電子菜單放上網站\",\n  \"[00:00:09] Speaker B: 好就等星期四的網站更新\",\n  \"[00:00:13] Speaker A: 印刷的那張公單已經撤掉了\"\n]\n"
+    },
+    "menu/labels-focused/run.json": {
+      "sha256": "55ae8b2f2835c958374d2451db8612924d91cede6f2485ab8264de29719a39e5",
+      "text": "{\n  \"wall_seconds\": 10.89,\n  \"peak_footprint_bytes\": 6418617504,\n  \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n  \"reply_format\": \"object\",\n  \"lines_sha256\": \"5a98f604a8c20d98777485b6f19493be47b8586ec375ca65480a3c3924533fa7\",\n  \"items_sha256\": \"4c7e20a5450e0885f3fc46529ca464780048c8c16a4132d81d71e3e8637a98a5\"\n}\n"
+    },
+    "menu/large-focused/items.json": {
+      "sha256": "4c7e20a5450e0885f3fc46529ca464780048c8c16a4132d81d71e3e8637a98a5",
+      "text": "[\n  {\n    \"task\": \"把電子菜單放上網站\",\n    \"owner\": \"Speaker A\",\n    \"due\": \"星期四\",\n    \"evidence\": [\n      \"00:00:06\"\n    ]\n  }\n]\n"
+    },
+    "menu/large-focused/lines.json": {
+      "sha256": "c8c2e3c2a13372e0528f90b14299fd2268d17cca98e886faef7698082547b37d",
+      "text": "[\n  \"[00:00:00] Speaker A: 原先排了星期二印紙本菜單紙\",\n  \"[00:00:03] Speaker B: 本取消,這次只做電子版知道\",\n  \"[00:00:06] Speaker A: 了,我星期四把電子菜單放上網站好,\",\n  \"[00:00:10] Speaker B: 就等星期四的網站更新印\",\n  \"[00:00:13] Speaker A: 刷的那張公單已經撤掉了\"\n]\n"
+    },
+    "menu/large-focused/run.json": {
+      "sha256": "ea382f683e00de2de29dbd035ceebe50346661bafe4d877f324e18c5833b7e1a",
+      "text": "{\n  \"wall_seconds\": 9.9,\n  \"peak_footprint_bytes\": 6433330336,\n  \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n  \"reply_format\": \"object\",\n  \"lines_sha256\": \"c8c2e3c2a13372e0528f90b14299fd2268d17cca98e886faef7698082547b37d\",\n  \"items_sha256\": \"4c7e20a5450e0885f3fc46529ca464780048c8c16a4132d81d71e3e8637a98a5\",\n  \"audio_speaker_map\": {\n    \"Speaker A\": \"A\",\n    \"Speaker B\": \"B\"\n  },\n  \"same_diarization\": true\n}\n"
+    },
+    "menu/large-pipeline/stages.json": {
+      "sha256": "ba016fcd6c2c6d5b1abe53a649fe70c9149f93f0bb18de6732fd7f8bde678e49",
+      "text": "{\n \"convert\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:25:18+00:00\",\n  \"seconds\": 0.05,\n  \"wall_seconds\": 0.04,\n  \"max_rss_bytes\": 16482304,\n  \"peak_footprint_bytes\": 3719672,\n  \"outputs\": {\n   \"audio.wav\": \"610986f5bc9643d8c746dd8487f1a2a011440f2c39ffc3779cc782759dd0dd82\"\n  }\n },\n \"asr\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:25:18+00:00\",\n  \"seconds\": 6.69,\n  \"wall_seconds\": 6.68,\n  \"max_rss_bytes\": 3186065408,\n  \"peak_footprint_bytes\": 5120265864,\n  \"mlx_peak_bytes\": 3957827638,\n  \"outputs\": {\n   \"asr.json\": \"79342146366f2ed6961711285dddada72750c859e2e5a841576b2bef19ade1aa\"\n  }\n },\n \"diarize\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:25:25+00:00\",\n  \"seconds\": 8.39,\n  \"wall_seconds\": 8.38,\n  \"max_rss_bytes\": 979582976,\n  \"peak_footprint_bytes\": 710771984,\n  \"outputs\": {\n   \"sortformer.raw.json\": \"96f04db261363d624aacfafb7eb11b8c7f2bbe0195794b6f97e9a49756edfc2d\",\n   \"diarization.json\": \"05f946630de667d98aee77b6af8eeb42c983781ff68ca042be1bedaf07c999fa\"\n  }\n },\n \"attach\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:25:34+00:00\",\n  \"seconds\": 0.0,\n  \"outputs\": {\n   \"turns.json\": \"3a535ad03f244f38620248a4f3d39cc0c99d2fc5c8871a8618e78ec9c2911b63\",\n   \"speakers.json\": \"11f4002cb7cad36d04dd852ac6d3a8ea9bf5922930931a8561d62f055abad3cc\"\n  }\n },\n \"transcript\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:25:34+00:00\",\n  \"seconds\": 0.05,\n  \"outputs\": {\n   \"transcript.md\": \"eb785fe78995da40954f474c0689999a7c1e1a4f1b66d361099e5d8f936999a3\"\n  }\n },\n \"total\": {\n  \"seconds\": 15.19,\n  \"note\": \"this invocation only; stages skipped by --resume add nothing\"\n }\n}\n"
+    },
+    "menu/pipeline/stages.json": {
+      "sha256": "282dea61fbe93b51a27ff684adf43e885e053577abd3659f0662244dd6aa241e",
+      "text": "{\n \"convert\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:10:15+00:00\",\n  \"seconds\": 0.05,\n  \"wall_seconds\": 0.04,\n  \"max_rss_bytes\": 16482304,\n  \"peak_footprint_bytes\": 3719672,\n  \"outputs\": {\n   \"audio.wav\": \"610986f5bc9643d8c746dd8487f1a2a011440f2c39ffc3779cc782759dd0dd82\"\n  }\n },\n \"asr\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:10:16+00:00\",\n  \"seconds\": 4.03,\n  \"wall_seconds\": 4.02,\n  \"max_rss_bytes\": 861323264,\n  \"peak_footprint_bytes\": 1852130768,\n  \"mlx_peak_bytes\": 1343820086,\n  \"outputs\": {\n   \"asr.json\": \"2ffb2a421408c896ab9e996e68b3c89f3bf17b69df70316ac65a707618468278\"\n  }\n },\n \"diarize\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:10:20+00:00\",\n  \"seconds\": 8.67,\n  \"wall_seconds\": 8.67,\n  \"max_rss_bytes\": 973225984,\n  \"peak_footprint_bytes\": 703300976,\n  \"outputs\": {\n   \"sortformer.raw.json\": \"20ca0e1c50c152452d6e2db5ebe5b8036479e07916589dcb2f39508c0d24a1c7\",\n   \"diarization.json\": \"05f946630de667d98aee77b6af8eeb42c983781ff68ca042be1bedaf07c999fa\"\n  }\n },\n \"attach\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:10:28+00:00\",\n  \"seconds\": 0.0,\n  \"outputs\": {\n   \"turns.json\": \"de96d0850ec6f84096ff7183399ce67cc8958da131fb58ef2331ebb97b68c0af\",\n   \"speakers.json\": \"11f4002cb7cad36d04dd852ac6d3a8ea9bf5922930931a8561d62f055abad3cc\"\n  }\n },\n \"transcript\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:10:28+00:00\",\n  \"seconds\": 0.05,\n  \"outputs\": {\n   \"transcript.md\": \"9ac291b5ac93c3392cfc8e2567c3e3cbae853f4878bdd555651293275fe704ef\"\n  }\n },\n \"total\": {\n  \"seconds\": 12.81,\n  \"note\": \"this invocation only; stages skipped by --resume add nothing\"\n }\n}\n"
+    },
+    "museum/audio-focused/items.json": {
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "text": "[]\n"
+    },
+    "museum/audio-focused/lines.json": {
+      "sha256": "c64bf1efb416ec5e8021e4e61b6b78b5a6792f5874909d7a9f1c0e4b68180a32",
+      "text": "[\n  \"[00:00:00] Speaker A: 昨天展品的照片都上傳完了要\",\n  \"[00:00:03] Speaker B: 不要再拍一套夜景照片\",\n  \"[00:00:05] Speaker C: 再一次不用拍夜景這個提案撤掉那\",\n  \"[00:00:11] Speaker A: 夏季的展期已經決定了嗎\",\n  \"[00:00:13] Speaker B: 不知道今天只交換消息不只拍任何工作好\",\n  \"[00:00:19] Speaker C: 今天到這裡\"\n]\n"
+    },
+    "museum/audio-ordinary/items.json": {
+      "sha256": "338d5502d2b6f4d9b4c1f7c04b8a7cf80007152012ad36414d698ef8fe522964",
+      "text": "[\n  {\n    \"task\": \"上傳展品照片\",\n    \"owner\": null,\n    \"due\": null,\n    \"evidence\": [\n      \"00:00:00\"\n    ]\n  }\n]\n"
+    },
+    "museum/audio-ordinary/lines.json": {
+      "sha256": "c64bf1efb416ec5e8021e4e61b6b78b5a6792f5874909d7a9f1c0e4b68180a32",
+      "text": "[\n  \"[00:00:00] Speaker A: 昨天展品的照片都上傳完了要\",\n  \"[00:00:03] Speaker B: 不要再拍一套夜景照片\",\n  \"[00:00:05] Speaker C: 再一次不用拍夜景這個提案撤掉那\",\n  \"[00:00:11] Speaker A: 夏季的展期已經決定了嗎\",\n  \"[00:00:13] Speaker B: 不知道今天只交換消息不只拍任何工作好\",\n  \"[00:00:19] Speaker C: 今天到這裡\"\n]\n"
+    },
+    "museum/audio-verified/items.json": {
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "text": "[]\n"
+    },
+    "museum/audio-verified/lines.json": {
+      "sha256": "c64bf1efb416ec5e8021e4e61b6b78b5a6792f5874909d7a9f1c0e4b68180a32",
+      "text": "[\n  \"[00:00:00] Speaker A: 昨天展品的照片都上傳完了要\",\n  \"[00:00:03] Speaker B: 不要再拍一套夜景照片\",\n  \"[00:00:05] Speaker C: 再一次不用拍夜景這個提案撤掉那\",\n  \"[00:00:11] Speaker A: 夏季的展期已經決定了嗎\",\n  \"[00:00:13] Speaker B: 不知道今天只交換消息不只拍任何工作好\",\n  \"[00:00:19] Speaker C: 今天到這裡\"\n]\n"
+    },
+    "museum/audio-verified/run.json": {
+      "sha256": "cc30a31d2b8b208132cd313ec957938ad683015b26358816aa14b3a2addcf656",
+      "text": "{\n  \"wall_seconds\": 0.0,\n  \"peak_footprint_bytes\": 0,\n  \"skipped_empty\": true,\n  \"lines_sha256\": \"c64bf1efb416ec5e8021e4e61b6b78b5a6792f5874909d7a9f1c0e4b68180a32\",\n  \"items_sha256\": \"37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570\"\n}\n"
+    },
+    "museum/case.json": {
+      "sha256": "e573312bc8ed5971d5961269a8e92b9566a075a42c8b7bd832956bdadbb9098a",
+      "text": "{\n  \"script_sha256\": \"a821489791cba2ba398912a199ad10e41821962c52edd4bc6aeab2d59b4afea1\",\n  \"audio_sha256\": \"35eda09360b791a9a36817842b39c92c2786e69b7250609e3dea084ddfd50f3d\",\n  \"duration_seconds\": 21.78,\n  \"audio_speaker_map\": {\n    \"Speaker A\": \"A\",\n    \"Speaker B\": \"B\",\n    \"Speaker C\": \"C\"\n  },\n  \"runs\": {\n    \"exact-ordinary\": {\n      \"wall_seconds\": 21.65,\n      \"peak_footprint_bytes\": 6455874504,\n      \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n      \"reply_format\": \"object\",\n      \"lines_sha256\": \"c7ff6235607000cced08cdfb2d0ceffa55c0c486a00762a37c7d0ebb2356a858\",\n      \"items_sha256\": \"6d57c2261e4fcdb39c79c28e4d6ccc32b79de3caaba48a29235a9bcc43167038\"\n    },\n    \"exact-focused\": {\n      \"wall_seconds\": 8.16,\n      \"peak_footprint_bytes\": 6430364784,\n      \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n      \"reply_format\": \"bare-empty-array\",\n      \"lines_sha256\": \"c7ff6235607000cced08cdfb2d0ceffa55c0c486a00762a37c7d0ebb2356a858\",\n      \"items_sha256\": \"37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570\"\n    },\n    \"audio-ordinary\": {\n      \"wall_seconds\": 21.36,\n      \"peak_footprint_bytes\": 6590223304,\n      \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n      \"reply_format\": \"object\",\n      \"lines_sha256\": \"c64bf1efb416ec5e8021e4e61b6b78b5a6792f5874909d7a9f1c0e4b68180a32\",\n      \"items_sha256\": \"338d5502d2b6f4d9b4c1f7c04b8a7cf80007152012ad36414d698ef8fe522964\"\n    },\n    \"audio-focused\": {\n      \"wall_seconds\": 7.94,\n      \"peak_footprint_bytes\": 6465361008,\n      \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n      \"reply_format\": \"bare-empty-array\",\n      \"lines_sha256\": \"c64bf1efb416ec5e8021e4e61b6b78b5a6792f5874909d7a9f1c0e4b68180a32\",\n      \"items_sha256\": \"37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570\"\n    }\n  }\n}\n"
+    },
+    "museum/exact-focused/items.json": {
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "text": "[]\n"
+    },
+    "museum/exact-focused/lines.json": {
+      "sha256": "c7ff6235607000cced08cdfb2d0ceffa55c0c486a00762a37c7d0ebb2356a858",
+      "text": "[\n  \"[00:00:00] Speaker A: 昨天展品的照片都上傳完了。\",\n  \"[00:00:02] Speaker B: 要不要再拍一套夜景照片？\",\n  \"[00:00:05] Speaker C: 這次不用拍夜景，這個提案撤掉。\",\n  \"[00:00:10] Speaker A: 那下季的展期已經決定了嗎？\",\n  \"[00:00:13] Speaker B: 還不知道，今天只交換消息，不指派任何工作。\",\n  \"[00:00:19] Speaker C: 好，今天到這裡。\"\n]\n"
+    },
+    "museum/exact-ordinary/items.json": {
+      "sha256": "6d57c2261e4fcdb39c79c28e4d6ccc32b79de3caaba48a29235a9bcc43167038",
+      "text": "[\n  {\n    \"task\": \"交換下季展期消息\",\n    \"owner\": null,\n    \"due\": null,\n    \"evidence\": [\n      \"00:00:13\"\n    ]\n  }\n]\n"
+    },
+    "museum/exact-ordinary/lines.json": {
+      "sha256": "c7ff6235607000cced08cdfb2d0ceffa55c0c486a00762a37c7d0ebb2356a858",
+      "text": "[\n  \"[00:00:00] Speaker A: 昨天展品的照片都上傳完了。\",\n  \"[00:00:02] Speaker B: 要不要再拍一套夜景照片？\",\n  \"[00:00:05] Speaker C: 這次不用拍夜景，這個提案撤掉。\",\n  \"[00:00:10] Speaker A: 那下季的展期已經決定了嗎？\",\n  \"[00:00:13] Speaker B: 還不知道，今天只交換消息，不指派任何工作。\",\n  \"[00:00:19] Speaker C: 好，今天到這裡。\"\n]\n"
+    },
+    "museum/labels-focused/items.json": {
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "text": "[]\n"
+    },
+    "museum/labels-focused/lines.json": {
+      "sha256": "c64bf1efb416ec5e8021e4e61b6b78b5a6792f5874909d7a9f1c0e4b68180a32",
+      "text": "[\n  \"[00:00:00] Speaker A: 昨天展品的照片都上傳完了要\",\n  \"[00:00:03] Speaker B: 不要再拍一套夜景照片\",\n  \"[00:00:05] Speaker C: 再一次不用拍夜景這個提案撤掉那\",\n  \"[00:00:11] Speaker A: 夏季的展期已經決定了嗎\",\n  \"[00:00:13] Speaker B: 不知道今天只交換消息不只拍任何工作好\",\n  \"[00:00:19] Speaker C: 今天到這裡\"\n]\n"
+    },
+    "museum/labels-focused/run.json": {
+      "sha256": "59ba68a29ccf275ee0294ccecdf57c28cea16ec028481ceeb8ad9050b6fa7699",
+      "text": "{\n  \"wall_seconds\": 8.36,\n  \"peak_footprint_bytes\": 6459380968,\n  \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n  \"reply_format\": \"bare-empty-array\",\n  \"lines_sha256\": \"c64bf1efb416ec5e8021e4e61b6b78b5a6792f5874909d7a9f1c0e4b68180a32\",\n  \"items_sha256\": \"37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570\"\n}\n"
+    },
+    "museum/large-focused/items.json": {
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "text": "[]\n"
+    },
+    "museum/large-focused/lines.json": {
+      "sha256": "0fee8f2a2344ae33fa225e0b521c3ce6515a33c27e35b2c0109584a543aa08b8",
+      "text": "[\n  \"[00:00:00] Speaker A: 昨天展品的照片都上傳完了要\",\n  \"[00:00:03] Speaker B: 不要再拍一套夜景照片再\",\n  \"[00:00:05] Speaker C: 一次不用拍夜景這個提案撤掉那\",\n  \"[00:00:11] Speaker A: 夏季的展期已經決定了嗎\",\n  \"[00:00:13] Speaker B: 不知道今天只交換消息不只拍任何工作啊\",\n  \"[00:00:18] Speaker C: 好今天到這裡\"\n]\n"
+    },
+    "museum/large-focused/run.json": {
+      "sha256": "42f6055b0b40c85342a76cd09214890137750ed1f0cd5c9c672c45e94d790098",
+      "text": "{\n  \"wall_seconds\": 8.22,\n  \"peak_footprint_bytes\": 6465000632,\n  \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n  \"reply_format\": \"bare-empty-array\",\n  \"lines_sha256\": \"0fee8f2a2344ae33fa225e0b521c3ce6515a33c27e35b2c0109584a543aa08b8\",\n  \"items_sha256\": \"37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570\",\n  \"audio_speaker_map\": {\n    \"Speaker A\": \"A\",\n    \"Speaker B\": \"B\",\n    \"Speaker C\": \"C\"\n  },\n  \"same_diarization\": true\n}\n"
+    },
+    "museum/large-pipeline/stages.json": {
+      "sha256": "79ecf3e499d0c32fb831d73776793d3d3fea8c3171dc64fcd845cd34a41ab192",
+      "text": "{\n \"convert\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:25:45+00:00\",\n  \"seconds\": 0.04,\n  \"wall_seconds\": 0.04,\n  \"max_rss_bytes\": 16629760,\n  \"peak_footprint_bytes\": 3867128,\n  \"outputs\": {\n   \"audio.wav\": \"d0b4ab843c6bf62c9aa87e031851d9559a4ffa8d00b9c62b7edc809cb9a257dc\"\n  }\n },\n \"asr\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:25:45+00:00\",\n  \"seconds\": 7.09,\n  \"wall_seconds\": 7.08,\n  \"max_rss_bytes\": 3237134336,\n  \"peak_footprint_bytes\": 5190291176,\n  \"mlx_peak_bytes\": 3961317430,\n  \"outputs\": {\n   \"asr.json\": \"3504b818724505276847a5dcf7130a384ea8cb7ed714c0bd774d12f3fcd3c8a4\"\n  }\n },\n \"diarize\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:25:52+00:00\",\n  \"seconds\": 10.42,\n  \"wall_seconds\": 10.41,\n  \"max_rss_bytes\": 981286912,\n  \"peak_footprint_bytes\": 712295792,\n  \"outputs\": {\n   \"sortformer.raw.json\": \"021cefa8549638ee418d4e1c66bdd35dd949afd5ed128d56195bead88b134809\",\n   \"diarization.json\": \"e7829d01cbd74213ef22967d49b3506c19b60a480a9784e9ff3b4b5d5ca21b8c\"\n  }\n },\n \"attach\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:26:02+00:00\",\n  \"seconds\": 0.0,\n  \"outputs\": {\n   \"turns.json\": \"b891a363907e8bf64c2971a41a5adbdc30c68ac74c6bac76a334dac575ba7c8f\",\n   \"speakers.json\": \"198882ac58dd2c424242bfbf1b42687b3aac9c59b2200652d40611cf8024f85a\"\n  }\n },\n \"transcript\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:26:02+00:00\",\n  \"seconds\": 0.05,\n  \"outputs\": {\n   \"transcript.md\": \"4c6c003ffcffb59b4113c911930ce5d3ef08604fb8c74dde6f4d806bee5f0145\"\n  }\n },\n \"total\": {\n  \"seconds\": 17.61,\n  \"note\": \"this invocation only; stages skipped by --resume add nothing\"\n }\n}\n"
+    },
+    "museum/pipeline/stages.json": {
+      "sha256": "359b56d586938e42021199f72803fea9109369c387728c4ae0525e7eb7c1348c",
+      "text": "{\n \"convert\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:13:43+00:00\",\n  \"seconds\": 0.05,\n  \"wall_seconds\": 0.05,\n  \"max_rss_bytes\": 16629760,\n  \"peak_footprint_bytes\": 3867128,\n  \"outputs\": {\n   \"audio.wav\": \"d0b4ab843c6bf62c9aa87e031851d9559a4ffa8d00b9c62b7edc809cb9a257dc\"\n  }\n },\n \"asr\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:13:43+00:00\",\n  \"seconds\": 4.65,\n  \"wall_seconds\": 4.64,\n  \"max_rss_bytes\": 787742720,\n  \"peak_footprint_bytes\": 1909786232,\n  \"mlx_peak_bytes\": 1347309878,\n  \"outputs\": {\n   \"asr.json\": \"5030dffd5de55d04e015e443b54e7ee5b233e3f2af78f83e9ca08534ba732f5d\"\n  }\n },\n \"diarize\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:13:47+00:00\",\n  \"seconds\": 10.82,\n  \"wall_seconds\": 10.81,\n  \"max_rss_bytes\": 978665472,\n  \"peak_footprint_bytes\": 711361856,\n  \"outputs\": {\n   \"sortformer.raw.json\": \"668ec1760f4fb88859f03ba26b6081c3c63f786e0045e538ced653442ae9b1c3\",\n   \"diarization.json\": \"e7829d01cbd74213ef22967d49b3506c19b60a480a9784e9ff3b4b5d5ca21b8c\"\n  }\n },\n \"attach\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:13:58+00:00\",\n  \"seconds\": 0.0,\n  \"outputs\": {\n   \"turns.json\": \"cb41ffb3eab36549b3079f5ca027079af7c2ed5e56b41f7076cc5849a1451825\",\n   \"speakers.json\": \"198882ac58dd2c424242bfbf1b42687b3aac9c59b2200652d40611cf8024f85a\"\n  }\n },\n \"transcript\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:13:58+00:00\",\n  \"seconds\": 0.07,\n  \"outputs\": {\n   \"transcript.md\": \"ca04de77b66c2e020fb0fb40faac7dd5ab39e55c6f55d0260d4f64abd43cd2c7\"\n  }\n },\n \"total\": {\n  \"seconds\": 15.6,\n  \"note\": \"this invocation only; stages skipped by --resume add nothing\"\n }\n}\n"
+    },
+    "podcast/audio-focused/items.json": {
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "text": "[]\n"
+    },
+    "podcast/audio-focused/lines.json": {
+      "sha256": "81766427a5ec23e78500e2a6c5b43107084509b7c9a793edcced6ac295e25f4f",
+      "text": "[\n  \"[00:00:00] Speaker A: 這次訪談有兩集是不是兩集都要減\",\n  \"[00:00:04] Speaker B: 第二集先留住今天只安排第一集\",\n  \"[00:00:08] Speaker C: 好我星期三把第一集的雜音減了我\",\n  \"[00:00:12] Speaker D: 來整理第一集的竹子稿下週一億錢交\",\n  \"[00:00:15] Speaker A: 那第二集有人接嗎還\",\n  \"[00:00:18] Speaker B: 沒有也沒有排進這次工作\"\n]\n"
+    },
+    "podcast/audio-ordinary/items.json": {
+      "sha256": "a61dc74678ed9f7a55c215ab21e706401f2e7df8ad274deb8d851793a485249d",
+      "text": "[\n  {\n    \"task\": \"整理第一集的逐字稿\",\n    \"owner\": \"Speaker D\",\n    \"due\": \"下週一\",\n    \"evidence\": [\n      \"00:00:12\"\n    ]\n  }\n]\n"
+    },
+    "podcast/audio-ordinary/lines.json": {
+      "sha256": "81766427a5ec23e78500e2a6c5b43107084509b7c9a793edcced6ac295e25f4f",
+      "text": "[\n  \"[00:00:00] Speaker A: 這次訪談有兩集是不是兩集都要減\",\n  \"[00:00:04] Speaker B: 第二集先留住今天只安排第一集\",\n  \"[00:00:08] Speaker C: 好我星期三把第一集的雜音減了我\",\n  \"[00:00:12] Speaker D: 來整理第一集的竹子稿下週一億錢交\",\n  \"[00:00:15] Speaker A: 那第二集有人接嗎還\",\n  \"[00:00:18] Speaker B: 沒有也沒有排進這次工作\"\n]\n"
+    },
+    "podcast/audio-verified/items.json": {
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "text": "[]\n"
+    },
+    "podcast/audio-verified/lines.json": {
+      "sha256": "81766427a5ec23e78500e2a6c5b43107084509b7c9a793edcced6ac295e25f4f",
+      "text": "[\n  \"[00:00:00] Speaker A: 這次訪談有兩集是不是兩集都要減\",\n  \"[00:00:04] Speaker B: 第二集先留住今天只安排第一集\",\n  \"[00:00:08] Speaker C: 好我星期三把第一集的雜音減了我\",\n  \"[00:00:12] Speaker D: 來整理第一集的竹子稿下週一億錢交\",\n  \"[00:00:15] Speaker A: 那第二集有人接嗎還\",\n  \"[00:00:18] Speaker B: 沒有也沒有排進這次工作\"\n]\n"
+    },
+    "podcast/audio-verified/run.json": {
+      "sha256": "8da3fbed27217f58a70c301bb74c58526991cfb09fd56eb4e920284f28cb74e8",
+      "text": "{\n  \"wall_seconds\": 0.0,\n  \"peak_footprint_bytes\": 0,\n  \"skipped_empty\": true,\n  \"lines_sha256\": \"81766427a5ec23e78500e2a6c5b43107084509b7c9a793edcced6ac295e25f4f\",\n  \"items_sha256\": \"37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570\"\n}\n"
+    },
+    "podcast/case.json": {
+      "sha256": "3087f95fbaff09a9a21b9fe6ef27bea8f411386a135b97491e219647ecd812aa",
+      "text": "{\n  \"script_sha256\": \"6bea835dd8866f7c5ec94df714a6735f90682f9661d9706fab4db5b6974179f4\",\n  \"audio_sha256\": \"3de4445376a078fc80f9e135fc8f49688849ce99679cfa3154000fcd00ac4817\",\n  \"duration_seconds\": 21.14,\n  \"audio_speaker_map\": {\n    \"Speaker A\": \"A\",\n    \"Speaker B\": \"B\",\n    \"Speaker C\": \"C\",\n    \"Speaker D\": \"D\"\n  },\n  \"runs\": {\n    \"exact-ordinary\": {\n      \"wall_seconds\": 26.5,\n      \"peak_footprint_bytes\": 6579819368,\n      \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n      \"reply_format\": \"object\",\n      \"lines_sha256\": \"0ae38730f763c884550e0a2c7a316d4d3ae0e5d02d475b204101765f1b1b3ec9\",\n      \"items_sha256\": \"34b24af5b4f4cb6ffa3a3233d78b69d86d6aed940d05707ab68fec412d912b1a\"\n    },\n    \"exact-focused\": {\n      \"wall_seconds\": 11.71,\n      \"peak_footprint_bytes\": 6446437512,\n      \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n      \"reply_format\": \"object\",\n      \"lines_sha256\": \"0ae38730f763c884550e0a2c7a316d4d3ae0e5d02d475b204101765f1b1b3ec9\",\n      \"items_sha256\": \"ae7577f4a35b60992f8fb2ca18fc8813a6e39fc3225661e7a5f1e41766bcf89d\"\n    },\n    \"audio-ordinary\": {\n      \"wall_seconds\": 27.08,\n      \"peak_footprint_bytes\": 6608737200,\n      \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n      \"reply_format\": \"object\",\n      \"lines_sha256\": \"81766427a5ec23e78500e2a6c5b43107084509b7c9a793edcced6ac295e25f4f\",\n      \"items_sha256\": \"a61dc74678ed9f7a55c215ab21e706401f2e7df8ad274deb8d851793a485249d\"\n    },\n    \"audio-focused\": {\n      \"wall_seconds\": 8.51,\n      \"peak_footprint_bytes\": 6432642136,\n      \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n      \"reply_format\": \"object\",\n      \"lines_sha256\": \"81766427a5ec23e78500e2a6c5b43107084509b7c9a793edcced6ac295e25f4f\",\n      \"items_sha256\": \"37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570\"\n    }\n  }\n}\n"
+    },
+    "podcast/exact-focused/items.json": {
+      "sha256": "ae7577f4a35b60992f8fb2ca18fc8813a6e39fc3225661e7a5f1e41766bcf89d",
+      "text": "[\n  {\n    \"task\": \"剪掉第一集的雜音\",\n    \"owner\": \"Speaker C\",\n    \"due\": \"星期三\",\n    \"evidence\": [\n      \"00:00:08\"\n    ]\n  },\n  {\n    \"task\": \"整理第一集的逐字稿\",\n    \"owner\": \"Speaker D\",\n    \"due\": \"下週一\",\n    \"evidence\": [\n      \"00:00:11\"\n    ]\n  }\n]\n"
+    },
+    "podcast/exact-focused/lines.json": {
+      "sha256": "0ae38730f763c884550e0a2c7a316d4d3ae0e5d02d475b204101765f1b1b3ec9",
+      "text": "[\n  \"[00:00:00] Speaker A: 這次訪談有兩集，是不是兩集都要剪？\",\n  \"[00:00:05] Speaker B: 第二集先留著，今天只安排第一集。\",\n  \"[00:00:08] Speaker C: 好，我星期三把第一集的雜音剪掉。\",\n  \"[00:00:11] Speaker D: 我來整理第一集的逐字稿，下週一以前交。\",\n  \"[00:00:15] Speaker A: 那第二集有人接嗎？\",\n  \"[00:00:17] Speaker B: 還沒有，也沒有排進這次工作。\"\n]\n"
+    },
+    "podcast/exact-ordinary/items.json": {
+      "sha256": "34b24af5b4f4cb6ffa3a3233d78b69d86d6aed940d05707ab68fec412d912b1a",
+      "text": "[\n  {\n    \"task\": \"剪掉第一集雜音\",\n    \"owner\": \"Speaker C\",\n    \"due\": \"星期三\",\n    \"evidence\": [\n      \"00:00:08\"\n    ]\n  },\n  {\n    \"task\": \"整理第一集逐字稿\",\n    \"owner\": \"Speaker D\",\n    \"due\": \"下週一以前\",\n    \"evidence\": [\n      \"00:00:11\"\n    ]\n  }\n]\n"
+    },
+    "podcast/exact-ordinary/lines.json": {
+      "sha256": "0ae38730f763c884550e0a2c7a316d4d3ae0e5d02d475b204101765f1b1b3ec9",
+      "text": "[\n  \"[00:00:00] Speaker A: 這次訪談有兩集，是不是兩集都要剪？\",\n  \"[00:00:05] Speaker B: 第二集先留著，今天只安排第一集。\",\n  \"[00:00:08] Speaker C: 好，我星期三把第一集的雜音剪掉。\",\n  \"[00:00:11] Speaker D: 我來整理第一集的逐字稿，下週一以前交。\",\n  \"[00:00:15] Speaker A: 那第二集有人接嗎？\",\n  \"[00:00:17] Speaker B: 還沒有，也沒有排進這次工作。\"\n]\n"
+    },
+    "podcast/labels-focused/items.json": {
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "text": "[]\n"
+    },
+    "podcast/labels-focused/lines.json": {
+      "sha256": "81766427a5ec23e78500e2a6c5b43107084509b7c9a793edcced6ac295e25f4f",
+      "text": "[\n  \"[00:00:00] Speaker A: 這次訪談有兩集是不是兩集都要減\",\n  \"[00:00:04] Speaker B: 第二集先留住今天只安排第一集\",\n  \"[00:00:08] Speaker C: 好我星期三把第一集的雜音減了我\",\n  \"[00:00:12] Speaker D: 來整理第一集的竹子稿下週一億錢交\",\n  \"[00:00:15] Speaker A: 那第二集有人接嗎還\",\n  \"[00:00:18] Speaker B: 沒有也沒有排進這次工作\"\n]\n"
+    },
+    "podcast/labels-focused/run.json": {
+      "sha256": "b74e8d0e88586200bd0dc6622e6cbb88b60ff8c2f4991e11a6a35205d3188512",
+      "text": "{\n  \"wall_seconds\": 8.44,\n  \"peak_footprint_bytes\": 6429660296,\n  \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n  \"reply_format\": \"object\",\n  \"lines_sha256\": \"81766427a5ec23e78500e2a6c5b43107084509b7c9a793edcced6ac295e25f4f\",\n  \"items_sha256\": \"37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570\"\n}\n"
+    },
+    "podcast/large-focused/items.json": {
+      "sha256": "8a536afe8184d355e7284067a047cf58bcdfd154d4c275e4d847a661b0683efb",
+      "text": "[\n  {\n    \"task\": \"剪掉第一集的雜音\",\n    \"owner\": \"Speaker C\",\n    \"due\": \"星期三\",\n    \"evidence\": [\n      \"00:00:09\"\n    ]\n  },\n  {\n    \"task\": \"整理第一集的竹子稿\",\n    \"owner\": \"Speaker D\",\n    \"due\": \"下週一\",\n    \"evidence\": [\n      \"00:00:12\"\n    ]\n  }\n]\n"
+    },
+    "podcast/large-focused/lines.json": {
+      "sha256": "fbfd300b248a472328ea42b3c1dd7f17bc8a7ded341983503fa5118e38193e71",
+      "text": "[\n  \"[00:00:00] Speaker A: 這次訪談有兩集,是不是兩集都要剪?\",\n  \"[00:00:04] Speaker B: 第二集先留住,今天只安排第一集好,\",\n  \"[00:00:09] Speaker C: 我星期三把第一集的雜音剪掉我\",\n  \"[00:00:12] Speaker D: 來整理第一集的竹子稿,下週一以前交那\",\n  \"[00:00:15] Speaker A: 第二集有人接嗎?\",\n  \"[00:00:17] Speaker B: 還沒有,也沒有排進這次工作\"\n]\n"
+    },
+    "podcast/large-focused/run.json": {
+      "sha256": "feb919b7baa8c5a964dd28adae01326d2a68dd26f80ec8a2864c6bc2ec4b55a1",
+      "text": "{\n  \"wall_seconds\": 12.14,\n  \"peak_footprint_bytes\": 6260577104,\n  \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n  \"reply_format\": \"object\",\n  \"lines_sha256\": \"fbfd300b248a472328ea42b3c1dd7f17bc8a7ded341983503fa5118e38193e71\",\n  \"items_sha256\": \"8a536afe8184d355e7284067a047cf58bcdfd154d4c275e4d847a661b0683efb\",\n  \"audio_speaker_map\": {\n    \"Speaker A\": \"A\",\n    \"Speaker B\": \"B\",\n    \"Speaker C\": \"C\",\n    \"Speaker D\": \"D\"\n  },\n  \"same_diarization\": true\n}\n"
+    },
+    "podcast/large-pipeline/stages.json": {
+      "sha256": "26d7f250c50cc615a9b04999d7a06d66719c293c5716aee9808831064fe540c4",
+      "text": "{\n \"convert\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:26:11+00:00\",\n  \"seconds\": 0.04,\n  \"wall_seconds\": 0.04,\n  \"max_rss_bytes\": 16400384,\n  \"peak_footprint_bytes\": 3637728,\n  \"outputs\": {\n   \"audio.wav\": \"abdc0f23dcbb639430974a20df602260b0cbe641d85464700514e2ac1331591f\"\n  }\n },\n \"asr\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:26:11+00:00\",\n  \"seconds\": 7.08,\n  \"wall_seconds\": 7.07,\n  \"max_rss_bytes\": 3174596608,\n  \"peak_footprint_bytes\": 5281140408,\n  \"mlx_peak_bytes\": 3969050678,\n  \"outputs\": {\n   \"asr.json\": \"73545944aefc1ac72bb9ee59cb38caf8f291bf82125e9e616b07fd1a7275bdd9\"\n  }\n },\n \"diarize\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:26:18+00:00\",\n  \"seconds\": 9.78,\n  \"wall_seconds\": 9.77,\n  \"max_rss_bytes\": 979009536,\n  \"peak_footprint_bytes\": 710624576,\n  \"outputs\": {\n   \"sortformer.raw.json\": \"c07bbcc9e3794ccf20cb361ac02793db592ed8c77fac9d51370b961775940c0c\",\n   \"diarization.json\": \"b2da543c382fccd1fbc515e11078f1738bd8aa32a706ea43658d3cc76cf972ea\"\n  }\n },\n \"attach\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:26:28+00:00\",\n  \"seconds\": 0.0,\n  \"outputs\": {\n   \"turns.json\": \"76735eaa14968a73b0d71c0de5e150c61f47defb3345ef21976f6b5704aaf97b\",\n   \"speakers.json\": \"aad38dc244285e4577b4aa41afd03d84480d00d4be01b6e67f61f0a9abaefcf9\"\n  }\n },\n \"transcript\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:26:28+00:00\",\n  \"seconds\": 0.05,\n  \"outputs\": {\n   \"transcript.md\": \"d93982368dfacf2de00295f097cba609241904aa298b754892070d2f191cfda9\"\n  }\n },\n \"total\": {\n  \"seconds\": 16.97,\n  \"note\": \"this invocation only; stages skipped by --resume add nothing\"\n }\n}\n"
+    },
+    "podcast/pipeline/stages.json": {
+      "sha256": "16c8d8274a8f2d72813d960d2bfe408a998f9e6a19197b55c4bd1a2a77d38619",
+      "text": "{\n \"convert\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:14:58+00:00\",\n  \"seconds\": 0.06,\n  \"wall_seconds\": 0.05,\n  \"max_rss_bytes\": 16433152,\n  \"peak_footprint_bytes\": 3686904,\n  \"outputs\": {\n   \"audio.wav\": \"abdc0f23dcbb639430974a20df602260b0cbe641d85464700514e2ac1331591f\"\n  }\n },\n \"asr\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:14:58+00:00\",\n  \"seconds\": 4.23,\n  \"wall_seconds\": 4.22,\n  \"max_rss_bytes\": 911278080,\n  \"peak_footprint_bytes\": 1946568336,\n  \"mlx_peak_bytes\": 1355043126,\n  \"outputs\": {\n   \"asr.json\": \"d301a693a9ec15c62bbf5c707e0f6331e08d534e10675f1c1ad30b19b483e7b9\"\n  }\n },\n \"diarize\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:15:03+00:00\",\n  \"seconds\": 9.39,\n  \"wall_seconds\": 9.38,\n  \"max_rss_bytes\": 973750272,\n  \"peak_footprint_bytes\": 704251200,\n  \"outputs\": {\n   \"sortformer.raw.json\": \"f2924ac5768e2b746d2e5b93c6fa3e48388dea5bc2808ff0596694c5108728a1\",\n   \"diarization.json\": \"b2da543c382fccd1fbc515e11078f1738bd8aa32a706ea43658d3cc76cf972ea\"\n  }\n },\n \"attach\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:15:12+00:00\",\n  \"seconds\": 0.0,\n  \"outputs\": {\n   \"turns.json\": \"729f448077ec7b6d348f37e0c311c4a63e927fe56c0f0baf75ac58f5e99d6cfd\",\n   \"speakers.json\": \"aad38dc244285e4577b4aa41afd03d84480d00d4be01b6e67f61f0a9abaefcf9\"\n  }\n },\n \"transcript\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:15:12+00:00\",\n  \"seconds\": 0.05,\n  \"outputs\": {\n   \"transcript.md\": \"2596048314077f22e4c0ff955e1fb018048c4b225fa2508d1ccc9a6bd0ee98fc\"\n  }\n },\n \"total\": {\n  \"seconds\": 13.73,\n  \"note\": \"this invocation only; stages skipped by --resume add nothing\"\n }\n}\n"
+    },
+    "poster/audio-focused/items.json": {
+      "sha256": "9dbc24b5fa148f5da9e2e6c7c13c3b13e5efb0890d911c56b9f00a2d963f1559",
+      "text": "[\n  {\n    \"task\": \"送印海報\",\n    \"owner\": \"Speaker B\",\n    \"due\": \"明天\",\n    \"evidence\": [\n      \"00:00:04\"\n    ]\n  },\n  {\n    \"task\": \"把報名名單寄給服務檯\",\n    \"owner\": \"Speaker C\",\n    \"due\": \"星期五以前\",\n    \"evidence\": [\n      \"00:00:14\",\n      \"00:00:19\",\n      \"00:00:21\"\n    ]\n  }\n]\n"
+    },
+    "poster/audio-focused/lines.json": {
+      "sha256": "5e499d85c0192b399bdfdf0917dca553542372da57a5a28670b327eacfd1d6fb",
+      "text": "[\n  \"[00:00:00] Speaker A: 先說海報的事我原本答應明天送去印你\",\n  \"[00:00:04] Speaker B: 明天要出差吧改由我送印海報期限還是明天\",\n  \"[00:00:09] Speaker A: 好\",\n  \"[00:00:11] Speaker A: 海報交給你我不用送了\",\n  \"[00:00:13] Speaker B: 那\",\n  \"[00:00:14] Speaker C: 我星期五以前把報名名單寄出去名\",\n  \"[00:00:19] Speaker B: 單寄給服務檯就可以了\",\n  \"[00:00:21] Speaker C: 收到我會寄給服務檯\"\n]\n"
+    },
+    "poster/audio-ordinary/items.json": {
+      "sha256": "4bb2a3d894cfd447d9a403b1e98077af3311faa9e737efa4c5528c4b2200a92f",
+      "text": "[\n  {\n    \"task\": \"將海報交給 Speaker B\",\n    \"owner\": \"Speaker A\",\n    \"due\": \"明天\",\n    \"evidence\": [\n      \"00:00:11\"\n    ]\n  },\n  {\n    \"task\": \"將報名名單寄給服務檯\",\n    \"owner\": \"Speaker C\",\n    \"due\": \"星期五以前\",\n    \"evidence\": [\n      \"00:00:21\"\n    ]\n  }\n]\n"
+    },
+    "poster/audio-ordinary/lines.json": {
+      "sha256": "5e499d85c0192b399bdfdf0917dca553542372da57a5a28670b327eacfd1d6fb",
+      "text": "[\n  \"[00:00:00] Speaker A: 先說海報的事我原本答應明天送去印你\",\n  \"[00:00:04] Speaker B: 明天要出差吧改由我送印海報期限還是明天\",\n  \"[00:00:09] Speaker A: 好\",\n  \"[00:00:11] Speaker A: 海報交給你我不用送了\",\n  \"[00:00:13] Speaker B: 那\",\n  \"[00:00:14] Speaker C: 我星期五以前把報名名單寄出去名\",\n  \"[00:00:19] Speaker B: 單寄給服務檯就可以了\",\n  \"[00:00:21] Speaker C: 收到我會寄給服務檯\"\n]\n"
+    },
+    "poster/audio-verified/items.json": {
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "text": "[]\n"
+    },
+    "poster/audio-verified/lines.json": {
+      "sha256": "5e499d85c0192b399bdfdf0917dca553542372da57a5a28670b327eacfd1d6fb",
+      "text": "[\n  \"[00:00:00] Speaker A: 先說海報的事我原本答應明天送去印你\",\n  \"[00:00:04] Speaker B: 明天要出差吧改由我送印海報期限還是明天\",\n  \"[00:00:09] Speaker A: 好\",\n  \"[00:00:11] Speaker A: 海報交給你我不用送了\",\n  \"[00:00:13] Speaker B: 那\",\n  \"[00:00:14] Speaker C: 我星期五以前把報名名單寄出去名\",\n  \"[00:00:19] Speaker B: 單寄給服務檯就可以了\",\n  \"[00:00:21] Speaker C: 收到我會寄給服務檯\"\n]\n"
+    },
+    "poster/audio-verified/run.json": {
+      "sha256": "5e5d0b0d56dac141a753466fb15a467eb2f7887d2fd4c34b7bf50da72a3e396c",
+      "text": "{\n  \"wall_seconds\": 8.39,\n  \"peak_footprint_bytes\": 6539547760,\n  \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n  \"reply_format\": \"bare-empty-array\",\n  \"lines_sha256\": \"5e499d85c0192b399bdfdf0917dca553542372da57a5a28670b327eacfd1d6fb\",\n  \"items_sha256\": \"37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570\"\n}\n"
+    },
+    "poster/case.json": {
+      "sha256": "50804252f51404c8e2c188b480890b8da552e1fd205fa2bba53774955ddb0eca",
+      "text": "{\n  \"script_sha256\": \"021adf277e196bd1fd0f268952e3a84faed93511ac58e512b88b6dc9803aee5f\",\n  \"audio_sha256\": \"7d7749ad019939b99fcd0d2255f5c3d8d1c367f2ce42c8135861815caa7ea199\",\n  \"duration_seconds\": 25.62,\n  \"audio_speaker_map\": {\n    \"Speaker A\": \"A\",\n    \"Speaker B\": \"B\",\n    \"Speaker C\": \"C\"\n  },\n  \"runs\": {\n    \"exact-ordinary\": {\n      \"wall_seconds\": 23.97,\n      \"peak_footprint_bytes\": 6578475904,\n      \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n      \"reply_format\": \"object\",\n      \"lines_sha256\": \"c532a9b5346c7ec8a0880cd257270948383b3f7a7f820c8c61b9f5c0f94ff773\",\n      \"items_sha256\": \"c0ac1cab2983d64d3bac1618694f8ec2b9a41b492f64852e410f1635a6634127\"\n    },\n    \"exact-focused\": {\n      \"wall_seconds\": 11.55,\n      \"peak_footprint_bytes\": 6444700832,\n      \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n      \"reply_format\": \"object\",\n      \"lines_sha256\": \"c532a9b5346c7ec8a0880cd257270948383b3f7a7f820c8c61b9f5c0f94ff773\",\n      \"items_sha256\": \"0c8cd93bbe1ae79dece28f92b95b5c97694e449ba817ecb61a2e33be2f143cf9\"\n    },\n    \"audio-ordinary\": {\n      \"wall_seconds\": 23.7,\n      \"peak_footprint_bytes\": 6609867600,\n      \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n      \"reply_format\": \"object\",\n      \"lines_sha256\": \"5e499d85c0192b399bdfdf0917dca553542372da57a5a28670b327eacfd1d6fb\",\n      \"items_sha256\": \"4bb2a3d894cfd447d9a403b1e98077af3311faa9e737efa4c5528c4b2200a92f\"\n    },\n    \"audio-focused\": {\n      \"wall_seconds\": 12.72,\n      \"peak_footprint_bytes\": 6447371376,\n      \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n      \"reply_format\": \"object\",\n      \"lines_sha256\": \"5e499d85c0192b399bdfdf0917dca553542372da57a5a28670b327eacfd1d6fb\",\n      \"items_sha256\": \"9dbc24b5fa148f5da9e2e6c7c13c3b13e5efb0890d911c56b9f00a2d963f1559\"\n    }\n  }\n}\n"
+    },
+    "poster/exact-focused/items.json": {
+      "sha256": "0c8cd93bbe1ae79dece28f92b95b5c97694e449ba817ecb61a2e33be2f143cf9",
+      "text": "[\n  {\n    \"task\": \"送印海報\",\n    \"owner\": \"Speaker B\",\n    \"due\": \"明天\",\n    \"evidence\": [\n      \"00:00:04\"\n    ]\n  },\n  {\n    \"task\": \"寄出報名名單\",\n    \"owner\": \"Speaker C\",\n    \"due\": \"星期五以前\",\n    \"evidence\": [\n      \"00:00:13\"\n    ]\n  }\n]\n"
+    },
+    "poster/exact-focused/lines.json": {
+      "sha256": "c532a9b5346c7ec8a0880cd257270948383b3f7a7f820c8c61b9f5c0f94ff773",
+      "text": "[\n  \"[00:00:00] Speaker A: 先說海報的事。我原本答應明天送去印。\",\n  \"[00:00:04] Speaker B: 你明天要出差吧？改由我送印海報，期限還是明天。\",\n  \"[00:00:09] Speaker A: 好，海報交給你，我不用送了。\",\n  \"[00:00:13] Speaker C: 那我星期五以前把報名名單寄出去。\",\n  \"[00:00:19] Speaker B: 名單寄給服務台就可以了。\",\n  \"[00:00:21] Speaker C: 收到，我會寄給服務台。\"\n]\n"
+    },
+    "poster/exact-ordinary/items.json": {
+      "sha256": "c0ac1cab2983d64d3bac1618694f8ec2b9a41b492f64852e410f1635a6634127",
+      "text": "[\n  {\n    \"task\": \"送印海報\",\n    \"owner\": \"Speaker B\",\n    \"due\": \"明天\",\n    \"evidence\": [\n      \"00:00:04\",\n      \"00:00:09\"\n    ]\n  },\n  {\n    \"task\": \"寄送報名名單給服務台\",\n    \"owner\": \"Speaker C\",\n    \"due\": \"星期五以前\",\n    \"evidence\": [\n      \"00:00:13\",\n      \"00:00:19\",\n      \"00:00:21\"\n    ]\n  }\n]\n"
+    },
+    "poster/exact-ordinary/lines.json": {
+      "sha256": "c532a9b5346c7ec8a0880cd257270948383b3f7a7f820c8c61b9f5c0f94ff773",
+      "text": "[\n  \"[00:00:00] Speaker A: 先說海報的事。我原本答應明天送去印。\",\n  \"[00:00:04] Speaker B: 你明天要出差吧？改由我送印海報，期限還是明天。\",\n  \"[00:00:09] Speaker A: 好，海報交給你，我不用送了。\",\n  \"[00:00:13] Speaker C: 那我星期五以前把報名名單寄出去。\",\n  \"[00:00:19] Speaker B: 名單寄給服務台就可以了。\",\n  \"[00:00:21] Speaker C: 收到，我會寄給服務台。\"\n]\n"
+    },
+    "poster/labels-focused/items.json": {
+      "sha256": "ffd56aa7f688adf1b4b8094b88cdf156d905db4e5dabdb6996eb50f980251d43",
+      "text": "[\n  {\n    \"task\": \"送印海報\",\n    \"owner\": \"Speaker B\",\n    \"due\": \"明天\",\n    \"evidence\": [\n      \"00:00:04\"\n    ]\n  },\n  {\n    \"task\": \"把報名名單寄給服務檯\",\n    \"owner\": \"Speaker C\",\n    \"due\": \"星期五以前\",\n    \"evidence\": [\n      \"00:00:14\",\n      \"00:00:21\"\n    ]\n  }\n]\n"
+    },
+    "poster/labels-focused/lines.json": {
+      "sha256": "a6fe5b28152ba7d1a76c8fe7b63eaaba75e9e55213c31e819f2c0c5450f66b6e",
+      "text": "[\n  \"[00:00:00] Speaker A: 先說海報的事我原本答應明天送去印你\",\n  \"[00:00:04] Speaker B: 明天要出差吧改由我送印海報期限還是明天\",\n  \"[00:00:09] Speaker A: 好\",\n  \"[00:00:11] Speaker A: 海報交給你我不用送了\",\n  \"[00:00:13] Speaker C: 那\",\n  \"[00:00:14] Speaker C: 我星期五以前把報名名單寄出去名\",\n  \"[00:00:19] Speaker B: 單寄給服務檯就可以了\",\n  \"[00:00:21] Speaker C: 收到我會寄給服務檯\"\n]\n"
+    },
+    "poster/labels-focused/run.json": {
+      "sha256": "4a78cff6cda37508499e88d345b990047ef512e7fba0816e19ec0efdb6629bd6",
+      "text": "{\n  \"wall_seconds\": 13.13,\n  \"peak_footprint_bytes\": 6449304688,\n  \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n  \"reply_format\": \"object\",\n  \"lines_sha256\": \"a6fe5b28152ba7d1a76c8fe7b63eaaba75e9e55213c31e819f2c0c5450f66b6e\",\n  \"items_sha256\": \"ffd56aa7f688adf1b4b8094b88cdf156d905db4e5dabdb6996eb50f980251d43\"\n}\n"
+    },
+    "poster/large-focused/items.json": {
+      "sha256": "ffd56aa7f688adf1b4b8094b88cdf156d905db4e5dabdb6996eb50f980251d43",
+      "text": "[\n  {\n    \"task\": \"送印海報\",\n    \"owner\": \"Speaker B\",\n    \"due\": \"明天\",\n    \"evidence\": [\n      \"00:00:04\"\n    ]\n  },\n  {\n    \"task\": \"把報名名單寄給服務檯\",\n    \"owner\": \"Speaker C\",\n    \"due\": \"星期五以前\",\n    \"evidence\": [\n      \"00:00:14\",\n      \"00:00:21\"\n    ]\n  }\n]\n"
+    },
+    "poster/large-focused/lines.json": {
+      "sha256": "f0b6096f10d36328cf9e3d4a91f38ecfafcc902be494949b8de57f748e652742",
+      "text": "[\n  \"[00:00:00] Speaker A: 先說海報的事我原本答應明天送去印你\",\n  \"[00:00:04] Speaker B: 明天要出差吧改由我送印海報期限還是明天\",\n  \"[00:00:09] Speaker A: 好海報交給你我不用送了那\",\n  \"[00:00:14] Speaker C: 我星期五以前把報名名單寄出去名\",\n  \"[00:00:19] Speaker B: 單寄給服務檯就可以了\",\n  \"[00:00:21] Speaker C: 收到我會寄給服務檯\"\n]\n"
+    },
+    "poster/large-focused/run.json": {
+      "sha256": "ea3943fc0de384781eaef43bdc37ca80591c15c74a18a3b78c0a6e9290b21689",
+      "text": "{\n  \"wall_seconds\": 12.11,\n  \"peak_footprint_bytes\": 6438491248,\n  \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n  \"reply_format\": \"object\",\n  \"lines_sha256\": \"f0b6096f10d36328cf9e3d4a91f38ecfafcc902be494949b8de57f748e652742\",\n  \"items_sha256\": \"ffd56aa7f688adf1b4b8094b88cdf156d905db4e5dabdb6996eb50f980251d43\",\n  \"audio_speaker_map\": {\n    \"Speaker A\": \"A\",\n    \"Speaker B\": \"B\",\n    \"Speaker C\": \"C\"\n  },\n  \"same_diarization\": true\n}\n"
+    },
+    "poster/large-pipeline/stages.json": {
+      "sha256": "3131e36ca525cdc15c6c6628e5da05efcbe8c67110c3ae4b0832abe55c9c7b40",
+      "text": "{\n \"convert\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:26:41+00:00\",\n  \"seconds\": 0.05,\n  \"wall_seconds\": 0.04,\n  \"max_rss_bytes\": 16465920,\n  \"peak_footprint_bytes\": 3703288,\n  \"outputs\": {\n   \"audio.wav\": \"c7dbdf472cb2f2b165cad9c2586807ea00945e78bb489665e8b9d810a902b6f8\"\n  }\n },\n \"asr\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:26:41+00:00\",\n  \"seconds\": 7.26,\n  \"wall_seconds\": 7.25,\n  \"max_rss_bytes\": 3179102208,\n  \"peak_footprint_bytes\": 5351395048,\n  \"mlx_peak_bytes\": 3964102710,\n  \"outputs\": {\n   \"asr.json\": \"54f358fabdf969f37178020cd1e921aba834f22fbf40f58c54385a79baf81b17\"\n  }\n },\n \"diarize\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:26:49+00:00\",\n  \"seconds\": 11.91,\n  \"wall_seconds\": 11.9,\n  \"max_rss_bytes\": 1014087680,\n  \"peak_footprint_bytes\": 743556464,\n  \"outputs\": {\n   \"sortformer.raw.json\": \"5e4a102691b1b9ed381b2c1ee7cae94fc7386a32d47baa9fcb842867e7b43d2f\",\n   \"diarization.json\": \"ce6b2ac7ce7c9270117da5ad3005b7a660770161f5c2bf9119811ff4b082d821\"\n  }\n },\n \"attach\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:27:00+00:00\",\n  \"seconds\": 0.0,\n  \"outputs\": {\n   \"turns.json\": \"09b0f16b3c5a2de83d9a34532dfc02bd374f811299be5ffaf1f9f1e586d59690\",\n   \"speakers.json\": \"198882ac58dd2c424242bfbf1b42687b3aac9c59b2200652d40611cf8024f85a\"\n  }\n },\n \"transcript\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:27:00+00:00\",\n  \"seconds\": 0.05,\n  \"outputs\": {\n   \"transcript.md\": \"5c6cb3b2975320819f2ec1415ce2a59a08a21ad6d5b731492c274459c4aa291a\"\n  }\n },\n \"total\": {\n  \"seconds\": 19.28,\n  \"note\": \"this invocation only; stages skipped by --resume add nothing\"\n }\n}\n"
+    },
+    "poster/pipeline/stages.json": {
+      "sha256": "7c1b453a648b8a3ff85e6dc29430c81f73390a2e1920edf97355cf32b7a757ec",
+      "text": "{\n \"convert\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:16:26+00:00\",\n  \"seconds\": 0.05,\n  \"wall_seconds\": 0.04,\n  \"max_rss_bytes\": 16384000,\n  \"peak_footprint_bytes\": 3604960,\n  \"outputs\": {\n   \"audio.wav\": \"c7dbdf472cb2f2b165cad9c2586807ea00945e78bb489665e8b9d810a902b6f8\"\n  }\n },\n \"asr\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:16:26+00:00\",\n  \"seconds\": 4.33,\n  \"wall_seconds\": 4.32,\n  \"max_rss_bytes\": 879296512,\n  \"peak_footprint_bytes\": 1928758928,\n  \"mlx_peak_bytes\": 1350095158,\n  \"outputs\": {\n   \"asr.json\": \"ffcf5aad935469d514c5613e2ba9abe196ac8bbb3351ecb507e80915c021b0fb\"\n  }\n },\n \"diarize\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:16:31+00:00\",\n  \"seconds\": 11.49,\n  \"wall_seconds\": 11.48,\n  \"max_rss_bytes\": 979484672,\n  \"peak_footprint_bytes\": 710100264,\n  \"outputs\": {\n   \"sortformer.raw.json\": \"f69d3184aa9c4721e9b613b5fc063642c6666278c938e59e743112bab3c5d386\",\n   \"diarization.json\": \"ce6b2ac7ce7c9270117da5ad3005b7a660770161f5c2bf9119811ff4b082d821\"\n  }\n },\n \"attach\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:16:42+00:00\",\n  \"seconds\": 0.0,\n  \"outputs\": {\n   \"turns.json\": \"6b6629fabba5956f9c92ac8f90aa5eba30abc5f680f6e8617ac7dfb3516bde81\",\n   \"speakers.json\": \"198882ac58dd2c424242bfbf1b42687b3aac9c59b2200652d40611cf8024f85a\"\n  }\n },\n \"transcript\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:16:42+00:00\",\n  \"seconds\": 0.05,\n  \"outputs\": {\n   \"transcript.md\": \"95ccd1e45e98de036224b423e6c9445d715c515f05f03838c4feba8755934fe4\"\n  }\n },\n \"total\": {\n  \"seconds\": 15.93,\n  \"note\": \"this invocation only; stages skipped by --resume add nothing\"\n }\n}\n"
+    },
+    "rainplan/audio-focused/items.json": {
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "text": "[]\n"
+    },
+    "rainplan/audio-focused/lines.json": {
+      "sha256": "2cdb037b79c8608ff1f2acf4ebed3915c0f4cca1c8acbba083bf41c5743f077e",
+      "text": "[\n  \"[00:00:00] Speaker A: 如果氣象局發佈警報我們才租街拔車\",\n  \"[00:00:03] Speaker B: 目前沒有警報也沒有人去訂車\",\n  \"[00:00:07] Speaker C: 不管天氣我都會在中午前預定室內教室\",\n  \"[00:00:11] Speaker A: 好\",\n  \"[00:00:13] Speaker A: 室內教室照定接拔車等警報再談科\",\n  \"[00:00:19] Speaker B: 明給Zanboguna超市了禮物破灰燈住手的神網這示威的三色力曾清楚了\"\n]\n"
+    },
+    "rainplan/audio-ordinary/items.json": {
+      "sha256": "6684b2ea7d27d6e83191732b8944fd9af52f850faf2a94e1f1d401a7166d4fa3",
+      "text": "[\n  {\n    \"task\": \"明日向 Zanboguna 超市送禮物\",\n    \"owner\": null,\n    \"due\": null,\n    \"evidence\": [\n      \"00:00:19\"\n    ]\n  }\n]\n"
+    },
+    "rainplan/audio-ordinary/lines.json": {
+      "sha256": "2cdb037b79c8608ff1f2acf4ebed3915c0f4cca1c8acbba083bf41c5743f077e",
+      "text": "[\n  \"[00:00:00] Speaker A: 如果氣象局發佈警報我們才租街拔車\",\n  \"[00:00:03] Speaker B: 目前沒有警報也沒有人去訂車\",\n  \"[00:00:07] Speaker C: 不管天氣我都會在中午前預定室內教室\",\n  \"[00:00:11] Speaker A: 好\",\n  \"[00:00:13] Speaker A: 室內教室照定接拔車等警報再談科\",\n  \"[00:00:19] Speaker B: 明給Zanboguna超市了禮物破灰燈住手的神網這示威的三色力曾清楚了\"\n]\n"
+    },
+    "rainplan/audio-verified/items.json": {
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "text": "[]\n"
+    },
+    "rainplan/audio-verified/lines.json": {
+      "sha256": "2cdb037b79c8608ff1f2acf4ebed3915c0f4cca1c8acbba083bf41c5743f077e",
+      "text": "[\n  \"[00:00:00] Speaker A: 如果氣象局發佈警報我們才租街拔車\",\n  \"[00:00:03] Speaker B: 目前沒有警報也沒有人去訂車\",\n  \"[00:00:07] Speaker C: 不管天氣我都會在中午前預定室內教室\",\n  \"[00:00:11] Speaker A: 好\",\n  \"[00:00:13] Speaker A: 室內教室照定接拔車等警報再談科\",\n  \"[00:00:19] Speaker B: 明給Zanboguna超市了禮物破灰燈住手的神網這示威的三色力曾清楚了\"\n]\n"
+    },
+    "rainplan/audio-verified/run.json": {
+      "sha256": "3349c99b63fc52853a417f85fa34a4ab561eada92f20abbc01f4f5b999069a09",
+      "text": "{\n  \"wall_seconds\": 0.0,\n  \"peak_footprint_bytes\": 0,\n  \"skipped_empty\": true,\n  \"lines_sha256\": \"2cdb037b79c8608ff1f2acf4ebed3915c0f4cca1c8acbba083bf41c5743f077e\",\n  \"items_sha256\": \"37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570\"\n}\n"
+    },
+    "rainplan/case.json": {
+      "sha256": "f284fe829af6f7526c61bc7fc05e09762afbc8962e7481291c1f57b50a211e9e",
+      "text": "{\n  \"script_sha256\": \"507fb29e911335beb1f0cd048cbcaa8f2a9828f6461939d3d6c98c9efccf0e7e\",\n  \"audio_sha256\": \"edacd4737a20c19b0813d1634f289c36ca712ad977baca727f1894f8947ccc21\",\n  \"duration_seconds\": 30.76,\n  \"audio_speaker_map\": {\n    \"Speaker A\": \"A\",\n    \"Speaker B\": \"B\",\n    \"Speaker C\": \"C\"\n  },\n  \"runs\": {\n    \"exact-ordinary\": {\n      \"wall_seconds\": 18.15,\n      \"peak_footprint_bytes\": 6587651064,\n      \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n      \"reply_format\": \"object\",\n      \"lines_sha256\": \"9d661649e3a11156bc0ca3fa4d0081309f97b3a015bf891698cd478020c4206a\",\n      \"items_sha256\": \"86351d9fb515996439167ba2a027efc66bdcab85d232c3944ec2bd5a5274b515\"\n    },\n    \"exact-focused\": {\n      \"wall_seconds\": 12.04,\n      \"peak_footprint_bytes\": 6465197072,\n      \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n      \"reply_format\": \"object\",\n      \"lines_sha256\": \"9d661649e3a11156bc0ca3fa4d0081309f97b3a015bf891698cd478020c4206a\",\n      \"items_sha256\": \"7a228f51229533f4e1f91150c0ddbd765fe769e893bd6bb1238867bb54369616\"\n    },\n    \"audio-ordinary\": {\n      \"wall_seconds\": 23.47,\n      \"peak_footprint_bytes\": 6578934680,\n      \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n      \"reply_format\": \"object\",\n      \"lines_sha256\": \"2cdb037b79c8608ff1f2acf4ebed3915c0f4cca1c8acbba083bf41c5743f077e\",\n      \"items_sha256\": \"6684b2ea7d27d6e83191732b8944fd9af52f850faf2a94e1f1d401a7166d4fa3\"\n    },\n    \"audio-focused\": {\n      \"wall_seconds\": 7.79,\n      \"peak_footprint_bytes\": 6447403976,\n      \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n      \"reply_format\": \"bare-empty-array\",\n      \"lines_sha256\": \"2cdb037b79c8608ff1f2acf4ebed3915c0f4cca1c8acbba083bf41c5743f077e\",\n      \"items_sha256\": \"37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570\"\n    }\n  }\n}\n"
+    },
+    "rainplan/exact-focused/items.json": {
+      "sha256": "7a228f51229533f4e1f91150c0ddbd765fe769e893bd6bb1238867bb54369616",
+      "text": "[\n  {\n    \"task\": \"預訂室內教室\",\n    \"owner\": \"Speaker C\",\n    \"due\": \"中午前\",\n    \"evidence\": [\n      \"00:00:07\"\n    ]\n  },\n  {\n    \"task\": \"若氣象局發布警報則租接駁車\",\n    \"owner\": \"Speaker A\",\n    \"due\": null,\n    \"evidence\": [\n      \"00:00:00\",\n      \"00:00:11\"\n    ]\n  }\n]\n"
+    },
+    "rainplan/exact-focused/lines.json": {
+      "sha256": "9d661649e3a11156bc0ca3fa4d0081309f97b3a015bf891698cd478020c4206a",
+      "text": "[\n  \"[00:00:00] Speaker A: 如果氣象局發布警報，我們才租接駁車。\",\n  \"[00:00:04] Speaker B: 目前沒有警報，也沒有人去訂車。\",\n  \"[00:00:07] Speaker C: 不管天氣，我都會在中午前預訂室內教室。\",\n  \"[00:00:11] Speaker A: 好，室內教室照訂，接駁車等警報再談。\",\n  \"[00:00:19] Speaker B: 這樣清楚了。\"\n]\n"
+    },
+    "rainplan/exact-ordinary/items.json": {
+      "sha256": "86351d9fb515996439167ba2a027efc66bdcab85d232c3944ec2bd5a5274b515",
+      "text": "[\n  {\n    \"task\": \"預訂室內教室\",\n    \"owner\": \"Speaker C\",\n    \"due\": \"中午前\",\n    \"evidence\": [\n      \"00:00:07\"\n    ]\n  },\n  {\n    \"task\": \"若氣象局發布警報則租接駁車\",\n    \"owner\": null,\n    \"due\": null,\n    \"evidence\": [\n      \"00:00:00\"\n    ]\n  }\n]\n"
+    },
+    "rainplan/exact-ordinary/lines.json": {
+      "sha256": "9d661649e3a11156bc0ca3fa4d0081309f97b3a015bf891698cd478020c4206a",
+      "text": "[\n  \"[00:00:00] Speaker A: 如果氣象局發布警報，我們才租接駁車。\",\n  \"[00:00:04] Speaker B: 目前沒有警報，也沒有人去訂車。\",\n  \"[00:00:07] Speaker C: 不管天氣，我都會在中午前預訂室內教室。\",\n  \"[00:00:11] Speaker A: 好，室內教室照訂，接駁車等警報再談。\",\n  \"[00:00:19] Speaker B: 這樣清楚了。\"\n]\n"
+    },
+    "rainplan/labels-focused/items.json": {
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "text": "[]\n"
+    },
+    "rainplan/labels-focused/lines.json": {
+      "sha256": "2cdb037b79c8608ff1f2acf4ebed3915c0f4cca1c8acbba083bf41c5743f077e",
+      "text": "[\n  \"[00:00:00] Speaker A: 如果氣象局發佈警報我們才租街拔車\",\n  \"[00:00:03] Speaker B: 目前沒有警報也沒有人去訂車\",\n  \"[00:00:07] Speaker C: 不管天氣我都會在中午前預定室內教室\",\n  \"[00:00:11] Speaker A: 好\",\n  \"[00:00:13] Speaker A: 室內教室照定接拔車等警報再談科\",\n  \"[00:00:19] Speaker B: 明給Zanboguna超市了禮物破灰燈住手的神網這示威的三色力曾清楚了\"\n]\n"
+    },
+    "rainplan/labels-focused/run.json": {
+      "sha256": "e8b29495ab9fa6669f3b81c513d3c7bd06866e3f0a331c0450c673ff64a31487",
+      "text": "{\n  \"wall_seconds\": 9.16,\n  \"peak_footprint_bytes\": 6450795656,\n  \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n  \"reply_format\": \"bare-empty-array\",\n  \"lines_sha256\": \"2cdb037b79c8608ff1f2acf4ebed3915c0f4cca1c8acbba083bf41c5743f077e\",\n  \"items_sha256\": \"37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570\"\n}\n"
+    },
+    "rainplan/large-focused/items.json": {
+      "sha256": "01e13461b02905f7aa1b0e602a5bb9094d71d6c04a9f3ec2c724535d620ba949",
+      "text": "[\n  {\n    \"task\": \"在中午前預訂室內教室\",\n    \"owner\": \"Speaker C\",\n    \"due\": \"中午前\",\n    \"evidence\": [\n      \"00:00:08\"\n    ]\n  },\n  {\n    \"task\": \"預訂接把車（若氣象局未發佈警報）\",\n    \"owner\": \"Speaker A\",\n    \"due\": null,\n    \"evidence\": [\n      \"00:00:13\"\n    ]\n  }\n]\n"
+    },
+    "rainplan/large-focused/lines.json": {
+      "sha256": "5ce2ed6ed24b359727eb1ef688f73eb1e8185c35f37919bbec1eb9158a2b867f",
+      "text": "[\n  \"[00:00:00] Speaker A: 如果氣象局發佈警報我們才租街拔車目前\",\n  \"[00:00:04] Speaker B: 沒有警報也沒有人去訂車不管\",\n  \"[00:00:08] Speaker C: 天氣我都會在中午前預訂室內教室好\",\n  \"[00:00:13] Speaker A: 室內教室照訂接把車等警報再談可\",\n  \"[00:00:19] Speaker B: 明給任伯姑娘超視了禮物不會等住所的生物這世衛的三色力曾清楚了\"\n]\n"
+    },
+    "rainplan/large-focused/run.json": {
+      "sha256": "f4378f74678c94e44b8b9e6df508836c1b7fc7501f411bec5b2a83ee0d135350",
+      "text": "{\n  \"wall_seconds\": 12.36,\n  \"peak_footprint_bytes\": 6482105480,\n  \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n  \"reply_format\": \"object\",\n  \"lines_sha256\": \"5ce2ed6ed24b359727eb1ef688f73eb1e8185c35f37919bbec1eb9158a2b867f\",\n  \"items_sha256\": \"01e13461b02905f7aa1b0e602a5bb9094d71d6c04a9f3ec2c724535d620ba949\",\n  \"audio_speaker_map\": {\n    \"Speaker A\": \"A\",\n    \"Speaker B\": \"B\",\n    \"Speaker C\": \"C\"\n  },\n  \"same_diarization\": true\n}\n"
+    },
+    "rainplan/large-pipeline/stages.json": {
+      "sha256": "ac3bb1990a77178d507641b664e15cf941e87c2788df60b3a958e7575c22e368",
+      "text": "{\n \"convert\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:27:14+00:00\",\n  \"seconds\": 0.05,\n  \"wall_seconds\": 0.04,\n  \"max_rss_bytes\": 16482304,\n  \"peak_footprint_bytes\": 3703264,\n  \"outputs\": {\n   \"audio.wav\": \"24605838fcac3f3d702a5f9c2ee97f3bc15d947db44fe5480cbe40ae77bab04f\"\n  }\n },\n \"asr\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:27:14+00:00\",\n  \"seconds\": 9.02,\n  \"wall_seconds\": 9.01,\n  \"max_rss_bytes\": 3220996096,\n  \"peak_footprint_bytes\": 5566566168,\n  \"mlx_peak_bytes\": 3966314546,\n  \"outputs\": {\n   \"asr.json\": \"230702d9610655bb40f78e117ffbf13b055afa5e7fcbc6b007b66862b5b1595f\"\n  }\n },\n \"diarize\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:27:23+00:00\",\n  \"seconds\": 14.01,\n  \"wall_seconds\": 14.0,\n  \"max_rss_bytes\": 978632704,\n  \"peak_footprint_bytes\": 711558464,\n  \"outputs\": {\n   \"sortformer.raw.json\": \"a65805a36cc9ce64c978ab320445a8732517429d32598aecd13f72d4abebed8a\",\n   \"diarization.json\": \"96cc458d71ad6b19bab9a5b3d7327c151fa7f8c3e2c8fcf892025c3d5a427955\"\n  }\n },\n \"attach\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:27:37+00:00\",\n  \"seconds\": 0.0,\n  \"outputs\": {\n   \"turns.json\": \"b03ef6d960585adffb908262a83c5dc4fac510df8179fee5f5965d99aad39de0\",\n   \"speakers.json\": \"198882ac58dd2c424242bfbf1b42687b3aac9c59b2200652d40611cf8024f85a\"\n  }\n },\n \"transcript\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:27:37+00:00\",\n  \"seconds\": 0.05,\n  \"outputs\": {\n   \"transcript.md\": \"ac0e1512180bacc45dd0d4f1574185f1dbd5efb7c8dd6edcd2c44a3bcd96f5c1\"\n  }\n },\n \"total\": {\n  \"seconds\": 23.14,\n  \"note\": \"this invocation only; stages skipped by --resume add nothing\"\n }\n}\n"
+    },
+    "rainplan/pipeline/stages.json": {
+      "sha256": "10c08a2bba1cf6eedc819a7d92520fe1c3ce97235ddb9f605614d5d11157ed18",
+      "text": "{\n \"convert\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:17:55+00:00\",\n  \"seconds\": 0.05,\n  \"wall_seconds\": 0.04,\n  \"max_rss_bytes\": 16580608,\n  \"peak_footprint_bytes\": 3817976,\n  \"outputs\": {\n   \"audio.wav\": \"24605838fcac3f3d702a5f9c2ee97f3bc15d947db44fe5480cbe40ae77bab04f\"\n  }\n },\n \"asr\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:17:55+00:00\",\n  \"seconds\": 5.71,\n  \"wall_seconds\": 5.7,\n  \"max_rss_bytes\": 898760704,\n  \"peak_footprint_bytes\": 2003912360,\n  \"mlx_peak_bytes\": 1352306994,\n  \"outputs\": {\n   \"asr.json\": \"81381498c81dd61d0210b1453a1335df3b5a681a00900ecac10815ed1286586f\"\n  }\n },\n \"diarize\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:18:01+00:00\",\n  \"seconds\": 13.42,\n  \"wall_seconds\": 13.41,\n  \"max_rss_bytes\": 991985664,\n  \"peak_footprint_bytes\": 722634072,\n  \"outputs\": {\n   \"sortformer.raw.json\": \"b2fc873a19fad02d561cda75b926749e2b0e60b3ce2591a0e27f4adb9c8e2530\",\n   \"diarization.json\": \"96cc458d71ad6b19bab9a5b3d7327c151fa7f8c3e2c8fcf892025c3d5a427955\"\n  }\n },\n \"attach\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:18:14+00:00\",\n  \"seconds\": 0.0,\n  \"outputs\": {\n   \"turns.json\": \"ffd73097637b9a1910c13c61453d62ce6e88cc7a3f11c71d3fb8c9145df8e40d\",\n   \"speakers.json\": \"198882ac58dd2c424242bfbf1b42687b3aac9c59b2200652d40611cf8024f85a\"\n  }\n },\n \"transcript\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:18:14+00:00\",\n  \"seconds\": 0.05,\n  \"outputs\": {\n   \"transcript.md\": \"8cf6c06aca1a65b5566fb903154c870d3e793961c8ae5479add2e4336e431622\"\n  }\n },\n \"total\": {\n  \"seconds\": 19.24,\n  \"note\": \"this invocation only; stages skipped by --resume add nothing\"\n }\n}\n"
+    },
+    "tickets/audio-focused/items.json": {
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "text": "[]\n"
+    },
+    "tickets/audio-focused/lines.json": {
+      "sha256": "2c2671324a73d8cae91b1daa5cabfc28bd2770656bff09c4d677da9164381022",
+      "text": "[\n  \"[00:00:00] Speaker A: 週末演出的票有兩種別記反了\",\n  \"[00:00:03] Speaker B: 我今天把學生票寄給學校\",\n  \"[00:00:07] Speaker C: 全體票歸我我明天把全體票寄給旅行社旅\",\n  \"[00:00:13] Speaker B: 行社的地址\",\n  \"[00:00:13] Speaker D: 昨天已經更新好了\",\n  \"[00:00:15] Speaker A: 好地址不用再改照剛才的分工計\"\n]\n"
+    },
+    "tickets/audio-ordinary/items.json": {
+      "sha256": "d1cd3c194366021b10a1ce3878dcaf3c546af660876550ee86df8064fa1e918c",
+      "text": "[\n  {\n    \"task\": \"Speaker B 寄送學生票給學校\",\n    \"owner\": \"Speaker B\",\n    \"due\": null,\n    \"evidence\": [\n      \"00:00:03\"\n    ]\n  },\n  {\n    \"task\": \"Speaker C 寄送全體票給旅行社\",\n    \"owner\": \"Speaker C\",\n    \"due\": \"明天\",\n    \"evidence\": [\n      \"00:00:07\"\n    ]\n  }\n]\n"
+    },
+    "tickets/audio-ordinary/lines.json": {
+      "sha256": "2c2671324a73d8cae91b1daa5cabfc28bd2770656bff09c4d677da9164381022",
+      "text": "[\n  \"[00:00:00] Speaker A: 週末演出的票有兩種別記反了\",\n  \"[00:00:03] Speaker B: 我今天把學生票寄給學校\",\n  \"[00:00:07] Speaker C: 全體票歸我我明天把全體票寄給旅行社旅\",\n  \"[00:00:13] Speaker B: 行社的地址\",\n  \"[00:00:13] Speaker D: 昨天已經更新好了\",\n  \"[00:00:15] Speaker A: 好地址不用再改照剛才的分工計\"\n]\n"
+    },
+    "tickets/audio-verified/items.json": {
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "text": "[]\n"
+    },
+    "tickets/audio-verified/lines.json": {
+      "sha256": "2c2671324a73d8cae91b1daa5cabfc28bd2770656bff09c4d677da9164381022",
+      "text": "[\n  \"[00:00:00] Speaker A: 週末演出的票有兩種別記反了\",\n  \"[00:00:03] Speaker B: 我今天把學生票寄給學校\",\n  \"[00:00:07] Speaker C: 全體票歸我我明天把全體票寄給旅行社旅\",\n  \"[00:00:13] Speaker B: 行社的地址\",\n  \"[00:00:13] Speaker D: 昨天已經更新好了\",\n  \"[00:00:15] Speaker A: 好地址不用再改照剛才的分工計\"\n]\n"
+    },
+    "tickets/audio-verified/run.json": {
+      "sha256": "3bf71018925f5b487f0fca871be9d90a0d60fd57c82be499a10809b6b133bab8",
+      "text": "{\n  \"wall_seconds\": 0.0,\n  \"peak_footprint_bytes\": 0,\n  \"skipped_empty\": true,\n  \"lines_sha256\": \"2c2671324a73d8cae91b1daa5cabfc28bd2770656bff09c4d677da9164381022\",\n  \"items_sha256\": \"37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570\"\n}\n"
+    },
+    "tickets/case.json": {
+      "sha256": "cac8343b09d62dd09b070a652e8eefc2339f37890fdc093dafb79ff052816da6",
+      "text": "{\n  \"script_sha256\": \"67be8325fd562b860d34014afd315c5271ab390b19f97aa37379dca3e31a2373\",\n  \"audio_sha256\": \"7b030ab9f1dbd7bec7ba5f333e6d3bf5fa7dd31f3dc5d4f0bfe85a558bfbcef3\",\n  \"duration_seconds\": 20.44,\n  \"audio_speaker_map\": {\n    \"Speaker A\": \"A\",\n    \"Speaker B\": \"B\",\n    \"Speaker C\": \"C\",\n    \"Speaker D\": \"D\"\n  },\n  \"runs\": {\n    \"exact-ordinary\": {\n      \"wall_seconds\": 28.57,\n      \"peak_footprint_bytes\": 6581179456,\n      \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n      \"reply_format\": \"object\",\n      \"lines_sha256\": \"2956866870a8b6b7e029801ccce5e8a1f7856fbbce6d583e49f58d405abe4375\",\n      \"items_sha256\": \"5a5cc5e365ea7e586d6571cf25855e86e23c7ac3c131d1f7fa25be99b659bcbe\"\n    },\n    \"exact-focused\": {\n      \"wall_seconds\": 11.88,\n      \"peak_footprint_bytes\": 6450058400,\n      \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n      \"reply_format\": \"object\",\n      \"lines_sha256\": \"2956866870a8b6b7e029801ccce5e8a1f7856fbbce6d583e49f58d405abe4375\",\n      \"items_sha256\": \"28aba3a1db1c024e49f13733eb3228255927ea3e06c4d005924a31dabf4e651a\"\n    },\n    \"audio-ordinary\": {\n      \"wall_seconds\": 23.08,\n      \"peak_footprint_bytes\": 6591157312,\n      \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n      \"reply_format\": \"object\",\n      \"lines_sha256\": \"2c2671324a73d8cae91b1daa5cabfc28bd2770656bff09c4d677da9164381022\",\n      \"items_sha256\": \"d1cd3c194366021b10a1ce3878dcaf3c546af660876550ee86df8064fa1e918c\"\n    },\n    \"audio-focused\": {\n      \"wall_seconds\": 8.16,\n      \"peak_footprint_bytes\": 6468342920,\n      \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n      \"reply_format\": \"object\",\n      \"lines_sha256\": \"2c2671324a73d8cae91b1daa5cabfc28bd2770656bff09c4d677da9164381022\",\n      \"items_sha256\": \"37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570\"\n    }\n  }\n}\n"
+    },
+    "tickets/exact-focused/items.json": {
+      "sha256": "28aba3a1db1c024e49f13733eb3228255927ea3e06c4d005924a31dabf4e651a",
+      "text": "[\n  {\n    \"task\": \"寄學生票給學校\",\n    \"owner\": \"Speaker B\",\n    \"due\": null,\n    \"evidence\": [\n      \"00:00:04\"\n    ]\n  },\n  {\n    \"task\": \"寄團體票給旅行社\",\n    \"owner\": \"Speaker C\",\n    \"due\": \"明天\",\n    \"evidence\": [\n      \"00:00:07\"\n    ]\n  }\n]\n"
+    },
+    "tickets/exact-focused/lines.json": {
+      "sha256": "2956866870a8b6b7e029801ccce5e8a1f7856fbbce6d583e49f58d405abe4375",
+      "text": "[\n  \"[00:00:00] Speaker A: 週末演出的票有兩種，別寄反了。\",\n  \"[00:00:04] Speaker B: 我今天把學生票寄給學校。\",\n  \"[00:00:07] Speaker C: 團體票歸我，我明天把團體票寄給旅行社。\",\n  \"[00:00:12] Speaker D: 旅行社的地址昨天已經更新好了。\",\n  \"[00:00:15] Speaker A: 好，地址不用再改，照剛才的分工寄。\"\n]\n"
+    },
+    "tickets/exact-ordinary/items.json": {
+      "sha256": "5a5cc5e365ea7e586d6571cf25855e86e23c7ac3c131d1f7fa25be99b659bcbe",
+      "text": "[\n  {\n    \"task\": \"Speaker B 寄送學生票給學校\",\n    \"owner\": \"Speaker B\",\n    \"due\": null,\n    \"evidence\": [\n      \"00:00:04\"\n    ]\n  },\n  {\n    \"task\": \"Speaker C 明天寄送團體票給旅行社\",\n    \"owner\": \"Speaker C\",\n    \"due\": \"明天\",\n    \"evidence\": [\n      \"00:00:07\"\n    ]\n  }\n]\n"
+    },
+    "tickets/exact-ordinary/lines.json": {
+      "sha256": "2956866870a8b6b7e029801ccce5e8a1f7856fbbce6d583e49f58d405abe4375",
+      "text": "[\n  \"[00:00:00] Speaker A: 週末演出的票有兩種，別寄反了。\",\n  \"[00:00:04] Speaker B: 我今天把學生票寄給學校。\",\n  \"[00:00:07] Speaker C: 團體票歸我，我明天把團體票寄給旅行社。\",\n  \"[00:00:12] Speaker D: 旅行社的地址昨天已經更新好了。\",\n  \"[00:00:15] Speaker A: 好，地址不用再改，照剛才的分工寄。\"\n]\n"
+    },
+    "tickets/labels-focused/items.json": {
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "text": "[]\n"
+    },
+    "tickets/labels-focused/lines.json": {
+      "sha256": "df402965faa2a6deb52c874370a8acb9623e45f7870a47cf43ca4e04fe0c3731",
+      "text": "[\n  \"[00:00:00] Speaker A: 週末演出的票有兩種別記反了\",\n  \"[00:00:03] Speaker B: 我今天把學生票寄給學校\",\n  \"[00:00:07] Speaker C: 全體票歸我我明天把全體票寄給旅行社旅\",\n  \"[00:00:13] Speaker D: 行社的地址\",\n  \"[00:00:13] Speaker D: 昨天已經更新好了\",\n  \"[00:00:15] Speaker A: 好地址不用再改照剛才的分工計\"\n]\n"
+    },
+    "tickets/labels-focused/run.json": {
+      "sha256": "3dab74170bb321283800091b40955a1dd74310ed04dd622b721bf160e046ceb0",
+      "text": "{\n  \"wall_seconds\": 9.29,\n  \"peak_footprint_bytes\": 6471373936,\n  \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n  \"reply_format\": \"object\",\n  \"lines_sha256\": \"df402965faa2a6deb52c874370a8acb9623e45f7870a47cf43ca4e04fe0c3731\",\n  \"items_sha256\": \"37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570\"\n}\n"
+    },
+    "tickets/large-focused/items.json": {
+      "sha256": "87550900b94c81b654da91ccd5e71af7612b83504b82c92d9c85619d0944cdbd",
+      "text": "[\n  {\n    \"task\": \"記反的週末演出票別\",\n    \"owner\": \"Speaker A\",\n    \"due\": null,\n    \"evidence\": [\n      \"00:00:00\"\n    ]\n  },\n  {\n    \"task\": \"把團體票寄給旅行社\",\n    \"owner\": \"Speaker C\",\n    \"due\": \"明天\",\n    \"evidence\": [\n      \"00:00:08\"\n    ]\n  }\n]\n"
+    },
+    "tickets/large-focused/lines.json": {
+      "sha256": "d3a4ea170ce6456e90453f009c649913808a2fac791299d7aa78d1b1ad472c64",
+      "text": "[\n  \"[00:00:00] Speaker A: 週末演出的票有兩種別記反了\",\n  \"[00:00:03] Speaker B: 我今天把學生票寄給學校團\",\n  \"[00:00:08] Speaker C: 體票歸我我明天把團體票寄給旅行社旅\",\n  \"[00:00:13] Speaker B: 行社的地址\",\n  \"[00:00:13] Speaker D: 昨天已經更新好了好\",\n  \"[00:00:16] Speaker A: 地址不用再改照剛才的分工記\"\n]\n"
+    },
+    "tickets/large-focused/run.json": {
+      "sha256": "cf42f95a6c6e8c8c61dff0f6f808ee16f2a4a7e0b9f735a041be5f0c79031afd",
+      "text": "{\n  \"wall_seconds\": 12.18,\n  \"peak_footprint_bytes\": 6468359304,\n  \"model_revision\": \"8b2b98c00a6b4d291155e4890773ca8f769aee53\",\n  \"reply_format\": \"object\",\n  \"lines_sha256\": \"d3a4ea170ce6456e90453f009c649913808a2fac791299d7aa78d1b1ad472c64\",\n  \"items_sha256\": \"87550900b94c81b654da91ccd5e71af7612b83504b82c92d9c85619d0944cdbd\",\n  \"audio_speaker_map\": {\n    \"Speaker A\": \"A\",\n    \"Speaker B\": \"B\",\n    \"Speaker C\": \"C\",\n    \"Speaker D\": \"D\"\n  },\n  \"same_diarization\": true\n}\n"
+    },
+    "tickets/large-pipeline/stages.json": {
+      "sha256": "0922dc38b0fb07b6c4b96fd3e13caeb35db097894783400a6bf06fbc39c4eb8e",
+      "text": "{\n \"convert\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:27:50+00:00\",\n  \"seconds\": 0.05,\n  \"wall_seconds\": 0.04,\n  \"max_rss_bytes\": 16449536,\n  \"peak_footprint_bytes\": 3686904,\n  \"outputs\": {\n   \"audio.wav\": \"3459c570b2980e367cbce2cc1bd845d7bb53b348d7e0f1b56be9322d1e42ce23\"\n  }\n },\n \"asr\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:27:50+00:00\",\n  \"seconds\": 7.36,\n  \"wall_seconds\": 7.35,\n  \"max_rss_bytes\": 3120087040,\n  \"peak_footprint_bytes\": 5245374112,\n  \"mlx_peak_bytes\": 3960334390,\n  \"outputs\": {\n   \"asr.json\": \"ca08a8a396153d406f880e2eca78f2ebe5acf457d7dd480e27ad632b390e7cba\"\n  }\n },\n \"diarize\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:27:57+00:00\",\n  \"seconds\": 10.7,\n  \"wall_seconds\": 10.69,\n  \"max_rss_bytes\": 979025920,\n  \"peak_footprint_bytes\": 711198016,\n  \"outputs\": {\n   \"sortformer.raw.json\": \"a3a74760fe92911b0e29aba6bc1b996631e818d4334a54052443b388ad11756f\",\n   \"diarization.json\": \"f4c89ef720ffb8fb19027e37f5eea59dd6895f05b603872be934d632a20212f3\"\n  }\n },\n \"attach\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:28:08+00:00\",\n  \"seconds\": 0.0,\n  \"outputs\": {\n   \"turns.json\": \"2fc2cbd08747f10b9d3ac8fe48c95a2b70956d8d8394ee5c5ab913c4cf922ca5\",\n   \"speakers.json\": \"aad38dc244285e4577b4aa41afd03d84480d00d4be01b6e67f61f0a9abaefcf9\"\n  }\n },\n \"transcript\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:28:08+00:00\",\n  \"seconds\": 0.05,\n  \"outputs\": {\n   \"transcript.md\": \"9217b5016b96f860634d3031453fea14ff171a1f78aaee0a89196d13a6168b3a\"\n  }\n },\n \"total\": {\n  \"seconds\": 18.18,\n  \"note\": \"this invocation only; stages skipped by --resume add nothing\"\n }\n}\n"
+    },
+    "tickets/pipeline/stages.json": {
+      "sha256": "ae6a9bb09bdcc059de2519fdc9b08908f4265f83659c68d3f8e282269240cd9a",
+      "text": "{\n \"convert\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:19:17+00:00\",\n  \"seconds\": 0.05,\n  \"wall_seconds\": 0.04,\n  \"max_rss_bytes\": 16433152,\n  \"peak_footprint_bytes\": 3670520,\n  \"outputs\": {\n   \"audio.wav\": \"3459c570b2980e367cbce2cc1bd845d7bb53b348d7e0f1b56be9322d1e42ce23\"\n  }\n },\n \"asr\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:19:17+00:00\",\n  \"seconds\": 4.23,\n  \"wall_seconds\": 4.23,\n  \"max_rss_bytes\": 908132352,\n  \"peak_footprint_bytes\": 1923171960,\n  \"mlx_peak_bytes\": 1346326838,\n  \"outputs\": {\n   \"asr.json\": \"e790440f08d7b439395db0de62d9abb02735888f533f05453d946fddb4213cd9\"\n  }\n },\n \"diarize\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:19:21+00:00\",\n  \"seconds\": 9.14,\n  \"wall_seconds\": 9.13,\n  \"max_rss_bytes\": 973881344,\n  \"peak_footprint_bytes\": 704382320,\n  \"outputs\": {\n   \"sortformer.raw.json\": \"b4a6c8c49e839a82f5cc62b89cb5bdb8110ce995dfb4aa0d58ad924ac3dcb4ec\",\n   \"diarization.json\": \"f4c89ef720ffb8fb19027e37f5eea59dd6895f05b603872be934d632a20212f3\"\n  }\n },\n \"attach\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:19:30+00:00\",\n  \"seconds\": 0.0,\n  \"outputs\": {\n   \"turns.json\": \"b32da6c5a305af5b455294288aea3a7bf921620e636dff48a452ff089230146a\",\n   \"speakers.json\": \"aad38dc244285e4577b4aa41afd03d84480d00d4be01b6e67f61f0a9abaefcf9\"\n  }\n },\n \"transcript\": {\n  \"status\": \"completed\",\n  \"started_at\": \"2026-11-01T14:19:30+00:00\",\n  \"seconds\": 0.05,\n  \"outputs\": {\n   \"transcript.md\": \"812350eb2908614964a3821bccc20844f01b2b865e7a160c2eacaded142d0517\"\n  }\n },\n \"total\": {\n  \"seconds\": 13.48,\n  \"note\": \"this invocation only; stages skipped by --resume add nothing\"\n }\n}\n"
+    }
+  }
+}

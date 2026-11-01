@@ -59,10 +59,12 @@ S=experiments/synthetic-call
 uv run --locked --project "$S" "$S/collection.py" --suite baseline
 ```
 
-Build and set up the [pipeline including Who](../pipelines/whisper-sortformer/README.md#setup-once-needs-the-network), and build `diarexp` as in the [runner guide](../../docs/runners.md). The extended comparisons on the clean scripts use the cached LS-EEND and Community-1 weights from that guide's diarizer sweep. The benchmark checks the cache digests. The pipeline setup caches Whisper. Cache Breeze and the 442 MiB quantized Turbo snapshot with the commands below. The benchmark then runs the models serially and preserves logs and prior cases on failure.
+Build and set up the [pipeline including Who](../pipelines/whisper-sortformer/README.md#setup-once-needs-the-network), and build `diarexp` as in the [runner guide](../../docs/runners.md). Restore LS-EEND and Community-1 from the immutable revisions below before the extended comparisons. The installer verifies every file and the complete model-folder digest, and refuses to replace a changed cache. The pipeline setup caches Whisper. Cache Breeze and the 442 MiB quantized Turbo snapshot with the commands below. The benchmark runs the models serially and preserves logs and prior cases on failure. All Python helpers, including the review-skill subprocesses, use a locked uv project environment.
 
 ```bash
 S=experiments/synthetic-call
+P=experiments/pipelines/whisper-sortformer
+uv run --locked --project "$P" "$P/weights.py" setup ls-eend speaker-diarization
 uv run --locked --project experiments/mlx hf download eoleedi/Breeze-ASR-25-mlx \
   --revision 172151e3fd93ab6dc841d639f23dd48b24bc8301
 uv run --locked --project experiments/mlx hf download mlx-community/whisper-large-v3-turbo-q4 \
@@ -77,21 +79,36 @@ Each case writes `scores.json` for the base matrix and `extension/scores.json` i
 
 The ten [action scripts and keys](action-scripts/) contain 14 final commitments and one meeting with none. Each key names the deliverable, final owner, deadline and supporting turns. The extractor receives only named, timestamped transcript lines. See the [experiment report](../../docs/experiments/2026-11-01-action-evidence.md).
 
-From the repository root, use the pipeline's Swift build and `setup --asr turbo-q4` as documented in its README. Choose an output directory outside Git. The primary run creates four extractions per recording and preserves the raw replies, exact inputs, timing logs, audio-stage outputs and speaker mapping.
+From the repository root, build the pipeline's Swift diarizer as documented in its README. Use `setup --asr all` to cache **both Turbo Q4 and full Whisper**, plus Qwen and Sortformer, before going offline. Every action-benchmark phase checks that all of these models and the required executables are available before creating output or starting inference. Choose an output directory outside Git. The primary run creates four extractions per recording and preserves the raw replies, exact inputs, timing logs, audio-stage outputs and speaker mapping.
 
 ```bash
 S=experiments/synthetic-call
+P=experiments/pipelines/whisper-sortformer
+uv run --locked --project "$P" "$P/recap.py" setup --asr all
+uv run --locked --project "$P" "$P/recap.py" preflight --asr all
 uv run --locked --project "$S" "$S/collection.py" --suite actions
 RESULTS=$(mktemp -d)
 uv run --locked --project "$S" "$S/action_bench.py" "$RESULTS"
 uv run --locked --project "$S" "$S/action_bench.py" "$RESULTS" --labels-only
 uv run --locked --project "$S" "$S/action_bench.py" "$RESULTS" --verify-only
 uv run --locked --project "$S" "$S/action_bench.py" "$RESULTS" --large-only
-python3 "$S/score_actions.py" inspect "$RESULTS" --case poster
-python3 "$S/score_actions.py" score "$RESULTS"
+uv run --locked --project "$S" "$S/score_actions.py" inspect "$RESULTS" --case poster
+uv run --locked --project "$S" "$S/score_actions.py" score "$RESULTS"
 ```
 
 Each case needs a fresh case directory. Use repeated `--case ID` options to run a subset or complete cases after an interruption. Preserve an incomplete case directory elsewhere before retrying it. Scoring replays the recorded semantic judgments only when the script, audio, speaker map, inputs and predictions match. When outputs change, inspect the anonymized prediction IDs and actual cited lines, supply a new verdict file with `--verdicts`, and keep it with that run.
+
+### Replay the published scores without models
+
+[`reference/action-replay.json`](reference/action-replay.json) contains 200 original scoring files from the fictional calls: timestamped transcript inputs, normalized predictions, speaker mappings, hashes and timing records. The bundle preserves their exact bytes. It excludes audio, logs and machine paths. These are the original inputs to the 2026-11-01 scorer, not outputs reconstructed from its aggregate counts.
+
+From a fresh checkout, this standard-library-only command needs no model downloads or MLX environment:
+
+```bash
+uv run --no-project --python 3.12 python experiments/synthetic-call/replay_actions.py check
+```
+
+It checks the file allowlist and hashes, the original verdict bindings, and equality with all 70 published case/condition results and aggregate fields. Timings are replayed records; they are not newly measured. This verifies scoring reproducibility, not independent semantic grading or repeatability of model inference. To re-export the same evidence from the original local run, use `replay_actions.py export RESULTS NEW_BUNDLE.json`; export refuses outputs that do not reproduce the published report.
 
 ## Use with the review skill
 

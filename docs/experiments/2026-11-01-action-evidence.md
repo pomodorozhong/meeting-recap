@@ -2,7 +2,7 @@
 
 **Status** Complete, 2026-11-01.
 
-Across the ten new calls, full Whisper with focused extraction returned **7 of 14** fully supported actions, versus **4 of 14** for Turbo with the same extractor. The larger model recovered three additional commitments across three different calls. It still missed half. [Per-call measurements](2026-11-01-action-evidence-results.json) and [row-level semantic verdicts](../../experiments/synthetic-call/reference/action-verdicts.json) are saved with this report.
+Across the ten new calls, full Whisper with focused extraction returned **7 of 14** fully supported actions, versus **4 of 14** for Turbo with the same extractor. The larger model recovered three additional commitments across three different calls. It still missed half. [Per-call measurements](2026-11-01-action-evidence-results.json), [row-level semantic verdicts](../../experiments/synthetic-call/reference/action-verdicts.json) and the [original scoring inputs](../../experiments/synthetic-call/reference/action-replay.json) are saved with this report.
 
 ## Question
 
@@ -33,6 +33,8 @@ The primary audio-focused extractor recovered four of fourteen strict hits. Test
 ## Reproduce and score
 
 The [run instructions](../../experiments/synthetic-call/README.md#action-evidence-benchmark) generate the ten WAVs locally, run the primary matrix and speaker-label diagnostic, then replay the semantic verdicts. The [scripts and keys](../../experiments/synthetic-call/action-scripts/) were committed at `e3ed1ea` before generating audio. The frozen extraction prompt and driver are at `c364744`, the label diagnostic at `2df0eb4`. The 55 turns produced 224.94 seconds of audio. The synthesizer reported 182.2 seconds across the ten model loads and synthesis loops. All WAVs passed digest, reference alignment, duration and signal-level checks.
+
+The [model-free replay command](../../experiments/synthetic-call/README.md#replay-the-published-scores-without-models) checks the original 200 scoring artifacts against all 70 published cells and aggregate fields. The 2026-11-02 reproducibility check reproduced the saved report exactly, including recorded timings, without inference. A fresh model run still needs fresh semantic judgments if its output bindings differ. The full-run recipe now caches both ASRs with `setup --asr all`, preflights the complete matrix, and restores Sortformer from an immutable revision.
 
 The ordinary condition uses the normal single-chunk recap prompt and scores its action-items section. The focused condition emits only action items. Both use Qwen3.5-9B-4bit at `8b2b98c00a6b4d291155e4890773ca8f769aee53`. Input audio is transcribed once per call using Turbo Q4 at `660c343bbf4e52ac257f0b7d952e5388e6f93bef` and Sortformer at the saved pipeline's pinned weight digest.
 

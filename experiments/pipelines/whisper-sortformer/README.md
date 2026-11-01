@@ -64,10 +64,23 @@ uv run --project experiments/pipelines/whisper-sortformer experiments/pipelines/
 ```
 
 - `swift build` takes about two and a half minutes. It builds FluidAudio's `fluidaudiocli` at the pinned revision into this folder's `.build/`.
-- `setup` downloads the two pinned Hugging Face snapshots (Whisper about 3 GB, Qwen about 5.6 GB) to the Hugging Face cache. It also runs Sortformer once on generated silence, so FluidAudio downloads its models to `~/Library/Application Support/FluidAudio/Models`.
+- `setup` downloads the two pinned Hugging Face snapshots (Whisper about 3 GB, Qwen about 5.6 GB) to the Hugging Face cache. It restores Sortformer from an immutable revision into `~/Library/Application Support/FluidAudio/Models`, verifies the files, and then warms the model on generated silence. `setup --asr all` caches both Whisper variants for paired benchmarks.
 - `ffmpeg` and `ffprobe` must be on `PATH` (`brew install ffmpeg`).
 - For `--diarizer who`, run `setup --who` as well. It downloads Who's int8 weights (44 MB) to `~/Library/Application Support/meeting-recap/who`, or to `$WHO_MODELS` if set.
-- **Weight digests:** FluidAudio fetches Sortformer's weights from its model repo's `main` branch, not a fixed revision. So `setup` hashes every downloaded diarizer file and refuses weights whose SHA-256 differs from `pins.py`. If it refuses after a fresh download, the upstream weights changed and the baseline below no longer applies to them.
+- **Weight recovery:** [`model_sources.json`](model_sources.json) pins immutable Hugging Face commits, an exact file list, per-file SHA-256 and the original folder digests for Sortformer, LS-EEND and Community-1. [`weights.py`](weights.py) downloads into a temporary folder, verifies every byte, then publishes the complete folder. A matching cache is reused; a changed cache is preserved and refused. Move a changed folder aside explicitly before restoring. This avoids FluidAudio's first-use downloads from `main`.
+
+To restore the optional comparison models, or test recovery into an empty cache:
+
+```bash
+P=experiments/pipelines/whisper-sortformer
+uv run --locked --project "$P" "$P/weights.py" setup ls-eend speaker-diarization
+# --root changes only the install/check destination; the Swift runners use their normal cache.
+RESTORED=$(mktemp -d)
+uv run --locked --project "$P" "$P/weights.py" setup sortformer ls-eend speaker-diarization --root "$RESTORED"
+uv run --locked --project "$P" "$P/weights.py" check sortformer ls-eend speaker-diarization --root "$RESTORED"
+```
+
+`recap.py preflight --asr all` checks both cached ASRs, Qwen's tokenizer and weight shards, the Sortformer digest, its executable, ffmpeg and ffprobe without downloading or running inference. Use it before the action benchmark; a missing cache reports the setup command before any cases start.
 
 ## Run (offline)
 
@@ -145,7 +158,7 @@ Neither of the last two counts Metal buffers fully. For an MLX model they can sh
 
 Each pin is written down once:
 
-- **Model revisions and weight digests:** [`pins.py`](pins.py) holds the Whisper and Qwen Hugging Face revisions and the SHA-256 of the Sortformer and Who weight folders. Whisper runs through `mlx-whisper` and the recap through `mlx-lm`. Licences: Qwen3.5 is Apache-2.0, and Who is under the Desert Ant Labs Source-Available License.
+- **Model revisions and weight digests:** [`pins.py`](pins.py) holds the Whisper and Qwen Hugging Face revisions and Who's folder SHA-256; [`model_sources.json`](model_sources.json) holds the FluidAudio model revisions and hashes. Whisper runs through `mlx-whisper` and the recap through `mlx-lm`. Licences: Qwen3.5 is Apache-2.0, and Who is under the Desert Ant Labs Source-Available License.
 - **Swift packages:** [`Package.resolved`](Package.resolved) holds the FluidAudio and `desert-ant-core` revisions. `pins.py` reads them from there, and a test checks that `Package.swift` asks for the same ones. The `desert-ant-core` revision is tag `v4.2.1`, which names the Who weights `desert-ant-labs/who` `v0.3.4`, Core ML int8. Sortformer's model is `Sortformer_v2.1.mlmodelc`, as in [docs/runners.md](../../../docs/runners.md).
 - **Python packages and interpreter:** [`uv.lock`](uv.lock) and [`.python-version`](.python-version). Script conversion uses `opencc-python-reimplemented`'s `s2tw`.
 

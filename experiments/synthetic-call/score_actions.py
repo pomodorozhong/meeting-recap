@@ -4,6 +4,7 @@ from collections import Counter
 import hashlib
 import json
 from pathlib import Path
+from statistics import median
 
 from score_speakers import load, sha256
 
@@ -108,7 +109,9 @@ def main():
     parser.add_argument("--verdicts", type=Path, default=HERE / "reference/action-verdicts.json")
     args = parser.parse_args()
     overall = {m: Counter() for m in (*MODES, "labels-focused")}
-    cases = {}
+    cases, inputs = {}, {}
+    times = {m: [] for m in overall}
+    peaks = {m: [] for m in overall}
     verdicts = load(args.verdicts) if args.command == "score" else {}
     scripts = [s for s in sorted(SCRIPTS.glob("*.json")) if args.case in (None, s.stem)]
     if not scripts:
@@ -123,14 +126,31 @@ def main():
         case = verdicts[script.stem]
         if binding != case["binding"] or set(case["rows"]) != set(packet):
             raise ValueError(f"{script.stem}: these verdicts do not describe these model outputs")
+        folder = args.results / script.stem
+        meta = load(folder / "case.json")
+        stages = load(folder / "pipeline/stages.json")
+        inputs[script.stem] = {k: meta[k] for k in ("script_sha256", "audio_sha256", "duration_seconds")}
+        inputs[script.stem]["transcript_pipeline_seconds"] = stages["total"]["seconds"]
+        run_stats = {**meta["runs"], "labels-focused": load(folder / "labels-focused/run.json")}
+        paired = zip(load(folder / "audio-focused/lines.json"), load(folder / "labels-focused/lines.json"), strict=True)
+        inputs[script.stem]["changed_line_labels"] = sum(a != b for a, b in paired)
+        inputs[script.stem]["same_actions_after_relabeling"] = (
+            run_stats["audio-focused"]["items_sha256"] == run_stats["labels-focused"]["items_sha256"])
         cases[script.stem] = {}
         for mode, order in orders.items():
             counts = count_items(gold, packet, order, case["rows"])
             overall[mode].update(counts)
-            cases[script.stem][mode] = summarize(counts)
+            timing = run_stats[mode]
+            times[mode].append(timing["wall_seconds"])
+            peaks[mode].append(timing["peak_footprint_bytes"])
+            cases[script.stem][mode] = {**summarize(counts), "wall_seconds": timing["wall_seconds"],
+                                       "peak_footprint_bytes": timing["peak_footprint_bytes"]}
     result = {"cases": cases}
     if args.command == "score":
-        result["micro"] = {m: summarize(c) for m,c in overall.items()}
+        result["inputs"] = inputs
+        result["micro"] = {m: {**summarize(c), "median_seconds": median(times[m]),
+                               "total_seconds": round(sum(times[m]), 2), "max_peak_footprint_bytes": max(peaks[m])}
+                           for m, c in overall.items()}
     print(json.dumps(result, ensure_ascii=False, indent=2))
 
 

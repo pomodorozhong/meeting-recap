@@ -38,6 +38,10 @@ Also test whether the actual attached transcript keeps turn order. Register the 
 
 Before seeing the cross-model rankings, reserve one additional independent script for confirmation. It covers the missing one-speaker case and inserts 18 seconds of silence between two spoken sections. Run the same three ASRs and two primary diarizers on it after the initial matrix, using the same metrics and settings. Count timestamped word midpoints strictly inside the long scripted gap as a silence diagnostic. Compare the existing candidates without tuning on this script.
 
+### Recap with an exact transcript
+
+The first handoff recap propagated misrecognized task terms. Before running this diagnostic, fix both inputs and the scoring rule. For handoff and logistics, feed the original timed script with correct speaker IDs to the same pipeline summary stage. Keep the model, prompts and frozen checks identical. A check passes only if its subject, outcome and any specified owner and deadline survive. Report partial matches separately. This isolates errors that persist even when upstream text and attribution are exact.
+
 ## Restart from scratch
 
 Generate both scripts and the two paired conditions, then run the matrix serially. Use each generated call's own references after verifying its audio digest. Commands and per-case timings will accompany results.

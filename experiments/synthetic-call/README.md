@@ -38,6 +38,41 @@ From this folder, `uv run generate.py` is enough.
 
 Further arguments set the script, the output folder and the seed (default 7). The first run downloads the model (about 4 GB). The call takes about four minutes on an M2 Pro.
 
+## Recording collection and unattended benchmark
+
+The original planning call also serves as the three-speaker baseline in a seven-recording benchmark. Three new scripts add distinct subject matter and a fourth preset voice. The paired variants reuse the clean audio so differences within a pair can be traced to the mix.
+
+| Recording ID | Content and condition |
+| --- | --- |
+| planning | Original three-speaker sprint planning meeting, 73 turns |
+| handoff | Two-speaker incident handoff, 12 turns with a rejected proposal, deadlines and an unresolved cause |
+| handoff-channel | Same timing and content, B attenuated by 14 dB, seeded white noise at −42 dBFS RMS throughout |
+| logistics | Four-speaker event planning meeting, 14 turns without overlap |
+| logistics-overlap | Same utterances, seven handoffs advanced to overlap their predecessor by up to one second |
+| stocktake | Held-out single-speaker inventory update with a correction, quantities and an 18-second silent break |
+| silence | Twelve seconds of digital silence, with empty text and speaker references |
+
+Build the collection from the repository root. The generator reuses matching seed-7 recordings, stages each new recording before publishing it, and verifies regenerated controls byte for byte. Each folder has its own WAV, manifest, transcript and speaker intervals.
+
+```bash
+S=experiments/synthetic-call
+uv run --locked --project "$S" "$S/collection.py"
+```
+
+Build and set up the [pipeline including Who](../pipelines/whisper-sortformer/README.md#setup-once-needs-the-network), and build `diarexp` as in the [runner guide](../../docs/runners.md). The extended comparisons on the clean scripts use the cached LS-EEND and Community-1 weights from that guide's diarizer sweep. The benchmark checks the cache digests. The pipeline setup caches Whisper. Cache Breeze and the 442 MiB quantized Turbo snapshot with the commands below. The benchmark then runs the models serially and preserves logs and prior cases on failure.
+
+```bash
+S=experiments/synthetic-call
+uv run --locked --project experiments/mlx hf download eoleedi/Breeze-ASR-25-mlx \
+  --revision 172151e3fd93ab6dc841d639f23dd48b24bc8301
+uv run --locked --project experiments/mlx hf download mlx-community/whisper-large-v3-turbo-q4 \
+  --revision 660c343bbf4e52ac257f0b7d952e5388e6f93bef
+RESULTS=$(mktemp -d)
+"$S/benchmark.sh" "$RESULTS"
+```
+
+Each case writes `scores.json` for the base matrix and `extension/scores.json` including Turbo with text errors, one-to-one speaker-time errors, word-label agreement, wall time and peak footprint, along with the raw model outputs. A case requires a fresh output folder. To retry one case, run `benchmark.sh COLLECTION_DIR NEW_RESULTS_ROOT CASE`, then `compare_fast.sh RECORDING_DIR NEW_RESULTS_ROOT/CASE`. If just the extension fails, move its partial folder aside and rerun `compare_fast.sh` on the completed base case. The extension repeats each ASR twice on the handoff and on silence. It also scores turn order for each speech case with the review skill and validates the resulting dataset. The two clean scripts run the normal recap stage and the same summary model on the exact scripted transcript. See the [experiment report](../../docs/experiments/2026-11-01-synthetic-collection.md) for results, limitations and benchmark audio digests.
+
 ## Use with the review skill
 
 Keep the dataset outside the checkout (the skill refuses one inside it). From the repository root, with `DATASET` set to a new folder:

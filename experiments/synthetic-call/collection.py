@@ -115,10 +115,15 @@ def check_clean(target, script):
         cursor = max(cursor, end)
 
 
-def build(root):
+def build(root, suite="all"):
     root.mkdir(parents=True, exist_ok=True)
     scripts = [HERE / "script.json"] + [HERE / "scripts" / f"{name}.json"
                                        for name in ("handoff", "logistics", "stocktake")]
+    action_scripts = sorted((HERE / "action-scripts").glob("*.json"))
+    if suite == "actions":
+        scripts = action_scripts
+    elif suite == "all":
+        scripts += action_scripts
     for script in scripts:
         target = root / script.stem
         if target.exists():
@@ -130,6 +135,9 @@ def build(root):
             subprocess.run([sys.executable, HERE / "generate.py", script, staged, "7"], check=True)
             check_clean(staged, script)
             staged.rename(target)
+
+    if suite == "actions":
+        return
 
     for name, parent in (("handoff-channel", "handoff"), ("logistics-overlap", "logistics"), ("silence", None)):
         # Recompute the inexpensive controls and check the references as well as the audio before reuse.
@@ -149,4 +157,6 @@ def build(root):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("root", type=Path, nargs="?", default=HERE / "out")
-    build(parser.parse_args().root)
+    parser.add_argument("--suite", choices=("all", "baseline", "actions"), default="all")
+    args = parser.parse_args()
+    build(args.root, args.suite)

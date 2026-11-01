@@ -24,7 +24,7 @@ CODE
 )
 if [[ $# == 1 ]]; then
     # The full sweep has one destination and uses the stock collection beside this script.
-    uv run --locked --project "$here" "$here/collection.py"
+    uv run --locked --project "$here" "$here/collection.py" --suite baseline
     for id in handoff logistics handoff-channel logistics-overlap planning silence stocktake; do
         "$here/benchmark.sh" "$here/out" "$1" "$id"
         source_id="$id"

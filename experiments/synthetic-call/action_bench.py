@@ -54,8 +54,9 @@ def accepted_items(accepted, candidates, lines):
 def parse_reply(reply, mode):
     reply = re.sub(r"<think>.*?</think>", "", reply, flags=re.S).strip()
     # The negative control can yield a literal empty array instead of the requested wrapper.
-    if mode == "focused" and re.fullmatch(r"\[\s*\]", reply):
-        return {"action_items": []}, "bare-empty-array"
+    if mode in {"focused", "verify"} and re.fullmatch(r"\[\s*\]", reply):
+        key = "accepted" if mode == "verify" else "action_items"
+        return {key: []}, "bare-empty-array"
     return json.loads(reply[reply.index("{"):reply.rindex("}") + 1]), "object"
 
 
@@ -125,6 +126,8 @@ def run_verifier(script, collection, out):
     meta = load(out / "case.json")
     primary = out / "audio-focused"
     source = meta["runs"]["audio-focused"]
+    if meta["audio_sha256"] != digest(collection / script.stem / "call.wav"):
+        raise ValueError("the original synthetic recording changed")
     if meta["script_sha256"] != digest(script) or any(
         digest(primary / f"{key}.json") != source[f"{key}_sha256"] for key in ("items", "lines")
     ):
@@ -179,7 +182,11 @@ if __name__ == "__main__":
     root.mkdir(parents=True, exist_ok=True)
     os.environ["HF_HUB_OFFLINE"] = "1"
     subprocess.run(["uv", "sync", "--locked", "--project", PIPE], check=True)
+    run = run_case
+    if args.labels_only:
+        run = run_labels
+    elif args.verify_only:
+        run = run_verifier
     for script in sorted(CASES.glob("*.json")):
         if not args.case or script.stem in args.case:
-            run = run_labels if args.labels_only else run_verifier if args.verify_only else run_case
             run(script, args.collection, root / script.stem)

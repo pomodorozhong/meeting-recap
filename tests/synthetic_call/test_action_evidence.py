@@ -30,6 +30,7 @@ class ActionEvidence(unittest.TestCase):
 
     def test_explicit_negative_reply_preserves_the_format_deviation(self):
         self.assertEqual(parse_reply("[]", "focused"), ({"action_items":[]}, "bare-empty-array"))
+        self.assertEqual(parse_reply("[]", "verify"), ({"accepted":[]}, "bare-empty-array"))
         with self.assertRaises(ValueError):
             parse_reply("[1]", "focused")
 

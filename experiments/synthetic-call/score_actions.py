@@ -147,7 +147,9 @@ def main():
             times[mode].append(timing["wall_seconds"])
             peaks[mode].append(timing["peak_footprint_bytes"])
             cases[script.stem][mode] = {**summarize(counts), "wall_seconds": timing["wall_seconds"],
-                                       "peak_footprint_bytes": timing["peak_footprint_bytes"]}
+                                       "peak_footprint_bytes": timing["peak_footprint_bytes"],
+                                       "reply_format": ("skipped-empty" if timing.get("skipped_empty")
+                                                        else timing.get("reply_format", "object"))}
     result = {"cases": cases}
     if args.command == "score":
         result["inputs"] = inputs

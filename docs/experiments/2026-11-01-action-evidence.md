@@ -1,6 +1,8 @@
 # Ten synthetic calls for evidence-backed actions
 
-**Status** Runs in progress, 2026-11-01.
+**Status** Complete, 2026-11-01.
+
+Across the ten new calls, full Whisper with focused extraction returned **7 of 14** fully supported actions, versus **4 of 14** for Turbo with the same extractor. The larger model recovered three additional commitments across three different calls. It still missed half. [Per-call measurements](2026-11-01-action-evidence-results.json) and [row-level semantic verdicts](../../experiments/synthetic-call/reference/action-verdicts.json) are saved with this report.
 
 ## Question
 
@@ -37,3 +39,56 @@ The ordinary condition uses the normal single-chunk recap prompt and scores its 
 For semantic grading the agent saw the frozen task key, predicted action, mapped owner and the actual text at its cited timestamps. The packet hides prompt and condition names and presents content-hashed rows. Identical rows are judged once. Wording and transcription artifacts can still reveal the source. The grader accepts paraphrases, but a garbled or changed deliverable, recipient or material scope loses task credit. An invented date, missing part of a deadline, wrong owner, missing citation or a real citation that fails to support the final action loses strict credit. A row in another recap section does not count. Counts are paired per meeting, with at most one strict hit per gold action. This is agent judgment on intended synthetic speech.
 
 **Execution note.** The no-action exact focused run returned a literal empty JSON array. The original parser refused it before the next stage. Preserve the first attempt and record this unambiguous abstention as a schema deviation. Accept only an empty array as this special case, keep the prompts fixed, and retry the interrupted call.
+
+## Runtime and strict scores
+
+The matrix contains 70 case/condition results across ten recordings. Four verification conditions had no candidates and therefore invoked no summary model. The interrupted first attempt on the negative control is retained locally and excluded from timing and scores. Runs used the M2 Pro with 16 GB; model inference processes ran serially. Summary timings include process startup and model load. The verification row gives **incremental** latency on top of focused extraction, including zero model time for the four empty inputs.
+
+| Condition | Emitted | Task hits | All fields correct | Evidence-backed hits / 14 | Precision | Recall | F1 | Median extraction |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Exact / ordinary | 15 | 13 | 12 | 11 | 73% | 79% | 0.759 | 21.9 s |
+| Exact / focused | 15 | 13 | 11 | 10 | 67% | 71% | 0.690 | 11.0 s |
+| Turbo / ordinary | 13 | 6 | 4 | 2 | 15% | 14% | 0.148 | 23.2 s |
+| Turbo / focused | 9 | 4 | 4 | 4 | 44% | 29% | 0.348 | 9.6 s |
+| Turbo / repaired labels / focused | 8 | 4 | 4 | 4 | 50% | 29% | 0.364 | 10.5 s |
+| Turbo / focused + verification | 0 | 0 | 0 | 0 | — | 0% | 0.000 | 7.8 s |
+| Full Whisper / focused | 13 | 7 | 7 | 7 | 54% | 50% | 0.519 | 11.3 s |
+
+Every hit counts a unique action. “Task hits” require the intended deliverable including material scope or recipient. “All fields correct” additionally requires owner and deadline. Strict hits additionally require complete, semantically supporting citations. Precision divides strict hits by emitted rows; recall divides them by the 14 gold actions. The same calls are reused across conditions.
+
+### Per-call strict hits / emitted rows
+
+| Call | Gold | Exact, ordinary | Exact, focused | Turbo, ordinary | Turbo, focused | Repaired labels | Verified | Full Whisper |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| archive | 2 | 1/1 | 1/2 | 0/1 | 0/2 | 0/1 | 0/0 | 0/1 |
+| freezer | 1 | 1/1 | 1/1 | 0/1 | 0/1 | 0/1 | 0/0 | 0/1 |
+| inventory | 1 | 1/1 | 1/1 | 0/1 | 0/1 | 0/1 | 0/0 | 0/0 |
+| keys | 2 | 1/2 | 1/2 | 1/2 | 1/2 | 1/2 | 0/0 | 1/2 |
+| menu | 1 | 1/1 | 1/1 | 1/1 | 1/1 | 1/1 | 0/0 | 1/1 |
+| museum | 0 | 0/1 | 0/0 | 0/1 | 0/0 | 0/0 | 0/0 | 0/0 |
+| podcast | 2 | 2/2 | 2/2 | 0/1 | 0/0 | 0/0 | 0/0 | 1/2 |
+| poster | 2 | 2/2 | 1/2 | 0/2 | 2/2 | 2/2 | 0/0 | 2/2 |
+| rainplan | 1 | 1/2 | 1/2 | 0/1 | 0/0 | 0/0 | 0/0 | 1/2 |
+| tickets | 2 | 1/2 | 1/2 | 0/2 | 0/0 | 0/0 | 0/0 | 1/2 |
+
+The focused prompt's two extra strict hits over the ordinary prompt on Turbo audio were both on the poster handoff. The comparison does not establish a broad prompt advantage across scenarios. Full Whisper preserved all four Turbo-focused hits and gained one on each of the podcast, classroom reservation and ticket-dispatch calls. The new true positives came with one additional strict false positive in aggregate (six versus five).
+
+## Findings
+
+Every primary emitted item had a syntactically valid citation. The ordinary recap on audio nevertheless recovered only two strictly supported actions. It identified six of the fourteen tasks, got all fields right for four, and cited sufficient evidence for two. The focused pass identified four tasks, got all fields right for those four and cited sufficient evidence for all four. Its precision increased because it returned fewer unsupported claims. It also missed ten real actions. On exact transcripts the ordinary recap recovered eleven strict hits and the focused extractor ten. The observed benefit of focusing the prompt depended on the quality of its input.
+
+The no-action control matters for interpreting precision. Given a completed upload, a withdrawn proposal and an unanswered question, the ordinary recap invented one pending action from each input source. The focused extractor abstained on both. On the multi-turn key handoff, answers could have the right fields yet cite the deadline without the recipient or cite the recipient without the owner's acceptance. On the podcast call, an output recovered the intended deliverable while its cited ASR text named a different object. Such rows fail the evidence requirement even when the intended task is easy to guess from the script.
+
+### Speaker and citation diagnostics
+
+Only three of the sixty rendered lines changed speaker in the time-overlap diagnostic. Those changes occurred in three different meetings. The focused run still recovered four supported actions and emitted eight rows, against nine before the repair. This cohort has short turns from distinct preset voices. A small label effect here provides little evidence about overlapping real meetings.
+
+The citation verifier rejected **all nine candidates**, losing all four true positives along with the five false positives. Four calls had no focused candidates and skipped model loading. On the other six, the verifier ran and returned empty selections, including for an explicitly supported menu-publishing task. No citations were repaired. Precision is undefined when a filter returns nothing. Do not put this verifier in the default pipeline.
+
+### ASR cost and decision
+
+The ten diarization outputs were byte-identical across the two ASR pipelines. Full Whisper took 73.38 s for ASR over the ten files, versus 43.72 s for Turbo. Per-call median ASR wall time was 7.19 versus 4.21 s. Peak ASR process footprints were 5.57 versus 2.00 GB; the local Qwen extraction stages peaked at 6.61 GB. These are per-process decimal GB. The larger ASR and summarizer run one at a time.
+
+Use full Whisper plus the focused prompt as the accuracy comparator for the next action benchmark. Keep Turbo as the faster comparator. The earlier seven-recording result favored Turbo on character error; that measure alone could not predict recovery of owners, deliverables and dates on these new scripts. Keep the verifier out of the normal pipeline. A useful next unattended check is an independent set of naturally paraphrased commitments with prerequisites and time qualifiers, graded before inspecting model output.
+
+Fourteen intended commitments, synthetic voices, short scripted turns and one agent grader limit generalization. The reference describes intended words. A TTS pronunciation defect and an ASR substitution can have the same effect on the measured task. The verifier and full-ASR comparison were registered after earlier outputs were inspected, so treat their results as exploratory. No real meeting or user-confirmed listening answer contributed to these scores.

@@ -1,0 +1,412 @@
+{
+  "archive": {
+    "binding": "02d1cf0f5ee458462b0bef5207be0ea2f3b6398853b0a4aadd624239ae9ad33b",
+    "rows": {
+      "88a23bdad6ce13d1": {
+        "due_ok": true,
+        "evidence_ok": false,
+        "note": "The object of the backup is unintelligible and the speaker is assigned without accepting ownership.",
+        "target": null
+      },
+      "c03f8e6aa7318eff": {
+        "due_ok": true,
+        "evidence_ok": false,
+        "note": "The line establishes the backup and deadline but does not assign the person announcing it.",
+        "target": "T1"
+      },
+      "c356b7dd7a51a7b6": {
+        "due_ok": true,
+        "evidence_ok": true,
+        "note": "The speaker explicitly accepts the index update with no date.",
+        "target": "T2"
+      },
+      "eb890657679fbbcb": {
+        "due_ok": true,
+        "evidence_ok": false,
+        "note": "The index is recognizable but the kind of index is garbled.",
+        "target": null
+      },
+      "f28832dbb472835b": {
+        "due_ok": true,
+        "evidence_ok": false,
+        "note": "The owner is correctly left open and the date survives, but the named object is corrupted instead of old files.",
+        "target": null
+      },
+      "f5e606173098c57f": {
+        "due_ok": false,
+        "evidence_ok": false,
+        "note": "A statement that the owner is undecided does not identify the old-file deliverable.",
+        "target": null
+      }
+    }
+  },
+  "freezer": {
+    "binding": "6454f4f24269300de5b5ee3b1ec9a2f27ef0f96a5a96fee4a4d3838e4a6d5a2d",
+    "rows": {
+      "41a9aff20d14e1b6": {
+        "due_ok": true,
+        "evidence_ok": false,
+        "note": "The corrected date survives but the named equipment is replaced by a different object.",
+        "target": null
+      },
+      "479301c080a83200": {
+        "due_ok": true,
+        "evidence_ok": true,
+        "note": "The final accepted correction identifies the temperature log and precise deadline.",
+        "target": "T1"
+      },
+      "853371999be62ed8": {
+        "due_ok": true,
+        "evidence_ok": false,
+        "note": "The correct temperature-log deadline survives, but the object qualifier is still a different location.",
+        "target": null
+      },
+      "900fb245d8da4347": {
+        "due_ok": true,
+        "evidence_ok": false,
+        "note": "The equipment qualifier is corrupted even though the deadline is correct.",
+        "target": null
+      },
+      "e5b430a7fee7f8ff": {
+        "due_ok": true,
+        "evidence_ok": true,
+        "note": "The cited speaker accepts the final log delivery time.",
+        "target": "T1"
+      }
+    }
+  },
+  "inventory": {
+    "binding": "43b20e6bf7e6d8afb8a0de6fbe8f5e57c6e18d678737703365b0af7f877af475",
+    "rows": {
+      "8784660902a331f9": {
+        "due_ok": true,
+        "evidence_ok": false,
+        "note": "The transcript substitutes a different material for the damaged pallets.",
+        "target": null
+      },
+      "97b429a99f636b5c": {
+        "due_ok": true,
+        "evidence_ok": true,
+        "note": "The speaker volunteers to move the specified pallets to the recycling area.",
+        "target": "T1"
+      },
+      "b7647c2aab76ac45": {
+        "due_ok": true,
+        "evidence_ok": true,
+        "note": "The action and absence of a deadline are explicitly supported.",
+        "target": "T1"
+      },
+      "d616632904dc6244": {
+        "due_ok": true,
+        "evidence_ok": false,
+        "note": "The move and destination survive but the object is no longer pallets.",
+        "target": null
+      }
+    }
+  },
+  "keys": {
+    "binding": "ac7571949c704032a7c683c442020205744d9ed96340573cc30842a4bd245063",
+    "rows": {
+      "0afde44c17252dca": {
+        "due_ok": true,
+        "evidence_ok": true,
+        "note": "The speaker states the access roster update and Monday deadline.",
+        "target": "T2"
+      },
+      "0f650f895862e7c1": {
+        "due_ok": true,
+        "evidence_ok": true,
+        "note": "The cited speaker takes the roster and gives the Monday deadline.",
+        "target": "T2"
+      },
+      "1133214f529faa05": {
+        "due_ok": false,
+        "evidence_ok": false,
+        "note": "The task matches, but the due field lacks tomorrow and the citations omit the recipient.",
+        "target": "T1"
+      },
+      "289a5f5724e49d56": {
+        "due_ok": true,
+        "evidence_ok": false,
+        "note": "The commitment and deadline are cited, but none of the cited lines identifies the guard as recipient.",
+        "target": "T1"
+      },
+      "3b88d04e46d5de1d": {
+        "due_ok": true,
+        "evidence_ok": true,
+        "note": "The two cited lines support the assigned update, Monday deadline and file format.",
+        "target": "T2"
+      },
+      "4da810d60d7a0d96": {
+        "due_ok": false,
+        "evidence_ok": false,
+        "note": "The key delivery object and deadline are again garbled and the destination is absent.",
+        "target": null
+      },
+      "70e6ef905982b0b0": {
+        "due_ok": true,
+        "evidence_ok": false,
+        "note": "Agreeing to the time does not establish that B took the delivery; that line was omitted.",
+        "target": "T1"
+      },
+      "83cdad08abaafddf": {
+        "due_ok": true,
+        "evidence_ok": true,
+        "note": "The assignment, Monday deadline and file format are all supported.",
+        "target": "T2"
+      },
+      "c5e4557d7bece3c0": {
+        "due_ok": true,
+        "evidence_ok": true,
+        "note": "The attributed roster update, due date and electronic delivery are present.",
+        "target": "T2"
+      },
+      "f64c2b833b8fb150": {
+        "due_ok": false,
+        "evidence_ok": false,
+        "note": "The object and deadline are broken and the recipient is missing.",
+        "target": null
+      }
+    }
+  },
+  "menu": {
+    "binding": "dbb9ded70b718e9e9b993aee700aedd4b26e90a063e879c64c5e7add7e6f6960",
+    "rows": {
+      "63900d46b4d92337": {
+        "due_ok": true,
+        "evidence_ok": true,
+        "note": "The speaker commits to the electronic menu on the website on Thursday.",
+        "target": "T1"
+      },
+      "d117670cf2c81fe3": {
+        "due_ok": true,
+        "evidence_ok": true,
+        "note": "The cited speaker undertakes website publication of the electronic menu on Thursday.",
+        "target": "T1"
+      },
+      "d6fdcdd1b5313cda": {
+        "due_ok": true,
+        "evidence_ok": true,
+        "note": "The line directly supports the replacement deliverable, owner and day.",
+        "target": "T1"
+      }
+    }
+  },
+  "museum": {
+    "binding": "6311398a46ea38d55a0772b67bc60f435c360f88ed517de4d1a46b1eddcf4247",
+    "rows": {
+      "53ba1fd741c7cdc7": {
+        "due_ok": false,
+        "evidence_ok": false,
+        "note": "The photo upload was completed yesterday; it is not an outstanding assignment.",
+        "target": null
+      },
+      "763e4d2fe92caa5d": {
+        "due_ok": false,
+        "evidence_ok": false,
+        "note": "Exchanging news during the meeting is not a future commitment.",
+        "target": null
+      }
+    }
+  },
+  "podcast": {
+    "binding": "926903c62552e5036c87ee380ca18ec584dc5f100f30022735113edd83a462e0",
+    "rows": {
+      "5e12cb8c5acd6573": {
+        "due_ok": true,
+        "evidence_ok": false,
+        "note": "The output recovers the intended transcript, but its citation substitutes an unrelated noun and corrupts the deadline phrase.",
+        "target": "T2"
+      },
+      "9684f710742ca8dc": {
+        "due_ok": true,
+        "evidence_ok": true,
+        "note": "Speaker C explicitly commits to noise removal from episode one on Wednesday.",
+        "target": "T1"
+      },
+      "ab26bebc33678f8f": {
+        "due_ok": true,
+        "evidence_ok": true,
+        "note": "The cited speaker commits to the first-episode transcript by next Monday.",
+        "target": "T2"
+      },
+      "b00837d3b25f788f": {
+        "due_ok": true,
+        "evidence_ok": true,
+        "note": "The right episode, noise edit, speaker and day are all present.",
+        "target": "T1"
+      },
+      "c8bdf324deda4018": {
+        "due_ok": true,
+        "evidence_ok": false,
+        "note": "The output repeats a garbled noun instead of identifying a transcript.",
+        "target": null
+      },
+      "cd587c17b8285882": {
+        "due_ok": true,
+        "evidence_ok": true,
+        "note": "The episode, transcript, speaker and deadline are explicitly supported.",
+        "target": "T2"
+      },
+      "dbf93fcf13549217": {
+        "due_ok": true,
+        "evidence_ok": true,
+        "note": "The cited speaker, first-episode noise edit and Wednesday assignment are supported.",
+        "target": "T1"
+      }
+    }
+  },
+  "poster": {
+    "binding": "5742024e6f5d9a32e1e488387b70f9006784a7395e3e9feea541a6e5948d67a8",
+    "rows": {
+      "030f218b2da18ae2": {
+        "due_ok": true,
+        "evidence_ok": true,
+        "note": "The replacement owner personally takes the print job and restates tomorrow.",
+        "target": "T1"
+      },
+      "2886db8fa90f763f": {
+        "due_ok": true,
+        "evidence_ok": true,
+        "note": "The new commitment and the previous owner's confirmation are both cited.",
+        "target": "T1"
+      },
+      "2b6c88af1d513497": {
+        "due_ok": true,
+        "evidence_ok": false,
+        "note": "The list is identified, but its required recipient is missing from the task.",
+        "target": null
+      },
+      "49e5f366062bb5cd": {
+        "due_ok": true,
+        "evidence_ok": true,
+        "note": "The first citation establishes the list, owner and day, and the second confirms the destination.",
+        "target": "T2"
+      },
+      "779e5307fbc0bb3c": {
+        "due_ok": false,
+        "evidence_ok": false,
+        "note": "Releasing responsibility does not create a separate task to hand the poster to B.",
+        "target": null
+      },
+      "7bec92fb5c912074": {
+        "due_ok": true,
+        "evidence_ok": true,
+        "note": "The three lines together establish the list, recipient, date and acceptance.",
+        "target": "T2"
+      },
+      "81c088bd1c7ebe5e": {
+        "due_ok": true,
+        "evidence_ok": true,
+        "note": "The new owner, print job and unchanged day are explicit in the recovered line.",
+        "target": "T1"
+      },
+      "a6d5c6fa41593e70": {
+        "due_ok": true,
+        "evidence_ok": false,
+        "note": "The final acknowledgment gives the recipient only; the item and deadline need earlier lines.",
+        "target": "T2"
+      },
+      "dc2f3f59f7c2ebb7": {
+        "due_ok": true,
+        "evidence_ok": true,
+        "note": "Taken together the cited lines give the list, service desk, owner and date.",
+        "target": "T2"
+      }
+    }
+  },
+  "rainplan": {
+    "binding": "792990cd4fe03130deb572d817dc6dbfc0b2910fe2e4f2c48130bd92265d2675",
+    "rows": {
+      "0c6ec814171436b8": {
+        "due_ok": true,
+        "evidence_ok": true,
+        "note": "The speaker unconditionally volunteers for the classroom reservation before noon.",
+        "target": "T1"
+      },
+      "3935e7cd1dd66b25": {
+        "due_ok": false,
+        "evidence_ok": false,
+        "note": "The warning has not occurred; the shuttle is a contingency, not outstanding work.",
+        "target": null
+      },
+      "4f775f68f0e4ebd7": {
+        "due_ok": false,
+        "evidence_ok": false,
+        "note": "This invents a pending shuttle obligation and reverses its trigger.",
+        "target": null
+      },
+      "9fefe03da6b75a6a": {
+        "due_ok": false,
+        "evidence_ok": false,
+        "note": "Both cited lines keep the shuttle conditional and do not assign anyone.",
+        "target": null
+      },
+      "eb20bf263147fcab": {
+        "due_ok": false,
+        "evidence_ok": false,
+        "note": "The supposed delivery is unrelated to any scripted commitment.",
+        "target": null
+      },
+      "f74ea9b7f2340a50": {
+        "due_ok": true,
+        "evidence_ok": true,
+        "note": "The speaker commits to reserving the indoor classroom before noon in the cited line.",
+        "target": "T1"
+      }
+    }
+  },
+  "tickets": {
+    "binding": "68186e11ffd67cc651bdfc43cf4c9e25b07c89c9cf4ebf53722ae8673338bd1b",
+    "rows": {
+      "2e0bab3c3675b758": {
+        "due_ok": false,
+        "evidence_ok": true,
+        "note": "The cited owner, tickets and recipient are supported; the row drops the stated date.",
+        "target": "T1"
+      },
+      "86c0e05f41155c70": {
+        "due_ok": false,
+        "evidence_ok": false,
+        "note": "A caution about confusing ticket types creates no new assigned task.",
+        "target": null
+      },
+      "92d7b24e8462069f": {
+        "due_ok": true,
+        "evidence_ok": true,
+        "note": "The correct batch, agency, owner and tomorrow deadline are together in the cited line.",
+        "target": "T2"
+      },
+      "94be241403a2180f": {
+        "due_ok": false,
+        "evidence_ok": true,
+        "note": "The citation supports delivery to the school and explicitly supplies the missing date.",
+        "target": "T1"
+      },
+      "ad7a4d97fbc43a56": {
+        "due_ok": false,
+        "evidence_ok": true,
+        "note": "The task and assignee are supported, but the due field omits today.",
+        "target": "T1"
+      },
+      "affd3cf0454e1e0b": {
+        "due_ok": true,
+        "evidence_ok": true,
+        "note": "The same line names the correct group tickets, agency, day and responsible speaker.",
+        "target": "T2"
+      },
+      "e1850bc88151b556": {
+        "due_ok": true,
+        "evidence_ok": false,
+        "note": "The task names all tickets instead of the group tickets; this changes the batch.",
+        "target": null
+      },
+      "f9125d59c1806e43": {
+        "due_ok": true,
+        "evidence_ok": true,
+        "note": "The cited line explicitly assigns the group-ticket dispatch for tomorrow.",
+        "target": "T2"
+      }
+    }
+  }
+}

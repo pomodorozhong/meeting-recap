@@ -38,6 +38,78 @@ From this folder, `uv run generate.py` is enough.
 
 Further arguments set the script, the output folder and the seed (default 7). The first run downloads the model (about 4 GB). The call takes about four minutes on an M2 Pro.
 
+## Recording collection and unattended benchmark
+
+The original planning call also serves as the three-speaker baseline in a seven-recording benchmark. Three new scripts add distinct subject matter and a fourth preset voice. The paired variants reuse the clean audio so differences within a pair can be traced to the mix.
+
+| Recording ID | Content and condition |
+| --- | --- |
+| planning | Original three-speaker sprint planning meeting, 73 turns |
+| handoff | Two-speaker incident handoff, 12 turns with a rejected proposal, deadlines and an unresolved cause |
+| handoff-channel | Same timing and content, B attenuated by 14 dB, seeded white noise at −42 dBFS RMS throughout |
+| logistics | Four-speaker event planning meeting, 14 turns without overlap |
+| logistics-overlap | Same utterances, seven handoffs advanced to overlap their predecessor by up to one second |
+| stocktake | Held-out single-speaker inventory update with a correction, quantities and an 18-second silent break |
+| silence | Twelve seconds of digital silence, with empty text and speaker references |
+
+Build the seven-recording baseline from the repository root. Omit `--suite baseline` to build all 17 recordings, including the [action-evidence calls](#action-evidence-benchmark). The generator reuses matching seed-7 recordings, stages each new recording before publishing it, and verifies regenerated controls byte for byte. Each folder has its own WAV, manifest, transcript and speaker intervals.
+
+```bash
+S=experiments/synthetic-call
+uv run --locked --project "$S" "$S/collection.py" --suite baseline
+```
+
+Build and set up the [pipeline including Who](../pipelines/whisper-sortformer/README.md#setup-once-needs-the-network), and build `diarexp` as in the [runner guide](../../docs/runners.md). Restore LS-EEND and Community-1 from the immutable revisions below before the extended comparisons. The installer verifies every file and the complete model-folder digest, and refuses to replace a changed cache. The pipeline setup caches Whisper. Cache Breeze and the 442 MiB quantized Turbo snapshot with the commands below. The benchmark runs the models serially and preserves logs and prior cases on failure. All Python helpers, including the review-skill subprocesses, use a locked uv project environment.
+
+```bash
+S=experiments/synthetic-call
+P=experiments/pipelines/whisper-sortformer
+uv run --locked --project "$P" "$P/weights.py" setup ls-eend speaker-diarization
+uv run --locked --project experiments/mlx hf download eoleedi/Breeze-ASR-25-mlx \
+  --revision 172151e3fd93ab6dc841d639f23dd48b24bc8301
+uv run --locked --project experiments/mlx hf download mlx-community/whisper-large-v3-turbo-q4 \
+  --revision 660c343bbf4e52ac257f0b7d952e5388e6f93bef
+RESULTS=$(mktemp -d)
+"$S/benchmark.sh" "$RESULTS"
+```
+
+Each case writes `scores.json` for the base matrix and `extension/scores.json` including Turbo with text errors, one-to-one speaker-time errors, word-label agreement, wall time and peak footprint, along with the raw model outputs. A case requires a fresh output folder. To retry one case, run `benchmark.sh COLLECTION_DIR NEW_RESULTS_ROOT CASE`, then `compare_fast.sh RECORDING_DIR NEW_RESULTS_ROOT/CASE`. If just the extension fails, move its partial folder aside and rerun `compare_fast.sh` on the completed base case. The extension repeats each ASR twice on the handoff and on silence. It also scores turn order for each speech case with the review skill and validates the resulting dataset. The full benchmark also scans all cases for five-second runs of exact digital silence, then tries splitting and restoring timestamps on affected recordings. Its separate `silence-split/scores.json` records which inputs passed through untouched. The two clean scripts run the normal recap stage and the same summary model on the exact scripted transcript. See the [experiment report](../../docs/experiments/2026-11-01-synthetic-collection.md) for results, limitations and benchmark audio digests.
+
+## Action evidence benchmark
+
+The ten [action scripts and keys](action-scripts/) contain 14 final commitments and one meeting with none. Each key names the deliverable, final owner, deadline and supporting turns. The extractor receives only named, timestamped transcript lines. See the [experiment report](../../docs/experiments/2026-11-01-action-evidence.md).
+
+From the repository root, build the pipeline's Swift diarizer as documented in its README. Use `setup --asr all` to cache **both Turbo Q4 and full Whisper**, plus Qwen and Sortformer, before going offline. Every action-benchmark phase checks that all of these models and the required executables are available before creating output or starting inference. Choose an output directory outside Git. The primary run creates four extractions per recording and preserves the raw replies, exact inputs, timing logs, audio-stage outputs and speaker mapping.
+
+```bash
+S=experiments/synthetic-call
+P=experiments/pipelines/whisper-sortformer
+uv run --locked --project "$P" "$P/recap.py" setup --asr all
+uv run --locked --project "$P" "$P/recap.py" preflight --asr all
+uv run --locked --project "$S" "$S/collection.py" --suite actions
+RESULTS=$(mktemp -d)
+uv run --locked --project "$S" "$S/action_bench.py" "$RESULTS"
+uv run --locked --project "$S" "$S/action_bench.py" "$RESULTS" --labels-only
+uv run --locked --project "$S" "$S/action_bench.py" "$RESULTS" --verify-only
+uv run --locked --project "$S" "$S/action_bench.py" "$RESULTS" --large-only
+uv run --locked --project "$S" "$S/score_actions.py" inspect "$RESULTS" --case poster
+uv run --locked --project "$S" "$S/score_actions.py" score "$RESULTS"
+```
+
+Each case needs a fresh case directory. Use repeated `--case ID` options to run a subset or complete cases after an interruption. Preserve an incomplete case directory elsewhere before retrying it. Scoring replays the recorded semantic judgments only when the script, audio, speaker map, inputs and predictions match. When outputs change, inspect the anonymized prediction IDs and actual cited lines, supply a new verdict file with `--verdicts`, and keep it with that run.
+
+### Replay the published scores without models
+
+[`reference/action-replay.json`](reference/action-replay.json) contains 200 original scoring files from the fictional calls: timestamped transcript inputs, normalized predictions, speaker mappings, hashes and timing records. The bundle preserves their exact bytes. It excludes audio, logs and machine paths. These are the original inputs to the 2026-11-01 scorer, not outputs reconstructed from its aggregate counts.
+
+From a fresh checkout, this standard-library-only command needs no model downloads or MLX environment:
+
+```bash
+uv run --no-project --python 3.12 python experiments/synthetic-call/replay_actions.py check
+```
+
+It checks the file allowlist and hashes, the original verdict bindings, and equality with all 70 published case/condition results and aggregate fields. Timings are replayed records; they are not newly measured. This verifies scoring reproducibility, not independent semantic grading or repeatability of model inference. To re-export the same evidence from the original local run, use `replay_actions.py export RESULTS NEW_BUNDLE.json`; export refuses outputs that do not reproduce the published report.
+
 ## Use with the review skill
 
 Keep the dataset outside the checkout (the skill refuses one inside it). From the repository root, with `DATASET` set to a new folder:

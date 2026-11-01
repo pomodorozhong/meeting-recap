@@ -23,6 +23,7 @@ Pick any folder outside a repository. If it does not exist yet, create the datas
 | [docs/](docs/) | [Status](docs/README.md), [decisions](docs/decisions.md), [runner guide](docs/runners.md), [investigation plan](docs/investigation-plan.md), [review guide](docs/review-guide.md). |
 | [docs/experiments/](docs/experiments/) | Public summary of each experiment: question, pinned setup, runtime, scores, decision, open questions. |
 | [experiments/](experiments/) | One self-contained experiment per folder, with its own code and pinned dependencies. |
+| [experiments/synthetic-call/](experiments/synthetic-call/README.md#recording-collection-and-unattended-benchmark) | Generate the synthetic recording collection and benchmark the local models against known text and speakers. |
 | `experiments/pipelines/` | Candidate pipelines for saved recordings, one per folder, compared before one is chosen. |
 | `app/` | The final app and its own pipeline, once one candidate is chosen. Depends on nothing in `experiments/`. |
 | [.agents/skills/meeting-experiment-review/](.agents/skills/meeting-experiment-review/) | Agent skill for running experiments on private recordings, listening reviews, and scoring. |

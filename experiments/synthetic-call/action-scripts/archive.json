@@ -1,0 +1,57 @@
+{
+  "description": "Agreed work with no owner, plus an assigned deliverable.",
+  "speakers": {
+    "A": {
+      "voice": "vivian"
+    },
+    "B": {
+      "voice": "aiden"
+    },
+    "C": {
+      "voice": "dylan"
+    }
+  },
+  "turns": [
+    {
+      "speaker": "A",
+      "text": "我們確定星期四前要把舊檔案備份。"
+    },
+    {
+      "speaker": "B",
+      "text": "對，但負責備份的人還沒決定，先不要填名字。"
+    },
+    {
+      "speaker": "C",
+      "text": "另一件事，我來更新資料夾索引，沒有截止日期。"
+    },
+    {
+      "speaker": "A",
+      "text": "收到，索引和備份是分開的兩件事。"
+    },
+    {
+      "speaker": "B",
+      "text": "那今天先到這裡。"
+    }
+  ],
+  "actions": [
+    {
+      "id": "T1",
+      "task": "Back up the old files",
+      "owner": null,
+      "due": "by Thursday",
+      "support_turns": [
+        1,
+        2
+      ]
+    },
+    {
+      "id": "T2",
+      "task": "Update the folder index",
+      "owner": "C",
+      "due": null,
+      "support_turns": [
+        3
+      ]
+    }
+  ]
+}

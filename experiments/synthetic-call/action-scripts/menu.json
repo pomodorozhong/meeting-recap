@@ -1,0 +1,44 @@
+{
+  "description": "Cancellation followed by replacement at a different deadline.",
+  "speakers": {
+    "A": {
+      "voice": "aiden"
+    },
+    "B": {
+      "voice": "vivian"
+    }
+  },
+  "turns": [
+    {
+      "speaker": "A",
+      "text": "原先排了星期二印紙本菜單。"
+    },
+    {
+      "speaker": "B",
+      "text": "紙本取消，這次只做電子版。"
+    },
+    {
+      "speaker": "A",
+      "text": "知道了。我星期四把電子菜單放上網站。"
+    },
+    {
+      "speaker": "B",
+      "text": "好，就等星期四的網站更新。"
+    },
+    {
+      "speaker": "A",
+      "text": "印刷的那張工單已經撤掉了。"
+    }
+  ],
+  "actions": [
+    {
+      "id": "T1",
+      "task": "Publish the electronic menu on the website",
+      "owner": "A",
+      "due": "Thursday",
+      "support_turns": [
+        3
+      ]
+    }
+  ]
+}

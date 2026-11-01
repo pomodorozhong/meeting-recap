@@ -1,0 +1,63 @@
+{
+  "description": "Print handoff with a change of owner.",
+  "speakers": {
+    "A": {
+      "voice": "vivian"
+    },
+    "B": {
+      "voice": "dylan"
+    },
+    "C": {
+      "voice": "ryan"
+    }
+  },
+  "turns": [
+    {
+      "speaker": "A",
+      "text": "先說海報的事。我原本答應明天送去印。"
+    },
+    {
+      "speaker": "B",
+      "text": "你明天要出差吧？改由我送印海報，期限還是明天。"
+    },
+    {
+      "speaker": "A",
+      "text": "好，海報交給你，我不用送了。"
+    },
+    {
+      "speaker": "C",
+      "text": "那我星期五以前把報名名單寄出去。"
+    },
+    {
+      "speaker": "B",
+      "text": "名單寄給服務台就可以了。"
+    },
+    {
+      "speaker": "C",
+      "text": "收到，我會寄給服務台。"
+    }
+  ],
+  "actions": [
+    {
+      "id": "T1",
+      "task": "Send the poster to print",
+      "owner": "B",
+      "due": "tomorrow",
+      "support_turns": [
+        2,
+        3
+      ]
+    },
+    {
+      "id": "T2",
+      "task": "Email the registration list to the service desk",
+      "owner": "C",
+      "due": "by Friday",
+      "support_turns": [
+        4,
+        5,
+        6
+      ]
+    }
+  ]
+}

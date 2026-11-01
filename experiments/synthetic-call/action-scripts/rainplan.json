@@ -1,0 +1,47 @@
+{
+  "description": "An untriggered contingency and an unconditional booking.",
+  "speakers": {
+    "A": {
+      "voice": "vivian"
+    },
+    "B": {
+      "voice": "ryan"
+    },
+    "C": {
+      "voice": "dylan"
+    }
+  },
+  "turns": [
+    {
+      "speaker": "A",
+      "text": "如果氣象局發布警報，我們才租接駁車。"
+    },
+    {
+      "speaker": "B",
+      "text": "目前沒有警報，也沒有人去訂車。"
+    },
+    {
+      "speaker": "C",
+      "text": "不管天氣，我都會在中午前預訂室內教室。"
+    },
+    {
+      "speaker": "A",
+      "text": "好，室內教室照訂，接駁車等警報再談。"
+    },
+    {
+      "speaker": "B",
+      "text": "這樣清楚了。"
+    }
+  ],
+  "actions": [
+    {
+      "id": "T1",
+      "task": "Reserve an indoor classroom",
+      "owner": "C",
+      "due": "before noon",
+      "support_turns": [
+        3
+      ]
+    }
+  ]
+}

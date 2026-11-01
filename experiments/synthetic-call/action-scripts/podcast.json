@@ -1,0 +1,63 @@
+{
+  "description": "Narrowed scope and distinct audio deliverables.",
+  "speakers": {
+    "A": {
+      "voice": "ryan"
+    },
+    "B": {
+      "voice": "vivian"
+    },
+    "C": {
+      "voice": "dylan"
+    },
+    "D": {
+      "voice": "aiden"
+    }
+  },
+  "turns": [
+    {
+      "speaker": "A",
+      "text": "這次訪談有兩集，是不是兩集都要剪？"
+    },
+    {
+      "speaker": "B",
+      "text": "第二集先留著，今天只安排第一集。"
+    },
+    {
+      "speaker": "C",
+      "text": "好，我星期三把第一集的雜音剪掉。"
+    },
+    {
+      "speaker": "D",
+      "text": "我來整理第一集的逐字稿，下週一以前交。"
+    },
+    {
+      "speaker": "A",
+      "text": "那第二集有人接嗎？"
+    },
+    {
+      "speaker": "B",
+      "text": "還沒有，也沒有排進這次工作。"
+    }
+  ],
+  "actions": [
+    {
+      "id": "T1",
+      "task": "Remove noise from episode one",
+      "owner": "C",
+      "due": "Wednesday",
+      "support_turns": [
+        3
+      ]
+    },
+    {
+      "id": "T2",
+      "task": "Prepare the transcript of episode one",
+      "owner": "D",
+      "due": "by next Monday",
+      "support_turns": [
+        4
+      ]
+    }
+  ]
+}

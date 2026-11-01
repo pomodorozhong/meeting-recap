@@ -1,0 +1,59 @@
+{
+  "description": "Two owners and two similar ticket batches.",
+  "speakers": {
+    "A": {
+      "voice": "dylan"
+    },
+    "B": {
+      "voice": "ryan"
+    },
+    "C": {
+      "voice": "vivian"
+    },
+    "D": {
+      "voice": "aiden"
+    }
+  },
+  "turns": [
+    {
+      "speaker": "A",
+      "text": "週末演出的票有兩種，別寄反了。"
+    },
+    {
+      "speaker": "B",
+      "text": "我今天把學生票寄給學校。"
+    },
+    {
+      "speaker": "C",
+      "text": "團體票歸我，我明天把團體票寄給旅行社。"
+    },
+    {
+      "speaker": "D",
+      "text": "旅行社的地址昨天已經更新好了。"
+    },
+    {
+      "speaker": "A",
+      "text": "好，地址不用再改，照剛才的分工寄。"
+    }
+  ],
+  "actions": [
+    {
+      "id": "T1",
+      "task": "Send student tickets to the school",
+      "owner": "B",
+      "due": "today",
+      "support_turns": [
+        2
+      ]
+    },
+    {
+      "id": "T2",
+      "task": "Send group tickets to the travel agency",
+      "owner": "C",
+      "due": "tomorrow",
+      "support_turns": [
+        3
+      ]
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "description": "Fictional single-speaker inventory update with mixed-language item names, quantities, corrections and a long silent break.",
+  "speakers": {"A": {"voice": "aiden"}},
+  "turns": [
+    {"speaker": "A", "text": "這是一段盤點紀錄。我先報庫存，等一下再核對包裝上的數字。"},
+    {"speaker": "A", "text": "白色的 USB 線還有十二條，黑色的剩下三條。"},
+    {"speaker": "A", "text": "更正一下，黑色那一箱裡面還有兩條，所以總共是五條。"},
+    {"speaker": "A", "text": "我先看一下架子上的標籤。"},
+    {"speaker": "A", "text": "回來了。標籤寫的是六月十五號到貨，型號沒有變。", "gap_seconds": 18.0},
+    {"speaker": "A", "text": "今天先不用補貨，星期一再檢查轉接頭的數量。"}
+  ]
+}

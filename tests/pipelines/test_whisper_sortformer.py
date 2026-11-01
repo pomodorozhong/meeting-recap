@@ -234,6 +234,19 @@ class Runs(unittest.TestCase):
         self.assertEqual(self.main("run", str(self.audio), str(self.out), "--resume"), 1)
         self.assertEqual(self.main("run", str(self.audio), str(self.out), "--resume", "--diarizer", "who"), 0)
 
+    def test_asr_choice_is_pinned_and_resume_respects_legacy_runs(self):
+        self.assertEqual(self.main("run", str(self.audio), str(self.out), "--asr", "turbo-q4", "--no-summary"), 0)
+        path = self.out / "run.json"
+        manifest = json.loads(path.read_text())
+        self.assertEqual(manifest["models"]["asr"], "@".join(recap.pins.ASR_MODELS["turbo-q4"]))
+        self.assertEqual(self.main("run", str(self.audio), str(self.out), "--resume", "--no-summary"), 1)
+        self.assertEqual(self.main("run", str(self.audio), str(self.out), "--asr", "turbo-q4", "--resume", "--no-summary"), 0)
+        # Before the ASR selector, every saved run used large-v3.
+        manifest.pop("asr_model")
+        manifest["models"]["asr"] = "@".join(recap.pins.ASR_MODELS["large-v3"])
+        path.write_text(json.dumps(manifest))
+        self.assertEqual(self.main("run", str(self.audio), str(self.out), "--resume", "--no-summary"), 0)
+
     def test_resume_refuses_a_different_recording(self):
         self.failing = {"asr"}
         self.main("run", str(self.audio), str(self.out))

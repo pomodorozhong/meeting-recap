@@ -33,6 +33,12 @@ The unmodified full Whisper emitted the same 20 alphanumeric characters twice on
 
 Before reading any new recap, also run the earlier Turbo Q4 / Who combination end to end on the same onboarding and English audit recordings. Use identical spoken-language settings, the ordinary Qwen prompt, the same nine checks, and the same default full Whisper / Sortformer comparator. These two inputs stress different failure modes (four-speaker ownership versus single-speaker corrections). Reuse PR #31’s pinned model selector with the new language routing; retain full Whisper as the default. This checks the earlier finding that faster component times and readable Markdown need not preserve owners, dates, or corrected decisions.
 
+### Registered recap iteration: retain ASR segment boundaries
+
+The fast English audit emitted 37 invalid citation timestamps and left 21 items without citations; the rendered mono transcript provided only two long lines. Test a formatting change on cached inputs: retain a new timestamped transcript line at every Whisper segment boundary, still attaching each word to its original diarization by overlap. Keep the transcript and recap input lines identical, model, prompt, speaker names and segments fixed. Preserve the old outputs. Run the fast audit (development) and fast onboarding (transfer) versus their completed outputs. Add an English training comparison whose recaps have not been generated yet, using the same saved Turbo and Who predictions for both formats. Freeze three training anchors: final count of 18 verified (turns 7/8/18); A's checklist revision by Wednesday noon (21); B's practice check by Thursday at ten (22).
+
+For each format count lines, dropped citations and items without citations. Regrade the existing facts; additionally count fully correct facts for which the cited lines, together, actually state the expected information (timestamps must refer to displayed lines, and owner checks use the same independently fitted label mapping). More valid timestamps alone is not a pass. Keep the change as an option only if the audit has fewer uncited items and at least one more fully supported anchor, with no loss of full factual anchors on any of the three cases. Otherwise keep it as a failed or mixed experiment. This is exploratory and the audit triggered it.
+
 ## Restart
 
 Use the locked synthetic and pipeline projects, pipeline setup and Swift binaries in their READMEs; use the MLX run.py CLI with repo, language and pinned revision. The previous benchmark's score_case.py, turn_order.py and silence_split.py at c714e05 define the historical metrics. Use the new collection's language-aware transcript scorer. Store raw calls, predictions and individual judgments outside Git. Public results contain counts and digests only.
@@ -60,11 +66,31 @@ The last command is a model-free replay of the transcript, timing, speaker and p
 
 ## Runtime and memory
 
-Pending.
+One inference process ran at a time on the M2 Pro / 16 GB. Timings include process startup, model load and device teardown; the desktop was in normal use. A two-job Swift compilation overlapped part of the early English audit and silence timing. Toolchain caches were warm. These are individual observations on this machine, not latency guarantees.
+
+| ASR, script-matched language | Median wall time, 17 fixtures | Total stage time | Peak process footprint | Fastest on |
+| --- | ---: | ---: | ---: | --- |
+| Full Whisper | 15.84 s | 344.99 s | 9.00 GB | 0 |
+| Turbo Q4 | 7.86 s | 181.81 s | 4.14 GB | All 16 speech recordings |
+| Breeze | 30.59 s | 640.58 s | 12.92 GB | Digital silence |
 
 ## Results and limits
 
-Pending.
+### Recognition
+
+The 17 audio files span 33.76 minutes. Two earlier WAVs are byte-identical (stocktake and digital silence); five earlier conditions now have different waveforms. Fourteen independent source calls contribute to language scores. The stressed handoff and logistics mixes repeat source text and are excluded. Each rate is total edits divided by total language-specific reference units.
+
+| Word-timestamp recognizer | English WER (6 calls; 3,028 words) | Mandarin CER (8 calls; 3,095 characters) |
+| --- | ---: | ---: |
+| Shipping full Whisper, Mandarin forced everywhere | 84.41% (2,556) | 9.98% (309) |
+| Full Whisper, declared language | 2.18% (66) | 9.98% (309) |
+| Turbo Q4, declared language | **1.98% (60)** | **7.59% (235)** |
+| Breeze, declared language | 7.43% (225) | 12.08% (374) |
+| Published full Whisper component, no word timestamps | 1.88% (57) | 9.27% (287) |
+
+English routing improved every English call. The “Turbo never loses” result **does not transfer**: full Whisper made fewer edits on four Mandarin scripts (planning, scheduling, design, localization) and two English scripts (design, tabletop). Turbo's 74-edit aggregate Mandarin advantage includes 66 edits from onboarding. No word-timestamp configuration beats the published component in both language groups. That component also uses temperature zero; the production-style arms use the existing decoder defaults. The comparison does not isolate timestamping as the cause.
+
+On the identical stocktake WAV, the original 48/48/17 errors for full/Turbo/Breeze reproduced. On the resynthesized logistics pair all three worsened with overlap (28→35, 20→34, 17→31 edits). On the attenuated handoff the changes were 32→13, 13→16, 11→11: the old finding that Breeze improved on that specific degradation did not repeat. On identical silence full/Turbo/Breeze again emitted 20/35/0 normalized characters. Both raw-versus-repeat checks matched each model's normalized text on handoff and silence. Generated scripts are intended speech; TTS pronunciation can contribute to text errors.
 
 ## Decision and open questions
 

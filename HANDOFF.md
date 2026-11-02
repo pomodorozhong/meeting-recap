@@ -2,6 +2,44 @@
 
 ## In progress
 
+### codex/synthetic-recording-collection
+
+- Related to #4. This local branch starts at `origin/main` (`01eb50d`). Source checkpoint `b4b1c42` contains the seven-recording collection, its reference hashes, instructions and tests. The broader experiments are in [draft PR #31](https://github.com/pomodorozhong/meeting-recap/pull/31).
+- A separate checkout of `b4b1c42` regenerated the seven recordings into an empty directory on the reference M2 Pro. All 21 WAV, transcript and interval files matched the independent first build byte for byte, and all seven WAVs matched their historical hashes. Checking and reusing existing outputs succeeded with an empty model cache and preserved file modification times. Both modes refused and preserved an altered transcript. All 12 synthetic-call tests and the uv lock check passed.
+- P-03 awaits approval to push this finished branch and open a draft PR against `main` with the title `feat(synthetic-call): add a seven-recording test collection` and the body below. The open-pr skill requires approval of the finished tip and body before publication. The branch is unlinked and closes no issues.
+
+````markdown
+## What changed
+
+- Add handoff, logistics, and stocktake scripts alongside the existing planning call. Generate all four calls with the pinned speech generator.
+- Add controls for a noisy handoff with one quieter speaker, a logistics call with seven overlapping handoffs, and twelve seconds of silence.
+- Save a WAV, scripted transcript, speaker intervals, and a manifest for each of the seven fixtures.
+
+## Why
+
+Testing the effect of a degraded channel or overlapping turns requires a matched pair. Reusing the same utterances keeps words and voices fixed while the audio condition changes. The silence fixture gives runners a case where the expected transcript and speaker intervals are both empty.
+
+## Verification
+
+From the repository root, build the collection, verify it against the pinned hashes, and run the synthetic-call tests.
+
+```bash
+S=experiments/synthetic-call
+OUT=$(mktemp -d)
+uv run --locked --project "$S" python "$S/collection.py" "$OUT"
+uv run --locked --project "$S" python "$S/collection.py" "$OUT" --check
+uv run --locked --project "$S" python -m unittest discover -s tests/synthetic_call -t tests/synthetic_call
+```
+
+- On an M2 Pro, a fresh checkout reproduced all 21 WAV, transcript, and speaker-interval files byte for byte. All seven WAVs also matched their historical hashes.
+- Verification and reuse succeeded with an empty model cache. Both detected a modified transcript and preserved its contents.
+- All 12 synthetic-call tests passed.
+
+## Related issue / reference
+
+Related to #4, which tracks shareable synthetic recordings for testing. The earlier benchmark using these seven recordings is in #31.
+````
+
 ### feat/pipeline-baseline
 
 - Saved synthetic-call runs of the pipeline, stacked on #29; to be rebuilt on the synthetic-call scorer. Read that branch's own `HANDOFF.md`.

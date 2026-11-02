@@ -1,4 +1,4 @@
-"""Build or verify the ten seed-7 synthetic recordings."""
+"""Build or verify the eleven seed-7 synthetic recordings."""
 import argparse
 import hashlib
 import json
@@ -23,6 +23,7 @@ SCRIPTS = {
     "scheduling": HERE / "scripts/scheduling.json",
     "design": HERE / "scripts/design.json",
     "onboarding": HERE / "scripts/onboarding.json",
+    "localization": HERE / "scripts/localization.json",
 }
 REFERENCE = HERE / "reference/collection-sha256.json"
 PAYLOADS = ("call.wav", "transcript.json", "segments.json")

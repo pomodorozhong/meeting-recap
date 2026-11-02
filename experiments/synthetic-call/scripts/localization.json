@@ -1,0 +1,21 @@
+{
+  "description": "Fictional localization review with three female speakers, a corrected error message, rejected troubleshooting advice and an unresolved export check.",
+  "speakers": {"A": {"voice": "emotivoice-1093"}, "B": {"voice": "emotivoice-1012"}, "C": {"voice": "emotivoice-1066"}},
+  "turns": [
+    {"speaker": "A", "text": "今天確認上線前的中英文說明，先對一下畫面上的錯誤訊息。"},
+    {"speaker": "B", "text": "我原本把 timeout 寫成連線失敗，這個翻譯可以嗎？"},
+    {"speaker": "C", "text": "不完全一樣。我們只知道等待超過時間，還不能說連線已經中斷。"},
+    {"speaker": "A", "text": "那中文改成等待逾時，英文保留 timeout。原因先不要寫死。"},
+    {"speaker": "B", "text": "好，我來修改畫面文字，星期三下午三點以前交。"},
+    {"speaker": "C", "text": "我負責核對操作說明，星期四中午以前回報。"},
+    {"speaker": "A", "text": "另外，說明文件現在寫要重新安裝，我們有確認這個方法有效嗎？"},
+    {"speaker": "B", "text": "還沒有，只在一台測試機上試過。"},
+    {"speaker": "C", "text": "那就先拿掉重新安裝這一步，改請使用者提供發生時間。"},
+    {"speaker": "A", "text": "同意。先收集發生時間和錯誤代碼，其他方法等測試後再決定。"},
+    {"speaker": "B", "text": "我也會補上一個範例，說明 log 檔要從哪個選單匯出。"},
+    {"speaker": "C", "text": "log 檔會不會帶到帳號資料？這一點還需要確認。"},
+    {"speaker": "A", "text": "對，匯出內容先交給資安檢查，還沒確認以前不對外開放。"},
+    {"speaker": "B", "text": "收到，畫面文字先改，匯出功能維持關閉。"},
+    {"speaker": "C", "text": "我會把待確認的項目列在文件最後，星期四一起回報。"}
+  ]
+}

@@ -55,5 +55,11 @@
     "transcript.json": "51c916110986a65520d9e3d657e6ebb471979d9b05a6263e77ba14563465c153",
     "segments.json": "98d67c6d3b8e409da39dc86594e4edb11f6e3306778ffeb2d8285e5bcff34525",
     "script_sha256": "7abf5c7b2a41075f75b863663904ef8e7eba71d064dba2c87e552fc107b3af5d"
+  },
+  "localization": {
+    "call.wav": "9764f105eef64095f391358954e3d8e696b666ad301b6ac15e7ed6a88aed8c93",
+    "transcript.json": "486887db563aadc677d08824eea8adabee7f769cf25f18ad852ae398d3a377fa",
+    "segments.json": "d9c683f1b406402cb185d19e82d7d7b16ceb5f51c92c67e18e359a26772edd64",
+    "script_sha256": "9f9e7c29ca122764bc51d04c05833262aedf0f7b1243ada785da8ca0421756fb"
   }
 }

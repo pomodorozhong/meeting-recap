@@ -1,4 +1,4 @@
-"""Speak a fictional script with pinned Qwen presets and the F5 female reference.
+"""Speak a fictional script with pinned Qwen, F5 and EmotiVoice profiles.
 
 Usage: uv run generate.py [script.json] [out_dir] [seed]
 Defaults are script.json, out/<script name>/ and seed 7. F5 turns supply an
@@ -11,6 +11,7 @@ import sys
 import time
 
 from f5_voice import F5Voice, VOICE_ID, provenance
+from emoti_voice import VOICE_IDS as EMOTI_VOICES, provenance as emoti_provenance, render_turns
 
 MODEL = ("mlx-community/Qwen3-TTS-12Hz-1.7B-CustomVoice-bf16",
          "52f4770fd9726457eae3d3b6aa92047a25a10776")
@@ -21,13 +22,20 @@ HERE = Path(__file__).resolve().parent
 def voice_configuration(speakers):
     """Describe the engines and voice inputs without loading speech models."""
     voices = {speaker["voice"] for speaker in speakers.values()}
+    unknown_emoti = {voice for voice in voices if voice.startswith("emotivoice-")} - EMOTI_VOICES
+    if unknown_emoti:
+        raise ValueError(f"unsupported EmotiVoice profiles: {sorted(unknown_emoti)}")
     config = {"model": {}}
-    if voices - {VOICE_ID}:
+    if voices - {VOICE_ID} - EMOTI_VOICES:
         config["model"][MODEL[0]] = MODEL[1]
     if VOICE_ID in voices:
         pin = provenance()
         config["model"].update(pin["models"])
         config["voice_config"] = {VOICE_ID: pin}
+    for voice in sorted(voices & EMOTI_VOICES):
+        pin = emoti_provenance(voice)
+        config["model"].update(pin["models"])
+        config.setdefault("voice_config", {})[voice] = pin
     return config
 
 
@@ -41,10 +49,8 @@ def level(clip):
 
 
 def generate(script_path, out, seed=7):
-    import mlx.core as mx
     import numpy as np
     import soundfile as sf
-    from mlx_audio.tts.utils import load_model
     from scipy.signal import resample_poly
 
     script = json.loads(script_path.read_text())
@@ -58,21 +64,29 @@ def generate(script_path, out, seed=7):
     config = voice_configuration(speakers)
     (out / "turns").mkdir(parents=True, exist_ok=True)
     started = time.time()
-    qwen = load_model(MODEL[0], revision=MODEL[1]) if MODEL[0] in config["model"] else None
-    female = F5Voice()
     clips = []
-    for i, turn in enumerate(turns):
-        voice = speakers[turn["speaker"]]["voice"]
-        if voice == VOICE_ID:
-            audio, rate = female.generate(turn["text"], turn["tts_duration_seconds"], seed)
-        else:
-            mx.random.seed(seed + i)
-            audio = np.concatenate([np.array(result.audio, dtype=np.float32) for result in
-                                    qwen.generate(text=turn["text"], voice=voice, lang_code="chinese")])
-            rate = qwen.sample_rate
-        clips.append(level(resample_poly(audio, RATE, rate).astype(np.float32)))
-        sf.write(out / "turns" / f"{i + 1:02d}-{turn['speaker']}.wav", clips[-1], RATE)
-        print(f"{i + 1}/{len(turns)} {turn['speaker']} {len(clips[-1]) / RATE:.1f}s", flush=True)
+    with render_turns(turns, speakers, seed) as emoti:
+        qwen = None
+        if MODEL[0] in config["model"]:
+            import mlx.core as mx
+            from mlx_audio.tts.utils import load_model
+
+            qwen = load_model(MODEL[0], revision=MODEL[1])
+        female = F5Voice() if VOICE_ID in config.get("voice_config", {}) else None
+        for i, turn in enumerate(turns):
+            voice = speakers[turn["speaker"]]["voice"]
+            if voice in EMOTI_VOICES:
+                audio, rate = sf.read(emoti[i], dtype="float32")
+            elif voice == VOICE_ID:
+                audio, rate = female.generate(turn["text"], turn["tts_duration_seconds"], seed)
+            else:
+                mx.random.seed(seed + i)
+                audio = np.concatenate([np.array(result.audio, dtype=np.float32) for result in
+                                        qwen.generate(text=turn["text"], voice=voice, lang_code="chinese")])
+                rate = qwen.sample_rate
+            clips.append(level(resample_poly(audio, RATE, rate).astype(np.float32)))
+            sf.write(out / "turns" / f"{i + 1:02d}-{turn['speaker']}.wav", clips[-1], RATE)
+            print(f"{i + 1}/{len(turns)} {turn['speaker']} {len(clips[-1]) / RATE:.1f}s", flush=True)
     elapsed = time.time() - started
 
     segments, cursor, lead = [], 0.0, 0.5

@@ -1,12 +1,12 @@
 # Synthetic call
 
-A short, shareable three-person call for running the runners, the pipeline, and the review skill without private data ([#4](https://github.com/pomodorozhong/meeting-recap/issues/4)). The collection uses a pinned F5-TTS female reference and Qwen3-TTS male presets. See the [ten-recording collection](#ten-recording-collection) for other speaker counts and controlled changes to the audio.
+A short, shareable three-person call for running the runners, the pipeline, and the review skill without private data ([#4](https://github.com/pomodorozhong/meeting-recap/issues/4)). The collection uses pinned F5-TTS and EmotiVoice female profiles with Qwen3-TTS male presets. See the [eleven-recording collection](#eleven-recording-collection) for other speaker counts and controlled changes to the audio.
 
 ## What it makes
 
 [`script.json`](script.json) is a fictional sprint-planning call in Taiwanese Mandarin with English product terms: three speakers (A, B, C), 73 turns, with short interjections, an interruption, and four overlaps (a negative `gap_seconds`). It covers a login bug, dashboard performance, a push-notification feature, CI and Docker tech debt, and a demo date.
 
-[`generate.py`](generate.py) speaks a script through MLX on the GPU, using F5-TTS for the female voice and Qwen3-TTS CustomVoice presets for the male voices, and writes, under `out/<script name>/` (ignored by Git):
+[`generate.py`](generate.py) speaks Qwen and F5 turns through MLX on the GPU and batches EmotiVoice turns in the locked CPU project. It writes under `out/<script name>/` (ignored by Git).
 
 | File | Holds |
 | --- | --- |
@@ -20,11 +20,23 @@ Audio is generated locally. [`reference/`](reference/) holds the planning call's
 
 ### Voices and the English-word gate
 
-The female voice is `f5-news-female`, generated with F5-TTS v1 4-bit through `f5-tts-mlx`. It uses the published `news-female.wav` demo reference from a pinned ZipVoice release. [`reference/f5-voice.json`](reference/f5-voice.json) records the archive URL and SHA-256, exact member, reference WAV hash and transcript, model and vocoder revisions, per-file hashes, and sampling settings. The reference clip is downloaded to the Hugging Face cache and checked before inference. Its source archive does not state a separate license for that reference recording.
+The F5 female profile is `f5-news-female`, generated with F5-TTS v1 4-bit through `f5-tts-mlx`. It uses the published `news-female.wav` demo reference from a pinned ZipVoice release. [`reference/f5-voice.json`](reference/f5-voice.json) records the archive URL and SHA-256, exact member, reference WAV hash and transcript, model and vocoder revisions, per-file hashes, and sampling settings. The reference clip is downloaded to the Hugging Face cache and checked before inference. Its source archive does not state a separate license for that reference recording.
 
 Every F5 turn specifies `tts_duration_seconds` in its script. The handoff's three audition turns use 4.5, 5.5 and 3.8 seconds with seed 7, eight RK4 steps and CFG 2. The automatic duration predictor produced unusable output in this setup. The male voices are the pinned Qwen presets `dylan`, `ryan` and `aiden`.
 
-The female voice passed a fixed three-turn Mandarin screen. Unprompted Whisper Large v3 at revision `49e6aa286ad60c14352c404340ded53710378a11`, forced to Chinese with temperature zero and previous-text conditioning disabled, must recover standalone `log` and `timeout` in their original turns. A second decode checks word timestamps against turn boundaries with a 0.2-second tolerance. Mandarin character agreement after OpenCC conversion must reach 65%. The selected audition reached 97.9%, and independent process launches produced identical WAV bytes. After building the collection below, run the same gate on its generated, levelled 16 kHz handoff turns. It writes a JSON report with input hashes, recognition text, turn checks and the verdict.
+The localization call has three female speakers with EmotiVoice presets `emotivoice-1093`, `emotivoice-1012` and `emotivoice-1066`. Each ID selects its own factory speaker embedding. [The EmotiVoice pins](emotivoice/pins.json) cover source code, model and SimBERT files, phoneme resources and synthesis settings. Its [locked CPU project](emotivoice/pyproject.toml) uses Torch 2.10.0 and Transformers 4.57.6, matching the verified audition runtime. The main generator runs this child project once for all EmotiVoice turns before loading GPU models. The manifest records the selected voice pins and the child runtime lock hash.
+
+| Call speaker | Female profile |
+| --- | --- |
+| Planning A, handoff B, logistics A, scheduling A, design B, onboarding A | F5 female news voice |
+| Localization A | EmotiVoice 1093 |
+| Localization B | EmotiVoice 1012 |
+| Localization C | EmotiVoice 1066 |
+
+The three EmotiVoice profiles also pass the same English-word gate after level adjustment. Their native audition WAVs match the fixed reference auditions byte for byte.
+
+
+The F5 voice passed a fixed three-turn Mandarin screen. Unprompted Whisper Large v3 at revision `49e6aa286ad60c14352c404340ded53710378a11`, forced to Chinese with temperature zero and previous-text conditioning disabled, must recover standalone `log` and `timeout` in their original turns. A second decode checks word timestamps against turn boundaries with a 0.2-second tolerance. Mandarin character agreement after OpenCC conversion must reach 65%. The selected audition reached 97.9%, and independent process launches produced identical WAV bytes. After building the collection below, run the same gate on its generated, levelled 16 kHz handoff turns. It writes a JSON report with input hashes, recognition text, turn checks and the verdict.
 
 ```bash
 uv run --locked --project experiments/synthetic-call python \
@@ -47,9 +59,9 @@ From this folder, `uv run generate.py` is enough.
 
 Further arguments set the script, the output folder and the seed (default 7). The first run downloads the pinned speech models, vocoder and reference archive.
 
-## Ten-recording collection
+## Eleven-recording collection
 
-[collection.py](collection.py) builds seven fictional calls with the existing generator and seed 7, then derives three controls. The collection has ten main `call.wav` recordings, including seven scripted calls. Each folder contains `call.wav` (16 kHz mono PCM16), `transcript.json` (scripted text and turn times), `segments.json` (speaker intervals), and a manifest. The transcript is the intended script, not a listening judgment.
+[collection.py](collection.py) builds eight fictional calls with the existing generator and seed 7, then derives three controls. The collection has eleven main `call.wav` recordings, including eight scripted calls. Each folder contains `call.wav` (16 kHz mono PCM16), `transcript.json` (scripted text and turn times), `segments.json` (speaker intervals), and a manifest. The transcript is the intended script, not a listening judgment.
 
 | Folder | Input |
 | --- | --- |
@@ -60,6 +72,7 @@ Further arguments set the script, the output folder and the seed (default 7). Th
 | `scheduling` | Two speakers, 12 turns. The final appointment is Friday at 10:00 with seven seats and copies, after explicit corrections |
 | `design` | Three speakers, 15 turns. A five-minute cache replaces daily updates, backend ownership moves from B to C, and retention stays unresolved |
 | `onboarding` | Four speakers, 16 turns. C and D join late, speak twice each, and A returns after a 12-second pause |
+| `localization` | Three female speakers, 15 turns. Corrected error wording, rejected troubleshooting advice and an unresolved export check |
 | `handoff-channel` | Handoff with speaker B attenuated by 14 dB and seeded noise at −42 dBFS RMS; the reference timing stays fixed |
 | `logistics-overlap` | The same logistics utterances with seven overlapping handoffs; both reference files move with the audio |
 | `silence` | Twelve seconds of digital silence with empty text and speaker intervals |
@@ -75,7 +88,7 @@ uv run --locked --project "$S" python "$S/collection.py" "$OUT"
 uv run --locked --project "$S" python "$S/collection.py" "$OUT" --check
 ```
 
-The first command builds missing recordings in staging directories and reuses matching completed ones. Both commands verify the WAV, transcript and speaker intervals against [the collection hashes](reference/collection-sha256.json). They also verify the seven source scripts and each manifest's provenance; elapsed synthesis time can vary. An existing file that differs is left intact and reported by name. Use a fresh output directory to rebuild it. `--check` reads existing files without loading TTS or generating audio.
+The first command builds missing recordings in staging directories and reuses matching completed ones. Both commands verify the WAV, transcript and speaker intervals against [the collection hashes](reference/collection-sha256.json). They also verify the eight source scripts and each manifest's provenance; elapsed synthesis time can vary. An existing file that differs is left intact and reported by name. Use a fresh output directory to rebuild it. `--check` reads existing files without loading TTS or generating audio.
 
 The hashes describe seed 7 on the reference M2 Pro with the committed model revisions, female-reference hash, explicit F5 turn durations and uv lock. Other hardware or MLX versions can produce different bytes. To generate a local variant with its own references, run `generate.py` directly as described above.
 
@@ -154,9 +167,12 @@ uv run --project experiments/synthetic-call python -m unittest discover -s tests
 | [mlx-community/Qwen3-TTS-12Hz-1.7B-CustomVoice-bf16](https://huggingface.co/mlx-community/Qwen3-TTS-12Hz-1.7B-CustomVoice-bf16), MLX port of [Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice](https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice) | `52f4770fd9726457eae3d3b6aa92047a25a10776` | Apache-2.0 |
 | [F5-TTS MLX v1 4-bit](https://huggingface.co/lucasnewman/f5-tts-mlx), converted from [SWivid/F5-TTS](https://huggingface.co/SWivid/F5-TTS) | `2d719cadec8fd3887c8599475a5f65924d523654`, used files SHA-256 pinned | Original pretrained weights CC-BY-NC-4.0, MLX runtime code MIT |
 | [Vocos MLX](https://huggingface.co/lucasnewman/vocos-mel-24khz) | `ee89d00fac94b61e1235e0869f3e8d49711b7484`, used files SHA-256 pinned | MIT |
+| [EmotiVoice](https://github.com/netease-youdao/EmotiVoice) source and [published weights](https://huggingface.co/FPVG/EmotiVoice-pretrained-models) | Source `59f0f36de4db12825f4705dd4e0780d79dd6bb01`, weights `25c5d915525d8f661ad10a13c2b8e958b45a3d8a`, source and artifact SHA-256 pinned | Apache-2.0 upstream |
+| [SimBERT encoder mirror](https://huggingface.co/WangZeJun/simbert-base-chinese) | `8096d1f9a7f7c2d9dbd7974511c4bc4a1755932b`, all used files SHA-256 pinned | Apache-2.0 upstream SimBERT and bert4vec |
+| NLTK phoneme frontend resources | Immutable NLTK data revision and ZIP/extracted-file SHA-256 in `emotivoice/pins.json` | Resource metadata retained in pinned archives |
 | Published female reference in [ZipVoice demo archive](https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/sherpa-onnx-zipvoice-distill-int8-zh-en-emilia.tar.bz2) | Archive and exact reference WAV SHA-256 in `f5-voice.json` | Reference-specific redistribution terms are unstated in that archive |
 
-Dependencies are declared in [`pyproject.toml`](pyproject.toml) and every package is pinned in [`uv.lock`](uv.lock); `uv run` uses both when it runs in this folder or with `--project`. The locked environment reproduced the seed-7 `call_sha256`.
+Dependencies are declared in [`pyproject.toml`](pyproject.toml) and every package is pinned in [`uv.lock`](uv.lock); `uv run` uses both when it runs in this folder or with `--project`. The root environment and isolated EmotiVoice environment each have a committed lock. Check both with `uv lock --check --project experiments/synthetic-call` and `uv lock --check --project experiments/synthetic-call/emotivoice`. The generator prepares the locked child environment automatically when an EmotiVoice speaker is present.
 
 ## Input profile for comparable real recordings
 

@@ -7,6 +7,10 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 WHISPER_REPO = "mlx-community/whisper-large-v3-mlx"
 WHISPER_REVISION = "49e6aa286ad60c14352c404340ded53710378a11"
+ASR_MODELS = {
+    "large-v3": (WHISPER_REPO, WHISPER_REVISION),
+    "turbo-q4": ("mlx-community/whisper-large-v3-turbo-q4", "660c343bbf4e52ac257f0b7d952e5388e6f93bef"),
+}
 SUMMARY_REPO = "mlx-community/Qwen3.5-9B-4bit"
 SUMMARY_REVISION = "8b2b98c00a6b4d291155e4890773ca8f769aee53"
 

@@ -1,6 +1,6 @@
 # Synthetic call
 
-A short, shareable three-person call for running the runners, the pipeline, and the review skill without private data ([#4](https://github.com/pomodorozhong/meeting-recap/issues/4)). Status: generated, and scored end to end with Sortformer and the review skill.
+A short, shareable three-person call for running the runners, the pipeline, and the review skill without private data ([#4](https://github.com/pomodorozhong/meeting-recap/issues/4)). Status: generated, and scored end to end with Sortformer and the review skill. See the [seven-recording collection](#seven-recording-collection) for other speaker counts and controlled changes to the audio.
 
 ## What it makes
 
@@ -37,6 +37,33 @@ uv run --project experiments/synthetic-call experiments/synthetic-call/generate.
 From this folder, `uv run generate.py` is enough.
 
 Further arguments set the script, the output folder and the seed (default 7). The first run downloads the model (about 4 GB). The call takes about four minutes on an M2 Pro.
+
+## Seven-recording collection
+
+[collection.py](collection.py) builds four fictional calls with the existing generator and seed 7, then derives three controls. Each folder contains `call.wav` (16 kHz mono PCM16), `transcript.json` (scripted text and turn times), `segments.json` (speaker intervals), and a manifest. The transcript is the intended script, not a listening judgment.
+
+| Folder | Input |
+| --- | --- |
+| `script` | The existing three-speaker planning call, 73 turns |
+| `handoff` | Two-speaker incident handoff, 12 turns |
+| `logistics` | Four-speaker event planning call, 14 turns |
+| `stocktake` | Single-speaker inventory update, six turns with an 18-second pause |
+| `handoff-channel` | Handoff with speaker B attenuated by 14 dB and seeded noise at −42 dBFS RMS; the reference timing stays fixed |
+| `logistics-overlap` | The same logistics utterances with seven overlapping handoffs; both reference files move with the audio |
+| `silence` | Twelve seconds of digital silence with empty text and speaker intervals |
+
+From the repository root:
+
+```bash
+S=experiments/synthetic-call
+OUT=$(mktemp -d)
+uv run --locked --project "$S" python "$S/collection.py" "$OUT"
+uv run --locked --project "$S" python "$S/collection.py" "$OUT" --check
+```
+
+The first command builds missing recordings in staging directories and reuses matching completed ones. Both commands verify the WAV, transcript and speaker intervals against [the collection hashes](reference/collection-sha256.json). They also verify the four source scripts and each manifest's provenance; elapsed synthesis time can vary. An existing file that differs is left intact and reported by name. Use a fresh output directory to rebuild it. `--check` reads existing files without loading TTS or generating audio.
+
+The hashes describe seed 7 on the reference M2 Pro with the committed model revision and uv lock. Other hardware or MLX versions can produce different bytes. To generate a local variant with its own references, run `generate.py` directly as described above.
 
 ## Use with the review skill
 

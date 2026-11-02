@@ -1,0 +1,41 @@
+{
+  "script": {
+    "call.wav": "6b7011c6057821e04fe1b3cd78659297218e83d0ed899496e769eb4992a25d48",
+    "transcript.json": "10085bf046c01b20c7c86a3bc6a8c4453738502f7eb619731ae5b8dd32bb3b5e",
+    "segments.json": "d5af677f29d57309417140df8b36762b8a2e50be8261c5215f470646a400b332",
+    "script_sha256": "d6fc45e973e975019b060da7c279962f19ac0e338aac64f509182341755a42ed"
+  },
+  "handoff": {
+    "call.wav": "6c259af48403bcbacd811efc8da8fc73f086d96ae2ffe1ac7b478df470fe68b8",
+    "transcript.json": "1d3ff1859b21d8c646ae3871ee88bf50ec907647ea1deb5424387feaef33fcbb",
+    "segments.json": "0222b8d7319a2861ead93ab9bd9cb7f92ef77eac3bc47458cf1c9a227d5822a0",
+    "script_sha256": "a830ba1a23cbd768d70611682c45f98ba8b8ad0ca6ee6a5e00cd475ae9357f67"
+  },
+  "logistics": {
+    "call.wav": "8a99faaefca13ef113c058205e7ad10cdfffa2b3012d633e54309e15a8419def",
+    "transcript.json": "7c1a31b5d1771b2ca3e4dd49bbffaf0007a821fd064dfff88f4347cb7abdfd52",
+    "segments.json": "0337b6986cf96b16ac0eeade812fbeea504e38946abd70f3945542d8206b12ea",
+    "script_sha256": "db7d6061f5d35cbec4db8f04dbd1277b2cc888346d19f8e7c847479116ce39ea"
+  },
+  "stocktake": {
+    "call.wav": "feccd3b07c3131920541cdf4d3d4c193cd62b7aa3f3ce428d59d824ea701d6b1",
+    "transcript.json": "276e54715c9f1b3c69f81a085f36aea28d1967007ff241e3b58a6d253c12d816",
+    "segments.json": "5f1bc874ee67821fb221df3414c1c89051432611bdaf54c47f3fa459eaea78a5",
+    "script_sha256": "5ea6e4f459ee72d6be7916eba5a5a515282ba21b992154faa8c1a7535a47b3ea"
+  },
+  "handoff-channel": {
+    "call.wav": "ba5701bc8cac70a7ef7933c9a5ff1e07e0611c9b3381f1cf7a77665e88456de3",
+    "transcript.json": "c6822fc9ba7bfcfed7df1e0ad43288adb7ce210afa73cd28255964ae5d9719bf",
+    "segments.json": "44222b21eae6c0f277327f0e4938a32e842384225c0ca80976af20f5ccffaa7a"
+  },
+  "logistics-overlap": {
+    "call.wav": "73608409200f68b9dec8435826d07f697b23d14e7c76405f376e1105ca4c31ac",
+    "transcript.json": "b0bdd9834b6f1e282ccc9a18d934fe0652e780f6d7b1ef86b6ed9b359336727c",
+    "segments.json": "24e2784211cf52eed75114d4c4f063a3e9039cf1b9bd8ab943d92727de77d96c"
+  },
+  "silence": {
+    "call.wav": "6e49db6ecc812f32cb043fb3c02e4aea55329fa8df27724c5b4e2a76ed57c360",
+    "transcript.json": "39c0f88a30692eb5642050e510389aacf3af9f1eeaebd73e59a567325de6e70b",
+    "segments.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+  }
+}

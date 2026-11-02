@@ -100,7 +100,7 @@ The hashes describe seed 7 on the reference M2 Pro with the committed model revi
 
 ## English coverage and transcript regression checks
 
-The six English scripts contain **2,947 spoken words** and produce **19.04 minutes** of audio on the reference machine. They span one through four speakers and use five voice profiles. Each sets `"language": "en"`. The generator selects English for Qwen and records that language in the manifest. The earlier scripts use the Mandarin default.
+The six English scripts contain **2,947 scripted words** and produce **19.04 minutes** of audio on the reference machine. They span one through four speakers and use five voice profiles. Each sets `"language": "en"`. The generator selects English for Qwen and records that language in the manifest. The earlier scripts use the Mandarin default.
 
 The coverage tests require at least six English scripts, 2,400 words, five voices and one/two/three/four-speaker cases. Every English-tagged turn must contain English speech without CJK characters.
 

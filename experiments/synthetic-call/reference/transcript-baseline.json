@@ -1,0 +1,231 @@
+{
+  "groups": {
+    "en": {
+      "metric": "wer",
+      "errors": 57,
+      "reference_units": 3028,
+      "calls": 6,
+      "rate": 0.018824306472919418
+    },
+    "zh": {
+      "metric": "cer",
+      "errors": 287,
+      "reference_units": 3095,
+      "calls": 8,
+      "rate": 0.09273021001615508
+    }
+  },
+  "calls": {
+    "script": {
+      "language": "zh",
+      "metric": "cer",
+      "errors": 64,
+      "reference_units": 1377,
+      "rate": 0.04647785039941903,
+      "asr_sha256": "f17fee4b3224f7948e0a27c13ecc9bc3a120e7ce44c05b8912e486bd6ab69497"
+    },
+    "handoff": {
+      "language": "zh",
+      "metric": "cer",
+      "errors": 16,
+      "reference_units": 223,
+      "rate": 0.07174887892376682,
+      "asr_sha256": "df94196bd47a6f595ae10151a81ba86c823e07c1f99296222935d3a592e5a0dd"
+    },
+    "logistics": {
+      "language": "zh",
+      "metric": "cer",
+      "errors": 28,
+      "reference_units": 197,
+      "rate": 0.14213197969543148,
+      "asr_sha256": "827268c1bd0353e1711dcb4216f652a11a62e0be76403a44574ea3f692c0a4af"
+    },
+    "stocktake": {
+      "language": "zh",
+      "metric": "cer",
+      "errors": 48,
+      "reference_units": 116,
+      "rate": 0.41379310344827586,
+      "asr_sha256": "927e8614ee2463480540ca3ea80f3a8d7e437c0f781f47d0f4154fa449d241c5"
+    },
+    "scheduling": {
+      "language": "zh",
+      "metric": "cer",
+      "errors": 9,
+      "reference_units": 245,
+      "rate": 0.036734693877551024,
+      "asr_sha256": "cc54dc7ed07a0655cec00f61cfd26e462034426c1877419e75fc119711d1a524"
+    },
+    "design": {
+      "language": "zh",
+      "metric": "cer",
+      "errors": 20,
+      "reference_units": 301,
+      "rate": 0.0664451827242525,
+      "asr_sha256": "4e42073c6cf55e4ebd83d19a223d029fdf89a328b4754e4ea9500422b746830b"
+    },
+    "onboarding": {
+      "language": "zh",
+      "metric": "cer",
+      "errors": 89,
+      "reference_units": 305,
+      "rate": 0.29180327868852457,
+      "asr_sha256": "c826e8ce678087585235d46bddd8d4e9210a38e77c7127a6a9f9ef0f75673e20"
+    },
+    "localization": {
+      "language": "zh",
+      "metric": "cer",
+      "errors": 13,
+      "reference_units": 331,
+      "rate": 0.03927492447129909,
+      "asr_sha256": "7a16aa6daef787e5351f21444fe42a50e0b13f225860e99995e98c3380f10d97"
+    },
+    "english-audit": {
+      "language": "en",
+      "metric": "wer",
+      "errors": 13,
+      "reference_units": 495,
+      "rate": 0.026262626262626262,
+      "asr_sha256": "807c3c9238c12ebebf773d799c5cab4d40a23fca41dd15f50b0e6c384f77f616"
+    },
+    "english-handoff": {
+      "language": "en",
+      "metric": "wer",
+      "errors": 8,
+      "reference_units": 505,
+      "rate": 0.015841584158415842,
+      "asr_sha256": "1ec217f303e11d72af7c3892e65ef43f65c0b955d66fe31b53f494d9fc1a0349"
+    },
+    "english-design": {
+      "language": "en",
+      "metric": "wer",
+      "errors": 5,
+      "reference_units": 506,
+      "rate": 0.009881422924901186,
+      "asr_sha256": "a0a5e2f8a30d21fce64ea574d8c2c5e74d4e8fc14218a383408ed47100b680fd"
+    },
+    "english-tabletop": {
+      "language": "en",
+      "metric": "wer",
+      "errors": 7,
+      "reference_units": 510,
+      "rate": 0.013725490196078431,
+      "asr_sha256": "2cbddf5136a45da75085c6a31ab30a1fdedd4a2c05564f208036eea34b510b29"
+    },
+    "english-committee": {
+      "language": "en",
+      "metric": "wer",
+      "errors": 13,
+      "reference_units": 486,
+      "rate": 0.026748971193415638,
+      "asr_sha256": "b582aeee6547574f7757463c3f2df016cc394d813dee79d82feb9d2e36461c0b"
+    },
+    "english-training": {
+      "language": "en",
+      "metric": "wer",
+      "errors": 11,
+      "reference_units": 526,
+      "rate": 0.02091254752851711,
+      "asr_sha256": "664e9e4a3c17fcfdca5594104a1bdda8c36401b220f6733900431cfc0f1bd9c2"
+    }
+  },
+  "references": {
+    "script": {
+      "language": "zh",
+      "call_sha256": "8cd35584ee3a867bbee51a0763cdfd637687168a476fb6eb7c35a48e0f08616a",
+      "transcript_sha256": "05c1718727bf04e3f2eca9d299728ba98730b7f9045cdabe7a5e94d03be38e74"
+    },
+    "handoff": {
+      "language": "zh",
+      "call_sha256": "b81b6c0a6a2de0d4eed183d86e4f60f98c91339de83527b9304d869570fbfe53",
+      "transcript_sha256": "5cc415154ead1ad8bc6a032df4c1ec79c7ad892ea5913dbd3323882193205746"
+    },
+    "logistics": {
+      "language": "zh",
+      "call_sha256": "42a1993205b9840a08f778abd2e176b080d7ca4db2efc03b1c4d6b5f41c079ce",
+      "transcript_sha256": "28456c59906d17b5be83e2bd3a30cff632358efaa38ec458e8ad5e575d6c34b1"
+    },
+    "stocktake": {
+      "language": "zh",
+      "call_sha256": "feccd3b07c3131920541cdf4d3d4c193cd62b7aa3f3ce428d59d824ea701d6b1",
+      "transcript_sha256": "276e54715c9f1b3c69f81a085f36aea28d1967007ff241e3b58a6d253c12d816"
+    },
+    "scheduling": {
+      "language": "zh",
+      "call_sha256": "682859a9b37b47f456c196457002aaa27ffc17bd657570ace2331d3f711587fd",
+      "transcript_sha256": "8c79e7f99411edc30fc4126d0faa7d763d1c34c061c6071b0225b2f06be22a63"
+    },
+    "design": {
+      "language": "zh",
+      "call_sha256": "40384f56b62b474fcbb18d2d833dd18a9a56098a7a41a775c9905063f19d184b",
+      "transcript_sha256": "f56c71c8f4fcb4f45ddefd927019937276297e3cc986268e0e26c911e10d1cef"
+    },
+    "onboarding": {
+      "language": "zh",
+      "call_sha256": "3b2a0946b06ae782689f7808550e385395da992e9f12f37fa3ae1874ec064c79",
+      "transcript_sha256": "51c916110986a65520d9e3d657e6ebb471979d9b05a6263e77ba14563465c153"
+    },
+    "localization": {
+      "language": "zh",
+      "call_sha256": "9764f105eef64095f391358954e3d8e696b666ad301b6ac15e7ed6a88aed8c93",
+      "transcript_sha256": "486887db563aadc677d08824eea8adabee7f769cf25f18ad852ae398d3a377fa"
+    },
+    "english-audit": {
+      "language": "en",
+      "call_sha256": "c2bb45d308e2077361aff41cf4c4c0a44e6ec29c7c6172dd0a08c3bbc07d8a15",
+      "transcript_sha256": "03ab7cf0ec09dd88b08ad3aeb813c117fc6d59e268353c90fb3f597f06cc7287"
+    },
+    "english-handoff": {
+      "language": "en",
+      "call_sha256": "5c59f46168136d41c2dadffe0673fa3b6fa943706285368d756a4ccc2fc6c4d4",
+      "transcript_sha256": "4b2d15d8263aba26f874638ad250ecd32e19092a63c879c5e2b290e349b5de48"
+    },
+    "english-design": {
+      "language": "en",
+      "call_sha256": "7cf61b3fa4043d5c424518141941e869b8ecc720de6ca2d281307f61c9eb7575",
+      "transcript_sha256": "8b99f2d3d67132eb736ba3342a0ac4db9b3418fcfee0b4add9488cf5b2a0d40d"
+    },
+    "english-tabletop": {
+      "language": "en",
+      "call_sha256": "db32f6fc40e9ebaccfb03334bcb60239f96d3e5ff729ca1650de4054b1f9023a",
+      "transcript_sha256": "e0c6e955181e8f8af7f576b1016b37d4021097348ace0c0524fb160f22090666"
+    },
+    "english-committee": {
+      "language": "en",
+      "call_sha256": "25fd8d0afdb53aa73d755a47663c8b8c06845bf3f3369787825352e6ae6b9f73",
+      "transcript_sha256": "b1ff92c458727df7ea2b8716a0ce9c5df554b82e1dbb21087019e13b4457b995"
+    },
+    "english-training": {
+      "language": "en",
+      "call_sha256": "eb608c4a0efe4861365bcfcca8c3d5b43a58c6b20adbfba6f22b075ed3e85326",
+      "transcript_sha256": "28a34e05760492b8d76ea77ca46a46e5a75d688be744954efb9732bf608e0d52"
+    }
+  },
+  "normalizers": {
+    "en": {
+      "implementation": "transformers Whisper EnglishTextNormalizer",
+      "spelling_map": "empty",
+      "version": "5.22.0"
+    },
+    "zh": {
+      "implementation": "OpenCC t2s, lowercase alphanumeric characters",
+      "version": "0.1.7"
+    }
+  },
+  "recognizer": {
+    "repository": "mlx-community/whisper-large-v3-mlx",
+    "revision": "49e6aa286ad60c14352c404340ded53710378a11",
+    "settings": {
+      "temperature": 0.0,
+      "condition_on_previous_text": false,
+      "word_timestamps": false,
+      "language": "per script: en or zh"
+    }
+  },
+  "runtime": {
+    "python": "3.12.13",
+    "mlx-whisper": "0.4.2",
+    "mlx": "0.32.4",
+    "uv_lock_sha256": "10ce5a7fd18f76f52e80d27313a21e534fdc6d7abc23869b2e0b26a40a67ea64"
+  }
+}

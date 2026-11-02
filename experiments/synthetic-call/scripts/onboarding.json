@@ -1,0 +1,22 @@
+{
+  "description": "Fictional four-person onboarding call with two late arrivals, uneven participation and an original speaker returning after a silent break.",
+  "speakers": {"A": {"voice": "f5-news-female"}, "B": {"voice": "ryan"}, "C": {"voice": "dylan"}, "D": {"voice": "aiden"}},
+  "turns": [
+    {"speaker": "A", "text": "我們先核對新同事的開通清單，另一位等一下才會進來。", "tts_duration_seconds": 5.1},
+    {"speaker": "B", "text": "說明文件已經上傳了，現在可以打開。"},
+    {"speaker": "A", "text": "好，我負責確認信箱，其他權限先照清單檢查。", "tts_duration_seconds": 4.1},
+    {"speaker": "B", "text": "信箱有了，但測試環境還是顯示沒有權限。"},
+    {"speaker": "A", "text": "我先離開一下，去看後台設定，等我回來再往下。", "tts_duration_seconds": 4.3},
+    {"speaker": "B", "text": "沒問題，我先核對文件的版本，不會改動權限。"},
+    {"speaker": "C", "text": "剛剛接上線，我目前只聽到權限還沒開，是這一項嗎？"},
+    {"speaker": "B", "text": "對，信箱已經好了，測試環境還在等確認。"},
+    {"speaker": "C", "text": "我負責測試帳號，今天下午三點以前把結果補上。"},
+    {"speaker": "B", "text": "那份說明少了登入步驟，我今天中午以前補齊。"},
+    {"speaker": "A", "text": "我回來了，後台已經加上測試群組，請再試一次。", "gap_seconds": 12.0, "tts_duration_seconds": 4.3},
+    {"speaker": "B", "text": "現在可以進去了，我會把成功的時間寫進清單。"},
+    {"speaker": "D", "text": "我只補充一件事，正式環境的權限要另外申請。"},
+    {"speaker": "A", "text": "收到，今天只確認測試環境，正式環境另外處理。", "tts_duration_seconds": 4.3},
+    {"speaker": "D", "text": "那我先離線，正式權限的申請規則明天再補給你們。"},
+    {"speaker": "A", "text": "好，今天先完成文件和測試帳號，正式權限還沒有核准。", "tts_duration_seconds": 4.9}
+  ]
+}

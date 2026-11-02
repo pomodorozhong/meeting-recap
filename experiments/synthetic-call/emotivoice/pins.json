@@ -1,0 +1,178 @@
+{
+  "engine": "emotivoice",
+  "code": {
+    "repository": "https://github.com/netease-youdao/EmotiVoice",
+    "revision": "59f0f36de4db12825f4705dd4e0780d79dd6bb01",
+    "archive_url": "https://codeload.github.com/netease-youdao/EmotiVoice/tar.gz/59f0f36de4db12825f4705dd4e0780d79dd6bb01",
+    "archive_sha256": "a4e9b75d8af381f65e5636663ed8f09b4c7be1690c9e24c070b6efdddcb3efb5",
+    "archive_root": "EmotiVoice-59f0f36de4db12825f4705dd4e0780d79dd6bb01",
+    "files": {
+      ".dockerignore": "441a7d4e5e22e9294f6cb2754778cd215bb35fe3ee104bedadd46fa247c37ea0",
+      ".gitignore": "18f7d17bfb3e172cb96aa4e6494da11aaf49041d81eb17d83105aeeccd74efdb",
+      "Dockerfile": "9b43e5395499647b3083a31052a2c06503d7d3ead0857fd66158e37487e15266",
+      "EmotiVoice_UserAgreement_易魔声用户协议.pdf": "445e56dce7cb93484c48bf734f7ec0453beacdcadcc2284574b487fe827edd9f",
+      "HTTP_API_TtsDemo/README.md": "5a4a68b9f14a75c94c61d024d8f7f5042c2462f6964660048f4355e802b5eb37",
+      "HTTP_API_TtsDemo/apidemo/TtsDemo.py": "b4c682a3cf6381c2513731817d4127d38df14911a329bc67ab32f65d801fb8f3",
+      "HTTP_API_TtsDemo/apidemo/utils/AuthV3Util.py": "b5cb98d2f626e07a72e5457f588c613d9d04cc64fb0fe52fdf4121514fa4e2be",
+      "LICENSE": "df0cd5dada5267fd2d1040f21263d9b0eb87ec030e47e66b93d4c80bee40a902",
+      "README.md": "ff3b5f2cd1b8788129756871d0a4dd51095599356784c248b771987aa81d4873",
+      "README.zh.md": "3e81caa9bce62d331e920d46afdc4f8d23e61fa6937c03cf1655772c4b09a8df",
+      "README_小白安装教程.md": "b10313e095ba8d8846a63c1f6565218dad167b3652cfcc7436c158cf0f4c0e49",
+      "ROADMAP.md": "1b907c2bd0e64695a0cf59eca704b7edde643342e5857eaa9711f4f2d73cea0b",
+      "assets/audio/emotivoice_intro_cn.wav": "928c42776f7a1929c72ae67230054fd217fb928d866adc9889819b2add6c524f",
+      "assets/audio/emotivoice_intro_en.wav": "32da90fc258d80af6d590b5de49fefb0c0248f27a0497bf6f1922ebbcfc4d89c",
+      "cn2an/an2cn.py": "dd077469159369bd3a39dc35e2d573c7f8b38db8d0b68154013465f19a63a02f",
+      "cn2an/conf.py": "6642f5cb99f69fb94ad90ad649f06132a14010f40b5a3652939b1990375592a0",
+      "cog.yaml": "db067f2565d883745d59ad7214ff5c7cbdd347f54c1e902e2ec376e024ccb80b",
+      "config/joint/config.py": "bd8bb8e9622d050ff326e7f509dde8e23b0f1f9b44ae95955490c365d5cf62fd",
+      "config/joint/config.yaml": "ddb911723e63c7a89114e6e6fb35679f7c0e6ddeceb3b013af8ad220ce0aaac2",
+      "config/template.py": "bcb1ffc4675a94a237e244441fbb456b73ce0b1c0ac5be7d2879ccdb7b1538b8",
+      "data/DataBaker/README.md": "e62cf0ebdbda27fd6238fc1ab6548f65e349f38d39aea8001a985af88e16081a",
+      "data/DataBaker/src/step0_download.sh": "852dc5fbf8b652a050f507ba46c9c54d08fd9fad1b6a27ecdf125f336946fe99",
+      "data/DataBaker/src/step1_clean_raw_data.py": "43bb92e75192148bc8d97df36b484c73fe0260a0210b7d5a053a859011ef7782",
+      "data/DataBaker/src/step2_get_phoneme.py": "f26cdc85262edceacf1053bb42125893cee7637716a598b396a86678097dcabe",
+      "data/LJspeech/README.md": "44a7a0f247fa85a8c40604d1a9037c485bd031492b06af6ccceb6086bfcdeda8",
+      "data/LJspeech/src/step0_download.sh": "e3c0ba1022fae2324897ff65d74ad2465e0b63f378a2b679bd8ca0dc31549ecf",
+      "data/LJspeech/src/step1_clean_raw_data.py": "8d081e406bcf1bbc8be1f2cd5a5632fc0d6ac6c32503c985a3f799be6f401499",
+      "data/LJspeech/src/step2_get_phoneme.py": "eaa1755ff2b71bcc258c893faad713bfca88c7139609ee6608fb7f1cb1c59250",
+      "data/inference/text": "eb84df6fb2f9014d61040217a3af39138c35efcdaf82d2f230233cadde84e3f8",
+      "data/youdao/text/README.md": "20aba3e7e5fd977100f2246fc8e0e89ce89ceaf95a9fb7bc308eb34757829c7b",
+      "data/youdao/text/emotion": "2d602a8551df66d513bd1dd4ff0dbe0b80a8d00a9f1e83a594eea0fdba80ee87",
+      "data/youdao/text/energy": "4df6f80bb71641de995c0af3095afce71666f21fa54659418253a96a9b94cf63",
+      "data/youdao/text/pitch": "ba3402f69cbd242b1b57e9fc49f5c8c3b2ffa1cba58101833ece71166de89a83",
+      "data/youdao/text/speaker2": "fabcda3089216f017fa76ad39929f1733445800f2658698d7ed6d0b7a59f29b2",
+      "data/youdao/text/speed": "812ea3d3c4730a04c4b41186493b04ad462846786efb3781019fa43fe8361944",
+      "data/youdao/text/tokenlist": "d7d68a2f794b4d7563e6e6159e8c6a8c506a584590b8c1c757370c346a435244",
+      "demo_page.py": "15db12d3b7c8465e0097f317d9321b8dda850918139a3bfc75f494355cfb2a92",
+      "demo_page_databaker.py": "206a2216120065ecf3bbde32112342239688410f9fc3a9ff129a644cb59d926e",
+      "frontend.py": "564018b4f41b50fe8d99e01125f9c82de5ec746ca342974ea2864f6cdf94487a",
+      "frontend_cn.py": "9ae2bfff209474d36631c53cfca609798349520da2d83016f00f720a81bf45bb",
+      "frontend_en.py": "093b95769dd03152a2cb01ce735cb8e09d910650909bb12dfa6b4f430e4d90a8",
+      "inference_am_vocoder_exp.py": "ffef2e8addf6d18392c2d86c9a13c0f65c62d7bf20757224b9782ead37b203b0",
+      "inference_am_vocoder_joint.py": "ce923bc45fd325c71a75712146d00e2e74d4bfc366be5814eeeeac0e264f75a9",
+      "inference_tts.py": "440f5f390ac71e619e199f054e13899c0bb4cfc17f6f7c27d5439ee4b4361923",
+      "lexicon/librispeech-lexicon.txt": "d722bc29908cd338ae738edd70f61826a6fca29aaa704a9493f0006773f79d71",
+      "mel_process.py": "c54f3e7a639269dab5552da5dae7904cd4201e59fd462098c1f70dd65532f16c",
+      "mfa/step1_create_dataset.py": "890ae7c720a32d1e1065ad503e7ea34a2c906226b47f26e012043ab11a76f66c",
+      "mfa/step2_prepare_data.py": "7ae6af542e77468b3a374b1c7858bfd80964a5ac7ab1d5fa15b0f7bebf46b27a",
+      "mfa/step3_prepare_special_tokens.py": "3dbaa64e143e5756dd57d7a6981389e810dc4bfb80efd8f6a8c4f920f70bb299",
+      "mfa/step4_convert_text_to_phn.py": "bd9b77f5c315592628ac6a98fe197861edc0409d206e66c313618f9d959f6eda",
+      "mfa/step5_prepare_alignment.py": "e402ac5745c10164c4cb33b319c2a1bbf1cefde7308475816519d77546d49b2d",
+      "mfa/step7_gen_alignment_from_textgrid.py": "d605ef4bfa3da7bc701c4d3d88a5e3173e6ea73797d45290e17232354566fa4b",
+      "mfa/step8_make_data_list.py": "15e888ea7e47b5443aa08d940eba815258c3dd06a50b75560c2c48b61ffc8983",
+      "mfa/step9_datalist_from_mfa.py": "8fc310e4e2b30a20f499c30125e30830fb26c629a892512fcf5cc222004be945",
+      "models/hifigan/dataset.py": "d3b6af75436025dcf7bb8b49605c506b1075d6bd814d3b36b15f278597529243",
+      "models/hifigan/env.py": "b681cab5d1b9a10e78cd81f9a421d6616647532f0abf3f2a25c3af6b6741b8c5",
+      "models/hifigan/get_random_segments.py": "a5e296a5640b74af9ee6e8623ea10c2e9a8513b0d659cf770590d4301f4a2364",
+      "models/hifigan/get_vocoder.py": "88e5daf2cf534353e7f9fc206681617603be5ba80bab67bab7f61ac9d25e2b52",
+      "models/hifigan/models.py": "9dd9b22cccd154251bdef5448894c62b975239a9dbde4352a2c66f7485fde87a",
+      "models/hifigan/pretrained_discriminator.py": "20f81f339e62ff77afc2426cb071c30ea21e026d3b519becaf205810bc3271d2",
+      "models/prompt_tts_modified/audio_processing.py": "e8b00c3db8b71be163d5e8f31919e4d88d5422a870a8e4d7e42bfdf2e4a35480",
+      "models/prompt_tts_modified/feats.py": "d14bece127d955c874c150c12e52593407b78de414b1a3f995d872a0a80a5819",
+      "models/prompt_tts_modified/jets.py": "46f15d80133c3498c7455df473209709923e4d33001169938160687197944e8e",
+      "models/prompt_tts_modified/loss.py": "9d91e2a2bda43eaf77ea3064f129ae0ad39d8c12b87e1c5bf0448b5ff09f80f3",
+      "models/prompt_tts_modified/model_open_source.py": "783ad7c473bac9bdfc67efb3ace68922e2409ab749846257fb7884755ebe0c24",
+      "models/prompt_tts_modified/modules/alignment.py": "50d3f1ae98ce44c88f931264e7feb8929b9efc29c6314f68608ca96074c4a50d",
+      "models/prompt_tts_modified/modules/encoder.py": "3b0dc255af8bc030a35ba36e97dd8079f27f3483bb3f39f000a0e507d8739e9d",
+      "models/prompt_tts_modified/modules/initialize.py": "d877eb2dee96903c3ac22d207962487708fa22c96edadc71ce8710d50dd4c282",
+      "models/prompt_tts_modified/modules/variance.py": "d480e3ad5c9aab20daee7ef442e2cddbc8852efe6aab8d352d6dabcc789c6124",
+      "models/prompt_tts_modified/prompt_dataset.py": "42ca83fe0a85cdd64c98da8a83e259a007122a3d11cd800a7512e500c7abebe0",
+      "models/prompt_tts_modified/scheduler.py": "52ae45b1b2a4e839a166e86ca7e6984efa6d2a3b4ac4df6f60a910432cda1cb9",
+      "models/prompt_tts_modified/simbert.py": "180a9760fe34f29d58fbe6a80e7a244a4cf037b5d81ffe008c95420919824002",
+      "models/prompt_tts_modified/stft.py": "76e26330e8899945ea9dd986d40d2c336fbc4bacac606401bfbbc9b10d0b79a6",
+      "models/prompt_tts_modified/style_encoder.py": "742637696245c6103290d6750966bbf95ce43a41ced0d18e69d2ef733eac8671",
+      "models/prompt_tts_modified/tacotron_stft.py": "54f4ae150da3584028bdbcd8aa2679536d8b803b6869ce8e0d7788a02402538e",
+      "openaiapi.py": "852b9e2c4342353151dbb2f0cbfc9c0ad073cf7d4c11f6baa7fc12f7cad4e215",
+      "plot_image.py": "18e4527322f3894bf1820e839495d9eacfc1a2424bd3cce824adc4b64834216d",
+      "predict.py": "ee466401c0a1fb481e550d538d13570d022f46729799d94efe974d7dc6756526",
+      "prepare_for_training.py": "6685b74d0da4100aea4cb7f472e132174f717f881c94d767289fafbde6f76180",
+      "requirements.openaiapi.txt": "4f65524853d93aa420f59fd046312c5857782dc6ad8a53a0f8ac499b1f2d8f05",
+      "requirements.txt": "8a567579fd0260c09c8ab7c5381491cdf7b56697edd0e6c59d1a0b3ba55235ee",
+      "setup.py": "b8617e7f636401c9c6493f72eb551f95f25acf8870c19f5229bbb5ed48fe3884",
+      "text/__init__.py": "39c94c5f040826070f5752f61289c3ec5d9e2f3e4c2b8c46625179600e28b3db",
+      "text/cleaners.py": "5df1ac621aec9ea3c9816b4f5b4b0cab44fce5d8693433b0503cd7acfe82b810",
+      "text/cmudict.py": "59ed6878458967f5c775d113a103c2f47c5fe7cfdf98d15a2166a1d1a3547e12",
+      "text/numbers.py": "5b510f709d40a6497b8218e69fac212b77d886e4d2fbf2d04a7112b2720fe003",
+      "text/symbols.py": "9de667700eaa354eae65fdf10eafe9f5c803dd3d5abb482cbc738c57b50dbaac",
+      "train_am_vocoder_joint.py": "2489c53d06319ecb305dff8e1435d13cd80b7cca01dbdec51c018a1df6e0aefd"
+    }
+  },
+  "artifacts": {
+    "tts": {
+      "repository": "FPVG/EmotiVoice-pretrained-models",
+      "revision": "25c5d915525d8f661ad10a13c2b8e958b45a3d8a",
+      "files": {
+        "checkpoint_163431": "d51e39fb36c6ba784d8e3436e5b5057cf1867be24e0bdea42f5e7bf1a863e1b1",
+        "g_00140000": "2dcb15a9ed634be57bcd9054cf29f02a9f27557919427c4d6d36e561ebd9d94f"
+      }
+    },
+    "encoder": {
+      "repository": "WangZeJun/simbert-base-chinese",
+      "revision": "8096d1f9a7f7c2d9dbd7974511c4bc4a1755932b",
+      "files": {
+        "config.json": "3f36da21f8125337672529c55384f0aedd07bedc8170a900564a9d0bf37946b5",
+        "model.safetensors": "58c73ee8a13d95a5c3bb9a814058c54b39f4f834f4bc3a45b8fbd4a4afce94d1",
+        "vocab.txt": "5c3df66617c12834db122e678e6fe8ca267045f8007a34979310ce5eca2dc449"
+      }
+    }
+  },
+  "resources": {
+    "repository": "https://github.com/nltk/nltk_data",
+    "revision": "550b6625bcef1f2abff2ff770a5a0d272c9c6b2a",
+    "resources": [
+      {
+        "archive_url": "https://raw.githubusercontent.com/nltk/nltk_data/550b6625bcef1f2abff2ff770a5a0d272c9c6b2a/packages/corpora/cmudict.zip",
+        "archive_sha256": "d07cca47fd72ad32ea9d8ad1219f85301eeaf4568f8b6b73747506a71fb5afd6",
+        "destination": "corpora",
+        "files": {
+          "corpora/cmudict/cmudict": "cad209c39eb87677d64e93d97f8eed10b7e6f9bdd42de8e7ca8efc8e17d62e8a",
+          "corpora/cmudict/README": "b0556be7a2b12bea6a667277b75864f802dd4854480657ce298c62e6897e766b"
+        }
+      },
+      {
+        "archive_url": "https://raw.githubusercontent.com/nltk/nltk_data/550b6625bcef1f2abff2ff770a5a0d272c9c6b2a/packages/taggers/averaged_perceptron_tagger.zip",
+        "archive_sha256": "e1f13cf2532daadfd6f3bc481a49859f0b8ea6432ccdcd83e6a49a5f19008de9",
+        "destination": "taggers",
+        "files": {
+          "taggers/averaged_perceptron_tagger/averaged_perceptron_tagger.pickle": "25a5a19c7ced7b2bac3831da5bc0afcc2c34e5dd01cd4f361bb799949a696238"
+        }
+      },
+      {
+        "archive_url": "https://raw.githubusercontent.com/nltk/nltk_data/550b6625bcef1f2abff2ff770a5a0d272c9c6b2a/packages/taggers/averaged_perceptron_tagger_eng.zip",
+        "archive_sha256": "6025f530624335c67d6547d44757b357b4e79bae030a0383e9887a92c1718f0b",
+        "destination": "taggers",
+        "files": {
+          "taggers/averaged_perceptron_tagger_eng/averaged_perceptron_tagger_eng.weights.json": "789e8e35f6fac656d9b7eccea29ba4e8a137cbb5b525dd31f39e4291a9e80832",
+          "taggers/averaged_perceptron_tagger_eng/averaged_perceptron_tagger_eng.classes.json": "d152ffa69d45b8357276341a3d592c6c025911d52ec0d9068d4f382560dd48b6",
+          "taggers/averaged_perceptron_tagger_eng/averaged_perceptron_tagger_eng.tagdict.json": "4c713731cb06727736962bc8cd94ad919217a040e76691059af99bc0c2c9c246"
+        }
+      }
+    ]
+  },
+  "settings": {
+    "device": "cpu",
+    "dtype": "float32",
+    "num_threads": 2,
+    "deterministic_algorithms": true,
+    "style_prompt": "",
+    "alpha": 1.0,
+    "text_normalization": "OpenCC t2s and the published bilingual frontend",
+    "seed": "reset for each turn",
+    "sample_rate": 16000
+  },
+  "voices": {
+    "emotivoice-1093": {
+      "speaker_id": "1093",
+      "gender": "female"
+    },
+    "emotivoice-1012": {
+      "speaker_id": "1012",
+      "gender": "female"
+    },
+    "emotivoice-1066": {
+      "speaker_id": "1066",
+      "gender": "female"
+    }
+  },
+  "voice_metadata_source": "https://github.com/netease-youdao/EmotiVoice/wiki/%F0%9F%98%8A-voice-wiki-page"
+}

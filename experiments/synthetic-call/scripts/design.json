@@ -1,0 +1,21 @@
+{
+  "description": "Fictional three-person design review that reverses a provisional decision, reassigns implementation and leaves retention unresolved.",
+  "speakers": {"A": {"voice": "dylan"}, "B": {"voice": "f5-news-female"}, "C": {"voice": "ryan"}},
+  "turns": [
+    {"speaker": "A", "text": "今天要定查詢頁的快取方式。先用每天更新一次的檔案，好嗎？"},
+    {"speaker": "B", "text": "好，就先定每天更新一次，這個方案開發比較快。", "tts_duration_seconds": 4.3},
+    {"speaker": "C", "text": "等一下，價格每小時都會變，隔天才更新會讓使用者看到舊資料。"},
+    {"speaker": "A", "text": "那我們重新看方案。直接查 API，還是做五分鐘的 cache？"},
+    {"speaker": "B", "text": "我建議先做五分鐘快取，畫面也顯示最後更新時間。", "tts_duration_seconds": 4.7},
+    {"speaker": "C", "text": "這樣可以，使用者也知道資料可能延遲五分鐘。"},
+    {"speaker": "A", "text": "好，改用五分鐘快取，前面每天更新一次的方案取消。"},
+    {"speaker": "B", "text": "那我來做後端的設定，星期三下午完成。", "tts_duration_seconds": 3.7},
+    {"speaker": "C", "text": "你的權限還沒開，我已經能部署，這一項我來接。"},
+    {"speaker": "A", "text": "可以，那就改成你負責後端，原本的安排取消。"},
+    {"speaker": "B", "text": "好，我改做畫面上的更新時間，星期四中午前交。", "tts_duration_seconds": 4.3},
+    {"speaker": "C", "text": "我會在星期三下午把設定放到測試環境。"},
+    {"speaker": "A", "text": "那查詢紀錄要保留多久？"},
+    {"speaker": "B", "text": "這要等資料保存規則確認，我們今天先不決定。", "tts_duration_seconds": 4.3},
+    {"speaker": "A", "text": "收到，目前只定五分鐘快取和更新時間，紀錄保留天數留待確認。"}
+  ]
+}

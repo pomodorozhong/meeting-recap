@@ -1,0 +1,101 @@
+{
+  "script": {
+    "call.wav": "8cd35584ee3a867bbee51a0763cdfd637687168a476fb6eb7c35a48e0f08616a",
+    "transcript.json": "05c1718727bf04e3f2eca9d299728ba98730b7f9045cdabe7a5e94d03be38e74",
+    "segments.json": "3460d3dd010dd0d4b9a7241328a23918c907d8fc950a57cf6c559511d233d763",
+    "script_sha256": "b8de135ad839bd41876c3dc7a83dbfa2e4f0e34e6015a69c16d151dff8aa0e0c"
+  },
+  "handoff": {
+    "call.wav": "b81b6c0a6a2de0d4eed183d86e4f60f98c91339de83527b9304d869570fbfe53",
+    "transcript.json": "5cc415154ead1ad8bc6a032df4c1ec79c7ad892ea5913dbd3323882193205746",
+    "segments.json": "ef0ef3781bc9614d319a5189a570d385dd8a10e7b3ca114d4d818fbfb4a22cdd",
+    "script_sha256": "ed3532c31745bc9dd367eb5384b70cca98b8656ba02772e9c35117f2d90c177a"
+  },
+  "logistics": {
+    "call.wav": "42a1993205b9840a08f778abd2e176b080d7ca4db2efc03b1c4d6b5f41c079ce",
+    "transcript.json": "28456c59906d17b5be83e2bd3a30cff632358efaa38ec458e8ad5e575d6c34b1",
+    "segments.json": "bdb21fd728915a0616d2b3d789a1ed0a6cf89e930aeb1a7f73a5caf88785f044",
+    "script_sha256": "e4d4bc00d3bab09c42f45b2aa6a49cd443f073835d6213ca18a4128fc6a99cf2"
+  },
+  "stocktake": {
+    "call.wav": "feccd3b07c3131920541cdf4d3d4c193cd62b7aa3f3ce428d59d824ea701d6b1",
+    "transcript.json": "276e54715c9f1b3c69f81a085f36aea28d1967007ff241e3b58a6d253c12d816",
+    "segments.json": "5f1bc874ee67821fb221df3414c1c89051432611bdaf54c47f3fa459eaea78a5",
+    "script_sha256": "5ea6e4f459ee72d6be7916eba5a5a515282ba21b992154faa8c1a7535a47b3ea"
+  },
+  "handoff-channel": {
+    "call.wav": "752db127bfe5c1672bc0f583be6c909d4707394e0849f63a0aa816f701b49d3d",
+    "transcript.json": "add10edeebda837e01e5fa849d6eec58f3597455b29da0b4f8fec0b508aeaa14",
+    "segments.json": "8160b6312155b1cece117991b976930a5c122ec5d3b0f7b38ad3d2cf6a3effdf"
+  },
+  "logistics-overlap": {
+    "call.wav": "7755be2f6e49568c4066479430f558a6ada29fceb8791f1c6f784396de437aeb",
+    "transcript.json": "404f29b20352a07e1c75bce29234f74d1f43d1cfe8d4ad8d39d4cac0f4960069",
+    "segments.json": "8e724755331d8c2c44446abadca2ae8b36c3f668977137b7627c76eb7bca6319"
+  },
+  "silence": {
+    "call.wav": "6e49db6ecc812f32cb043fb3c02e4aea55329fa8df27724c5b4e2a76ed57c360",
+    "transcript.json": "39c0f88a30692eb5642050e510389aacf3af9f1eeaebd73e59a567325de6e70b",
+    "segments.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+  },
+  "scheduling": {
+    "call.wav": "682859a9b37b47f456c196457002aaa27ffc17bd657570ace2331d3f711587fd",
+    "transcript.json": "8c79e7f99411edc30fc4126d0faa7d763d1c34c061c6071b0225b2f06be22a63",
+    "segments.json": "7f5283bb3dc2161fd741f7878d045a3f562519dea70ea23a08bf40553c827822",
+    "script_sha256": "79e8e3fbc78b718f4926c7481afcc351889fb1d5d7a0de6d9ee125ae7b97da19"
+  },
+  "design": {
+    "call.wav": "40384f56b62b474fcbb18d2d833dd18a9a56098a7a41a775c9905063f19d184b",
+    "transcript.json": "f56c71c8f4fcb4f45ddefd927019937276297e3cc986268e0e26c911e10d1cef",
+    "segments.json": "3110d0d907e4d0ec5a6d25c614d8263218c277118c670b2254f4a2c9723e7cba",
+    "script_sha256": "e36143bfec7c26c39a3c596abded678a59969048f27fd350fa7570ba00627b71"
+  },
+  "onboarding": {
+    "call.wav": "3b2a0946b06ae782689f7808550e385395da992e9f12f37fa3ae1874ec064c79",
+    "transcript.json": "51c916110986a65520d9e3d657e6ebb471979d9b05a6263e77ba14563465c153",
+    "segments.json": "98d67c6d3b8e409da39dc86594e4edb11f6e3306778ffeb2d8285e5bcff34525",
+    "script_sha256": "7abf5c7b2a41075f75b863663904ef8e7eba71d064dba2c87e552fc107b3af5d"
+  },
+  "localization": {
+    "call.wav": "9764f105eef64095f391358954e3d8e696b666ad301b6ac15e7ed6a88aed8c93",
+    "transcript.json": "486887db563aadc677d08824eea8adabee7f769cf25f18ad852ae398d3a377fa",
+    "segments.json": "d9c683f1b406402cb185d19e82d7d7b16ceb5f51c92c67e18e359a26772edd64",
+    "script_sha256": "9f9e7c29ca122764bc51d04c05833262aedf0f7b1243ada785da8ca0421756fb"
+  },
+  "english-audit": {
+    "call.wav": "c2bb45d308e2077361aff41cf4c4c0a44e6ec29c7c6172dd0a08c3bbc07d8a15",
+    "transcript.json": "03ab7cf0ec09dd88b08ad3aeb813c117fc6d59e268353c90fb3f597f06cc7287",
+    "segments.json": "afab4a8523fbb60bf1ceb42b154085f55e3a5c51be5d68473186e7fbe5e0e9c8",
+    "script_sha256": "5eecae29e6168463a2840a81e5414670042f7ecb936d3b55cac2337e5a47c484"
+  },
+  "english-committee": {
+    "call.wav": "25fd8d0afdb53aa73d755a47663c8b8c06845bf3f3369787825352e6ae6b9f73",
+    "transcript.json": "b1ff92c458727df7ea2b8716a0ce9c5df554b82e1dbb21087019e13b4457b995",
+    "segments.json": "2809bdd1fffd04b0ab665e82d6bf9bf500c3f523cb6e828286b836594a7cc671",
+    "script_sha256": "685cf153a7aafd4d09a2ff9964b3fef4e43db70f9cc792d679ec1d780764e666"
+  },
+  "english-design": {
+    "call.wav": "7cf61b3fa4043d5c424518141941e869b8ecc720de6ca2d281307f61c9eb7575",
+    "transcript.json": "8b99f2d3d67132eb736ba3342a0ac4db9b3418fcfee0b4add9488cf5b2a0d40d",
+    "segments.json": "ddbc484d91e74be2750f91d2ef897174f725187a6aa29a9ce99851b83fe21600",
+    "script_sha256": "029ce0f060ce340f35011c3a8e4b308754029acd60d3f5995e0fb6bc6cfd48a9"
+  },
+  "english-handoff": {
+    "call.wav": "5c59f46168136d41c2dadffe0673fa3b6fa943706285368d756a4ccc2fc6c4d4",
+    "transcript.json": "4b2d15d8263aba26f874638ad250ecd32e19092a63c879c5e2b290e349b5de48",
+    "segments.json": "54e5efa7b7e00447b8394a52d7bb7568cad471deda46570b07f2f6063cdc2dca",
+    "script_sha256": "ec349f4e754b795a449ee66c4c4d0d37d2f33c764b41d40147f53721d312ad75"
+  },
+  "english-tabletop": {
+    "call.wav": "db32f6fc40e9ebaccfb03334bcb60239f96d3e5ff729ca1650de4054b1f9023a",
+    "transcript.json": "e0c6e955181e8f8af7f576b1016b37d4021097348ace0c0524fb160f22090666",
+    "segments.json": "a6639d2bab026e473b69b839bcc5a91a6cd043e94da402d90b5d7b3a4353db2a",
+    "script_sha256": "45468582f06e1cb745ac106cd6f6d76512a807b7c6e57c7214822645ea6739e0"
+  },
+  "english-training": {
+    "call.wav": "eb608c4a0efe4861365bcfcca8c3d5b43a58c6b20adbfba6f22b075ed3e85326",
+    "transcript.json": "28a34e05760492b8d76ea77ca46a46e5a75d688be744954efb9732bf608e0d52",
+    "segments.json": "367a5a7188ccc7935896bbfc2ef23fffb7ad7c004ebda3ffa50bfacff2a74488",
+    "script_sha256": "5d9d3921031f3f0e37c00959c5c211547546af9590a5225199ee91c2e83c694b"
+  }
+}

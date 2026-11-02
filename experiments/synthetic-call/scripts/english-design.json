@@ -1,0 +1,97 @@
+{
+  "description": "Fictional English design review with a reversed download decision, reassigned implementation, corrected deadlines and unresolved file retention.",
+  "language": "en",
+  "speakers": {
+    "A": {
+      "voice": "emotivoice-1066"
+    },
+    "B": {
+      "voice": "emotivoice-1093"
+    },
+    "C": {
+      "voice": "ryan"
+    }
+  },
+  "turns": [
+    {
+      "speaker": "A",
+      "text": "Let's settle how the new export button should behave. Our provisional plan is to create the file immediately and keep the user on the results page."
+    },
+    {
+      "speaker": "B",
+      "text": "That would be the simplest screen. I can show a spinner beside the button, then replace it with a download link when the file is ready."
+    },
+    {
+      "speaker": "C",
+      "text": "I need to challenge that assumption. A large request can take almost a minute, and the browser connection may close before the server finishes."
+    },
+    {
+      "speaker": "A",
+      "text": "Would a higher timeout solve that, or would we just make people wait longer without knowing whether their request had actually been accepted?"
+    },
+    {
+      "speaker": "B",
+      "text": "We'd mostly hide the problem. If someone presses the button twice, they might start two jobs, and the screen wouldn't explain which one completed."
+    },
+    {
+      "speaker": "A",
+      "text": "Then let's replace the immediate download with a queued job. The page should confirm acceptance straight away and show a separate status for completion."
+    },
+    {
+      "speaker": "B",
+      "text": "Agreed. I'll build the server endpoint and the progress screen. I originally estimated Friday afternoon, but I think we can finish both on Thursday."
+    },
+    {
+      "speaker": "C",
+      "text": "You still don't have permission to deploy that service. I can take the endpoint, including duplicate request protection, while you handle the progress screen."
+    },
+    {
+      "speaker": "A",
+      "text": "That division makes sense. The endpoint moves to you. Please give us a specific delivery time so the screen can be tested against it."
+    },
+    {
+      "speaker": "C",
+      "text": "I'll put it in the test environment on Wednesday at three in the afternoon. The first response will contain a job identifier and a status URL."
+    },
+    {
+      "speaker": "B",
+      "text": "Then I'll deliver the screen on Thursday at eleven. Sorry, make that ten in the morning; the review starts at eleven, so it needs to be ready earlier."
+    },
+    {
+      "speaker": "A",
+      "text": "Thursday at ten is the committed time. The eleven o'clock slot is for review. We'll remove Friday afternoon from the plan so nobody follows the old estimate."
+    },
+    {
+      "speaker": "B",
+      "text": "Should we send an email when the job finishes? People may close the page, especially if they started the export just before leaving their desk."
+    },
+    {
+      "speaker": "A",
+      "text": "Let's defer email notifications. For this release, the results page will list recent jobs, and users can return there to collect a finished file."
+    },
+    {
+      "speaker": "B",
+      "text": "What should the screen say if a job fails? I don't want a generic success message just because the request was accepted by the queue."
+    },
+    {
+      "speaker": "C",
+      "text": "Accepted and completed must stay separate. A failed job gets an error status, and retrying it should create a fresh request after the user confirms."
+    },
+    {
+      "speaker": "A",
+      "text": "Good. Please include that distinction in the test checklist. A successful request is not evidence that a usable export file has been produced."
+    },
+    {
+      "speaker": "B",
+      "text": "One remaining question is how long those files stay available. I was going to display seven days, but we haven't checked the storage policy."
+    },
+    {
+      "speaker": "A",
+      "text": "Leave that duration out of the interface for now. The retention period is still unresolved, and we shouldn't turn an estimate into a promise."
+    },
+    {
+      "speaker": "B",
+      "text": "Understood. My screen is due Thursday at ten, email is deferred, and the retention message stays undecided until the policy review is complete."
+    }
+  ]
+}

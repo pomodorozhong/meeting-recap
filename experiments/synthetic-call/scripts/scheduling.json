@@ -1,0 +1,18 @@
+{
+  "description": "Fictional two-person scheduling call with corrected dates, time, participant counts and a cancelled meal order.",
+  "speakers": {"A": {"voice": "f5-news-female"}, "B": {"voice": "dylan"}},
+  "turns": [
+    {"speaker": "A", "text": "我們確認一下下週的展示時間，先暫定星期四下午三點半。", "tts_duration_seconds": 5.3},
+    {"speaker": "B", "text": "那個時段客戶在上課，星期五上午十點可以嗎？"},
+    {"speaker": "A", "text": "可以，改成星期五上午十點，星期四的時間取消。", "tts_duration_seconds": 4.3},
+    {"speaker": "B", "text": "參加的人數我原本填八位。"},
+    {"speaker": "A", "text": "我剛收到更正，對方只有五位，加上我們兩位，總共七位。", "tts_duration_seconds": 4.9},
+    {"speaker": "B", "text": "收到，我把會議室改成七個座位。需要準備八份資料嗎？"},
+    {"speaker": "A", "text": "不用，資料印七份就好，舊的人數不要沿用。", "tts_duration_seconds": 3.9},
+    {"speaker": "B", "text": "我今天下午更新 calendar invite，也會刪掉星期四那一筆。"},
+    {"speaker": "A", "text": "另外，原本說要訂午餐，這次改成只準備茶水。", "tts_duration_seconds": 4.1},
+    {"speaker": "B", "text": "好，我負責更改邀請和資料份數，今天五點前完成。"},
+    {"speaker": "A", "text": "展示用的帳號我來測試，星期四中午以前回報。", "tts_duration_seconds": 4.3},
+    {"speaker": "B", "text": "最後確認，星期五上午十點、七個座位、七份資料，沒有午餐。"}
+  ]
+}

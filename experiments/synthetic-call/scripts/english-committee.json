@@ -1,0 +1,101 @@
+{
+  "description": "Fictional English community committee call with revised repair counts, budget arithmetic, a corrected room booking and an unresolved lighting expense.",
+  "language": "en",
+  "speakers": {
+    "A": {
+      "voice": "emotivoice-1093"
+    },
+    "B": {
+      "voice": "emotivoice-1012"
+    },
+    "C": {
+      "voice": "emotivoice-1066"
+    }
+  },
+  "turns": [
+    {
+      "speaker": "A",
+      "text": "Before we book the hall, let's settle the chair repairs and cleaning costs. We must also check the time against the children's class."
+    },
+    {
+      "speaker": "B",
+      "text": "I have a quote. Repairing fourteen chairs costs two hundred and eighty dollars, including delivery, but I haven't checked the quantity."
+    },
+    {
+      "speaker": "C",
+      "text": "There are twelve damaged chairs, not fourteen. I counted them myself. Four other chairs are usable, so we'll have sixteen seats after repairs."
+    },
+    {
+      "speaker": "A",
+      "text": "Please ask for a revised repair quote. Replacing all twelve chairs was suggested, but I don't want to approve that without comparing costs."
+    },
+    {
+      "speaker": "B",
+      "text": "Replacement would be thirty five dollars per chair, or four hundred and twenty dollars altogether. The repair company has already confirmed twenty dollars for each chair."
+    },
+    {
+      "speaker": "C",
+      "text": "That makes the repairs two hundred and forty dollars. The cleaner's quote is another one hundred and eighty, so those two jobs would total four hundred and twenty."
+    },
+    {
+      "speaker": "A",
+      "text": "Our budget is six hundred dollars. Let's repair the twelve chairs and book the cleaner, leaving one hundred and eighty in reserve. We aren't ordering replacement chairs."
+    },
+    {
+      "speaker": "B",
+      "text": "I'll confirm the quantity and arrange collection by Thursday at noon. The chairs should return on Friday, but I'll request written confirmation."
+    },
+    {
+      "speaker": "C",
+      "text": "I can contact the cleaner today. The booking draft says Saturday from nine until noon. Is that still the session we're preparing for?"
+    },
+    {
+      "speaker": "A",
+      "text": "Correction. The children's class has Saturday morning. Our session is Sunday from ten until one, and the Saturday request needs to be cancelled."
+    },
+    {
+      "speaker": "B",
+      "text": "Sunday from ten until one. That gives us the whole session without sharing the room. I'll put the corrected time on the equipment delivery note."
+    },
+    {
+      "speaker": "C",
+      "text": "The cleaner has confirmed Sunday at eight thirty, finishing by nine thirty. That leaves half an hour before our session starts."
+    },
+    {
+      "speaker": "A",
+      "text": "I'll update the calendar and send the corrected invitation by Wednesday at five. I don't want both versions circulating."
+    },
+    {
+      "speaker": "B",
+      "text": "What about the lamp above the entrance? The switch worked yesterday, but the light kept flickering. Should we use some of the remaining money for that?"
+    },
+    {
+      "speaker": "C",
+      "text": "We don't have a quote yet. I can ask for an inspection, but requesting a price isn't the same as authorizing work. No repair should start automatically."
+    },
+    {
+      "speaker": "A",
+      "text": "Keep the reserve untouched until we see the inspection result and price. If it's urgent, we'll discuss it again before approving work."
+    },
+    {
+      "speaker": "B",
+      "text": "I'll separate the chair paperwork from the lighting request, so we don't charge an inspection fee to the confirmed chair order."
+    },
+    {
+      "speaker": "C",
+      "text": "I'll circulate the lighting quote when it arrives. I can't promise a repair date today, and we haven't decided whether an inspection fee would be acceptable."
+    },
+    {
+      "speaker": "A",
+      "text": "The confirmed items are twelve repaired chairs, Sunday morning cleaning, and the room reservation for Sunday from ten until one."
+    },
+    {
+      "speaker": "B",
+      "text": "My task is the chair collection and delivery confirmation by Thursday at noon. I'll check that the final chair invoice says two hundred and forty dollars."
+    },
+    {
+      "speaker": "C",
+      "text": "I'll handle the cleaner and request the lighting quote. Approved jobs total four hundred and twenty dollars. Lighting work and inspection fees remain undecided."
+    }
+  ]
+}

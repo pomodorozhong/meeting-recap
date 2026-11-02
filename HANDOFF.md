@@ -2,6 +2,18 @@
 
 ## In progress
 
+### codex/synthetic-recording-collection
+
+- [Draft PR #32](https://github.com/pomodorozhong/meeting-recap/pull/32) targets `main` and relates to #4. Source checkpoint `4b89884` appends six pure English calls to the published eleven-recording corpus. The collection has fourteen scripts and three controls, producing seventeen main WAVs.
+- The English scripts contain 2,947 scripted words and produce 19.04 minutes of audio across one through four speakers. They use EmotiVoice 1093 / 1012 / 1066 and Qwen Aiden / Ryan. Existing F5 and localization roles remain intact. Listening choices and review audio remain outside the public checkout.
+- Explicit English language routing and coverage floors are tested. The pinned transcript runner verifies input hashes and ASR provenance, generates missing reports and refuses stale reports. English WER and Mandarin CER are reported separately, and a baseline comparison fails when either language regresses even if the other improves.
+- The committed Whisper component baseline is 1.88% English WER (57 / 3,028 normalized words, six calls) and 9.27% Mandarin CER (287 / 3,095 characters, eight calls). Baseline self-comparison passes. The training checkback was corrected after a garbled first synthesis and scores 2.09% whole-call WER in the final decode. Onboarding preserves the observed hallucination around its intentional twelve-second pause. Full pipeline benchmarks remain a follow-up.
+- All eleven published hash records and eight earlier scripts match `b15f116e`. All 51 primary fixture payloads verify. All 47 CPU tests pass and both locks are current (83 main / 78 child packages). A separate checkout regenerated all six English calls: eighteen new primary payloads and all 122 new turn clips match byte for byte. All 51 primary payloads also match across the complete collection.
+- Offline verification and reuse preserve all 353 fixture files and modification times with an empty model cache and invoke no synthesis subprocess. Both modes refuse altered English language metadata without changing outputs. The ASR runner also reuses all fourteen reports offline without importing models or changing any file.
+- Models, source code, reference audio, frontend resources, Python 3.12.13 and both dependency environments are pinned. F5 pretrained weights carry CC-BY-NC-4.0 terms and its demo reference archive states no separate redistribution terms. EmotiVoice and encoder upstream provenance and license references are documented. The isolated CPU runtime preserves Torch 2.10.0 and Transformers 4.57.6.
+- The synthetic-call README records the measured model footprint: three TTS systems, five generation model packages at 6.58 GB, or six packages at 9.66 GB including Whisper verification. Reference audio, source and frontend resources add roughly 29 MB. Measurements exclude Python environments, generated audio and earlier audition models.
+- The update and PR-body replacement are authorized. The body uses What changed / Why / Verification / Related issue / reference. The complete corpus, verification reports, five English voice samples and listening notes are saved in the external review dataset. Next action is review of the expanded draft PR for merging.
+
 ### feat/pipeline-baseline
 
 - Saved synthetic-call runs of the pipeline, stacked on #29; to be rebuilt on the synthetic-call scorer. Read that branch's own `HANDOFF.md`.

@@ -5,15 +5,16 @@ from importlib.metadata import version
 import json
 from pathlib import Path
 import re
+import subprocess
 
 import numpy as np
 from scipy.optimize import linear_sum_assignment
 import soundfile as sf
 
 from collection import CONTROLS, HERE, SCRIPTS, build, digest, load
-from expanded_followup import MODELS, chunks
+from expanded_followup import MODELS, PIPE, chunks
 from score_transcripts import edit_distance, normalizers
-from score_speakers import words
+from score_speakers import score as score_speakers, words
 
 
 def speaker_time(truth, predicted, duration):
@@ -65,6 +66,17 @@ def time_stats(path):
     txt = path.read_text()
     return {"wall_seconds": float(re.search(r"([\d.]+) real", txt).group(1)),
             "peak_footprint_bytes": int(re.search(r"(\d+)\s+peak memory footprint", txt).group(1))}
+
+
+def attribution(src, case, model, diarizer, segments):
+    # Call the actual pipeline attachment in its own project. The reference is only used for scoring.
+    asr = load(case / f"{model}.json")
+    command = "import json,sys,pipeline; print(json.dumps(pipeline.attach(*json.load(sys.stdin))))"
+    turns = json.loads(subprocess.check_output([PIPE / ".venv/bin/python", "-c", command], cwd=PIPE,
+                                               input=json.dumps([asr, segments]), text=True))
+    scored = score_speakers(asr, segments, load(src / "manifest.json")["call_sha256"], turns, src)
+    return {"asr":model, "diarizer":diarizer, "word_time":{k:scored["diarization"][k] for k in ("characters","agree")},
+            "delivered":{k:scored["transcript"][k] for k in ("script_characters","aligned","agree")}}
 
 
 def aggregate(report):
@@ -138,6 +150,10 @@ def score(fixtures, results):
             path = case / (model + ".json")
             data = load(path)
             segs = data["segments"] if model == "who" else data
+            if truth and model in ("who", "sortformer"):
+                for recognizer in ("turbo", "whisper"):
+                    row.setdefault("attribution", {})[f"{recognizer}-{model}"] = attribution(
+                        src, case, recognizer, model, segs)
             row["diarizers"][model] = {**speaker_time(truth, segs, meta["duration_seconds"]),
                                       **time_stats(case / f"{model}.time"), "sha256": digest(path)}
         if name != "silence":

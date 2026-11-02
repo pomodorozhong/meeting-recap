@@ -4,13 +4,13 @@
 
 ### codex/synthetic-recording-collection
 
-- [Draft PR #32](https://github.com/pomodorozhong/meeting-recap/pull/32) targets `main` and relates to #4. Source checkpoint `b45df1a` adds scheduling, design and onboarding calls to the selected F5 voice implementation at `146f28c`. The collection has seven scripted calls and three controls, producing ten main WAVs.
-- All female roles use the pinned F5 news reference, with Qwen male presets. Models, vocoder, reference audio, Python and dependencies are pinned. Explicit female-turn durations and the fixed Whisper voice gate are committed. The user's listening choices are retained outside the public checkout.
-- The seven prior fixtures have independent reproduction coverage at `146f28c`. The three additional calls were regenerated in a separate checkout at `b45df1a`; all nine new WAV/transcript/interval payloads and all 43 new turn clips matched byte for byte. All 30 fixture payloads pass verification. All 21 tests and the lock check passed.
-- Offline verification and reuse preserve all 188 fixture files and their modification times with an empty model cache. Both modes refuse an altered design transcript without modifying outputs.
-- New-call Whisper sanity checks reached 96.1% on scheduling and 95.0% on design. Onboarding exposes a whole-call hallucination around its intentional 12-second pause (78.0% agreement). Its opening line is clear in isolation, and speech after the pause reaches 96.6% when decoded separately. This observed ASR failure is documented. The fixed female handoff gate still has its verified 97.9% result.
-- F5 pretrained weights carry CC-BY-NC-4.0 terms. The demo reference archive states no separate recording redistribution terms. These are documented with the provenance.
-- The update and PR-body replacement are authorized. The body uses What changed / Why / Verification / Related issue / reference. Next action is review of the expanded PR #32. Full pipeline benchmarks on the ten-fixture collection remain a follow-up.
+- [Draft PR #32](https://github.com/pomodorozhong/meeting-recap/pull/32) targets `main` and relates to #4. Source checkpoint `d8a859f` appends a three-female localization call to the verified ten-recording corpus. The user asked to expand with other female voices. The collection now has eight scripts and three controls, producing eleven main WAVs.
+- Localization uses EmotiVoice 1093, 1012 and 1066. F5 supplies the female roles in the earlier calls, with Qwen male presets. Both dependency environments, model/code artifacts and NLTK resources are pinned. The three EmotiVoice reference auditions reproduce byte for byte, and their level-adjusted Whisper gates pass at 100%, 97.9% and 100%. The F5 handoff gate has its verified 97.9% result. Listening choices are retained outside the public checkout.
+- The ten published hash records and seven earlier scripts are verified against `44d0285`. A separate checkout regenerated localization with identical WAV, transcript, speaker intervals and all 15 turn clips. All 33 fixture payloads pass verification, all 32 tests pass, and both dependency locks are current.
+- Offline verification and reuse preserve all 207 fixture files and modification times with an empty model cache and invoke no child synthesis process. Both modes refuse altered EmotiVoice speaker provenance without changing outputs.
+- A full localization sanity decode reaches 97.6% Mandarin agreement. Onboarding still records the observed whole-call Whisper hallucination around its 12-second pause. Full pipeline benchmarks remain a follow-up.
+- F5 pretrained weights carry CC-BY-NC-4.0 terms and its demo reference archive states no separate redistribution terms. EmotiVoice and encoder upstream license references and provenance are documented. The added CPU runtime preserves the audition's Torch 2.10.0 and Transformers 4.57.6 versions.
+- The update and PR-body replacement are authorized. The body uses What changed / Why / Verification / Related issue / reference. Next action is review of the eleven-fixture PR #32.
 
 ### feat/pipeline-baseline
 

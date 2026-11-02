@@ -120,6 +120,8 @@ def recaps(source, case, lang):
     save(exact / "turns.json", turns)
     save(exact / "speakers.json", {"labels": {t["speaker_id"]: "Speaker " + t["speaker_id"] for t in turns}})
     timed(case, "exact", [*command, "summarize", exact])
+    timed(case, "fast", [*command, "run", source / "call.wav", case / "fast",
+                         "--language", lang, "--asr", "turbo-q4", "--diarizer", "who"])
 
 
 def run(fixtures, root, phase, cases=None):

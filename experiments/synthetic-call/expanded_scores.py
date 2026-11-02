@@ -147,7 +147,7 @@ def score(fixtures, results):
                                  "results": ev["results"], "code": ev["code"]}
         if name in ("onboarding", "english-audit"):
             row["recap"] = {}
-            for arm in ("pipeline", "exact"):
+            for arm in ("pipeline", "exact", "fast"):
                 summary = case / arm / "summary.json"
                 row["recap"][arm] = {**time_stats(case / (arm + ".time")), "summary_sha256": digest(summary),
                                       "checks": load(summary)["checks"]}

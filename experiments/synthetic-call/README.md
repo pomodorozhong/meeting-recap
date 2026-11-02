@@ -1,6 +1,6 @@
 # Synthetic call
 
-A short, shareable three-person call for running the runners, the pipeline, and the review skill without private data ([#4](https://github.com/pomodorozhong/meeting-recap/issues/4)). The collection uses a pinned F5-TTS female reference and Qwen3-TTS male presets. See the [seven-recording collection](#seven-recording-collection) for other speaker counts and controlled changes to the audio.
+A short, shareable three-person call for running the runners, the pipeline, and the review skill without private data ([#4](https://github.com/pomodorozhong/meeting-recap/issues/4)). The collection uses a pinned F5-TTS female reference and Qwen3-TTS male presets. See the [ten-recording collection](#ten-recording-collection) for other speaker counts and controlled changes to the audio.
 
 ## What it makes
 
@@ -47,9 +47,9 @@ From this folder, `uv run generate.py` is enough.
 
 Further arguments set the script, the output folder and the seed (default 7). The first run downloads the pinned speech models, vocoder and reference archive.
 
-## Seven-recording collection
+## Ten-recording collection
 
-[collection.py](collection.py) builds four fictional calls with the existing generator and seed 7, then derives three controls. Each folder contains `call.wav` (16 kHz mono PCM16), `transcript.json` (scripted text and turn times), `segments.json` (speaker intervals), and a manifest. The transcript is the intended script, not a listening judgment.
+[collection.py](collection.py) builds seven fictional calls with the existing generator and seed 7, then derives three controls. The collection has ten main `call.wav` recordings, including seven scripted calls. Each folder contains `call.wav` (16 kHz mono PCM16), `transcript.json` (scripted text and turn times), `segments.json` (speaker intervals), and a manifest. The transcript is the intended script, not a listening judgment.
 
 | Folder | Input |
 | --- | --- |
@@ -57,9 +57,14 @@ Further arguments set the script, the output folder and the seed (default 7). Th
 | `handoff` | Two-speaker incident handoff, 12 turns |
 | `logistics` | Four-speaker event planning call, 14 turns |
 | `stocktake` | Single-speaker inventory update, six turns with an 18-second pause |
+| `scheduling` | Two speakers, 12 turns. The final appointment is Friday at 10:00 with seven seats and copies, after explicit corrections |
+| `design` | Three speakers, 15 turns. A five-minute cache replaces daily updates, backend ownership moves from B to C, and retention stays unresolved |
+| `onboarding` | Four speakers, 16 turns. C and D join late, speak twice each, and A returns after a 12-second pause |
 | `handoff-channel` | Handoff with speaker B attenuated by 14 dB and seeded noise at −42 dBFS RMS; the reference timing stays fixed |
 | `logistics-overlap` | The same logistics utterances with seven overlapping handoffs; both reference files move with the audio |
 | `silence` | Twelve seconds of digital silence with empty text and speaker intervals |
+
+A whole-call sanity decode of `onboarding` with the pinned Whisper Large v3 checkpoint, greedy Chinese decoding and previous-text conditioning disabled inserted unrelated text around the 12-second pause and omitted some following turns. The fixture preserves the scripted speech and exact pause for evaluating this failure. The intended transcript and speaker intervals come from generation.
 
 From the repository root:
 
@@ -70,7 +75,7 @@ uv run --locked --project "$S" python "$S/collection.py" "$OUT"
 uv run --locked --project "$S" python "$S/collection.py" "$OUT" --check
 ```
 
-The first command builds missing recordings in staging directories and reuses matching completed ones. Both commands verify the WAV, transcript and speaker intervals against [the collection hashes](reference/collection-sha256.json). They also verify the four source scripts and each manifest's provenance; elapsed synthesis time can vary. An existing file that differs is left intact and reported by name. Use a fresh output directory to rebuild it. `--check` reads existing files without loading TTS or generating audio.
+The first command builds missing recordings in staging directories and reuses matching completed ones. Both commands verify the WAV, transcript and speaker intervals against [the collection hashes](reference/collection-sha256.json). They also verify the seven source scripts and each manifest's provenance; elapsed synthesis time can vary. An existing file that differs is left intact and reported by name. Use a fresh output directory to rebuild it. `--check` reads existing files without loading TTS or generating audio.
 
 The hashes describe seed 7 on the reference M2 Pro with the committed model revisions, female-reference hash, explicit F5 turn durations and uv lock. Other hardware or MLX versions can produce different bytes. To generate a local variant with its own references, run `generate.py` directly as described above.
 

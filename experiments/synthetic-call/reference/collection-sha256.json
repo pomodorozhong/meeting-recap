@@ -37,5 +37,23 @@
     "call.wav": "6e49db6ecc812f32cb043fb3c02e4aea55329fa8df27724c5b4e2a76ed57c360",
     "transcript.json": "39c0f88a30692eb5642050e510389aacf3af9f1eeaebd73e59a567325de6e70b",
     "segments.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+  },
+  "scheduling": {
+    "call.wav": "682859a9b37b47f456c196457002aaa27ffc17bd657570ace2331d3f711587fd",
+    "transcript.json": "8c79e7f99411edc30fc4126d0faa7d763d1c34c061c6071b0225b2f06be22a63",
+    "segments.json": "7f5283bb3dc2161fd741f7878d045a3f562519dea70ea23a08bf40553c827822",
+    "script_sha256": "79e8e3fbc78b718f4926c7481afcc351889fb1d5d7a0de6d9ee125ae7b97da19"
+  },
+  "design": {
+    "call.wav": "40384f56b62b474fcbb18d2d833dd18a9a56098a7a41a775c9905063f19d184b",
+    "transcript.json": "f56c71c8f4fcb4f45ddefd927019937276297e3cc986268e0e26c911e10d1cef",
+    "segments.json": "3110d0d907e4d0ec5a6d25c614d8263218c277118c670b2254f4a2c9723e7cba",
+    "script_sha256": "e36143bfec7c26c39a3c596abded678a59969048f27fd350fa7570ba00627b71"
+  },
+  "onboarding": {
+    "call.wav": "3b2a0946b06ae782689f7808550e385395da992e9f12f37fa3ae1874ec064c79",
+    "transcript.json": "51c916110986a65520d9e3d657e6ebb471979d9b05a6263e77ba14563465c153",
+    "segments.json": "98d67c6d3b8e409da39dc86594e4edb11f6e3306778ffeb2d8285e5bcff34525",
+    "script_sha256": "7abf5c7b2a41075f75b863663904ef8e7eba71d064dba2c87e552fc107b3af5d"
   }
 }

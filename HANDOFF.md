@@ -4,41 +4,12 @@
 
 ### codex/synthetic-recording-collection
 
-- Related to #4. This local branch starts at `origin/main` (`01eb50d`). Source checkpoint `b4b1c42` contains the seven-recording collection, its reference hashes, instructions and tests. The broader experiments are in [draft PR #31](https://github.com/pomodorozhong/meeting-recap/pull/31).
-- A separate checkout of `b4b1c42` regenerated the seven recordings into an empty directory on the reference M2 Pro. All 21 WAV, transcript and interval files matched the independent first build byte for byte, and all seven WAVs matched their historical hashes. Checking and reusing existing outputs succeeded with an empty model cache and preserved file modification times. Both modes refused and preserved an altered transcript. All 12 synthetic-call tests and the uv lock check passed.
-- P-03 awaits approval to push this finished branch and open a draft PR against `main` with the title `feat(synthetic-call): add a seven-recording test collection` and the body below. The open-pr skill requires approval of the finished tip and body before publication. The branch is unlinked and closes no issues.
-
-````markdown
-## What changed
-
-- Add handoff, logistics, and stocktake scripts alongside the existing planning call. Generate all four calls with the pinned speech generator.
-- Add controls for a noisy handoff with one quieter speaker, a logistics call with seven overlapping handoffs, and twelve seconds of silence.
-- Save a WAV, scripted transcript, speaker intervals, and a manifest for each of the seven fixtures.
-
-## Why
-
-Testing the effect of a degraded channel or overlapping turns requires a matched pair. Reusing the same utterances keeps words and voices fixed while the audio condition changes. The silence fixture gives runners a case where the expected transcript and speaker intervals are both empty.
-
-## Verification
-
-From the repository root, build the collection, verify it against the pinned hashes, and run the synthetic-call tests.
-
-```bash
-S=experiments/synthetic-call
-OUT=$(mktemp -d)
-uv run --locked --project "$S" python "$S/collection.py" "$OUT"
-uv run --locked --project "$S" python "$S/collection.py" "$OUT" --check
-uv run --locked --project "$S" python -m unittest discover -s tests/synthetic_call -t tests/synthetic_call
-```
-
-- On an M2 Pro, a fresh checkout reproduced all 21 WAV, transcript, and speaker-interval files byte for byte. All seven WAVs also matched their historical hashes.
-- Verification and reuse succeeded with an empty model cache. Both detected a modified transcript and preserved its contents.
-- All 12 synthetic-call tests passed.
-
-## Related issue / reference
-
-Related to #4, which tracks shareable synthetic recordings for testing. The earlier benchmark using these seven recordings is in #31.
-````
+- [Draft PR #32](https://github.com/pomodorozhong/meeting-recap/pull/32) targets `main` and relates to #4. The user requested replacing the female voice with the selected F5 news voice and updating the existing PR. Source checkpoint `146f28c` implements it.
+- All female roles in planning, handoff and logistics use the pinned F5 reference. Models, vocoder, reference audio, Python and dependencies are pinned. Explicit female-turn durations and a runnable Whisper gate are committed. The male-only stocktake and silence hashes still match their earlier values.
+- The production backend reproduced the selected audition WAV exactly. The regenerated 16 kHz handoff passed both English terms in their expected turns, with 97.9% Mandarin agreement. All 21 synthetic-call tests and the lock check passed.
+- A separate checkout rebuilt the complete collection at `146f28c`. All 21 WAV, transcript and speaker-interval payloads matched the first build byte for byte, and the final collection check passed. Independent offline verification and reuse preserve all 133 files and their modification times. Both modes refuse altered transcript and F5 provenance data without changing outputs.
+- F5 pretrained weights carry CC-BY-NC-4.0 terms. The demo reference archive states no separate recording redistribution terms. These are documented with the provenance. The user's listening choices are retained outside the public checkout.
+- The update and PR-body replacement are authorized. The body uses What changed / Why / Verification / Related issue / reference. Next action is review of PR #32. Complete-call ASR and diarization benchmarks for the new audio remain a follow-up.
 
 ### feat/pipeline-baseline
 

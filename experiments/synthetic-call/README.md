@@ -199,6 +199,25 @@ It also lists 7 questions the call answers, which a recap must not list as open.
 uv run --project experiments/synthetic-call python -m unittest discover -s tests/synthetic_call -t tests/synthetic_call
 ```
 
+## Model count and disk space
+
+Generating the complete collection uses **three TTS systems**: Qwen3-TTS, F5-TTS and EmotiVoice. Including the separately downloaded Vocos and SimBERT supporting models, this is **five model packages using about 6.58 GB on disk**. The seven voice profiles share these weights; selecting another preset does not require another model download.
+
+The following sizes were measured from the pinned cached files on the reference Mac on **2026-11-02**. They count allocated disk space with cache symlinks resolved and each underlying file counted once. Units are decimal: 1 GB = 1,000,000,000 bytes and 1 MB = 1,000,000 bytes. Filesystem allocation and rounding can change the reported sizes slightly.
+
+| Model package | Role | Disk space |
+| --- | --- | ---: |
+| Qwen3-TTS 1.7B BF16, including its speech tokenizer | Aiden, Ryan and Dylan voice presets | 4.52 GB |
+| F5-TTS v1, 4-bit | Female news voice | 232 MB |
+| Vocos | F5 vocoder | 54 MB |
+| EmotiVoice checkpoints | Female presets 1093, 1012 and 1066 | 1.39 GB |
+| SimBERT | EmotiVoice text/style encoder | 386 MB |
+| **Generation total** | **Five model packages** | **6.58 GB** |
+| Whisper Large v3 MLX | Voice checks and transcript baseline | 3.08 GB |
+| **Generation and verification total** | **Six model packages** | **9.66 GB** |
+
+The pinned reference WAV, EmotiVoice source and NLTK frontend resources add roughly **29 MB**. These figures exclude Python environments, generated audio, other cached revisions and models from earlier auditions. The revisions and file hashes for the generation models are recorded below, in [`reference/f5-voice.json`](reference/f5-voice.json) and [`emotivoice/pins.json`](emotivoice/pins.json). The verification model is pinned in [`transcribe_collection.py`](transcribe_collection.py) and [`check_voice.py`](check_voice.py).
+
 ## Pins and licenses
 
 | Part | Pin | License |

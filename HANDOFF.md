@@ -4,12 +4,13 @@
 
 ### codex/synthetic-recording-collection
 
-- [Draft PR #32](https://github.com/pomodorozhong/meeting-recap/pull/32) targets `main` and relates to #4. The user requested replacing the female voice with the selected F5 news voice and updating the existing PR. Source checkpoint `146f28c` implements it.
-- All female roles in planning, handoff and logistics use the pinned F5 reference. Models, vocoder, reference audio, Python and dependencies are pinned. Explicit female-turn durations and a runnable Whisper gate are committed. The male-only stocktake and silence hashes still match their earlier values.
-- The production backend reproduced the selected audition WAV exactly. The regenerated 16 kHz handoff passed both English terms in their expected turns, with 97.9% Mandarin agreement. All 21 synthetic-call tests and the lock check passed.
-- A separate checkout rebuilt the complete collection at `146f28c`. All 21 WAV, transcript and speaker-interval payloads matched the first build byte for byte, and the final collection check passed. Independent offline verification and reuse preserve all 133 files and their modification times. Both modes refuse altered transcript and F5 provenance data without changing outputs.
-- F5 pretrained weights carry CC-BY-NC-4.0 terms. The demo reference archive states no separate recording redistribution terms. These are documented with the provenance. The user's listening choices are retained outside the public checkout.
-- The update and PR-body replacement are authorized. The body uses What changed / Why / Verification / Related issue / reference. Next action is review of PR #32. Complete-call ASR and diarization benchmarks for the new audio remain a follow-up.
+- [Draft PR #32](https://github.com/pomodorozhong/meeting-recap/pull/32) targets `main` and relates to #4. Source checkpoint `b45df1a` adds scheduling, design and onboarding calls to the selected F5 voice implementation at `146f28c`. The collection has seven scripted calls and three controls, producing ten main WAVs.
+- All female roles use the pinned F5 news reference, with Qwen male presets. Models, vocoder, reference audio, Python and dependencies are pinned. Explicit female-turn durations and the fixed Whisper voice gate are committed. The user's listening choices are retained outside the public checkout.
+- The seven prior fixtures have independent reproduction coverage at `146f28c`. The three additional calls were regenerated in a separate checkout at `b45df1a`; all nine new WAV/transcript/interval payloads and all 43 new turn clips matched byte for byte. All 30 fixture payloads pass verification. All 21 tests and the lock check passed.
+- Offline verification and reuse preserve all 188 fixture files and their modification times with an empty model cache. Both modes refuse an altered design transcript without modifying outputs.
+- New-call Whisper sanity checks reached 96.1% on scheduling and 95.0% on design. Onboarding exposes a whole-call hallucination around its intentional 12-second pause (78.0% agreement). Its opening line is clear in isolation, and speech after the pause reaches 96.6% when decoded separately. This observed ASR failure is documented. The fixed female handoff gate still has its verified 97.9% result.
+- F5 pretrained weights carry CC-BY-NC-4.0 terms. The demo reference archive states no separate recording redistribution terms. These are documented with the provenance.
+- The update and PR-body replacement are authorized. The body uses What changed / Why / Verification / Related issue / reference. Next action is review of the expanded PR #32. Full pipeline benchmarks on the ten-fixture collection remain a follow-up.
 
 ### feat/pipeline-baseline
 

@@ -169,7 +169,7 @@ class Run:
         print(f"[{name}] completed in {record['seconds']:.1f} s", flush=True)
 
 
-def prepare(audio, out, resume, diarizer="sortformer", weights_sha256=None, asr_model="large-v3"):
+def prepare(audio, out, resume, diarizer="sortformer", weights_sha256=None, language="zh", asr_model="large-v3"):
     audio, out = Path(audio).resolve(), Path(out).resolve()
     if not audio.is_file():
         raise ValueError(f"{audio} is not a file")
@@ -183,18 +183,21 @@ def prepare(audio, out, resume, diarizer="sortformer", weights_sha256=None, asr_
         manifest = read_json(out / "run.json")
         if manifest["input_sha256"] != digest:
             raise ValueError(f"{out} holds a run of a different recording; choose a new folder")
-        if manifest.get("asr_model", "large-v3") != asr_model:
-            raise ValueError(f"{out} used a different ASR; resume with --asr {manifest.get('asr_model', 'large-v3')}")
         if manifest.get("diarizer", "sortformer") != diarizer:
             raise ValueError(f"{out} was run with --diarizer {manifest.get('diarizer', 'sortformer')}; "
                              "resume it with the same diarizer, or choose a new folder")
+        if manifest.get("asr_model", "large-v3") != asr_model:
+            raise ValueError("resume with the original ASR model or choose a new output folder")
+        if manifest.get("language", "zh") != language:
+            raise ValueError("resume with the original ASR language or choose a new output folder")
         return audio, out
     if resume:
         raise ValueError(f"{out} has no run to resume")
     out.mkdir(parents=True, exist_ok=True)
     write_atomic(out / "run.json", {
         "pipeline": "whisper-sortformer", "code_commit": git_commit(), "created_at": now(),
-        "input_name": audio.name, "input_sha256": digest, "diarizer": diarizer, "asr_model": asr_model,
+        "input_name": audio.name, "input_sha256": digest, "diarizer": diarizer, "language": language,
+        "asr_model": asr_model,
         "models": {"asr": "@".join(pins.ASR_MODELS[asr_model]),
                    "diarization": DIARIZERS[diarizer], "diarization_weights_sha256": weights_sha256,
                    "summary": f"{pins.SUMMARY_REPO}@{pins.SUMMARY_REVISION}"},
@@ -217,9 +220,9 @@ def duration(out):
     return float(probe.stdout.strip())
 
 
-def asr(out, model="large-v3"):
+def asr(out, language="zh", model="large-v3"):
     partial = out / ".asr.partial.json"
-    stats = python_stage(out, "asr", "asr_stage.py", out / "audio.wav", partial, model)
+    stats = python_stage(out, "asr", "asr_stage.py", out / "audio.wav", partial, language, model)
     data = read_json(partial)
     stats["mlx_peak_bytes"] = data["mlx_peak_bytes"]
     os.replace(partial, out / "asr.json")
@@ -308,10 +311,10 @@ def run(args):
     out = Path(args.out).resolve()
     # Checked before any stage runs, so a changed download fails in seconds rather than after ASR.
     weights = None if args.resume and Run(out).done("diarize") else pins.check_weights(args.diarizer)
-    audio, out = prepare(args.audio, args.out, args.resume, args.diarizer, weights, args.asr)
+    audio, out = prepare(args.audio, args.out, args.resume, args.diarizer, weights, args.language, args.asr)
     record = Run(out)
     plan = [("convert", lambda: convert(audio, out), ["audio.wav"]),
-            ("asr", lambda: asr(out, args.asr), ["asr.json"]),
+            ("asr", lambda: asr(out, args.language, args.asr), ["asr.json"]),
             ("diarize", lambda: diarize(out, args.diarizer), [RAW_DIARIZATION[args.diarizer], "diarization.json"]),
             ("attach", lambda: attach(out), ["turns.json", "speakers.json"]),
             ("transcript", lambda: transcript(out), ["transcript.md"])]
@@ -383,8 +386,10 @@ def main(argv=None):
     p.add_argument("audio")
     p.add_argument("out", help="a new folder outside the Git checkout")
     p.add_argument("--resume", action="store_true", help="continue a failed or partial run in OUT")
-    p.add_argument("--no-summary", action="store_true", help="stop after the transcript")
     p.add_argument("--asr", choices=pins.ASR_MODELS, default="large-v3", help="pinned MLX Whisper variant")
+    p.add_argument("--language", choices=("zh", "en"), default="zh",
+                   help="spoken language: Mandarin (default; also for Mandarin with English terms) or English")
+    p.add_argument("--no-summary", action="store_true", help="stop after the transcript")
     p.add_argument("--diarizer", choices=sorted(DIARIZERS), default="sortformer",
                    help="sortformer (default) or who: much faster, slightly fewer turns kept apart in #25")
     p.set_defaults(func=run)

@@ -1,6 +1,6 @@
 # whisper-sortformer pipeline
 
-The first end-to-end pipeline for a saved recording ([#28](https://github.com/pomodorozhong/meeting-recap/issues/28)): audio → Whisper Large v3 (Chinese forced, word timestamps) and Sortformer → speaker labels attached per word → an editable speaker mapping → a Traditional Chinese Markdown transcript → a local recap of topics, decisions, action items, proposals and open questions, each with transcript timestamps.
+The first end-to-end pipeline for a saved recording ([#28](https://github.com/pomodorozhong/meeting-recap/issues/28)): audio → Whisper Large v3 (Mandarin by default, word timestamps) and Sortformer → speaker labels attached per word → an editable speaker mapping → a Traditional Chinese Markdown transcript → a local recap of topics, decisions, action items, proposals and open questions, each with transcript timestamps.
 
 It assembles the baseline from [decision 1](../../../docs/decisions.md) without further model comparison. It is made for an online call with two or three speakers in Mandarin with English terms. Everything runs locally on an M2 Pro with 16 GB of memory.
 
@@ -75,7 +75,7 @@ uv run --project experiments/pipelines/whisper-sortformer experiments/pipelines/
 uv run --project experiments/pipelines/whisper-sortformer experiments/pipelines/whisper-sortformer/recap.py run recording.m4a ~/meeting-notes/2026-11-01-call
 ```
 
-- **Input:** any file ffmpeg reads.
+- **Input:** any file ffmpeg reads. Use `--language en` for an English recording; the default `zh` is for Mandarin, including calls with English terms. This selects the spoken language for ASR; the recap prompt still requests Traditional Chinese. A resumed run must use its original language.
 - **Output folder:** must be new or empty, and outside this Git checkout. An existing run is never replaced.
 - **Offline:** both Python model stages run with `HF_HUB_OFFLINE=1`, so they fail rather than download a different revision. Sortformer loads FluidAudio's cached models. Before any stage runs, `run` checks the chosen diarizer's weights against their pinned SHA-256 (about 0.2 s), and refuses on a mismatch.
 - **Fast option:** cache both ASR revisions with `setup --asr all --who`; then add `--asr turbo-q4 --diarizer who` to `run`. You can also use Turbo with Sortformer. The run records the exact ASR revision and rejects a resume with a different model.
@@ -86,7 +86,7 @@ uv run --project experiments/pipelines/whisper-sortformer experiments/pipelines/
 | Stage | Writes | What it does |
 | --- | --- | --- |
 | `convert` | `audio.wav` | ffmpeg to 16 kHz mono 32-bit float, keeping the time origin |
-| `asr` | `asr.json` | Whisper Large v3 through `mlx-whisper`: `language=zh`, word timestamps, `condition_on_previous_text=False` |
+| `asr` | `asr.json` | Whisper Large v3 through `mlx-whisper`: explicit `zh` or `en`, word timestamps, `condition_on_previous_text=False` |
 | `diarize` | `sortformer.raw.json` or `who.raw.json`, `diarization.json` | FluidAudio Sortformer (`fluidaudiocli sortformer`) or Who (`who-diarize`), converted to segments |
 | `attach` | `turns.json`, `speakers.json` | Each word gets the label it overlaps most (else the nearest within 1 s). Same-label words less than 1 s apart form one turn |
 | `transcript` | `transcript.md` | Speaker names applied, OpenCC `s2tw` to Traditional characters, one `**[HH:MM:SS] Name:**` paragraph per turn |

@@ -149,7 +149,7 @@ class Runs(unittest.TestCase):
             raise recap.StageError(f"exited with code 1; last lines of logs/{name}.log:\n  boom")
         target = Path(args[1])
         if name == "asr":
-            target.write_text(json.dumps({**ASR, "variant": args[2], "mlx_peak_bytes": 1}))
+            target.write_text(json.dumps({**ASR, "language": args[2], "variant": args[3], "mlx_peak_bytes": 1}))
         else:
             reply = json.dumps(NOTES, ensure_ascii=False)
             target.write_text(json.dumps({"mlx_peak_bytes": 2, "replies": [{"reply": reply}]}))
@@ -234,8 +234,16 @@ class Runs(unittest.TestCase):
         self.assertEqual(self.main("run", str(self.audio), str(self.out), "--resume"), 1)
         self.assertEqual(self.main("run", str(self.audio), str(self.out), "--resume", "--diarizer", "who"), 0)
 
-    def test_fast_call_records_the_model_and_refuses_mixed_resume(self):
-        args = ("run", str(self.audio), str(self.out), "--diarizer", "who", "--no-summary")
+    def test_english_run_passes_language_and_refuses_mixed_resume(self):
+        args = ("run", str(self.audio), str(self.out), "--no-summary")
+        self.assertEqual(self.main(*args, "--language", "en"), 0)
+        for filename in ("asr.json", "run.json"):
+            self.assertEqual(json.loads((self.out / filename).read_text())["language"], "en")
+        self.assertEqual(self.main(*args, "--resume"), 1)
+        self.assertEqual(self.main(*args, "--language", "en", "--resume"), 0)
+
+    def test_fast_english_call_records_the_model_and_refuses_mixed_resume(self):
+        args = ("run", str(self.audio), str(self.out), "--diarizer", "who", "--language", "en", "--no-summary")
         self.assertEqual(self.main(*args, "--asr", "turbo-q4"), 0)
         saved = json.loads((self.out / "run.json").read_text())
         self.assertEqual(saved["models"]["asr"], "@".join(recap.pins.ASR_MODELS["turbo-q4"]))

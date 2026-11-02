@@ -169,7 +169,7 @@ class Run:
         print(f"[{name}] completed in {record['seconds']:.1f} s", flush=True)
 
 
-def prepare(audio, out, resume, diarizer="sortformer", weights_sha256=None):
+def prepare(audio, out, resume, diarizer="sortformer", weights_sha256=None, keep_asr_segments=False):
     audio, out = Path(audio).resolve(), Path(out).resolve()
     if not audio.is_file():
         raise ValueError(f"{audio} is not a file")
@@ -186,6 +186,8 @@ def prepare(audio, out, resume, diarizer="sortformer", weights_sha256=None):
         if manifest.get("diarizer", "sortformer") != diarizer:
             raise ValueError(f"{out} was run with --diarizer {manifest.get('diarizer', 'sortformer')}; "
                              "resume it with the same diarizer, or choose a new folder")
+        if manifest.get("keep_asr_segments", False) != keep_asr_segments:
+            raise ValueError("resume with the original ASR line format or choose a new output folder")
         return audio, out
     if resume:
         raise ValueError(f"{out} has no run to resume")
@@ -193,6 +195,7 @@ def prepare(audio, out, resume, diarizer="sortformer", weights_sha256=None):
     write_atomic(out / "run.json", {
         "pipeline": "whisper-sortformer", "code_commit": git_commit(), "created_at": now(),
         "input_name": audio.name, "input_sha256": digest, "diarizer": diarizer,
+        "keep_asr_segments": keep_asr_segments,
         "models": {"asr": f"{pins.WHISPER_REPO}@{pins.WHISPER_REVISION}",
                    "diarization": DIARIZERS[diarizer], "diarization_weights_sha256": weights_sha256,
                    "summary": f"{pins.SUMMARY_REPO}@{pins.SUMMARY_REVISION}"},
@@ -260,8 +263,9 @@ def sortformer(out):
     return stats
 
 
-def attach(out):
-    turns = pipeline.attach(read_json(out / "asr.json"), read_json(out / "diarization.json"))
+def attach(out, keep_segments=False):
+    turns = pipeline.attach(read_json(out / "asr.json"), read_json(out / "diarization.json"),
+                            keep_segments=keep_segments)
     write_atomic(out / "turns.json", turns)
     if not (out / "speakers.json").exists():  # never replace names the user already edited
         write_atomic(out / "speakers.json", pipeline.default_speakers(turns))
@@ -306,12 +310,12 @@ def run(args):
     out = Path(args.out).resolve()
     # Checked before any stage runs, so a changed download fails in seconds rather than after ASR.
     weights = None if args.resume and Run(out).done("diarize") else pins.check_weights(args.diarizer)
-    audio, out = prepare(args.audio, args.out, args.resume, args.diarizer, weights)
+    audio, out = prepare(args.audio, args.out, args.resume, args.diarizer, weights, args.keep_asr_segments)
     record = Run(out)
     plan = [("convert", lambda: convert(audio, out), ["audio.wav"]),
             ("asr", lambda: asr(out), ["asr.json"]),
             ("diarize", lambda: diarize(out, args.diarizer), [RAW_DIARIZATION[args.diarizer], "diarization.json"]),
-            ("attach", lambda: attach(out), ["turns.json", "speakers.json"]),
+            ("attach", lambda: attach(out, args.keep_asr_segments), ["turns.json", "speakers.json"]),
             ("transcript", lambda: transcript(out), ["transcript.md"])]
     if not args.no_summary:
         plan.append(("summary", lambda: summary(out, replace=record.stages.get("summary", {}).get("status")
@@ -379,6 +383,8 @@ def main(argv=None):
     p.add_argument("audio")
     p.add_argument("out", help="a new folder outside the Git checkout")
     p.add_argument("--resume", action="store_true", help="continue a failed or partial run in OUT")
+    p.add_argument("--keep-asr-segments", action="store_true",
+                   help="keep a timestamped transcript and recap input line at each ASR segment boundary")
     p.add_argument("--no-summary", action="store_true", help="stop after the transcript")
     p.add_argument("--diarizer", choices=sorted(DIARIZERS), default="sortformer",
                    help="sortformer (default) or who: much faster, slightly fewer turns kept apart in #25")

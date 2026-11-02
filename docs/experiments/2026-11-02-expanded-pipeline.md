@@ -1,6 +1,8 @@
 # 2026-11-02: retest the saved-audio pipeline on the expanded collection
 
-**Status:** runs in progress.
+**Status: complete.** Turbo was fastest on every spoken recording, but the older per-call accuracy result did not hold. Word-level speaker attachment and full Whisper's response to long digital pauses did transfer. The fast diarizer merged speakers on all three clean four-person calls, yet won on the new four-person overlap mix. Better transcriptions alone did not ensure better notes.
+
+[Per-call measurements and input hashes](2026-11-02-expanded-pipeline-results.json) · [Fact and action verdicts bound to output hashes](2026-11-02-expanded-pipeline-judgments.json) · [Pipeline commands](../../experiments/pipelines/whisper-sortformer/README.md).
 
 ## Question and decision
 
@@ -35,7 +37,7 @@ Before reading any new recap, also run the earlier Turbo Q4 / Who combination en
 
 ### Registered recap iteration: retain ASR segment boundaries
 
-The fast English audit emitted 37 invalid citation timestamps and left 21 items without citations; the rendered mono transcript provided only two long lines. Test a formatting change on cached inputs: retain a new timestamped transcript line at every Whisper segment boundary, still attaching each word to its original diarization by overlap. Keep the transcript and recap input lines identical, model, prompt, speaker names and segments fixed. Preserve the old outputs. Run the fast audit (development) and fast onboarding (transfer) versus their completed outputs. Add an English training comparison whose recaps have not been generated yet, using the same saved Turbo and Who predictions for both formats. Freeze three training anchors: final count of 18 verified (turns 7/8/18); A's checklist revision by Wednesday noon (21); B's practice check by Thursday at ten (22).
+The fast English audit emitted 37 invalid citation timestamps and left 21 items without citations; the rendered mono transcript provided only two long lines. Test a formatting change on cached inputs: retain a new timestamped transcript line at every Whisper segment boundary, still attaching each word to its original diarization by overlap. Keep the transcript and recap input lines identical, model, prompt, speaker names and segments fixed. Preserve the old outputs. Run the fast audit (development) and fast onboarding (transfer) versus their completed outputs. Add an English training comparison whose recaps have not been generated yet, using the same saved Turbo and Who predictions for both formats. Freeze three training anchors: final count of 18 verified (turns 7/8/18); A's checklist revision by Wednesday noon (21); B responsible for the practice check, due Thursday 10:00 (22).
 
 For each format count lines, dropped citations and items without citations. Regrade the existing facts; additionally count fully correct facts for which the cited lines, together, actually state the expected information (timestamps must refer to displayed lines, and owner checks use the same independently fitted label mapping). More valid timestamps alone is not a pass. Keep the change as an option only if the audit has fewer uncited items and at least one more fully supported anchor, with no loss of full factual anchors on any of the three cases. Otherwise keep it as a failed or mixed experiment. This is exploratory and the audit triggered it.
 
@@ -117,6 +119,21 @@ Across all 17 standalone diarizer runs, Who took 9.34 s in total (median 0.57 s;
 
 In the separate three-case alternative-model sweep, Sortformer beat all four LS-EEND variants and both Community-1 settings on each call. Automatic / oracle-count Community-1 errors were 62.7% / 51.2% on onboarding, 54.6% / 26.1% on tabletop, and 70.9% / 70.9% on committee. On committee both settings returned just one of three voices. LS-EEND AMI beat Who on onboarding (18.2% versus 41.8%), but trailed Sortformer (13.8%). These results concern the pinned FluidAudio ports, not the original gated pyannote implementation.
 
+### Silence splitting and attachment
+
+| Speech with a qualifying pause | Full Whisper edits, whole → split | Turbo edits | Breeze edits |
+| --- | ---: | ---: | ---: |
+| Stocktake (Mandarin; old WAV) | 48 → 18 | 48 → 21 | 17 → 25 |
+| Onboarding (Mandarin; new) | 91 → 11 | 25 → 20 | 18 → 21 |
+| Audit (English; new) | 16 → 16 | 12 → 12 | 16 → 52 |
+| Training (English; new) | 14 → 11 | 11 → 11 | 19 → 28 |
+
+The other 12 speech WAVs pass through without a change; digital silence yields empty text. Across the 14 independent scripts, split full Whisper reaches 6.43% Mandarin CER and 2.08% English WER. Turbo reaches 6.56% and 1.98%; Breeze worsens in both languages (12.44% and 8.92%). This is a five-second digital-zero rule, not evidence about splitting acoustic pauses. One whole-file Breeze gap diagnostic lacks word timestamps and is unavailable, not zero. The text remains scoreable.
+
+The skill evaluated 16 non-silent recorded mixes, no excluded clips. Across the 14 independent scripts, full Whisper + Sortformer with word / segment / line-end attachment recovered **258 / 254 / 252 of 270 turns** and **47 / 43 / 40 of 61 whole clips**. With Who the corresponding figures were 250 / 244 / 243 turns and 46 / 41 / 40 clips. For Breeze, six word-attachment arms on three English recordings were refused; comparing like with like on 11 scripts, word / segment / line-end recovered 192 / 191 / 189 of 204 turns with Sortformer and 185 / 185 / 182 with Who. Known-turn scores use fitted mappings per run and measure ordered turns in reference windows, not whole-call DER.
+
+On the regenerated planning call, full Whisper + Sortformer labeled 1,355/1,385 characters correctly at ASR word times (97.8%), but only 1,259/1,314 aligned characters in the delivered transcript (95.8%). With Who the figures were 1,360/1,385 (98.2%) and 1,266/1,314 (96.3%). The old relative ordering and drop after attachment survive here. Unlike the one-to-one time metric, the historical word metric fits a many-to-one label map and can hide a split speaker.
+
 ### End-to-end recaps
 
 | Input | Full Whisper + Sortformer | Turbo + Who | Exact turns + identical recap model |
@@ -131,6 +148,36 @@ Default onboarding retained both assignments; the fast path merged speakers and 
 
 On the unchanged silence control, the new ordinary pipeline returned zero transcript turns and zero recap items in 6.69 s, with ASR and summary marked as skipped. It still checked and ran the selected diarizer. This is an exact-digital-zero check, not a voice activity detector.
 
+### Action recovery and evidence
+
+| Frozen condition on scheduling and localization | Strict target hits / 4 | All rows emitted | Total model-stage wall time |
+| --- | ---: | ---: | ---: |
+| Exact / ordinary recap | 4 | 6 | 79.6 s |
+| Exact / focused pass | 4 | 7 | 35.6 s |
+| Turbo / ordinary recap | 2 | 7 | 82.0 s |
+| Turbo / focused pass | 2 | 8 | 41.2 s |
+| Turbo / corrected line labels / focused | 3 | 8 | 41.3 s |
+| Full Whisper / focused | 2 | 8 | 39.2 s |
+| Turbo / verifier after focused pass | 0 | 0 | 22.1 s extra |
+
+These are **four prespecified anchors**, not all outstanding tasks; dividing by emitted rows would not measure precision. Exact input helped here. The earlier full-versus-Turbo strict-action advantage (7/14 versus 4/14 on different meetings) and the earlier focused-versus-ordinary advantage do not repeat: both audio extractors retained the two localization anchors. On scheduling the focused Turbo recap predicted the right account test, but its only citation started midway through the word distinguishing the intended account; the strict verdict is a miss. Accepting a plausible reconstruction would credit an additional scheduling anchor to Turbo ordinary/focused and the repaired pass, not to the full-Whisper row that changed the task itself. Perfect time-overlap labels changed the wording and recovered one other scheduling commitment; this uses the reference and is a diagnosis, not a deployable repair. The old verifier result **did** transfer: it discarded all eight candidates, including two strict hits. Leave it out.
+
+### Pipeline iterations checked against saved outputs
+
+The ordinary full-Whisper command with `--split-digital-pauses --diarizer who --no-summary` reproduced the onboarding split result: **11 edits instead of 91**. The two source spans and all 274 recognized words and their start/end times matched the experiment, including 105 words after the pause. It rendered 17 transcript lines in 21.45 s end to end.
+
+With identical Turbo words, Who labels and recap prompt, retaining Whisper segment boundaries gave the recap more precise lines to cite:
+
+| Call | Transcript lines, original → segmented | Uncited items | Fully correct facts | Fully correct with supporting citations |
+| --- | ---: | ---: | ---: | ---: |
+| English audit (5 checks) | 2 → 21 | 21 → 0 | 4 → 4 | 2 → 4 |
+| Onboarding (4 checks) | 19 → 46 | 0 → 0 | 2 → 3 | 2 → 3 |
+| English training (3 checks) | 22 → 48 | 0 → 0 | 2 → 2 | 2 → 2 |
+
+The audit went from 37 invalid citations removed to zero. Onboarding recovered the successful retry with supporting evidence; the merged speaker still caused a wrong owner. Neither training recap stated that 18 was the **verified final** count; both kept the assignments. Some segmented lines start in the same displayed second, so a timestamp may still be ambiguous. The option passed the registered gate, including the previously unseen training recap. The ordinary `run --asr turbo-q4 --diarizer who --language en --keep-asr-segments --no-summary` command on the audit reproduced the graded segmented transcript byte for byte. Only the audit triggered the experiment. These are paired examples, not an estimate of general recap accuracy.
+
 ## Decision and open questions
 
-Pending.
+Keep full Whisper, Sortformer and word-level attachment as the conservative default. Specify the spoken language; offer Turbo for turnaround and Who when speaker identity can be checked. Use the optional exact-zero splitter on digitally muted or edited inputs, and the optional shorter lines when the recap needs finer citations. Skip ASR and recap generation on exact whole-file silence. Do not adopt the verifier or a reference-assisted speaker repair. Keep full and fast recaps reviewable: even an accurate transcript and valid citation can accompany a wrong statement.
+
+The two identical WAVs check repeatability; changed voices and remixes check transfer. They cannot separate voice, overlap and script effects across unrelated calls. The historical 24-item prompt comparison was not repeated on its original task here; the focused action results above cover only four specified positive commitments. No-action precision, long meetings, real-room noise, and accuracy against a listener-confirmed reference remain open. Next, check owners, decisions and citation support on the already prepared private listening reviews before changing the default.

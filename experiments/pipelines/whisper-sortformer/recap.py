@@ -169,7 +169,8 @@ class Run:
         print(f"[{name}] completed in {record['seconds']:.1f} s", flush=True)
 
 
-def prepare(audio, out, resume, diarizer="sortformer", weights_sha256=None, language="zh", keep_asr_segments=False):
+def prepare(audio, out, resume, diarizer="sortformer", weights_sha256=None, language="zh", asr_model="large-v3",
+            keep_asr_segments=False):
     audio, out = Path(audio).resolve(), Path(out).resolve()
     if not audio.is_file():
         raise ValueError(f"{audio} is not a file")
@@ -186,6 +187,8 @@ def prepare(audio, out, resume, diarizer="sortformer", weights_sha256=None, lang
         if manifest.get("diarizer", "sortformer") != diarizer:
             raise ValueError(f"{out} was run with --diarizer {manifest.get('diarizer', 'sortformer')}; "
                              "resume it with the same diarizer, or choose a new folder")
+        if manifest.get("asr_model", "large-v3") != asr_model:
+            raise ValueError("resume with the original ASR model or choose a new output folder")
         if manifest.get("language", "zh") != language:
             raise ValueError("resume with the original ASR language or choose a new output folder")
         if manifest.get("keep_asr_segments", False) != keep_asr_segments:
@@ -197,8 +200,8 @@ def prepare(audio, out, resume, diarizer="sortformer", weights_sha256=None, lang
     write_atomic(out / "run.json", {
         "pipeline": "whisper-sortformer", "code_commit": git_commit(), "created_at": now(),
         "input_name": audio.name, "input_sha256": digest, "diarizer": diarizer, "language": language,
-        "keep_asr_segments": keep_asr_segments,
-        "models": {"asr": f"{pins.WHISPER_REPO}@{pins.WHISPER_REVISION}",
+        "keep_asr_segments": keep_asr_segments, "asr_model": asr_model,
+        "models": {"asr": "@".join(pins.ASR_MODELS[asr_model]),
                    "diarization": DIARIZERS[diarizer], "diarization_weights_sha256": weights_sha256,
                    "summary": f"{pins.SUMMARY_REPO}@{pins.SUMMARY_REVISION}"},
         "machine": {"platform": platform.platform(), "processor": platform.processor()},
@@ -220,9 +223,9 @@ def duration(out):
     return float(probe.stdout.strip())
 
 
-def asr(out, language="zh"):
+def asr(out, language="zh", model="large-v3"):
     partial = out / ".asr.partial.json"
-    stats = python_stage(out, "asr", "asr_stage.py", out / "audio.wav", partial, language)
+    stats = python_stage(out, "asr", "asr_stage.py", out / "audio.wav", partial, language, model)
     data = read_json(partial)
     stats["mlx_peak_bytes"] = data["mlx_peak_bytes"]
     os.replace(partial, out / "asr.json")
@@ -312,10 +315,11 @@ def run(args):
     out = Path(args.out).resolve()
     # Checked before any stage runs, so a changed download fails in seconds rather than after ASR.
     weights = None if args.resume and Run(out).done("diarize") else pins.check_weights(args.diarizer)
-    audio, out = prepare(args.audio, args.out, args.resume, args.diarizer, weights, args.language, args.keep_asr_segments)
+    audio, out = prepare(args.audio, args.out, args.resume, args.diarizer, weights, args.language, args.asr,
+                         args.keep_asr_segments)
     record = Run(out)
     plan = [("convert", lambda: convert(audio, out), ["audio.wav"]),
-            ("asr", lambda: asr(out, args.language), ["asr.json"]),
+            ("asr", lambda: asr(out, args.language, args.asr), ["asr.json"]),
             ("diarize", lambda: diarize(out, args.diarizer), [RAW_DIARIZATION[args.diarizer], "diarization.json"]),
             ("attach", lambda: attach(out, args.keep_asr_segments), ["turns.json", "speakers.json"]),
             ("transcript", lambda: transcript(out), ["transcript.md"])]
@@ -351,7 +355,8 @@ def summarize(args):
 
 
 def setup(args):
-    for repo, revision in ((pins.WHISPER_REPO, pins.WHISPER_REVISION), (pins.SUMMARY_REPO, pins.SUMMARY_REVISION)):
+    selected = list(pins.ASR_MODELS.values()) if args.asr == "all" else [pins.ASR_MODELS[args.asr]]
+    for repo, revision in [*selected, (pins.SUMMARY_REPO, pins.SUMMARY_REVISION)]:
         print(f"{repo}@{revision}: {pins.snapshot(repo, revision)}")
     if not pins.FLUIDAUDIO_CLI.exists():
         raise ValueError("build the diarizer first: swift build -c release --product fluidaudiocli")
@@ -380,11 +385,13 @@ def main(argv=None):
     commands = parser.add_subparsers(dest="command", required=True)
     p = commands.add_parser("setup", help="download pinned models")
     p.add_argument("--who", action="store_true", help="also download Who's weights for --diarizer who")
+    p.add_argument("--asr", choices=[*pins.ASR_MODELS, "all"], default="large-v3", help="ASR snapshots to cache")
     p.set_defaults(func=setup)
     p = commands.add_parser("run", help="run every stage")
     p.add_argument("audio")
     p.add_argument("out", help="a new folder outside the Git checkout")
     p.add_argument("--resume", action="store_true", help="continue a failed or partial run in OUT")
+    p.add_argument("--asr", choices=pins.ASR_MODELS, default="large-v3", help="pinned MLX Whisper variant")
     p.add_argument("--language", choices=("zh", "en"), default="zh",
                    help="spoken language: Mandarin (default; also for Mandarin with English terms) or English")
     p.add_argument("--keep-asr-segments", action="store_true",

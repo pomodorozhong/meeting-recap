@@ -78,6 +78,7 @@ uv run --project experiments/pipelines/whisper-sortformer experiments/pipelines/
 - **Input:** any file ffmpeg reads. Use `--language en` for an English recording; the default `zh` is for Mandarin, including calls with English terms. This selects the spoken language for ASR; the recap prompt still requests Traditional Chinese. A resumed run must use its original language.
 - **Output folder:** must be new or empty, and outside this Git checkout. An existing run is never replaced.
 - **Offline:** both Python model stages run with `HF_HUB_OFFLINE=1`, so they fail rather than download a different revision. Sortformer loads FluidAudio's cached models. Before any stage runs, `run` checks the chosen diarizer's weights against their pinned SHA-256 (about 0.2 s), and refuses on a mismatch.
+- **Fast option:** cache both ASR revisions with `setup --asr all --who`; then add `--asr turbo-q4 --diarizer who` to `run`. You can also use Turbo with Sortformer. The run records the exact ASR revision and rejects a resume with a different model.
 
 Use `--keep-asr-segments` to give the recap a timestamp for each Whisper segment even when the speaker stays the same. On three synthetic calls this improved citation support on two and tied on one. Check the cited words: two lines can share a displayed second, and a valid timestamp does not guarantee a correct claim.
 

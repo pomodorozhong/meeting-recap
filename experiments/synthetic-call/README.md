@@ -1,6 +1,6 @@
 # Synthetic call
 
-A short, shareable three-person call for running the runners, the pipeline, and the review skill without private data ([#4](https://github.com/pomodorozhong/meeting-recap/issues/4)). The collection uses pinned F5-TTS and EmotiVoice female profiles with Qwen3-TTS male presets. See the [eleven-recording collection](#eleven-recording-collection) for other speaker counts and controlled changes to the audio.
+A short, shareable three-person call for running the runners, the pipeline, and the review skill without private data ([#4](https://github.com/pomodorozhong/meeting-recap/issues/4)). The collection uses pinned F5-TTS and EmotiVoice female profiles with Qwen3-TTS male presets. See the [seventeen-recording collection](#seventeen-recording-collection) for other speaker counts and controlled changes to the audio.
 
 ## What it makes
 
@@ -59,9 +59,9 @@ From this folder, `uv run generate.py` is enough.
 
 Further arguments set the script, the output folder and the seed (default 7). The first run downloads the pinned speech models, vocoder and reference archive.
 
-## Eleven-recording collection
+## Seventeen-recording collection
 
-[collection.py](collection.py) builds eight fictional calls with the existing generator and seed 7, then derives three controls. The collection has eleven main `call.wav` recordings, including eight scripted calls. Each folder contains `call.wav` (16 kHz mono PCM16), `transcript.json` (scripted text and turn times), `segments.json` (speaker intervals), and a manifest. The transcript is the intended script, not a listening judgment.
+[collection.py](collection.py) builds fourteen fictional calls with the existing generator and seed 7, then derives three controls. The collection has seventeen main `call.wav` recordings, including fourteen scripted calls. Each folder contains `call.wav` (16 kHz mono PCM16), `transcript.json` (scripted text and turn times), `segments.json` (speaker intervals), and a manifest. The transcript is the intended script, not a listening judgment.
 
 | Folder | Input |
 | --- | --- |
@@ -73,6 +73,12 @@ Further arguments set the script, the output folder and the seed (default 7). Th
 | `design` | Three speakers, 15 turns. A five-minute cache replaces daily updates, backend ownership moves from B to C, and retention stays unresolved |
 | `onboarding` | Four speakers, 16 turns. C and D join late, speak twice each, and A returns after a 12-second pause |
 | `localization` | Three female speakers, 15 turns. Corrected error wording, rejected troubleshooting advice and an unresolved export check |
+| `english-audit` | One speaker, 15 turns. Equipment counts, corrected quantities and measurements, a silent break, and an unresolved repair |
+| `english-handoff` | Two speakers, 20 turns. Incident thresholds, rejected remedies, deadlines and a provisional test |
+| `english-design` | Three speakers, 20 turns. Reversed export decision, reassignment, corrected deadlines and deferred retention |
+| `english-tabletop` | Four speakers, 24 turns. Late arrival, corrected seat counts, delivery costs and accessibility measurements |
+| `english-committee` | Three female speakers, 21 turns. Maintenance costs, booking hours, rejected work and pending fees |
+| `english-training` | Two speakers, 22 turns. Checkbacks, corrected scan settings, spelled acronyms and return after silence |
 | `handoff-channel` | Handoff with speaker B attenuated by 14 dB and seeded noise at −42 dBFS RMS; the reference timing stays fixed |
 | `logistics-overlap` | The same logistics utterances with seven overlapping handoffs; both reference files move with the audio |
 | `silence` | Twelve seconds of digital silence with empty text and speaker intervals |
@@ -88,9 +94,42 @@ uv run --locked --project "$S" python "$S/collection.py" "$OUT"
 uv run --locked --project "$S" python "$S/collection.py" "$OUT" --check
 ```
 
-The first command builds missing recordings in staging directories and reuses matching completed ones. Both commands verify the WAV, transcript and speaker intervals against [the collection hashes](reference/collection-sha256.json). They also verify the eight source scripts and each manifest's provenance; elapsed synthesis time can vary. An existing file that differs is left intact and reported by name. Use a fresh output directory to rebuild it. `--check` reads existing files without loading TTS or generating audio.
+The first command builds missing recordings in staging directories and reuses matching completed ones. Both commands verify the WAV, transcript and speaker intervals against [the collection hashes](reference/collection-sha256.json). They also verify the fourteen source scripts and each manifest's provenance; elapsed synthesis time can vary. An existing file that differs is left intact and reported by name. Use a fresh output directory to rebuild it. `--check` reads existing files without loading TTS or generating audio.
 
 The hashes describe seed 7 on the reference M2 Pro with the committed model revisions, female-reference hash, explicit F5 turn durations and uv lock. Other hardware or MLX versions can produce different bytes. To generate a local variant with its own references, run `generate.py` directly as described above.
+
+## English coverage and transcript regression checks
+
+The six English scripts contain **2,947 spoken words** and produce **19.04 minutes** of audio on the reference machine. They span one through four speakers and use five voice profiles. Each sets `"language": "en"`. The generator selects English for Qwen and records that language in the manifest. The earlier scripts use the Mandarin default.
+
+The coverage tests require at least six English scripts, 2,400 words, five voices and one/two/three/four-speaker cases. Every English-tagged turn must contain English speech without CJK characters.
+
+| English voice | Calls |
+| --- | --- |
+| EmotiVoice 1093 | Audit A, design B, committee A |
+| EmotiVoice 1012 | Handoff A, tabletop A, committee B |
+| EmotiVoice 1066 | Design A, tabletop B, committee C, training A |
+| Qwen Aiden | Handoff B, tabletop C |
+| Qwen Ryan | Design C, tabletop D, training B |
+
+[`score_transcripts.py`](score_transcripts.py) reads `RUNS/<call>/asr.json` for **every scripted call**. Each JSON contains either a top-level `text` string or `segments` with `text` strings. An optional `audio_sha256` must match the reference WAV. The tool also records each ASR file's hash.
+
+English uses word error rate (WER), normalized with the pinned Transformers Whisper English normalizer for numbers and contractions. Mandarin uses character error rate (CER), after OpenCC conversion and removal of punctuation and spaces. Source calls are scored once each. The matched controls are evaluated separately with the existing tools.
+
+[`transcribe_collection.py`](transcribe_collection.py) recreates the Whisper component baseline with model revision `49e6aa286ad60c14352c404340ded53710378a11`, forced language per script, temperature zero and previous-text conditioning disabled. It verifies the complete collection before loading Whisper, reuses reports with matching audio/script/model/settings provenance and refuses stale reports. Archive a stale report before intentionally decoding changed inputs again.
+
+```bash
+RUNS=$(mktemp -d)
+uv run --locked --project "$S" python "$S/transcribe_collection.py" "$OUT" "$RUNS"
+uv run --locked --project "$S" python "$S/score_transcripts.py" "$OUT" "$RUNS" \
+  --output current-scores.json --baseline "$S/reference/transcript-baseline.json"
+uv run --locked --project "$S" python "$S/score_transcripts.py" "$OUT" CANDIDATE_RUNS \
+  --output candidate-scores.json --baseline "$S/reference/transcript-baseline.json"
+```
+
+The committed [component baseline](reference/transcript-baseline.json) records **1.88% English WER** (57 errors / 3,028 normalized words, six calls) and **9.27% Mandarin CER** (287 / 3,095 characters, eight calls), with per-call scores, exact input hashes, normalizer versions and recognizer settings. Normalized word counts differ from source word counts because contractions and numbers are expanded. These are recognizer component results; full pipeline benchmarks remain a follow-up. The English training checkback was rewritten after the first screen found garbled speech, then regenerated and checked again. Its final whole-call WER is 2.09%.
+
+The report has separate English and Mandarin groups. Comparison exits with an error if either group's error rate increases, so improvement in Mandarin cannot conceal an English regression. Missing run files, mismatched reference hashes or changed normalization also fail. `--maximum-regression` sets an allowed absolute rate increase per language, with zero as the default. Reports use distinct output paths to protect the baseline and source data.
 
 ## Use with the review skill
 

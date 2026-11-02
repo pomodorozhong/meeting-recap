@@ -17,10 +17,13 @@ MODEL = ("mlx-community/Qwen3-TTS-12Hz-1.7B-CustomVoice-bf16",
          "52f4770fd9726457eae3d3b6aa92047a25a10776")
 RATE, LEVEL = 16000, 0.08
 HERE = Path(__file__).resolve().parent
+LANGUAGES = {"zh": "chinese", "en": "english"}
 
 
-def voice_configuration(speakers):
+def voice_configuration(speakers, language=None):
     """Describe the engines and voice inputs without loading speech models."""
+    if language is not None and language not in LANGUAGES:
+        raise ValueError(f"unsupported script language: {language}")
     voices = {speaker["voice"] for speaker in speakers.values()}
     unknown_emoti = {voice for voice in voices if voice.startswith("emotivoice-")} - EMOTI_VOICES
     if unknown_emoti:
@@ -36,6 +39,8 @@ def voice_configuration(speakers):
         pin = emoti_provenance(voice)
         config["model"].update(pin["models"])
         config.setdefault("voice_config", {})[voice] = pin
+    if language is not None:
+        config["language"] = language
     return config
 
 
@@ -61,7 +66,7 @@ def generate(script_path, out, seed=7):
             if (isinstance(duration, bool) or not isinstance(duration, (int, float))
                     or not np.isfinite(duration) or duration <= 0):
                 raise ValueError("F5 turns require positive tts_duration_seconds")
-    config = voice_configuration(speakers)
+    config = voice_configuration(speakers, script.get("language"))
     (out / "turns").mkdir(parents=True, exist_ok=True)
     started = time.time()
     clips = []
@@ -82,7 +87,8 @@ def generate(script_path, out, seed=7):
             else:
                 mx.random.seed(seed + i)
                 audio = np.concatenate([np.array(result.audio, dtype=np.float32) for result in
-                                        qwen.generate(text=turn["text"], voice=voice, lang_code="chinese")])
+                                        qwen.generate(text=turn["text"], voice=voice,
+                                                      lang_code=LANGUAGES[config.get("language", "zh")])])
                 rate = qwen.sample_rate
             clips.append(level(resample_poly(audio, RATE, rate).astype(np.float32)))
             sf.write(out / "turns" / f"{i + 1:02d}-{turn['speaker']}.wav", clips[-1], RATE)

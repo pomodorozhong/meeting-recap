@@ -1,0 +1,103 @@
+{
+  "description": "Fictional English scanner training handover with corrected counts and settings, spelled acronyms, an eight-second pause and a checkback before completion.",
+  "language": "en",
+  "speakers": {
+    "A": {
+      "voice": "emotivoice-1066"
+    },
+    "B": {
+      "voice": "ryan"
+    }
+  },
+  "turns": [
+    {
+      "speaker": "A",
+      "text": "Let's walk through the shared scanner before the afternoon session. We'll use ordinary sample pages today, and we'll check the saved file before calling the handover complete."
+    },
+    {
+      "speaker": "B",
+      "text": "Good. I've used a flatbed scanner before, but I haven't used this document feeder or its saved settings."
+    },
+    {
+      "speaker": "A",
+      "text": "The document feeder is called the A D F. First remove clips and staples, then place the pages face up with their top edges pointing into the feeder."
+    },
+    {
+      "speaker": "B",
+      "text": "Face up, top edges first, with clips removed. I should check both sides before loading the stack."
+    },
+    {
+      "speaker": "A",
+      "text": "Exactly. For this exercise, choose grayscale at three hundred dots per inch. The color setting at six hundred makes much larger files and isn't needed for these handouts."
+    },
+    {
+      "speaker": "B",
+      "text": "I was about to choose color at six hundred. I'll change both settings before I press the scan button."
+    },
+    {
+      "speaker": "A",
+      "text": "We have eighteen pages in the sample stack. The handwritten note looks like eighty, but that's wrong. Count the sheets now so we can compare the result later."
+    },
+    {
+      "speaker": "B",
+      "text": "I've counted eighteen sheets. The display also says eighteen pages are ready, so those two counts agree."
+    },
+    {
+      "speaker": "A",
+      "text": "Now choose a searchable P D F and leave automatic rotation enabled. Don't delete any pages just because they appear blank in the small preview."
+    },
+    {
+      "speaker": "B",
+      "text": "Automatic rotation stays on, and I'll keep every page until we've checked the full file. What's our first check after scanning?"
+    },
+    {
+      "speaker": "A",
+      "text": "We'll open the full file, confirm the page count, and read the first and last pages. I'm going to check which destination folder has write access."
+    },
+    {
+      "speaker": "B",
+      "text": "I'll wait here and leave the settings alone. I haven't started scanning or changed the destination yet."
+    },
+    {
+      "speaker": "A",
+      "text": "I'm back. The training folder accepts new files, so use that destination. Give the file the title Training Sample and add today's date in the date field.",
+      "gap_seconds": 8.0
+    },
+    {
+      "speaker": "B",
+      "text": "Training folder, title Training Sample, and today's date in its own field. I'll start the scan now."
+    },
+    {
+      "speaker": "A",
+      "text": "The progress bar has stopped, but wait for the green completion message. A stopped bar by itself doesn't tell us whether the file was actually saved."
+    },
+    {
+      "speaker": "B",
+      "text": "The green message is showing now. I'll open the saved file rather than relying on the preview window."
+    },
+    {
+      "speaker": "A",
+      "text": "Please count all eighteen pages and check that the last paragraph is readable. If a page is missing, keep the original file and report the problem before rescanning."
+    },
+    {
+      "speaker": "B",
+      "text": "All eighteen pages are there, and the first and last pages are readable. I can also select a sentence."
+    },
+    {
+      "speaker": "A",
+      "text": "That confirms the searchable text is present. Tomorrow, try a separate three page sample yourself, but use this same checklist and ask if any status message is unclear."
+    },
+    {
+      "speaker": "B",
+      "text": "Three pages for tomorrow's practice, with the same checklist. I won't replace today's file with that new sample."
+    },
+    {
+      "speaker": "A",
+      "text": "I'll update the written checklist by Wednesday at noon, including the corrected page count and both scan settings. The handover record should link to today's verified sample."
+    },
+    {
+      "speaker": "B",
+      "text": "I'll complete my practice check by Thursday at ten and report the result. If saving fails, I'll stop and ask."
+    }
+  ]
+}

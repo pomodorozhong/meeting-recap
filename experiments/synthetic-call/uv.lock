@@ -975,6 +975,7 @@ dependencies = [
     { name = "opencc-python-reimplemented" },
     { name = "scipy" },
     { name = "soundfile" },
+    { name = "transformers" },
 ]
 
 [package.metadata]
@@ -987,6 +988,7 @@ requires-dist = [
     { name = "opencc-python-reimplemented", specifier = "==0.1.7" },
     { name = "scipy", specifier = "==1.18.1" },
     { name = "soundfile", specifier = "==0.12.1" },
+    { name = "transformers", specifier = "==5.22.0" },
 ]
 
 [[package]]

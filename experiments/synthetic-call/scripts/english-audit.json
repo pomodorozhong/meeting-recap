@@ -1,0 +1,72 @@
+{
+  "description": "Fictional English equipment audit with corrected counts, units, a booking correction, a silent break and an unresolved repair.",
+  "language": "en",
+  "speakers": {
+    "A": {
+      "voice": "emotivoice-1093"
+    }
+  },
+  "turns": [
+    {
+      "speaker": "A",
+      "text": "This is the afternoon equipment audit for the training room. I'm checking what we can actually use tomorrow, so damaged items will stay separate from the working stock in this report."
+    },
+    {
+      "speaker": "A",
+      "text": "The north cabinet contains twelve silver adapters. Wait, there's a shallow tray behind the first box with three more. Please correct the available total to fifteen adapters, all with the same connector."
+    },
+    {
+      "speaker": "A",
+      "text": "There are eight black cables in the drawer, but two have split outer covers. Six are usable. I've put the damaged pair in the red return bag so they won't be issued accidentally."
+    },
+    {
+      "speaker": "A",
+      "text": "We also have four battery packs with six cells in each pack. One pack has been opened. That means eighteen cells are sealed and six are loose, with twenty four cells altogether."
+    },
+    {
+      "speaker": "A",
+      "text": "The loose cells have enough charge for a demonstration, although I haven't measured how long they'll last. I'll mark that as unverified rather than promising a full day of operation."
+    },
+    {
+      "speaker": "A",
+      "text": "Now for the scales. The unit labelled K M four two passed the reference weight check. With a seven hundred and fifty gram weight, its reading stayed within two grams on three attempts."
+    },
+    {
+      "speaker": "A",
+      "text": "The second scale has a loose power socket. I couldn't complete its calibration, and I don't know whether the fault is in the socket or the power supply. It stays out of service."
+    },
+    {
+      "speaker": "A",
+      "text": "Tomorrow's reservation is Thursday at quarter past nine. The old paper sheet still says Wednesday at four, so I'll cross out that entry and check the electronic booking before anyone collects equipment."
+    },
+    {
+      "speaker": "A",
+      "text": "I'm stepping away to read the delivery note by the door. I'll leave a short pause in the recording, then confirm whether the replacement cables have actually arrived or are only expected."
+    },
+    {
+      "speaker": "A",
+      "text": "I'm back. The delivery note says the parcel is expected on Friday. It isn't a receipt. The cables haven't arrived, so today's usable cable count remains six, and the damaged pair still needs replacement.",
+      "gap_seconds": 8.0
+    },
+    {
+      "speaker": "A",
+      "text": "The printed checklist beside the cabinet is version two. I'll remove the older copy inside the lid. The electronic booking also confirms Thursday at quarter past nine."
+    },
+    {
+      "speaker": "A",
+      "text": "For tomorrow's session, I'll reserve eight adapters, four working cables, and the calibrated scale. That leaves seven adapters and two working cables available for other sessions without borrowing from the damaged stock."
+    },
+    {
+      "speaker": "A",
+      "text": "I won't place a general equipment order today. I'll track the two replacement cables already expected, then request a repair assessment of the second scale before deciding whether we need another unit."
+    },
+    {
+      "speaker": "A",
+      "text": "I'll finish updating the inventory by five this afternoon. The calibration question needs a separate answer by Thursday noon. Until then, the second scale must remain clearly labelled as unavailable."
+    },
+    {
+      "speaker": "A",
+      "text": "To close the audit, the important corrections are fifteen adapters, six working cables, and a Friday delivery estimate. Tomorrow's reservation is confirmed for Thursday morning. The second scale's fault is still unresolved."
+    }
+  ]
+}

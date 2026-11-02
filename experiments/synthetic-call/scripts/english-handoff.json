@@ -1,0 +1,94 @@
+{
+  "description": "Fictional English incident handoff with corrected measurements, rejected remedies, named speaker responsibilities and a provisional test decision.",
+  "language": "en",
+  "speakers": {
+    "A": {
+      "voice": "emotivoice-1012"
+    },
+    "B": {
+      "voice": "aiden"
+    }
+  },
+  "turns": [
+    {
+      "speaker": "A",
+      "text": "Before I hand over, let's separate facts from guesses. The slow exports occurred in the test environment this morning. We haven't seen the same failure in production."
+    },
+    {
+      "speaker": "B",
+      "text": "Understood. The dashboard shows three failures out of forty attempts. Were those all requests from the same test account?"
+    },
+    {
+      "speaker": "A",
+      "text": "They used the same account and report template. That narrows the investigation, but it doesn't prove the account caused the problem or that every template is affected."
+    },
+    {
+      "speaker": "B",
+      "text": "Someone suggested restarting every worker before the next test. Should I do that as soon as the handover is finished?"
+    },
+    {
+      "speaker": "A",
+      "text": "No, leave the workers running. A restart could erase useful evidence. First capture the queue length, worker logs, and request identifiers from the affected interval."
+    },
+    {
+      "speaker": "B",
+      "text": "I've checked the dashboard again. I misread one column. There were four failed attempts out of forty, and the warning threshold was twenty five seconds, not twenty."
+    },
+    {
+      "speaker": "A",
+      "text": "Thanks. I'll put four failures and twenty five seconds in the note. Let's remove the earlier figures so nobody quotes both sets as though they describe separate tests."
+    },
+    {
+      "speaker": "B",
+      "text": "The retry limit is currently two. Would raising it to five give the export enough time to finish without changing anything else?"
+    },
+    {
+      "speaker": "A",
+      "text": "We aren't approving that change. Extra retries could lengthen the queue and hide the original delay. Keep the limit at two, and don't disable the timeout warning."
+    },
+    {
+      "speaker": "B",
+      "text": "All right. What will you collect before you leave, and which follow up should I own during the next shift?"
+    },
+    {
+      "speaker": "A",
+      "text": "I'll export the logs and request identifiers by two this afternoon, including the time zone and test template version. Matching timestamps without those details could send us in the wrong direction."
+    },
+    {
+      "speaker": "B",
+      "text": "I'll prepare the rollback checklist. Is tomorrow at eleven in the morning early enough, or do you need a draft today?"
+    },
+    {
+      "speaker": "A",
+      "text": "Tomorrow at eleven is fine. Cover the settings and worker version separately. The checklist should explain how to reverse a change, without implying a rollback has already been approved."
+    },
+    {
+      "speaker": "B",
+      "text": "Should I tell the test team that Friday's larger run can proceed? They asked whether they could start booking the machines now."
+    },
+    {
+      "speaker": "A",
+      "text": "Friday is provisional. We'll review the evidence on Thursday at ten, then decide whether to confirm the larger run. We can't promise approval before we understand the repeated failures."
+    },
+    {
+      "speaker": "B",
+      "text": "I'll mark the booking as tentative. If another export fails during my shift, I'll add its identifier instead of opening an unrelated incident."
+    },
+    {
+      "speaker": "A",
+      "text": "Exactly. Record successful attempts too. Comparing only failures could make a normal delay look unusual, and we'd lose evidence that might distinguish the two."
+    },
+    {
+      "speaker": "B",
+      "text": "One last question. Have we established whether the delay starts in the network or after the request reaches the worker?"
+    },
+    {
+      "speaker": "A",
+      "text": "Not yet. That's the open question. I'll post the logs today, you'll deliver the checklist tomorrow, and we'll decide what happens next at Thursday's review."
+    },
+    {
+      "speaker": "B",
+      "text": "That's clear. Four failures out of forty, a twenty five second warning, two retries, and no restart or larger run approved yet."
+    }
+  ]
+}

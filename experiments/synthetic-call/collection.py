@@ -1,4 +1,4 @@
-"""Build or verify the eleven seed-7 synthetic recordings."""
+"""Build or verify the seventeen seed-7 synthetic recordings."""
 import argparse
 import hashlib
 import json
@@ -24,6 +24,12 @@ SCRIPTS = {
     "design": HERE / "scripts/design.json",
     "onboarding": HERE / "scripts/onboarding.json",
     "localization": HERE / "scripts/localization.json",
+    "english-audit": HERE / "scripts/english-audit.json",
+    "english-handoff": HERE / "scripts/english-handoff.json",
+    "english-design": HERE / "scripts/english-design.json",
+    "english-tabletop": HERE / "scripts/english-tabletop.json",
+    "english-committee": HERE / "scripts/english-committee.json",
+    "english-training": HERE / "scripts/english-training.json",
 }
 REFERENCE = HERE / "reference/collection-sha256.json"
 PAYLOADS = ("call.wav", "transcript.json", "segments.json")
@@ -110,8 +116,10 @@ def verify(folder, name, reference):
     fields = {"call_sha256": expected["call.wav"]}
     if name in SCRIPTS:
         script = SCRIPTS[name]
-        speakers = load(script)["speakers"]
-        fields.update(script=script.name, speakers=speakers, seed=7, **voice_configuration(speakers))
+        data = load(script)
+        speakers = data["speakers"]
+        fields.update(script=script.name, speakers=speakers, seed=7,
+                      **voice_configuration(speakers, data.get("language")))
     else:
         fields["condition"] = name
         parent, _ = CONTROLS[name]

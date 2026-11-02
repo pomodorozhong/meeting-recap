@@ -12,6 +12,7 @@ dependencies = [
     "opencc-python-reimplemented==0.1.7",
     "f5-tts-mlx==0.2.6",
     "mlx-whisper==0.4.2",
+    "transformers==5.22.0",
 ]
 
 [tool.uv]

@@ -1,0 +1,116 @@
+{
+  "description": "Fictional English community workshop review with corrected counts and costs, accessibility measurements, a late participant and unapproved items.",
+  "language": "en",
+  "speakers": {
+    "A": {
+      "voice": "emotivoice-1012"
+    },
+    "B": {
+      "voice": "emotivoice-1066"
+    },
+    "C": {
+      "voice": "aiden"
+    },
+    "D": {
+      "voice": "ryan"
+    }
+  },
+  "turns": [
+    {
+      "speaker": "A",
+      "text": "Let's check the workshop arrangements. We expect forty eight visitors, and the session runs from ten in the morning until one."
+    },
+    {
+      "speaker": "B",
+      "text": "Two visitors cancelled, leaving forty six. Add four volunteers."
+    },
+    {
+      "speaker": "A",
+      "text": "Thanks. That makes fifty people, including all four volunteers. Use fifty on the room plan and remove the earlier estimate from every copy."
+    },
+    {
+      "speaker": "C",
+      "text": "The supplier quoted for sixty chairs. I can reduce the order to fifty, but they need the final count before four this afternoon."
+    },
+    {
+      "speaker": "B",
+      "text": "Can we keep two spare chairs near the entrance? Moving a whole row during the session would be awkward."
+    },
+    {
+      "speaker": "A",
+      "text": "Yes, order fifty two chairs. Fifty are allocated places, and two are spares. The expected number of people stays fifty."
+    },
+    {
+      "speaker": "C",
+      "text": "Can I pause there? The delivery form says the side entrance, but that door has a step. We should route the trolley through the main entrance."
+    },
+    {
+      "speaker": "B",
+      "text": "I'll mark the ramp route through the main entrance and keep the space beside the door clear."
+    },
+    {
+      "speaker": "A",
+      "text": "Measure the passage by the coat rack. We need at least thirty six inches of clear space after setup."
+    },
+    {
+      "speaker": "C",
+      "text": "I measured thirty four inches yesterday. Moving the coat rack against the far wall gives us thirty eight, so I'll change that part of the layout."
+    },
+    {
+      "speaker": "B",
+      "text": "I'll check after setup. Chairs can drift into the passage, so the drawing isn't enough."
+    },
+    {
+      "speaker": "A",
+      "text": "For drinks, provide water and tea. We don't have lunch approval, so nobody should order food on the assumption it's included."
+    },
+    {
+      "speaker": "C",
+      "text": "Understood. I'll confirm the chairs today and check the passage on Friday afternoon. The supplier can deliver Friday at two rather than Saturday morning."
+    },
+    {
+      "speaker": "B",
+      "text": "Friday at two works. I'll arrange for a volunteer to receive the delivery and check the ramp before unloading."
+    },
+    {
+      "speaker": "D",
+      "text": "I've just joined. I can confirm the hearing support equipment is available, but I need the room layout before I can decide where to place it."
+    },
+    {
+      "speaker": "A",
+      "text": "We'll send today's revised layout. The entrance route and chair count have changed, so please replace the earlier attachment."
+    },
+    {
+      "speaker": "B",
+      "text": "Does the equipment need a power socket, or can it run for the full session without being plugged in?"
+    },
+    {
+      "speaker": "D",
+      "text": "It should run on batteries, but please reserve a nearby socket as backup. I'll test the actual unit on Friday and report any problem before five."
+    },
+    {
+      "speaker": "A",
+      "text": "Thank you. We'll leave that item open until the test result arrives. We can't assume the equipment will work."
+    },
+    {
+      "speaker": "C",
+      "text": "One last point: the delivery charge is ninety dollars, not nineteen. I misread the quote, and I'll correct that number before requesting approval."
+    },
+    {
+      "speaker": "A",
+      "text": "Correct the quote first. The chair order can proceed, but the delivery charge needs approval. Keep those decisions separate."
+    },
+    {
+      "speaker": "B",
+      "text": "I'll update the signs and verify passage width. That's fifty allocated seats, two spare chairs, and no lunch."
+    },
+    {
+      "speaker": "D",
+      "text": "I'll send the equipment test result on Friday before five. If it fails, I'll include an alternative, but we haven't selected that alternative yet."
+    },
+    {
+      "speaker": "A",
+      "text": "That's the plan. Delivery approval and the equipment test remain open. Everything else has an owner and a clear next step."
+    }
+  ]
+}

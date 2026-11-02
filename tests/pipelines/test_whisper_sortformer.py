@@ -27,6 +27,14 @@ def asr(*words):
 
 
 class Attach(unittest.TestCase):
+    def test_optional_asr_boundaries_survive_render_and_speaker_rename(self):
+        speech = {"segments": [*asr(("One.", 0, 1))["segments"], *asr((" Two.", 1.1, 2))["segments"]]}
+        for enabled, expected in [(False, 1), (True, 2)]:
+            turns = pipeline.attach(speech, segs(("x", 0, 2)), keep_segments=enabled)
+            rendered = pipeline.named_turns(turns, {"x":"Renamed"})
+            self.assertEqual(len(rendered), expected)
+            self.assertEqual(" ".join(t["text"] for t in rendered), "One. Two.")
+
     def test_words_take_the_overlapping_label_and_join_into_turns(self):
         turns = pipeline.attach(asr(("<|zh|>我", 0.0, 0.3), ("們", 0.3, 0.6), (" deploy", 0.6, 1.0),
                                     ("好", 1.2, 1.5), ("的", 1.5, 1.8)),
@@ -233,6 +241,17 @@ class Runs(unittest.TestCase):
         self.failing = set()
         self.assertEqual(self.main("run", str(self.audio), str(self.out), "--resume"), 1)
         self.assertEqual(self.main("run", str(self.audio), str(self.out), "--resume", "--diarizer", "who"), 0)
+
+    def test_line_format_survives_render_and_cannot_change_on_resume(self):
+        args = ("run", str(self.audio), str(self.out), "--no-summary")
+        self.assertEqual(self.main(*args, "--keep-asr-segments"), 0)
+        turns = json.loads((self.out / "turns.json").read_text())
+        self.assertTrue(turns and all("asr_segment" in turn for turn in turns))
+        expected = (self.out / "transcript.md").read_text()
+        self.assertEqual(self.main("render", str(self.out)), 0)
+        self.assertEqual((self.out / "transcript.md").read_text(), expected)
+        self.assertEqual(self.main(*args, "--resume"), 1)
+        self.assertEqual(self.main(*args, "--resume", "--keep-asr-segments"), 0)
 
     def test_english_run_passes_language_and_refuses_mixed_resume(self):
         args = ("run", str(self.audio), str(self.out), "--no-summary")

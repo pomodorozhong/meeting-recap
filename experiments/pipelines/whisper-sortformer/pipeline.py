@@ -54,7 +54,7 @@ def label_at(segments, start, end):
 
 
 def words(asr):
-    """Yield (start, end, text) per word, refusing a segment that has text but no word timing."""
+    """Yield (segment index, start, end, text) per word, refusing a segment that has text but no word timing."""
     for index, segment in enumerate(asr["segments"]):
         items = segment.get("words")
         if not items:
@@ -67,13 +67,13 @@ def words(asr):
                 raise ValueError(f"transcript segment {index} has a word that ends before it starts")
             text = clean(word["word"])
             if text.strip():
-                yield start, end, text
+                yield index, start, end, text
 
 
-def attach(asr, segments, max_gap=MAX_GAP_SECONDS):
+def attach(asr, segments, max_gap=MAX_GAP_SECONDS, *, keep_segments=False):
     """Give each word the diarization label it overlaps most, and join a label's nearby words into turns."""
     output, waiting = [], []
-    for start, end, text in words(asr):
+    for index, start, end, text in words(asr):
         if end == start:
             # A zero-length word has no time of its own: it joins the turn just before it, else the next word's.
             if output and not waiting and start - output[-1]["end_seconds"] <= max_gap:
@@ -86,11 +86,14 @@ def attach(asr, segments, max_gap=MAX_GAP_SECONDS):
             start = min(start, waiting[0][0])
             waiting = []
         label = label_at(segments, start, end) or UNASSIGNED
-        if output and output[-1]["speaker_id"] == label and start - output[-1]["end_seconds"] <= max_gap:
+        if (output and output[-1]["speaker_id"] == label and start - output[-1]["end_seconds"] <= max_gap
+                and (not keep_segments or output[-1].get("asr_segment") == index)):
             output[-1]["end_seconds"] = max(output[-1]["end_seconds"], end)
             output[-1]["text"] += text
         else:
             output.append({"speaker_id": label, "start_seconds": start, "end_seconds": end, "text": text})
+            if keep_segments:
+                output[-1]["asr_segment"] = index
     if waiting:
         start, text = waiting[0][0], "".join(t for _, t in waiting)
         output.append({"speaker_id": label_at(segments, start, start + 0.01) or UNASSIGNED,
@@ -127,15 +130,18 @@ def check_speakers(mapping, turns):
 def named_turns(turns, labels, convert=lambda text: text, max_gap=MAX_GAP_SECONDS):
     """Apply the speaker mapping; labels mapped to one name merge, so their adjacent turns join."""
     output = []
+    previous_segment = None
     for turn in turns:
         name = labels[turn["speaker_id"]].strip()
         text = convert(turn["text"])
-        if output and output[-1]["speaker"] == name and turn["start_seconds"] - output[-1]["end_seconds"] <= max_gap:
+        if (output and output[-1]["speaker"] == name and turn["start_seconds"] - output[-1]["end_seconds"] <= max_gap
+                and turn.get("asr_segment") == previous_segment):
             output[-1]["end_seconds"] = max(output[-1]["end_seconds"], turn["end_seconds"])
             output[-1]["text"] += ("" if _joins(output[-1]["text"], text) else " ") + text
         else:
             output.append({"speaker": name, "start_seconds": turn["start_seconds"],
                            "end_seconds": turn["end_seconds"], "text": text})
+        previous_segment = turn.get("asr_segment")
     return output
 
 

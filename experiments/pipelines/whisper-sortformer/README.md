@@ -79,6 +79,9 @@ uv run --project experiments/pipelines/whisper-sortformer experiments/pipelines/
 - **Output folder:** must be new or empty, and outside this Git checkout. An existing run is never replaced.
 - **Offline:** both Python model stages run with `HF_HUB_OFFLINE=1`, so they fail rather than download a different revision. Sortformer loads FluidAudio's cached models. Before any stage runs, `run` checks the chosen diarizer's weights against their pinned SHA-256 (about 0.2 s), and refuses on a mismatch.
 - **Fast option:** cache both ASR revisions with `setup --asr all --who`; then add `--asr turbo-q4 --diarizer who` to `run`. You can also use Turbo with Sortformer. The run records the exact ASR revision and rejects a resume with a different model.
+
+Use `--keep-asr-segments` to give the recap a timestamp for each Whisper segment even when the speaker stays the same. On three synthetic calls this improved citation support on two and tied on one. Check the cited words: two lines can share a displayed second, and a valid timestamp does not guarantee a correct claim.
+
 - **Order:** stages run one after another. Each model runs in its own process, so its memory is freed before the next model loads.
 - **`--no-summary`:** stops after the transcript.
 - **`--diarizer who`:** uses Desert Ant Labs Who (int8) instead of Sortformer. It labels speakers in seconds instead of minutes. It refuses to run when its weights are missing rather than downloading them. Each load sends the SDK's licence check (an install ID, versions and platform, no audio) to `events.desertant.com`; the Who experiment ([#25](https://github.com/pomodorozhong/meeting-recap/pull/25)) found inference still works when that server is unreachable. Its licence is source-available. Sortformer stays the default until #25's long-call scores are in. A resumed run must use the diarizer it started with.

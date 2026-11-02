@@ -1,0 +1,42 @@
+{
+  "engine": "f5-tts-mlx",
+  "voice": "f5-news-female",
+  "runtime": "0.2.6",
+  "reference": {
+    "archive_url": "https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/sherpa-onnx-zipvoice-distill-int8-zh-en-emilia.tar.bz2",
+    "archive_sha256": "77219c8b40f4ee8d73a7f902305ff6c1128ef9b54461c41b4ca6ed890b6c2803",
+    "member": "sherpa-onnx-zipvoice-distill-int8-zh-en-emilia/test_wavs/news-female.wav",
+    "sha256": "bb712833cd31d8df805cd29eee112a7db70dbf08ab51e4e2ec7b8106752d97ec",
+    "text": "各位村民, 大家新年好! 近期, 湖北省武汉市等多个地区"
+  },
+  "settings": {
+    "sample_rate": 24000,
+    "quantization_bits": 4,
+    "steps": 8,
+    "method": "rk4",
+    "cfg_strength": 2.0,
+    "speed": 1.0,
+    "sway_sampling_coef": -1.0,
+    "duration": "explicit per turn",
+    "text_normalization": "OpenCC t2s and F5 pinyin frontend",
+    "rng_shape_compatibility": "convert scalar dimensions to Python integers"
+  },
+  "artifacts": {
+    "tts": {
+      "repository": "lucasnewman/f5-tts-mlx",
+      "revision": "2d719cadec8fd3887c8599475a5f65924d523654",
+      "files": {
+        "model_v1_4b.safetensors": "a7bdc5f6b021d4636205a97896383e8dc012de1b967aca85074e7a461eb1b007",
+        "vocab.txt": "4e173934be56219eb38759fa8d4c48132d5a34454f0c44abce409bcf6a07ec46"
+      }
+    },
+    "vocoder": {
+      "repository": "lucasnewman/vocos-mel-24khz",
+      "revision": "ee89d00fac94b61e1235e0869f3e8d49711b7484",
+      "files": {
+        "model.safetensors": "7fd11dcafe62b373156b3a12c0199bbc09b0ce1636692f97eef99ffec02fadb2",
+        "config.yaml": "da9033922f969a47f0c160010226919e59f27761fd5066f3828d46de6650b0fc"
+      }
+    }
+  }
+}

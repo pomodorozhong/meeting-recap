@@ -1,20 +1,20 @@
 {
   "description": "Fictional four-person logistics meeting with an indoor venue, three assignments and an open budget question.",
-  "speakers": {"A": {"voice": "vivian"}, "B": {"voice": "aiden"}, "C": {"voice": "dylan"}, "D": {"voice": "ryan"}},
+  "speakers": {"A": {"voice": "f5-news-female"}, "B": {"voice": "aiden"}, "C": {"voice": "dylan"}, "D": {"voice": "ryan"}},
   "turns": [
-    {"speaker": "A", "text": "今天只談說明會的現場安排。天氣預報說週末可能下雨。"},
+    {"speaker": "A", "text": "今天只談說明會的現場安排。天氣預報說週末可能下雨。", "tts_duration_seconds": 5.1},
     {"speaker": "B", "text": "如果在戶外，要另外準備兩個帳篷。"},
     {"speaker": "C", "text": "而且投影幕在外面看不清楚。"},
-    {"speaker": "A", "text": "那就決定用室內展廳，取消戶外場地。"},
+    {"speaker": "A", "text": "那就決定用室內展廳，取消戶外場地。", "tts_duration_seconds": 3.5},
     {"speaker": "D", "text": "好，展廳旁邊就有電梯。"},
     {"speaker": "B", "text": "指路牌的數量我來確認，星期三以前回報。"},
     {"speaker": "C", "text": "我星期四會去展廳測試 projector，順便檢查接頭。"},
     {"speaker": "D", "text": "無障礙路線圖我負責，星期五以前交電子檔。"},
-    {"speaker": "A", "text": "等一下，入口是東門，對吧？"},
+    {"speaker": "A", "text": "等一下，入口是東門，對吧？", "tts_duration_seconds": 2.4},
     {"speaker": "D", "text": "對，東門，旁邊有斜坡。"},
     {"speaker": "C", "text": "那我不用搬機器上樓了。"},
     {"speaker": "B", "text": "現場口譯的預算有核准嗎？"},
-    {"speaker": "A", "text": "還沒有消息，這一項先留著。"},
+    {"speaker": "A", "text": "還沒有消息，這一項先留著。", "tts_duration_seconds": 2.6},
     {"speaker": "D", "text": "了解，我的路線圖會把東門標清楚。"}
   ]
 }

@@ -8,6 +8,8 @@ import subprocess
 import sys
 import tempfile
 
+from generate import voice_configuration
+
 import numpy as np
 import soundfile as sf
 
@@ -104,8 +106,8 @@ def verify(folder, name, reference):
     fields = {"call_sha256": expected["call.wav"]}
     if name in SCRIPTS:
         script = SCRIPTS[name]
-        fields.update(script=script.name, speakers=load(script)["speakers"], seed=7,
-                      model=load(HERE / "reference/manifest.json")["model"])
+        speakers = load(script)["speakers"]
+        fields.update(script=script.name, speakers=speakers, seed=7, **voice_configuration(speakers))
     else:
         fields["condition"] = name
         parent, _ = CONTROLS[name]

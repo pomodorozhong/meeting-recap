@@ -1,12 +1,12 @@
 # Synthetic call
 
-A short, shareable three-person call for running the runners, the pipeline, and the review skill without private data ([#4](https://github.com/pomodorozhong/meeting-recap/issues/4)). Status: generated, and scored end to end with Sortformer and the review skill. See the [seven-recording collection](#seven-recording-collection) for other speaker counts and controlled changes to the audio.
+A short, shareable three-person call for running the runners, the pipeline, and the review skill without private data ([#4](https://github.com/pomodorozhong/meeting-recap/issues/4)). The collection uses a pinned F5-TTS female reference and Qwen3-TTS male presets. See the [seven-recording collection](#seven-recording-collection) for other speaker counts and controlled changes to the audio.
 
 ## What it makes
 
-[`script.json`](script.json) is a fictional sprint-planning call in Taiwanese Mandarin with English product terms: three speakers (A, B, C), 73 turns over 5.5 minutes, with short interjections, an interruption, and four overlaps (a negative `gap_seconds`). It covers a login bug, dashboard performance, a push-notification feature, CI and Docker tech debt, and a demo date.
+[`script.json`](script.json) is a fictional sprint-planning call in Taiwanese Mandarin with English product terms: three speakers (A, B, C), 73 turns, with short interjections, an interruption, and four overlaps (a negative `gap_seconds`). It covers a login bug, dashboard performance, a push-notification feature, CI and Docker tech debt, and a demo date.
 
-[`generate.py`](generate.py) speaks a script with Qwen3-TTS CustomVoice's preset speakers through MLX on the GPU, and writes, under `out/<script name>/` (ignored by Git):
+[`generate.py`](generate.py) speaks a script through MLX on the GPU, using F5-TTS for the female voice and Qwen3-TTS CustomVoice presets for the male voices, and writes, under `out/<script name>/` (ignored by Git):
 
 | File | Holds |
 | --- | --- |
@@ -16,17 +16,26 @@ A short, shareable three-person call for running the runners, the pipeline, and 
 | `transcript.json` | Ground-truth text per turn in the `transcript` shape (no word times) |
 | `manifest.json` | Model revision, seed, voices, duration, run time, and the call's sha256 |
 
-The audio (10.5 MB) is not committed. [`reference/`](reference/) holds the `segments.json`, `transcript.json` and `manifest.json` of the run with seed 7. It also holds `recap-key.json`, the answer key for scoring a recap of the call (see [Score a run](#score-a-run)). That run reproduces exactly: two runs on an M2 Pro (macOS 26.6.2) gave the same `call_sha256`. On other hardware or MLX builds, compare your manifest's `call_sha256` with the committed one before trusting `reference/`; if they differ, use your own `out/script/` files as the ground truth.
+Audio is generated locally. [`reference/`](reference/) holds the planning call's `segments.json`, `transcript.json` and `manifest.json`. It also holds the recap answer key (see [Score a run](#score-a-run)). Turn text and speaker IDs stay fixed when the voice changes, while the timed references and WAV hashes are regenerated together. Compare your WAV SHA-256 with the committed manifest before using these reference times. Other hardware or MLX builds can produce different bytes.
 
-### Intelligibility
+### Voices and the English-word gate
 
-Whisper Large v3 (Chinese) heard the seed-7 call with a 5.9% character error rate over 1,377 characters, counting each turn on its own after converting to Simplified and dropping punctuation. Most errors are on short turns and English words: `ryan`'s 「真的嗎」 came out as "Cinema", `dylan`'s 「開 schema」 as 「看SK嘛」, and the overlapping 「對對對」 as a single 「對」. This is a rough check, not a verdict; the user listens before the call is used.
+The female voice is `f5-news-female`, generated with F5-TTS v1 4-bit through `f5-tts-mlx`. It uses the published `news-female.wav` demo reference from a pinned ZipVoice release. [`reference/f5-voice.json`](reference/f5-voice.json) records the archive URL and SHA-256, exact member, reference WAV hash and transcript, model and vocoder revisions, per-file hashes, and sampling settings. The reference clip is downloaded to the Hugging Face cache and checked before inference. Its source archive does not state a separate license for that reference recording.
 
-### Voices
+Every F5 turn specifies `tts_duration_seconds` in its script. The handoff's three audition turns use 4.5, 5.5 and 3.8 seconds with seed 7, eight RK4 steps and CFG 2. The automatic duration predictor produced unusable output in this setup. The male voices are the pinned Qwen presets `dylan`, `ryan` and `aiden`.
 
-Every voice is a preset speaker from the model card; there is no cloning. By ear, four presets speak this mix of Mandarin and English well: `vivian` (female, Mandarin), `dylan` (male, Beijing Mandarin), `ryan` and `aiden` (male, made for English). The script uses `vivian`, `dylan` and `ryan`, with `aiden` spare.
+The female voice passed a fixed three-turn Mandarin screen. Unprompted Whisper Large v3 at revision `49e6aa286ad60c14352c404340ded53710378a11`, forced to Chinese with temperature zero and previous-text conditioning disabled, must recover standalone `log` and `timeout` in their original turns. A second decode checks word timestamps against turn boundaries with a 0.2-second tolerance. Mandarin character agreement after OpenCC conversion must reach 65%. The selected audition reached 97.9%, and independent process launches produced identical WAV bytes. After building the collection below, run the same gate on its generated, levelled 16 kHz handoff turns. It writes a JSON report with input hashes, recognition text, turn checks and the verdict.
 
-Rejected on 2026-10-29: Qwen3-TTS's other presets; Kokoro-82M's eight Mandarin voices, which garble English terms; CosyVoice-300M-SFT's built-in voices, whose English is imprecise; and CosyVoice 2 and 3 clones.
+```bash
+uv run --locked --project experiments/synthetic-call python \
+  experiments/synthetic-call/check_voice.py "$OUT/handoff"
+```
+
+This screen covers intelligibility on the fixed script. Listening review determines naturalness and consistency.
+
+### Historical checks
+
+The earlier all-Qwen planning call had SHA-256 `6b7011c6057821e04fe1b3cd78659297218e83d0ed899496e769eb4992a25d48`. Its measured Whisper character error rate was 5.9%, and the earlier Sortformer review recovered 67 of 72 reference turns with seven of ten clips fully correct. Those results describe the earlier audio. Its source and reference files are preserved at commit `e208026`.
 
 ## Run
 
@@ -36,7 +45,7 @@ uv run --project experiments/synthetic-call experiments/synthetic-call/generate.
 
 From this folder, `uv run generate.py` is enough.
 
-Further arguments set the script, the output folder and the seed (default 7). The first run downloads the model (about 4 GB). The call takes about four minutes on an M2 Pro.
+Further arguments set the script, the output folder and the seed (default 7). The first run downloads the pinned speech models, vocoder and reference archive.
 
 ## Seven-recording collection
 
@@ -63,7 +72,7 @@ uv run --locked --project "$S" python "$S/collection.py" "$OUT" --check
 
 The first command builds missing recordings in staging directories and reuses matching completed ones. Both commands verify the WAV, transcript and speaker intervals against [the collection hashes](reference/collection-sha256.json). They also verify the four source scripts and each manifest's provenance; elapsed synthesis time can vary. An existing file that differs is left intact and reported by name. Use a fresh output directory to rebuild it. `--check` reads existing files without loading TTS or generating audio.
 
-The hashes describe seed 7 on the reference M2 Pro with the committed model revision and uv lock. Other hardware or MLX versions can produce different bytes. To generate a local variant with its own references, run `generate.py` directly as described above.
+The hashes describe seed 7 on the reference M2 Pro with the committed model revisions, female-reference hash, explicit F5 turn durations and uv lock. Other hardware or MLX versions can produce different bytes. To generate a local variant with its own references, run `generate.py` directly as described above.
 
 ## Use with the review skill
 
@@ -72,17 +81,16 @@ Keep the dataset outside the checkout (the skill refuses one inside it). From th
 ```bash
 SKILL=.agents/skills/meeting-experiment-review/scripts
 python3 $SKILL/dataset.py init "$DATASET"
-python3 $SKILL/dataset.py add-recording "$DATASET" --id synthetic --audio experiments/synthetic-call/out/script/call.wav --duration 329.88
+DURATION=$(python3 -c 'import json; print(json.load(open("experiments/synthetic-call/out/script/manifest.json"))["duration_seconds"])')
+python3 $SKILL/dataset.py add-recording "$DATASET" --id synthetic --audio experiments/synthetic-call/out/script/call.wav --duration "$DURATION"
 python3 $SKILL/review.py known "$DATASET" --recording synthetic --segments experiments/synthetic-call/reference/segments.json --id truth
 ```
 
-Then run a diarization runner from [docs/runners.md](../../docs/runners.md) on `call.wav`, register its `segments` with `dataset.py add-run`, and score it with `evaluate.py --reference truth`. `review.py known` cuts the call into 10 clips of about 30 seconds with 72 reference turns.
-
-Smoke test, 2026-10-29: Sortformer (FluidAudio, as pinned in docs/runners.md) recovered 67 of 72 turns and got 7 of 10 clips fully right, with the best-fitting label mapping. The misses were in clips 1, 7 and 10: two short B turns and an A turn went unnoticed, and near the end one C turn went to a fourth label that Sortformer used for only 0.6 s.
+Then run a diarization runner from [docs/runners.md](../../docs/runners.md) on `call.wav`, register its `segments` with `dataset.py add-run`, and score it with `evaluate.py --reference truth`. `review.py known` cuts the generated call into review clips using the current speaker intervals.
 
 ## Score a run
 
-Two scorers compare a run on `call.wav` with the call's ground truth, so any pipeline or experiment can be measured the same way. Run them from the repository root through this folder's uv project. Its environment is the one that generated the call.
+Two scorers compare a run on `call.wav` with the call's ground truth, so any pipeline or experiment can be measured the same way. Run them from the repository root through this folder's uv project. Its locked environment generates the current call. Earlier model scores use the earlier reference snapshot and audio hash.
 
 ### Who spoke when
 
@@ -139,6 +147,9 @@ uv run --project experiments/synthetic-call python -m unittest discover -s tests
 | Part | Pin | License |
 | --- | --- | --- |
 | [mlx-community/Qwen3-TTS-12Hz-1.7B-CustomVoice-bf16](https://huggingface.co/mlx-community/Qwen3-TTS-12Hz-1.7B-CustomVoice-bf16), MLX port of [Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice](https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice) | `52f4770fd9726457eae3d3b6aa92047a25a10776` | Apache-2.0 |
+| [F5-TTS MLX v1 4-bit](https://huggingface.co/lucasnewman/f5-tts-mlx), converted from [SWivid/F5-TTS](https://huggingface.co/SWivid/F5-TTS) | `2d719cadec8fd3887c8599475a5f65924d523654`, used files SHA-256 pinned | Original pretrained weights CC-BY-NC-4.0, MLX runtime code MIT |
+| [Vocos MLX](https://huggingface.co/lucasnewman/vocos-mel-24khz) | `ee89d00fac94b61e1235e0869f3e8d49711b7484`, used files SHA-256 pinned | MIT |
+| Published female reference in [ZipVoice demo archive](https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/sherpa-onnx-zipvoice-distill-int8-zh-en-emilia.tar.bz2) | Archive and exact reference WAV SHA-256 in `f5-voice.json` | Reference-specific redistribution terms are unstated in that archive |
 
 Dependencies are declared in [`pyproject.toml`](pyproject.toml) and every package is pinned in [`uv.lock`](uv.lock); `uv run` uses both when it runs in this folder or with `--project`. The locked environment reproduced the seed-7 `call_sha256`.
 

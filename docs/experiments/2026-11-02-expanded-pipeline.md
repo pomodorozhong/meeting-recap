@@ -39,6 +39,10 @@ The fast English audit emitted 37 invalid citation timestamps and left 21 items 
 
 For each format count lines, dropped citations and items without citations. Regrade the existing facts; additionally count fully correct facts for which the cited lines, together, actually state the expected information (timestamps must refer to displayed lines, and owner checks use the same independently fitted label mapping). More valid timestamps alone is not a pass. Keep the change as an option only if the audit has fewer uncited items and at least one more fully supported anchor, with no loss of full factual anchors on any of the three cases. Otherwise keep it as a failed or mixed experiment. This is exploratory and the audit triggered it.
 
+### Registered full-Whisper pause option
+
+Full Whisper improved or tied on each of the four eligible non-silent cases, with no regression in either language aggregate. Offer the measured rule as an explicit option for this model only, leaving normal nonzero decoding unchanged by default. Before acceptance, replay the normal pipeline CLI on onboarding with `--split-digital-pauses --diarizer who --no-summary` and require the same normalized error count as the benchmark split, source-relative timestamps (including speech after the long gap), and a successful rendered transcript. Reusing a loaded model within this CLI is allowed; its wall time is not compared as though it were the benchmark's separate process per chunk. Verify that near-silent nonzero audio is not cut. This is not a room-noise or general VAD change.
+
 ## Restart
 
 Use the locked synthetic and pipeline projects, pipeline setup and Swift binaries in their READMEs; use the MLX run.py CLI with repo, language and pinned revision. The previous benchmark's score_case.py, turn_order.py and silence_split.py at c714e05 define the historical metrics. Use the new collection's language-aware transcript scorer. Store raw calls, predictions and individual judgments outside Git. Public results contain counts and digests only.
@@ -93,6 +97,39 @@ The 17 audio files span 33.76 minutes. Two earlier WAVs are byte-identical (stoc
 English routing improved every English call. The “Turbo never loses” result **does not transfer**: full Whisper made fewer edits on four Mandarin scripts (planning, scheduling, design, localization) and two English scripts (design, tabletop). Turbo's 74-edit aggregate Mandarin advantage includes 66 edits from onboarding. No word-timestamp configuration beats the published component in both language groups. That component also uses temperature zero; the production-style arms use the existing decoder defaults. The comparison does not isolate timestamping as the cause.
 
 On the identical stocktake WAV, the original 48/48/17 errors for full/Turbo/Breeze reproduced. On the resynthesized logistics pair all three worsened with overlap (28→35, 20→34, 17→31 edits). On the attenuated handoff the changes were 32→13, 13→16, 11→11: the old finding that Breeze improved on that specific degradation did not repeat. On identical silence full/Turbo/Breeze again emitted 20/35/0 normalized characters. Both raw-versus-repeat checks matched each model's normalized text on handoff and silence. Generated scripts are intended speech; TTS pronunciation can contribute to text errors.
+
+### Speaker identity and timing
+
+Speaker-time error is (missed + false-alarm + confused speaker-seconds) / reference speaker-seconds, pooled only over independent scripts in each row. One-to-one optimal mapping per file, overlap included, zero collar. Scripted turn intervals include pauses within TTS utterances, so time error also penalizes some valid silence detection. Speaker count and precision of the delivered transcript are separate measures.
+
+| Script speakers | Independent calls | Sortformer | Who int8 |
+| ---: | ---: | ---: | ---: |
+| 1 | 2 | 12.06% | 7.89% |
+| 2 | 4 | 5.66% | 2.74% |
+| 3 | 5 | 10.51% | 3.34% |
+| 4 | 3 | **9.94%** | 26.86% |
+
+Who produced three labels for four speakers on all three clean four-voice calls. The known one-voice stocktake again split into two labels with Who (28.7% versus Sortformer 11.2%); the re-synthesized three-person planning call split into four labels with both. Sortformer also split voices on scheduling and design. Who's better aggregate on one through three voices does not predict every recording.
+
+The matched four-person overlap mix **reverses the clean result**: both found four labels, and Who had 13.6% error versus Sortformer 20.4%. The earlier overlap mix favored Sortformer (12.1% versus 25.2%). On the attenuated handoff, Who retained its advantage (4.9% versus 15.0%). Neither emitted speech on digital silence; a percentage error there is undefined.
+
+Across all 17 standalone diarizer runs, Who took 9.34 s in total (median 0.57 s; peak 0.275 GB) versus Sortformer 888.55 s (median 33.03 s; peak 0.847 GB), about 95× less total time. The distinct fast onboarding pipeline invocation had a 20.77 s Who load and 0.37 s of inference: these timing summaries do not guarantee a subsecond cold start.
+
+In the separate three-case alternative-model sweep, Sortformer beat all four LS-EEND variants and both Community-1 settings on each call. Automatic / oracle-count Community-1 errors were 62.7% / 51.2% on onboarding, 54.6% / 26.1% on tabletop, and 70.9% / 70.9% on committee. On committee both settings returned just one of three voices. LS-EEND AMI beat Who on onboarding (18.2% versus 41.8%), but trailed Sortformer (13.8%). These results concern the pinned FluidAudio ports, not the original gated pyannote implementation.
+
+### End-to-end recaps
+
+| Input | Full Whisper + Sortformer | Turbo + Who | Exact turns + identical recap model |
+| --- | ---: | ---: | ---: |
+| Onboarding (4 checks) | 2 full, 1 partial; 135.66 s | 2 full, 1 partial; 68.97 s | 3 full; 29.57 s |
+| English audit (5 checks) | 5 full; 159.30 s | 4 full, 1 partial; 80.01 s | 3 full, 2 partial; 53.77 s |
+| Full facts across the two calls | **7/9** | **6/9** | **6/9** |
+
+Wall times in the first two columns start from audio; the exact column times only summarization from known turns. The nine anchors are targeted factual checks in any section, not a precision estimate. A correct value with a contradictory correction or a reopened final status earns partial credit. Anonymous labels are mapped by maximum shared speaker time. This is one unblinded grading of intended synthetic speech.
+
+Default onboarding retained both assignments; the fast path merged speakers and lost the test owner, while recovering the separate production-access decision. All three omitted the successful test retry. On audit, the default recovered the facts but reopened settled counts as proposals. The exact-input recap misstated the superseded booking day and reopened receipt of the delivery. The fast recap stated delivery had not arrived and also asked whether it had. It had 37 invalid citations removed and 21 items left uncited; all other original recaps had zero of either. One default English recap was in English despite a prompt requesting Traditional Chinese. These findings qualify both earlier claims: cleaner input can help, but is no guarantee; similar time or aggregate check counts do not establish equivalent factual notes.
+
+On the unchanged silence control, the new ordinary pipeline returned zero transcript turns and zero recap items in 6.69 s, with ASR and summary marked as skipped. It still checked and ran the selected diarizer. This is an exact-digital-zero check, not a voice activity detector.
 
 ## Decision and open questions
 

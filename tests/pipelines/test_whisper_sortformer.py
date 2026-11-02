@@ -270,6 +270,55 @@ class Runs(unittest.TestCase):
         self.assertEqual(self.main(*args, "--resume"), 1)
         self.assertEqual(self.main(*args, "--resume", "--asr", "turbo-q4"), 0)
 
+    def test_all_zero_input_skips_both_language_models_but_quiet_signal_does_not(self):
+        import asr_stage
+        import numpy as np
+        from scipy.io import wavfile
+
+        silent = self.root / "silent.wav"
+        samples = np.zeros(70000, dtype="float32")
+        wavfile.write(silent, 16000, samples)
+        self.out.mkdir()
+        with mock.patch.object(asr_stage, "snapshot", side_effect=AssertionError("loaded Whisper")):
+            asr_stage.main(silent, self.out / "asr.json")
+        self.assertEqual(json.loads((self.out / "asr.json").read_text())["segments"], [])
+        (self.out / "turns.json").write_text("[]")
+        (self.out / "speakers.json").write_text('{"labels": {}}')
+        with mock.patch.object(recap, "python_stage", side_effect=AssertionError("loaded recap model")):
+            self.assertEqual(recap.summary(self.out)["skipped"], "digital_silence")
+        self.assertIn("digitally silent", (self.out / "summary.md").read_text())
+        samples[-1] = 1e-12
+        wavfile.write(silent, 16000, samples)
+        self.assertFalse(asr_stage.digital_silence(samples))
+
+    def test_split_pause_preserves_word_times_and_quiet_nonzero_samples(self):
+        import asr_stage
+        import numpy as np
+        from scipy.io import wavfile
+
+        wav = self.root / "pause.wav"
+        samples = np.zeros(7 * 16000 + 17, dtype="float32")
+        samples[0] = samples[-1] = 1e-12
+        wavfile.write(wav, 16000, samples)
+        reply = {"text":" x","segments":[{"start":0.1,"end":0.2,"text":" x",
+                                          "words":[{"start":0.1,"end":0.2,"word":" x"}]}]}
+        model = mock.MagicMock()
+        model.transcribe.return_value = reply
+        with mock.patch.dict(sys.modules, {"mlx_whisper":model}), mock.patch.object(asr_stage, "snapshot"), \
+             mock.patch.object(asr_stage, "mlx_peak_bytes", return_value=1):
+            target = self.root / "asr.json"
+            asr_stage.main(wav, target, "en", pause_mode="split")
+        data = json.loads(target.read_text())
+        self.assertEqual(model.transcribe.call_count, 2)
+        self.assertEqual(data["spans_samples"], [[0,4001],[len(samples)-4001,len(samples)]])
+        offset = (len(samples) - 4001) / 16000
+        self.assertAlmostEqual(data["segments"][1]["words"][0]["start"], offset + 0.1)
+        self.assertAlmostEqual(data["segments"][1]["end"], offset + 0.2)
+        args = ("run", str(self.audio), str(self.out), "--no-summary")
+        self.assertEqual(self.main(*args, "--asr", "turbo-q4", "--split-digital-pauses"), 1)
+        self.assertEqual(self.main(*args, "--split-digital-pauses"), 0)
+        self.assertEqual(self.main(*args, "--resume"), 1)
+
     def test_resume_refuses_a_different_recording(self):
         self.failing = {"asr"}
         self.main("run", str(self.audio), str(self.out))

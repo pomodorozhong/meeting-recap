@@ -1186,6 +1186,8 @@ dependencies = [
     { name = "mlx-lm" },
     { name = "mlx-whisper" },
     { name = "opencc-python-reimplemented" },
+    { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "scipy", version = "1.18.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
 ]
 
 [package.metadata]
@@ -1194,4 +1196,5 @@ requires-dist = [
     { name = "mlx-lm", specifier = "==0.32.2" },
     { name = "mlx-whisper", specifier = "==0.4.2" },
     { name = "opencc-python-reimplemented", specifier = "==0.1.7" },
+    { name = "scipy" },
 ]

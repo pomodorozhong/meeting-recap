@@ -29,6 +29,10 @@ To test the earlier action-specific conclusions directly, use two additional new
 
 The unmodified full Whisper emitted the same 20 alphanumeric characters twice on 12 seconds of digital zero; Turbo emitted 35 twice and Breeze emitted none twice. Add a conservative whole-input check before Whisper. Only a nonempty converted WAV whose samples are *all exactly zero* may skip ASR and produce an empty transcript and a no-speech recap without the LLM. Keep ordinary nonzero speech and internal pauses on the original path. Verify the ordinary saved-audio command on the silence control and the two planned spoken recap calls. Include a quiet nonzero sample in the regression check. No assumption about room noise or audible silence is needed.
 
+### Registered fast pipeline comparison
+
+Before reading any new recap, also run the earlier Turbo Q4 / Who combination end to end on the same onboarding and English audit recordings. Use identical spoken-language settings, the ordinary Qwen prompt, the same nine checks, and the same default full Whisper / Sortformer comparator. These two inputs stress different failure modes (four-speaker ownership versus single-speaker corrections). Reuse PR #31’s pinned model selector with the new language routing; retain full Whisper as the default. This checks the earlier finding that faster component times and readable Markdown need not preserve owners, dates, or corrected decisions.
+
 ## Restart
 
 Use the locked synthetic and pipeline projects, pipeline setup and Swift binaries in their READMEs; use the MLX run.py CLI with repo, language and pinned revision. The previous benchmark's score_case.py, turn_order.py and silence_split.py at c714e05 define the historical metrics. Use the new collection's language-aware transcript scorer. Store raw calls, predictions and individual judgments outside Git. Public results contain counts and digests only.

@@ -62,7 +62,9 @@ done
 "$S/.venv/bin/python" "$S/expanded_scores.py" "$FIXTURES" "$RESULTS" > "$RESULTS/scores.json"
 ```
 
-The last command is a model-free replay of the transcript, timing, speaker and pause measurements. Repeat semantic grading on fresh outputs, including their cited source lines; changed text cannot inherit an earlier judgment.
+For the line-format follow-up, use `$P/.venv/bin/python "$P/compare_lines.py" ASR DIARIZATION CONVERTED_WAV NEW_OUTPUT`. On the two existing fast pipelines use their `asr.json`, `diarization.json`, `audio.wav`, and `--speakers FAST/speakers.json --keep-segments`; compare to the unchanged saved recap. For training use the case's `turbo.json`, `who.json` and `audio.wav` twice, first with default lines and then with `--keep-segments --speakers FIRST/speakers.json`.
+
+The expanded_scores.py command is a model-free replay of the transcript, timing, speaker and pause measurements. Repeat semantic grading on fresh outputs, including their cited source lines; changed text cannot inherit an earlier judgment.
 
 ## Runtime and memory
 

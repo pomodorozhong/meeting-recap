@@ -1,11 +1,13 @@
 """Score the registered 17-file matrix; emits only hashes, counts, timings and fitted label metrics."""
 import argparse
+import contextlib
 from collections import Counter, defaultdict
 from importlib.metadata import version
 import json
 from pathlib import Path
 import re
 import subprocess
+import sys
 
 import numpy as np
 from scipy.optimize import linear_sum_assignment
@@ -79,6 +81,15 @@ def attribution(src, case, model, diarizer, segments):
             "delivered":{k:scored["transcript"][k] for k in ("script_characters","aligned","agree")}}
 
 
+def pipeline_timing(case, arm):
+    stats = time_stats(case / (arm + ".time"))
+    # /usr/bin/time on the driver misses the model subprocesses it launches.
+    stats["driver_peak_footprint_bytes"] = stats.pop("peak_footprint_bytes")
+    stages = load(case / arm / "stages.json")
+    stats["peak_stage_footprint_bytes"] = max(v.get("peak_footprint_bytes", 0) for v in stages.values())
+    return stats
+
+
 def aggregate(report):
     groups = {}
     for model in MODELS:
@@ -94,7 +105,8 @@ def aggregate(report):
 
 
 def score(fixtures, results):
-    build(fixtures, check_only=True)
+    with contextlib.redirect_stdout(sys.stderr):
+        build(fixtures, check_only=True)
     normalize = normalizers()
     report = {}
     for name in (*SCRIPTS, *CONTROLS):
@@ -127,13 +139,19 @@ def score(fixtures, results):
                       "observed_units": len(observed), **time_stats(case / f"{model}.time")}
             gaps = [(a["end_seconds"], b["start_seconds"]) for a, b in zip(truth, truth[1:])
                     if b["start_seconds"] - a["end_seconds"] >= 5]
-            def gap_words(asr):
-                return sum(any(a < (s+e)/2 < b for a, b in gaps) for s, e, _ in words(asr))
+            def gap_words(asr, arm):
+                try:
+                    return sum(any(a < (s+e)/2 < b for a, b in gaps) for s, e, _ in words(asr))
+                except ValueError as error:
+                    if "text but no word timestamps" not in str(error):
+                        raise
+                    result[arm + "_gap_diagnostic_unavailable"] = str(error)
+                    return None
             if model in MODELS:
                 sliced = d if passthrough else load(split / f"{model}.json")
                 result["split_errors"] = edit_distance(reference, normalize[lang](sliced["text"]))
                 if gaps:
-                    result.update(whole_words_in_gap=gap_words(d), split_words_in_gap=gap_words(sliced))
+                    result.update(whole_words_in_gap=gap_words(d, "whole"), split_words_in_gap=gap_words(sliced, "split"))
                 if not passthrough:
                     timings = [time_stats(split / f"{model}-{i}.time") for i in range(len(spans))]
                     result.update(split_sha256=digest(split / f"{model}.json"),
@@ -165,7 +183,7 @@ def score(fixtures, results):
             row["recap"] = {}
             for arm in ("pipeline", "exact", "fast"):
                 summary = case / arm / "summary.json"
-                row["recap"][arm] = {**time_stats(case / (arm + ".time")), "summary_sha256": digest(summary),
+                row["recap"][arm] = {**pipeline_timing(case, arm), "summary_sha256": digest(summary),
                                       "checks": load(summary)["checks"]}
             row["recap"]["pipeline"]["stages"] = {
                 k: {m:v[m] for m in ("seconds","peak_footprint_bytes") if m in v}
@@ -175,7 +193,7 @@ def score(fixtures, results):
             if (load(silent / "asr.json")["skipped"] != "digital_silence"
                     or load(silent / "turns.json") or any(load(silent / "summary.json")["notes"].values())):
                 raise ValueError("silence control did not produce empty notes")
-            row["silent_pipeline"] = {**time_stats(case / "pipeline.time"), "turns": 0,
+            row["silent_pipeline"] = {**pipeline_timing(case, "pipeline"), "turns": 0,
                                       "notes": 0, "summary_sha256": digest(silent / "summary.json")}
         report[name] = row
     return {"normalizers": {n: version(n) for n in ("transformers", "opencc-python-reimplemented")},

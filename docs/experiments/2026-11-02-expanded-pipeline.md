@@ -1,6 +1,6 @@
 # 2026-11-02: retest the saved-audio pipeline on the expanded collection
 
-**Status:** planned.
+**Status:** runs in progress.
 
 ## Question and decision
 
@@ -32,6 +32,27 @@ The unmodified full Whisper emitted the same 20 alphanumeric characters twice on
 ## Restart
 
 Use the locked synthetic and pipeline projects, pipeline setup and Swift binaries in their READMEs; use the MLX run.py CLI with repo, language and pinned revision. The previous benchmark's score_case.py, turn_order.py and silence_split.py at c714e05 define the historical metrics. Use the new collection's language-aware transcript scorer. Store raw calls, predictions and individual judgments outside Git. Public results contain counts and digests only.
+
+From the repository root, set `FIXTURES` to the existing verified collection and `RESULTS` to a **new absolute path** in the external benchmark directory. Prepare the pinned Whisper, Breeze, Turbo, Qwen, Sortformer and Who caches before timing. Community-1 and the four LS-EEND weight sets must match the tree hashes in the historical benchmark. For the action prompts, the original Git object must be available (fetch PR #31 if working from a shallow clone).
+
+```bash
+S=experiments/synthetic-call
+P=experiments/pipelines/whisper-sortformer
+uv sync --locked --project "$S"
+uv sync --locked --project "$P"
+uv sync --locked --project experiments/mlx
+swift build -c release --package-path "$P" --product fluidaudiocli
+swift build -c release --package-path "$P" --product who-diarize
+swift build -c release --package-path experiments/diarization --product diarexp
+"$S/expanded_decode.sh" "$FIXTURES" "$RESULTS"
+for phase in recaps diarize split turns; do
+  "$S/.venv/bin/python" "$S/expanded_followup.py" "$FIXTURES" "$RESULTS" "$phase" || exit 1
+done
+"$S/.venv/bin/python" "$S/expanded_actions.py" "$FIXTURES" "$RESULTS"
+"$S/.venv/bin/python" "$S/expanded_scores.py" "$FIXTURES" "$RESULTS" > "$RESULTS/scores.json"
+```
+
+The last command is a model-free replay of the transcript, timing, speaker and pause measurements. Repeat semantic grading on fresh outputs, including their cited source lines; changed text cannot inherit an earlier judgment.
 
 ## Runtime and memory
 

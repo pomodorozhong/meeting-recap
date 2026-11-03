@@ -26,6 +26,7 @@ Private material lives in the review dataset outside the checkout, at `$MEETING_
 ## Conventions
 
 - Each experiment is self-contained in its own `experiments/<name>/` folder; candidate pipelines go in `experiments/pipelines/<name>/`. Nothing imports across experiment folders, and `app/` depends on nothing in `experiments/`.
+- Each experiment has one entry-point script that runs everything up to any step only a person can do, and its summary follows `docs/experiments/TEMPLATE.md` (decision 11).
 - Record each decision as a numbered entry in `docs/decisions.md`.
 - Conventional Commits.
 - Pin models and dependencies by revision or hash.

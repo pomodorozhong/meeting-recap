@@ -89,9 +89,9 @@ The skill evaluated 16 non-silent recorded mixes, with no excluded clips. Across
 
 For Breeze, six word-attachment arms on three English recordings were refused. Comparing like with like on 11 scripts, word / segment / line-end recovered 192 / 191 / 189 of 204 turns with Sortformer and 185 / 185 / 182 with Who.
 
-On the planning call, full Whisper + Sortformer labeled 1,355/1,385 characters correctly at ASR word times (97.8%), but only 1,259/1,314 aligned characters in the delivered transcript (95.8%). With Who the figures were 1,360/1,385 (98.2%) and 1,266/1,314 (96.3%). The trial's relative ordering, and its drop after attachment, appear here too.
+On the planning call, full Whisper + Sortformer labeled 1,355/1,385 characters correctly at ASR word times (97.8%), but only 1,259/1,314 aligned characters in the delivered transcript (95.8%). With Who the figures were 1,360/1,385 (98.2%) and 1,266/1,314 (96.3%). As in the pipeline's [November 1 baseline](../../experiments/pipelines/whisper-sortformer/README.md) on the earlier planning audio, Who scored slightly above Sortformer, and both scored lower in the delivered transcript than at word times.
 
-**Limits.** Known-turn scores use fitted mappings per run and measure ordered turns in reference windows, not whole-call DER. Unlike the one-to-one time metric, the word metric fits a many-to-one label map and can hide a split speaker. These results don't extend to real rooms, longer meetings or user-confirmed speaker identity.
+**Limits.** Known-turn scores match labels to speakers separately for each run, then count turns that come out in the right order. They don't measure speaker error across the whole call. The word score lets several labels count as one person, so it can miss one person being split across two labels. The speaker-time score can't miss that. These results don't extend to real rooms, longer meetings or user-confirmed speaker identity.
 
 ## Runtime and memory
 

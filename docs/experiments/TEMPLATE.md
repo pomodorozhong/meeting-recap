@@ -64,7 +64,7 @@ Review session ID: `<session-id>`. Reference ID: `ref-<session-id>`. Evaluation 
 
 ### Changes to the plan
 
-Each change, its date and why, committed before acting on it. "None" if there were none.
+Each change, its date and why, committed before acting on it. "None" if there were none. If the commits can't show whether a change came before or after the runs, say so, or leave this section out.
 
 ## Results
 
@@ -83,7 +83,7 @@ Per run, with any overlap noted. Say how they were measured.
 
 ## Decision
 
-What was decided, and the result that decided it.
+What was decided, and the result that decided it, or why the choice is cautious when the results don't favor one option.
 
 ## Open questions
 

@@ -2,7 +2,7 @@
 
 **Status:** complete
 
-**Outcome:** Who took about 95× less total time than Sortformer and had lower error on one to three voices, but merged speakers on all three clean four-person calls, and beat Sortformer on the four-person overlap mix. Word-level attachment recovered the most turns. Sortformer and word attachment stay the default, and Who is offered when speaker identity can be checked.
+**Outcome:** Who took about 95× less total time than Sortformer and had lower error on one to three voices, but merged speakers on all three clean four-person calls, and beat Sortformer on the four-person overlap mix. Word-level attachment recovered the most turns. Sortformer and word attachment stay the default. Who is offered when speed matters more than speaker accuracy, especially with one to three speakers.
 
 ## Reproduce
 
@@ -101,7 +101,9 @@ Across all 17 standalone diarizer runs, Who took 9.34 s in total (median 0.57 s;
 
 ## Decision
 
-Keep Sortformer with word-level attachment as the default, and offer Who when speaker identity can be checked. Who's merged speakers on clean four-person calls decided this, despite its speed and lower error on fewer voices. See decision 13.
+Keep Sortformer with word-level attachment as the default. Offer Who when speed matters more than speaker accuracy, especially with one to three speakers. Who's merged speakers on clean four-person calls decided this, despite its speed and lower error on fewer voices.
+
+Editing `speakers.json` can't undo that failure, because it can merge labels but not split one. If a run shows fewer labels than the people who spoke, rerun with Sortformer. A matching count doesn't prove the labels are right: on the four-person overlap mix, both diarizers found four labels and still had 13.6% and 20.4% speaker-time error. This count check follows from these results, but wasn't tested as a procedure. See decision 13.
 
 ## Open questions
 

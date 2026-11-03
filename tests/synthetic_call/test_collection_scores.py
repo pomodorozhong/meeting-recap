@@ -6,11 +6,11 @@ import unittest
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "experiments/synthetic-call"))
-from expanded_followup import chunks
-from expanded_scores import speaker_time
+from collection_followup import chunks
+from collection_scores import speaker_time
 
 
-class ExpandedMetrics(unittest.TestCase):
+class CollectionMetrics(unittest.TestCase):
     @staticmethod
     def seg(label, start, end):
         return {"speaker_id": label, "start_seconds": start, "end_seconds": end}

@@ -1,4 +1,4 @@
-"""Replay the historical action prompts on two expanded-corpus scripts, without giving them the keys."""
+"""Replay the historical action prompts on two scripts in the 17-recording collection, without giving them the keys."""
 import argparse
 import json
 import os
@@ -9,7 +9,7 @@ import tempfile
 import tomllib
 
 from collection import HERE, build, digest, load
-from expanded_followup import PIPE, save
+from collection_followup import PIPE, save
 
 HISTORY = "c714e0535411e04ec291172e0a7e70c44443df15"
 # Execute the frozen extractor in its own source tree and its original locked pipeline runtime.

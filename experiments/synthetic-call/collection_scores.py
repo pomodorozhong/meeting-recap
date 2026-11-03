@@ -14,7 +14,7 @@ from scipy.optimize import linear_sum_assignment
 import soundfile as sf
 
 from collection import CONTROLS, HERE, SCRIPTS, build, digest, load
-from expanded_followup import MODELS, PIPE, chunks
+from collection_followup import MODELS, PIPE, chunks
 from score_transcripts import edit_distance, normalizers
 from score_speakers import score as score_speakers, words
 

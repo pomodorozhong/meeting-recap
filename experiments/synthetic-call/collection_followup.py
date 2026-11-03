@@ -1,4 +1,4 @@
-"""Run the remaining registered comparisons after expanded_decode.sh (all inference serial)."""
+"""Run the remaining registered comparisons after collection_decode.sh (all inference serial)."""
 import argparse
 import json
 import os
@@ -142,7 +142,7 @@ def run(fixtures, root, phase, cases=None):
             recaps(source, case, lang)
         elif phase == "turns" and name != "silence":
             with (case / "turn-order.json").open("x") as report:
-                subprocess.run([sys.executable, HERE / "expanded_turn_order.py", source, case, case / "review"],
+                subprocess.run([sys.executable, HERE / "collection_turn_order.py", source, case, case / "review"],
                                stdout=report, check=True)
 
 

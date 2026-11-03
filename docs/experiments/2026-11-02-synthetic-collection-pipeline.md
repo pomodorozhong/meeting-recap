@@ -2,7 +2,7 @@
 
 **Status: complete.** Turbo was the fastest recognizer on every spoken recording, but it did not always make the fewest errors. Word-level speaker attachment recovered the most turns, and splitting at long digital pauses helped full Whisper. Who merged speakers on all three clean four-person calls, yet beat Sortformer on the four-person overlap mix. Better transcriptions alone did not ensure better notes.
 
-[Per-call measurements and input hashes](2026-11-02-expanded-pipeline-results.json) · [Fact and action verdicts bound to output hashes](2026-11-02-expanded-pipeline-judgments.json) · [Pipeline commands](../../experiments/pipelines/whisper-sortformer/README.md).
+[Per-call measurements and input hashes](2026-11-02-synthetic-collection-pipeline-results.json) · [Fact and action verdicts bound to output hashes](2026-11-02-synthetic-collection-pipeline-judgments.json) · [Pipeline commands](../../experiments/pipelines/whisper-sortformer/README.md).
 
 **Where this ran.** The collection is the one merged in #32 (`4c8c2f0`). The runs used development commits based on it, before the pipeline options they tested merged: `--language` (#33), `--asr turbo-q4` (#34), `--keep-asr-segments` (#35), and digital silence handling with `--split-digital-pauses` (#36). The development commits are not on `main`. Replaying the silence, split and segmented-line commands on the pipeline code in `main` gave the results described under [Pipeline options checked against saved outputs](#pipeline-options-checked-against-saved-outputs).
 
@@ -53,7 +53,7 @@ Full Whisper improved or tied on each of the four eligible non-silent cases, wit
 
 Use the locked synthetic and pipeline projects, pipeline setup and Swift binaries in their READMEs; use the MLX run.py CLI with repo, language and pinned revision. Use the collection's language-aware transcript scorer. Store raw calls, predictions and individual judgments outside Git. Public results contain counts and digests only.
 
-Some definitions are not on `main`. score_case.py, turn_order.py and silence_split.py at c714e05 define the metrics carried over from the two #31 experiments, and expanded_actions.py reads its frozen action prompts from that commit, so it must be available locally (draft #31's branch holds it; fetch it if working from a shallow clone).
+Some definitions are not on `main`. score_case.py, turn_order.py and silence_split.py at c714e05 define the metrics carried over from the two #31 experiments, and collection_actions.py reads its frozen action prompts from that commit, so it must be available locally (draft #31's branch holds it; fetch it if working from a shallow clone).
 
 From the repository root, set `FIXTURES` to the verified collection and `RESULTS` to a **new absolute path** in the external benchmark directory. Prepare the pinned Whisper, Breeze, Turbo, Qwen, Sortformer and Who caches before timing. Community-1 and the four LS-EEND weight sets must match the tree hashes recorded with the seven-recording trial at c714e05.
 
@@ -66,17 +66,17 @@ uv sync --locked --project experiments/mlx
 swift build -c release --package-path "$P" --product fluidaudiocli
 swift build -c release --package-path "$P" --product who-diarize
 swift build -c release --package-path experiments/diarization --product diarexp
-"$S/expanded_decode.sh" "$FIXTURES" "$RESULTS"
+"$S/collection_decode.sh" "$FIXTURES" "$RESULTS"
 for phase in recaps diarize split turns; do
-  "$S/.venv/bin/python" "$S/expanded_followup.py" "$FIXTURES" "$RESULTS" "$phase" || exit 1
+  "$S/.venv/bin/python" "$S/collection_followup.py" "$FIXTURES" "$RESULTS" "$phase" || exit 1
 done
-"$S/.venv/bin/python" "$S/expanded_actions.py" "$FIXTURES" "$RESULTS"
-"$S/.venv/bin/python" "$S/expanded_scores.py" "$FIXTURES" "$RESULTS" > "$RESULTS/scores.json"
+"$S/.venv/bin/python" "$S/collection_actions.py" "$FIXTURES" "$RESULTS"
+"$S/.venv/bin/python" "$S/collection_scores.py" "$FIXTURES" "$RESULTS" > "$RESULTS/scores.json"
 ```
 
 For the line-format comparison, use `$P/.venv/bin/python "$P/compare_lines.py" ASR DIARIZATION CONVERTED_WAV NEW_OUTPUT`. On the two saved Turbo + Who pipeline runs use their `asr.json`, `diarization.json`, `audio.wav`, and `--speakers FAST/speakers.json --keep-segments`, where `FAST` is the run's folder; compare to its saved recap. For training use the case's `turbo.json`, `who.json` and `audio.wav` twice, first with default lines and then with `--keep-segments --speakers FIRST/speakers.json`.
 
-The expanded_scores.py command is a model-free recalculation of the transcript, timing, speaker and pause measurements from saved outputs. Repeat semantic grading on fresh outputs, including their cited source lines; changed text cannot inherit an earlier judgment.
+The collection_scores.py command is a model-free recalculation of the transcript, timing, speaker and pause measurements from saved outputs. Repeat semantic grading on fresh outputs, including their cited source lines; changed text cannot inherit an earlier judgment.
 
 ## Runtime and memory
 

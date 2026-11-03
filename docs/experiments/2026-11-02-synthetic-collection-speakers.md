@@ -107,7 +107,9 @@ Editing `speakers.json` can't undo that failure, because it can merge labels but
 
 ## Open questions
 
-The two WAVs shared with the trial check repeatability, and changed voices and remixes check whether its findings hold on other audio. They can't separate voice, overlap and script effects across unrelated calls. The next step is checking speakers on the private listening reviews before changing the default.
+This experiment can't explain why a result changed. Two recordings are identical to the seven-recording trial's, so they check that the models repeat their results. Other recordings have new voices or remixes, so they check whether the trial's findings hold on different audio. But unrelated calls differ in voices, overlap and script all at once, so when results differ, we can't tell which of those caused it. For example, Sortformer won the trial's four-person overlap mix and Who won this one, and we don't know why.
+
+All of this is synthetic audio. Before changing the default diarizer, check its speaker labels on real calls, using the private recordings a person has listened to.
 
 ## Where this ran
 

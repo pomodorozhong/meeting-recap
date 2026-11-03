@@ -34,12 +34,18 @@ def edit_distance(reference, hypothesis):
     return previous[-1]
 
 
-def score(fixtures, runs):
+def normalizers():
     from opencc import OpenCC
     from transformers.models.whisper.english_normalizer import EnglishTextNormalizer
 
     english = EnglishTextNormalizer({})
     chinese = OpenCC("t2s")
+    return {"en": lambda text: english(text).split(),
+            "zh": lambda text: [c for c in chinese.convert(text).lower() if c.isalnum()]}
+
+
+def score(fixtures, runs):
+    normalize = normalizers()
     groups = {language: {"metric": metric, "errors": 0, "reference_units": 0, "calls": 0}
               for language, metric in (("en", "wer"), ("zh", "cer"))}
     references, cases = {}, {}
@@ -62,12 +68,8 @@ def score(fixtures, runs):
         if asr.get("audio_sha256", audio_hash) != audio_hash:
             raise ValueError(f"{name}/asr.json describes different audio")
         hypothesis_text = transcript_text(asr)
-        if language == "en":
-            reference = english(reference_text).split()
-            hypothesis = english(hypothesis_text).split()
-        else:
-            reference = [c for c in chinese.convert(reference_text).lower() if c.isalnum()]
-            hypothesis = [c for c in chinese.convert(hypothesis_text).lower() if c.isalnum()]
+        reference = normalize[language](reference_text)
+        hypothesis = normalize[language](hypothesis_text)
         if not reference:
             raise ValueError(f"{name} has no reference units")
         errors = edit_distance(reference, hypothesis)
@@ -83,14 +85,14 @@ def score(fixtures, runs):
         if not group["calls"]:
             raise ValueError(f"missing language coverage: {language}")
         group["rate"] = group["errors"] / group["reference_units"]
-    normalizers = {
+    versions = {
         "en": {"implementation": "transformers Whisper EnglishTextNormalizer",
                "spelling_map": "empty", "version": version("transformers")},
         "zh": {"implementation": "OpenCC t2s, lowercase alphanumeric characters",
                "version": version("opencc-python-reimplemented")},
     }
     return {"groups": groups, "calls": cases, "references": references,
-            "normalizers": normalizers}
+            "normalizers": versions}
 
 
 def compare(current, baseline, maximum_regression=0.0):

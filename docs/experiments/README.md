@@ -2,7 +2,7 @@
 
 Public summaries of experiments run with the `meeting-experiment-review` skill or before it. Each gives the question, models and pinned versions, settings, runtime and memory, scores and their limits, the decision, and open questions. Recordings, transcripts, names, and full reports stay in the private dataset.
 
-Each summary is written from [TEMPLATE.md](TEMPLATE.md) and committed **before** the experiment's first run, with its goal, assumptions, plan, and the command that starts the listening review. It is completed as results come in; its status line says how far it got. Experiments from 2026-10-24 predate this rule and were written afterwards.
+Each summary is written from [TEMPLATE.md](TEMPLATE.md) and committed **before** the experiment's first run, with the entry point that reruns it, its question, and its plan (decisions 4 and 11). It is completed as results come in; its status line says how far it got. Experiments from 2026-10-24 predate these rules and were written afterwards, and the 2026-10-30 experiment predates the entry-point rule.
 
 | Date | Experiment | Outcome |
 | --- | --- | --- |

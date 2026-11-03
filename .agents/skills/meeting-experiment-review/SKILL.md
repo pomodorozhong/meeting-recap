@@ -21,11 +21,12 @@ All helpers are standard-library Python 3.11+ in `scripts/`. Run them as `python
 
 ### 0. Register the experiment in the repository before any run
 
-Copy `docs/experiments/TEMPLATE.md` to `docs/experiments/YYYY-MM-DD-<topic>.md`, fill in everything above **Runtime and memory**, add it to `docs/experiments/README.md`, and commit it before the first run. It is the public summary from then on; step 6 completes it. It must state:
+Copy `docs/experiments/TEMPLATE.md` to `docs/experiments/YYYY-MM-DD-<topic>.md`, fill in **Reproduce**, **Question** and **Plan**, add it to `docs/experiments/README.md`, and commit it before the first run. It is the public summary from then on; step 6 completes it. It must state:
 
 - the question, the decision it informs, the experiments it builds on, the assumptions (input, models, machine), and the expected result, so the experiment can be restarted if private data is lost;
 - the input profile, never its name or path;
-- the planned run IDs with pinned models, settings, and commands; the `pick_clips.py` config; and the session, reference, and evaluation IDs, chosen now;
+- the entry-point script that runs the experiment up to the listening review, and the setup script for what needs the network (decision 11);
+- the planned run IDs with pinned models and settings; the `pick_clips.py` config; and the session, reference, and evaluation IDs, chosen now;
 - the exact command that starts the review server, so the user can run it without an agent:
 
   ```bash
@@ -182,12 +183,14 @@ If a track is active almost continuously, its tenth-percentile level may be spee
 
 **Full report, private:** `<dataset>/reports/<id>.md`, where `<id>` matches the session or evaluation. It may include names, quoted transcript text, and timestamps. Link the session, reference, and evaluation IDs and the run IDs it draws on. Cover per-clip results, what the user heard that the scores miss, and transcript comparisons. Create the `reports/` folder if needed. Unlike the dataset's other artifacts, reports are prose and may be revised; the evaluation and reference files they cite stay fixed.
 
-**Public summary, in the repository:** complete the file registered in step 0. Set its status, and fill in:
+**Public summary, in the repository:** complete the file registered in step 0. Set its status and outcome, and fill in:
 
+- the entry point's measured time, and what a rerun won't reproduce;
 - runtime and peak memory per run, with any overlap noted;
 - scores, excluded-item count, and mapping method;
 - the metric's limits;
 - the decision, and open questions;
+- where it ran, naming any code that isn't on `main`;
 - any departure from the plan and why.
 
 It must never contain participant names, transcript text, audio paths, or dataset paths. Refer to people as Speaker A/B/C and to recordings by duration. Before committing, grep the summary for every participant name and for a few distinctive transcript phrases.

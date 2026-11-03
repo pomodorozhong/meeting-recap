@@ -2,7 +2,7 @@
 
 **Status:** complete
 
-**Outcome:** Better transcripts alone didn't ensure better notes: on two calls, full facts were 7/9 for the default, 6/9 for Turbo + Who and 6/9 from the exact turns. Starting a transcript line at each Whisper segment removed the audit's uncited items and gave more correct facts with supporting citations, so it's offered as an option. The recap model and prompt don't change. This rests on 12 targeted facts from three calls, graded once and unblinded.
+**Outcome:** Better transcripts alone didn't ensure better notes: on two calls, the recap stated 7 of 9 facts fully correctly with full Whisper + Sortformer, 6 of 9 with Turbo + Who, and 6 of 9 from the script's exact turns. Starting a transcript line at each Whisper segment removed the uncited items from the English audit call's recap and gave more correct facts with supporting citations, so it's offered as an option. The recap model and prompt don't change. This rests on 12 targeted facts from three calls, graded once by a grader who knew which version was which.
 
 ## Reproduce
 
@@ -21,7 +21,7 @@
 
 ## Question
 
-Do clean transcripts rescue recap facts? Does a faster pipeline keep the same facts? Does finer transcript line structure improve citations?
+Do clean transcripts keep recap facts correct? Does a faster pipeline keep the same facts? Does finer transcript line structure improve citations?
 
 - **Decision it informs:** whether to change the recap model or prompt, whether fast options need extra caution, and whether to offer per-segment lines.
 - **Expected result:** cleaner input can help, but faster component times and readable Markdown don't guarantee preserved owners, dates or corrected decisions. A result of more valid timestamps alone wouldn't pass the citation test.
@@ -38,21 +38,21 @@ Do clean transcripts rescue recap facts? Does a faster pipeline keep the same fa
 | `fast` | Turbo Q4 + Who | Same model and prompt |
 | `exact` | The script's exact turns | Same model and prompt, summary stage only |
 
-Each recap is scored full, partial, or absent or wrong on nine preregistered semantic checks:
+Each recap is scored full, partial, or absent or wrong on nine checks fixed before the runs:
 
 - **Onboarding, turns 9, 10, 12, 14–16:** account test owner and time; documentation owner and time; test access restored; production access still separate and unapproved.
 - **English audit, turns 2, 3, 7, 8/11, 10:** corrected adapter total; usable cable count; scale fault unresolved; corrected booking; delivery expected, not received.
 
-Reopened questions and unsupported details are also audited.
+Reopened questions and unsupported details are also counted.
 
 ### Changes to the plan
 
-The criteria were fixed before the runs they govern. Their wording was later edited to read against `main`; no threshold or rule changed.
+Each criterion was committed before the run it governs. Later edits changed vocabulary so the text reads against `main`, such as "earlier" to "the trial's". No threshold or rule changed. One check was reworded with the same meaning when results were recorded: "B's practice check by Thursday at ten" became "B responsible for the practice check, due Thursday 10:00".
 
 Two comparisons were added during the experiment:
 
 - **Turbo + Who:** added before any recap from this experiment was read. It uses identical language settings, the same prompt and the same nine checks, with the default as comparator.
-- **Per-segment lines (exploratory):** the Turbo + Who audit recap prompted this test, so the audit is its development case, onboarding is a transfer case, and English training had no recap yet when its three anchors were frozen: final count of 18 verified (turns 7/8/18); A's checklist revision by Wednesday noon (21); B responsible for the practice check, due Thursday 10:00 (22). The option passes only if the audit has fewer uncited items and at least one more fully supported anchor, with no loss of full factual anchors on any of the three cases.
+- **Per-segment lines (added after a result):** the Turbo + Who audit recap prompted this test. Onboarding is a second call checked afterward, and English training had no recap yet when its three facts were fixed in advance: final count of 18 verified (turns 7/8/18); A's checklist revision by Wednesday noon (21); B responsible for the practice check, due Thursday 10:00 (22). The option passes only if the audit has fewer uncited items and at least one more fact that is fully correct with supporting citations, and no fully correct fact is lost on any of the three calls.
 
 On 2026-11-03, after the runs, this summary was split out of one write-up covering every question, so that each question has its own summary and decision. No result changed. Nothing was rerun for the split.
 
@@ -66,12 +66,12 @@ On 2026-11-03, after the runs, this summary was split out of one write-up coveri
 | English audit (5 checks) | 5 full; 159.30 s | 4 full, 1 partial; 80.01 s | 3 full, 2 partial; 53.77 s |
 | Full facts across the two calls | **7/9** | **6/9** | **6/9** |
 
-Wall times in the first two columns start from audio; the exact column times only summarization from known turns. A correct value with a contradictory correction or a reopened final status earns partial credit.
+Wall times in the first two columns start from audio; the exact column times only summarization from known turns. A correct value with a contradictory correction or a reopened final status earns partial credit. A check not counted as full or partial was absent or wrong.
 
-- **Onboarding:** the default retained both assignments. Turbo + Who merged speakers and lost the test owner, while recovering the separate production-access decision. All three omitted the successful test retry.
-- **English audit:** the default recovered the facts but reopened settled counts as proposals. The exact-input recap misstated the superseded booking day and reopened receipt of the delivery. The Turbo + Who recap stated delivery had not arrived and also asked whether it had.
+- **Onboarding:** full Whisper + Sortformer stated both assignments. Turbo + Who merged speakers and lost the test owner, while recovering the separate production-access decision. All three omitted the successful test retry.
+- **English audit:** full Whisper + Sortformer stated the facts but presented settled counts as still open. The exact-input recap misstated the superseded booking day and reopened receipt of the delivery. The Turbo + Who recap stated delivery had not arrived and also asked whether it had.
 - **Citations:** the Turbo + Who audit recap had 37 invalid citations removed and 21 items left uncited. All the other recaps in this table had zero of either.
-- **Language:** one default English recap was in English despite a prompt requesting Traditional Chinese.
+- **Language:** one full Whisper + Sortformer recap was in English despite a prompt requesting Traditional Chinese.
 
 Two of the trial's claims need limits. Cleaner transcripts can help, but don't guarantee better notes. Two recaps can also take similar time and get similar scores while getting different facts right.
 
@@ -85,7 +85,7 @@ With identical Turbo words, Who labels and recap prompt, keeping Whisper segment
 | Onboarding (4 checks) | 19 → 46 | 0 → 0 | 2 → 3 | 2 → 3 |
 | English training (3 checks) | 22 → 48 | 0 → 0 | 2 → 2 | 2 → 2 |
 
-The audit went from 37 invalid citations removed to zero. Onboarding recovered the successful retry with supporting evidence, but the merged speaker still caused a wrong owner. Neither training recap stated that 18 was the **verified final** count; both kept the assignments. Some segmented lines start in the same displayed second, so a timestamp may still be ambiguous.
+The audit went from 37 invalid citations removed to zero. Onboarding recovered the successful retry with supporting evidence, but the merged speaker still caused a wrong owner. Neither training recap stated that 18 was the **verified final** count; both stated who was assigned what. Some segmented lines start in the same displayed second, so a timestamp may still be ambiguous.
 
 The option met the pass rule set before the test, including on the training call, whose recap hadn't been generated yet. The command `run --asr turbo-q4 --diarizer who --language en --keep-asr-segments --no-summary` on the audit matched the graded segmented transcript byte for byte.
 
@@ -97,7 +97,7 @@ Wall times are in the recap table, measured with `/usr/bin/time -l`, one inferen
 
 ## Decision
 
-Don't change the recap model or prompt. Offer separate timestamped lines per ASR segment for finer citations. Keep full and fast recaps reviewable, because even an accurate transcript and a valid citation can accompany a wrong statement. See decision 15.
+Don't change the recap model or prompt. Offer separate timestamped lines per ASR segment for finer citations. Each recap item cites transcript lines. Before acting on an owner, date or decision, read the cited line. Nothing checks this automatically, and a cited line can carry a wrong speaker label. Fast options get no separate rule: read the cited lines for every recap. See decision 15.
 
 ## Open questions
 

@@ -43,7 +43,7 @@ All arms use the pinned MLX runners, word timestamps on, previous-text condition
 
 ### Changes to the plan
 
-The criteria were fixed before the runs they govern. Their wording was later edited to read against `main`; no threshold or rule changed.
+On the unmerged branch `codex/expanded-call-benchmark`, the criteria were committed in `e5f17b3`, before `e64bfe5`, the first commit that recorded recognition results. Git shows when text was committed, not when a run happened, so this doesn't show that the criteria came before the runs. Their wording was later edited to read against `main`; no threshold or rule changed.
 
 On 2026-11-03, after the runs, this summary was split out of one write-up covering every question, so that each question has its own summary and decision. No result changed. Nothing was rerun for the split.
 

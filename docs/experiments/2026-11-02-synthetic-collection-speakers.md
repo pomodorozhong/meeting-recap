@@ -45,9 +45,9 @@ Speaker-time error is one-to-one, with overlap and no collar. All three attachme
 
 ### Changes to the plan
 
-The criteria were fixed before the runs they govern. Their wording was later edited to read against `main`; no threshold or rule changed.
+On the unmerged branch `codex/expanded-call-benchmark`, the criteria were committed in `e5f17b3`, before `e5a2db9`, the first commit that recorded speaker results. Git shows when text was committed, not when a run happened, so this doesn't show that the criteria came before the runs. Their wording was later edited to read against `main`; no threshold or rule changed.
 
-Before any diarization inference, a speaker-count correction was added: the English committee script has **three** voices, so it keeps its actual count in the known-count condition, and the four-voice English tabletop was added so a four-voice English test is present. This follows fixture metadata, not predictions.
+A speaker-count correction was committed in `f62eb98`, also before any speaker result was recorded: the English committee script has **three** voices, so it keeps its actual count in the known-count condition, and the four-voice English tabletop was added so a four-voice English test is present. This follows fixture metadata, not predictions.
 
 On 2026-11-03, after the runs, this summary was split out of one write-up covering every question, so that each question has its own summary and decision. No result changed. Nothing was rerun for the split.
 

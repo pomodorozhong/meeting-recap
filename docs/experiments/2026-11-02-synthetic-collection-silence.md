@@ -24,7 +24,7 @@
 Does decoding around long digital pauses reduce recognition errors, in either language? What should the pipeline do when a whole recording is digital zeros?
 
 - **Decision it informs:** whether to offer the split, for which recognizers, and whether silent input skips recognition.
-- **Expected result:** none stated for the size of the effect. The trial's splitter stays experimental unless neither language regresses. Internal pause errors are kept separate from pure silence.
+- **Expected result:** none stated for the size of the effect. The trial's splitter stays experimental unless neither language regresses. Errors around pauses inside speech are reported separately from recordings that are entirely silent.
 - **Builds on:** a [seven-recording trial](https://github.com/pomodorozhong/meeting-recap/blob/c714e05/docs/experiments/2026-11-01-synthetic-collection.md) in draft PR #31, which is **not on `main`**. Its `silence_split.py` at `c714e05` defines the rule.
 
 ## Plan
@@ -68,7 +68,7 @@ The other 12 speech WAVs pass through without a change. Across the 14 independen
 | Turbo Q4 | 7.59% → 6.56% | 1.98% → 1.98% |
 | Breeze | 12.08% → 12.44% | 7.43% → 8.92% |
 
-One whole-file Breeze gap diagnostic lacks word timestamps and is unavailable, not zero. The text remains scoreable.
+On one recording, Breeze's whole-file output has no word timestamps, so we can't count its words inside the pause. Treat that as missing, not zero. Its edit count is still valid.
 
 **Silent input.** On the silence WAV shared with the trial, full Whisper, Turbo and Breeze again emitted 20 / 35 / 0 normalized characters. With the check, the pipeline returned zero transcript turns and zero recap items in 6.69 s, with ASR and summary marked as skipped. It still checked and ran the selected diarizer.
 

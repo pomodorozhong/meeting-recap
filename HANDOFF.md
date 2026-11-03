@@ -2,6 +2,15 @@
 
 ## In progress
 
+### docs/recognition-wording
+
+- Task: #56, clean up stale claims and unclear wording in the experiment docs. Closes #56 through the PR body; the branch isn't linked.
+- PR: none yet. Code checkpoint: `05f23d0`, on `main` at `0b1c058` (#45). Docs only.
+- State: the template and writing skill say what to write when plan order or a deciding result is missing; the recognition, speakers and recaps summaries name the commits that registered their criteria instead of claiming they came before the runs; a writing-skill pass defines terms and labels numbers in the recognition and speakers summaries; decision 2's recognizer choice is marked replaced by decision 12. No result changes.
+- Verification: relative links resolve, numbers in the two rewritten summaries are unchanged, `git diff --check` and a privacy scan pass. Test suites don't apply.
+- Next action: open the PR once P-07 is approved.
+- P-07 — Open a ready PR from `docs/recognition-wording` against `main`, titled `docs(experiments): narrow unprovable claims and define terms in the experiment docs`, with the body shown to the user on 2026-11-04. Pushing is authorized; opening a PR is not. It blocks closing #56.
+
 ### feat/pipeline-baseline
 
 - Saved synthetic-call runs of the pipeline; to be rebuilt on `main`, and deferred by the user. Read that branch's own `HANDOFF.md`.
@@ -35,7 +44,7 @@
 13. #55 Separate temperature from word timestamps in the recognition baseline.
 14. #48 Separate Turbo from Who in the recap comparison.
 15. #50 Test `--keep-asr-segments` with full Whisper and Sortformer.
-16. #56 Clean up claims and stale text in the experiment docs. Start from `docs/recognition-wording` (`fe9ae7a`, pushed, no PR), which rewords three lines of the recognition summary, and run the writing skill over the merged summaries.
+16. #56 Clean up claims and stale text in the experiment docs: built on `docs/recognition-wording`, waiting on P-07.
 17. #4 Run each remaining runner and the review skill end to end on the synthetic collection, and record the results.
 18. Revisit draft #31, `codex/action-grounding-sequence` and the deferred baseline and recap-accuracy branches. Keep `c714e05` and `d182e52` reachable: the merged summaries link to them, on #31's branch and `codex/expanded-call-benchmark`. The latter's commits also show when each criterion's text was registered.
 19. #9 Choose a license.

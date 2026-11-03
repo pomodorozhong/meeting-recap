@@ -29,7 +29,7 @@ Does decoding around long digital pauses reduce recognition errors, in either la
 
 ## Plan
 
-- **Input:** all 17 hash-verified mono fixtures in the collection at `4c8c2f0`. Four speech recordings have a qualifying pause.
+- **Input:** all 17 hash-verified mono fixtures in the collection at `4c8c2f0`. Four speech recordings have a run of at least five seconds of exact zeros.
 - **Assumptions:** one M2 Pro with 16 GB, serial local inference. Generated text is the known intended speech, not a listener judgment.
 
 | Run ID | Model and pinned version | Settings |
@@ -42,25 +42,27 @@ Unchanged audio reuses the unsplit result.
 
 ### Changes to the plan
 
-The criteria were fixed before the runs they govern. Their wording was later edited to read against `main`; no threshold or rule changed.
+Each criterion was committed before the run it governs. Later edits changed vocabulary so the text reads against `main`, such as "earlier" to "the trial's". No threshold or rule changed.
 
 Two checks were added after earlier results, so they are exploratory rather than part of the first plan:
 
-- **Entirely silent input:** added after full Whisper emitted the same 20 alphanumeric characters twice on 12 seconds of digital zero, and Turbo emitted 35 twice. Only a nonempty converted WAV whose samples are *all exactly zero* may skip ASR and produce an empty transcript and a no-speech recap without the LLM. Ordinary nonzero speech and internal pauses stay on the normal path, and the regression check includes a quiet nonzero sample.
-- **Full-Whisper pause option:** full Whisper improved or tied on each of the four eligible cases, with no regression in either language aggregate, so the rule was offered as an explicit option for this model only. Before acceptance, the pipeline command had to give the same normalized error count on onboarding as the benchmark split, with source-relative timestamps and a rendered transcript.
+- **Entirely silent input:** added after full Whisper emitted the same 20 alphanumeric characters twice on 12 seconds of digital zero, and Turbo emitted 35 twice. Only a nonempty converted WAV whose samples are *all exactly zero* may skip recognition and produce an empty transcript and a no-speech recap without running the recap model. Ordinary nonzero speech and internal pauses stay on the normal path, and the regression check includes a quiet nonzero sample.
+- **Full-Whisper pause option:** full Whisper improved or tied on each of the four recordings with such a pause, and its total error didn't rise in either language, so the rule was offered as an explicit option for this model only. Before acceptance, the pipeline command had to give the same normalized error count on onboarding as the experiment's split, with timestamps that match the original recording and a rendered transcript.
 
 On 2026-11-03, after the runs, this summary was split out of one write-up covering every question, so that each question has its own summary and decision. No result changed. Nothing was rerun for the split.
 
 ## Results
 
-| Speech with a qualifying pause | Full Whisper edits, whole → split | Turbo edits | Breeze edits |
+An edit is one inserted, deleted or substituted unit: a character in Mandarin, a word in English. "Whole" decodes the entire recording at once, and "split" decodes the speech on each side of a long digital pause separately. Lower is better.
+
+| Speech with a long digital pause | Full Whisper edits, whole → split | Turbo edits | Breeze edits |
 | --- | ---: | ---: | ---: |
 | Stocktake (Mandarin; same audio as the trial) | 48 → 18 | 48 → 21 | 17 → 25 |
 | Onboarding (Mandarin) | 91 → 11 | 25 → 20 | 18 → 21 |
 | Audit (English) | 16 → 16 | 12 → 12 | 16 → 52 |
 | Training (English) | 14 → 11 | 11 → 11 | 19 → 28 |
 
-The other 12 speech WAVs pass through without a change. Across the 14 independent scripts:
+The other 12 speech recordings have no such pause, so nothing changes. Character error rate (CER) and word error rate (WER) divide total edits by the script's length. These totals cover the 14 independent scripts, leaving out the two remixes that repeat their text:
 
 | Recognizer | Mandarin CER, whole → split | English WER, whole → split |
 | --- | ---: | ---: |
@@ -70,9 +72,9 @@ The other 12 speech WAVs pass through without a change. Across the 14 independen
 
 On one recording, Breeze's whole-file output has no word timestamps, so we can't count its words inside the pause. Treat that as missing, not zero. Its edit count is still valid.
 
-**Silent input.** On the silence WAV shared with the trial, full Whisper, Turbo and Breeze again emitted 20 / 35 / 0 normalized characters. With the check, the pipeline returned zero transcript turns and zero recap items in 6.69 s, with ASR and summary marked as skipped. It still checked and ran the selected diarizer.
+**Silent input.** On the silence WAV shared with the trial, full Whisper, Turbo and Breeze again emitted 20 / 35 / 0 normalized characters. With the check, the pipeline returned zero transcript turns and zero recap items in 6.69 s, with recognition and the recap marked as skipped. It still checked and ran the selected diarizer.
 
-**Pause option through the pipeline.** The full-Whisper command with `--split-digital-pauses --diarizer who --no-summary` matched the onboarding split result: **11 edits instead of 91**. The two source spans and all 274 recognized words and their start and end times matched the experiment, including 105 words after the pause. It rendered 17 transcript lines in 21.45 s end to end.
+**Pause option through the pipeline.** The full-Whisper command with `--split-digital-pauses --diarizer who --no-summary` matched the onboarding split result: **11 edits instead of 91**. The two stretches of speech and all 274 recognized words and their start and end times matched the experiment, including 105 words after the pause. It rendered 17 transcript lines in 21.45 s end to end.
 
 **Limits.** This is a five-second digital-zero rule, not evidence about splitting acoustic pauses, and not a voice activity detector. The check says nothing about room noise or audible silence.
 
@@ -82,7 +84,7 @@ One inference process ran at a time on the M2 Pro with 16 GB, measured with `/us
 
 ## Decision
 
-Skip recognition and the recap on entirely zero audio. Offer the exact-zero split as an option for digitally edited recordings, with full Whisper only. It made Breeze worse in both languages. It also improved or tied Turbo on every case, but Turbo's version wasn't put through the pipeline's acceptance check, so `--split-digital-pauses` stays limited to full Whisper. See decision 14.
+Skip recognition and the recap on entirely zero audio. Offer the exact-zero split with full Whisper only: pass `--split-digital-pauses` when a recording has digitally muted or silenced stretches. Recordings without a five-second run of exact zeros decode unchanged. It made Breeze worse in both languages. It also improved or tied Turbo on every case, but Turbo's version wasn't put through the pipeline's acceptance check, so `--split-digital-pauses` stays limited to full Whisper. See decision 14.
 
 ## Open questions
 

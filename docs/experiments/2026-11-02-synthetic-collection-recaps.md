@@ -73,7 +73,7 @@ Wall times in the first two columns start from audio; the exact column times onl
 - **Citations:** the Turbo + Who audit recap had 37 invalid citations removed and 21 items left uncited. All the other recaps in this table had zero of either.
 - **Language:** one default English recap was in English despite a prompt requesting Traditional Chinese.
 
-These findings qualify both of the trial's claims: cleaner input can help but is no guarantee, and similar time or aggregate check counts don't establish equivalent factual notes.
+Two of the trial's claims need limits. Cleaner transcripts can help, but don't guarantee better notes. Two recaps can also take similar time and get similar scores while getting different facts right.
 
 ### Per-segment transcript lines
 
@@ -87,9 +87,9 @@ With identical Turbo words, Who labels and recap prompt, keeping Whisper segment
 
 The audit went from 37 invalid citations removed to zero. Onboarding recovered the successful retry with supporting evidence, but the merged speaker still caused a wrong owner. Neither training recap stated that 18 was the **verified final** count; both kept the assignments. Some segmented lines start in the same displayed second, so a timestamp may still be ambiguous.
 
-The option passed its gate, including the previously unseen training recap. The command `run --asr turbo-q4 --diarizer who --language en --keep-asr-segments --no-summary` on the audit matched the graded segmented transcript byte for byte.
+The option met the pass rule set before the test, including on the training call, whose recap hadn't been generated yet. The command `run --asr turbo-q4 --diarizer who --language en --keep-asr-segments --no-summary` on the audit matched the graded segmented transcript byte for byte.
 
-**Limits.** The anchors are targeted factual checks in any section, not a precision estimate, and this is one unblinded grading of intended synthetic speech. Only the audit triggered the citation test. These are paired examples, not an estimate of general recap accuracy.
+**Limits.** These checks look for specific facts anywhere in the recap, so they don't show how much else the recap got wrong. They were graded once on synthetic speech, by a grader who knew which version was which. The audit's own bad result prompted the citation test, so its improvement may be overstated. These are paired examples, not an estimate of general recap accuracy.
 
 ## Runtime and memory
 

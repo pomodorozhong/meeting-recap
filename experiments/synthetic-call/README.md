@@ -232,6 +232,10 @@ The pinned reference WAV, EmotiVoice source and NLTK frontend resources add roug
 
 Dependencies are declared in [`pyproject.toml`](pyproject.toml) and every package is pinned in [`uv.lock`](uv.lock); `uv run` uses both when it runs in this folder or with `--project`. The root environment and isolated EmotiVoice environment each have a committed lock. Check both with `uv lock --check --project experiments/synthetic-call` and `uv lock --check --project experiments/synthetic-call/emotivoice`. The generator prepares the locked child environment automatically when an EmotiVoice speaker is present.
 
+## Compare the pipeline on this collection
+
+[`collection_run.sh`](collection_run.sh) runs [the 17-recording comparison](../../docs/experiments/2026-11-02-synthetic-collection-pipeline.md) up to its hand grading, and [`collection_setup.sh`](collection_setup.sh) prepares what it needs. The summary's Reproduce section gives the commands. These runners live here, not in their own experiment folder, because they import `collection.py` and nothing imports across experiment folders; they reach the pipeline and MLX runners only through their commands.
+
 ## Input profile for comparable real recordings
 
 To rerun an experiment on another real call instead, the recording should match the one the experiments used: an online call with three people, Taiwanese Mandarin with English terms mixed in, all voices mixed into one mono track, 20–65 minutes, converted to 16 kHz mono WAV. Note any difference (more people, people sharing a room, separate tracks) in the experiment's summary, since Sortformer's results are known only for this profile.

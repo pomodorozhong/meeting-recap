@@ -1,20 +1,34 @@
 # 2026-11-02: the saved-audio pipeline on the 17-recording synthetic collection
 
-**Status: complete.** Turbo was the fastest recognizer on every spoken recording, but it did not always make the fewest errors. Word-level speaker attachment recovered the most turns, and splitting at long digital pauses helped full Whisper. Who merged speakers on all three clean four-person calls, yet beat Sortformer on the four-person overlap mix. Better transcriptions alone did not ensure better notes.
+**Status:** complete
 
-[Per-call measurements and input hashes](2026-11-02-synthetic-collection-pipeline-results.json) · [Fact and action verdicts bound to output hashes](2026-11-02-synthetic-collection-pipeline-judgments.json) · [Pipeline commands](../../experiments/pipelines/whisper-sortformer/README.md).
+**Outcome:** Turbo was the fastest recognizer on every spoken recording, but it did not always make the fewest errors. Word-level speaker attachment recovered the most turns, and splitting at long digital pauses helped full Whisper. Who merged speakers on all three clean four-person calls, yet beat Sortformer on the four-person overlap mix. Better transcriptions alone did not ensure better notes.
 
-**Where this ran.** The collection is the one merged in #32 (`4c8c2f0`). The runs used development commits based on it, before the pipeline options they tested merged: `--language` (#33), `--asr turbo-q4` (#34), `--keep-asr-segments` (#35), and digital silence handling with `--split-digital-pauses` (#36). The development commits are not on `main`. Replaying the silence, split and segmented-line commands on the pipeline code in `main` gave the results described under [Pipeline options checked against saved outputs](#pipeline-options-checked-against-saved-outputs).
+## Reproduce
 
-## Question and decision
+| Step | Command |
+| --- | --- |
+| Set up once (needs the network) | `experiments/synthetic-call/collection_setup.sh` |
+| Run everything | `experiments/synthetic-call/collection_run.sh "$FIXTURES" "$RESULTS"` |
+| Rerun one failed step | `experiments/synthetic-call/collection_run.sh "$FIXTURES" "$RESULTS" --step NAME`, with a name from `--plan` |
+| Check saved results without models | `uv run --project experiments/synthetic-call experiments/synthetic-call/collection_scores.py "$FIXTURES" "$RESULTS" > scores.json` |
+
+- **It needs:** `FIXTURES`, the verified collection built by [`collection.py`](../../experiments/synthetic-call/README.md#seventeen-recording-collection), and `RESULTS`, a new absolute path outside Git.
+- **It writes:** every model output under `RESULTS`, with the measurements in `RESULTS/scores.json`. [Per-call measurements and input hashes](2026-11-02-synthetic-collection-pipeline-results.json) holds the committed copy.
+- **Takes about:** not timed as a whole. Below, the three recognizers total about 19 minutes and the two diarizers about 15, before the repeat runs, splits, alternative diarizers, recaps and action comparisons.
+- **By hand:** grading the recaps against the fixed checks in the plan. [Fact and action verdicts bound to output hashes](2026-11-02-synthetic-collection-pipeline-judgments.json) holds this run's grades. Grade fresh outputs again, including their cited source lines, because changed text can't inherit an earlier judgment.
+- **Expect to differ:** timings on any rerun, and possibly model text on another machine. On the original M2 Pro, rerunning the entry point's `replays` step on 2026-11-03 matched the saved words, transcripts and recaps byte for byte. The other steps were not rerun. The model-free check recalculates the transcript, timing, speaker and pause measurements from saved outputs, so it should match the committed results byte for byte.
+- **Not on `main`:** score_case.py, turn_order.py and silence_split.py at c714e05 define the metrics carried over from the two #31 experiments, and collection_actions.py runs its frozen action prompts from that commit. The setup script fetches it from draft #31's branch, so that commit must stay reachable.
+
+The setup script also restores the Community-1 and LS-EEND weights from the pins in [`alternative-diarizers.json`](../../experiments/synthetic-call/reference/alternative-diarizers.json). The runners live with the fixtures because they import `collection.py`; see the [synthetic-call README](../../experiments/synthetic-call/README.md#compare-the-pipeline-on-this-collection).
+
+## Question
 
 Two experiments that are **not on `main`** made claims from smaller samples: a [seven-recording trial](https://github.com/pomodorozhong/meeting-recap/blob/c714e05/docs/experiments/2026-11-01-synthetic-collection.md) and a separate [action-evidence experiment](https://github.com/pomodorozhong/meeting-recap/blob/c714e05/docs/experiments/2026-11-01-action-evidence.md), both in draft PR #31. This experiment tests whether the trial's claims hold on a larger collection. Is Turbo always as accurate as full Whisper, and faster? Does Breeze win on sparse speech? Is Who faster but riskier with four voices? Does word attachment preserve more turns? Do clean transcripts rescue recap facts? The action-evidence claims are kept apart, because that experiment's prompts and reference labels are specific to it.
 
-## Input and assumptions
+## Plan
 
 Use all 17 hash-verified mono fixtures in the collection at `4c8c2f0`. Fourteen independent scripts (eight Mandarin including English terms, six English; one to four speakers). Report the two remixes and digital silence separately. The seven-recording trial used some of the same scripts, but synthesis and voices have changed since; only matching audio hashes are exact replications. One M2 Pro / 16 GB; serial local inference; generated text, timestamps and identities are known intended references, not listener judgments.
-
-## Registered plan
 
 The criteria below were fixed before the runs they govern, in the order shown. Their wording was edited later so that they read against `main`; no threshold, anchor or rule changed.
 
@@ -49,46 +63,7 @@ For each format count lines, dropped citations and items without citations. Regr
 
 Full Whisper improved or tied on each of the four eligible non-silent cases, with no regression in either language aggregate. So offer the measured rule as an explicit option for this model only (now `--split-digital-pauses`, merged in #36), leaving normal nonzero decoding unchanged by default. Before acceptance, run the pipeline command on onboarding with `--split-digital-pauses --diarizer who --no-summary` and require the same normalized error count as the benchmark split, source-relative timestamps (including speech after the long gap), and a successful rendered transcript. Reusing a loaded model within this command is allowed; its wall time is not compared as though it were the benchmark's separate process per chunk. Verify that near-silent nonzero audio is not cut. This is not a room-noise or general VAD change.
 
-## Restart
-
-Use the locked synthetic and pipeline projects, pipeline setup and Swift binaries in their READMEs; use the MLX run.py CLI with repo, language and pinned revision. Use the collection's language-aware transcript scorer. Store raw calls, predictions and individual judgments outside Git. Public results contain counts and digests only.
-
-Some definitions are not on `main`. score_case.py, turn_order.py and silence_split.py at c714e05 define the metrics carried over from the two #31 experiments, and collection_actions.py reads its frozen action prompts from that commit, so it must be available locally (draft #31's branch holds it; fetch it if working from a shallow clone).
-
-From the repository root, set `FIXTURES` to the verified collection and `RESULTS` to a **new absolute path** in the external benchmark directory. Prepare the pinned Whisper, Breeze, Turbo, Qwen, Sortformer and Who caches before timing. Community-1 and the four LS-EEND weight sets must match the tree hashes recorded with the seven-recording trial at c714e05.
-
-```bash
-S=experiments/synthetic-call
-P=experiments/pipelines/whisper-sortformer
-uv sync --locked --project "$S"
-uv sync --locked --project "$P"
-uv sync --locked --project experiments/mlx
-swift build -c release --package-path "$P" --product fluidaudiocli
-swift build -c release --package-path "$P" --product who-diarize
-swift build -c release --package-path experiments/diarization --product diarexp
-"$S/collection_decode.sh" "$FIXTURES" "$RESULTS"
-for phase in recaps diarize split turns; do
-  "$S/.venv/bin/python" "$S/collection_followup.py" "$FIXTURES" "$RESULTS" "$phase" || exit 1
-done
-"$S/.venv/bin/python" "$S/collection_actions.py" "$FIXTURES" "$RESULTS"
-"$S/.venv/bin/python" "$S/collection_scores.py" "$FIXTURES" "$RESULTS" > "$RESULTS/scores.json"
-```
-
-For the line-format comparison, use `$P/.venv/bin/python "$P/compare_lines.py" ASR DIARIZATION CONVERTED_WAV NEW_OUTPUT`. On the two saved Turbo + Who pipeline runs use their `asr.json`, `diarization.json`, `audio.wav`, and `--speakers FAST/speakers.json --keep-segments`, where `FAST` is the run's folder; compare to its saved recap. For training use the case's `turbo.json`, `who.json` and `audio.wav` twice, first with default lines and then with `--keep-segments --speakers FIRST/speakers.json`.
-
-The collection_scores.py command is a model-free recalculation of the transcript, timing, speaker and pause measurements from saved outputs. Repeat semantic grading on fresh outputs, including their cited source lines; changed text cannot inherit an earlier judgment.
-
-## Runtime and memory
-
-One inference process ran at a time on the M2 Pro / 16 GB. Timings include process startup, model load and device teardown; the desktop was in normal use. A two-job Swift compilation overlapped part of the early English audit and silence timing. Toolchain caches were warm. These are individual observations on this machine, not latency guarantees.
-
-| ASR, script-matched language | Median wall time, 17 fixtures | Total stage time | Peak process footprint | Fastest on |
-| --- | ---: | ---: | ---: | --- |
-| Full Whisper | 15.84 s | 344.99 s | 9.00 GB | 0 |
-| Turbo Q4 | 7.86 s | 181.81 s | 4.14 GB | All 16 speech recordings |
-| Breeze | 30.59 s | 640.58 s | 12.92 GB | Digital silence |
-
-## Results and limits
+## Results
 
 ### Recognition
 
@@ -182,8 +157,27 @@ With identical Turbo words, Who labels and recap prompt, keeping Whisper segment
 
 The audit went from 37 invalid citations removed to zero. Onboarding recovered the successful retry with supporting evidence; the merged speaker still caused a wrong owner. Neither training recap stated that 18 was the **verified final** count; both kept the assignments. Some segmented lines start in the same displayed second, so a timestamp may still be ambiguous. The option passed the registered gate, including the previously unseen training recap. The normal `run --asr turbo-q4 --diarizer who --language en --keep-asr-segments --no-summary` command on the audit matched the graded segmented transcript byte for byte. Only the audit triggered the experiment. These are paired examples, not an estimate of general recap accuracy.
 
-## Decision and open questions
+## Runtime and memory
+
+One inference process ran at a time on the M2 Pro / 16 GB. Timings include process startup, model load and device teardown; the desktop was in normal use. A two-job Swift compilation overlapped part of the early English audit and silence timing. Toolchain caches were warm. These are individual observations on this machine, not latency guarantees.
+
+| ASR, script-matched language | Median wall time, 17 fixtures | Total stage time | Peak process footprint | Fastest on |
+| --- | ---: | ---: | ---: | --- |
+| Full Whisper | 15.84 s | 344.99 s | 9.00 GB | 0 |
+| Turbo Q4 | 7.86 s | 181.81 s | 4.14 GB | All 16 speech recordings |
+| Breeze | 30.59 s | 640.58 s | 12.92 GB | Digital silence |
+
+## Decision
 
 Keep full Whisper, Sortformer and word-level attachment as the conservative default. Specify the spoken language; offer Turbo for turnaround and Who when speaker identity can be checked. Use the optional exact-zero splitter on digitally muted or edited inputs, and the optional shorter lines when the recap needs finer citations. Skip ASR and recap generation on exact whole-file silence. Do not adopt the verifier or a reference-assisted speaker repair. Keep full and fast recaps reviewable: even an accurate transcript and valid citation can accompany a wrong statement.
 
+## Open questions
+
 The two WAVs shared with the trial check repeatability; changed voices and remixes check whether its findings hold on other audio. They cannot separate voice, overlap and script effects across unrelated calls. The action-evidence experiment's 24-item prompt comparison was not repeated on its original task here; the focused action results above cover only four specified positive commitments. No-action precision, long meetings, real-room noise, and accuracy against a listener-confirmed reference remain open. Next, check owners, decisions and citation support on the already prepared private listening reviews before changing the default.
+
+## Where this ran
+
+- **Code:** The collection is the one merged in #32 (`4c8c2f0`). The runs used development commits based on it, before the pipeline options they tested merged: `--language` (#33), `--asr turbo-q4` (#34), `--keep-asr-segments` (#35), and digital silence handling with `--split-digital-pauses` (#36). The development commits are not on `main`. Replaying the silence, split and segmented-line commands on the pipeline code in `main` gave the results described under [Pipeline options checked against saved outputs](#pipeline-options-checked-against-saved-outputs).
+- **Models and weights:** the revisions pinned in the plan, in [`pins.py`](../../experiments/pipelines/whisper-sortformer/pins.py), and in [`alternative-diarizers.json`](../../experiments/synthetic-call/reference/alternative-diarizers.json).
+- **Machine:** one M2 Pro with 16 GB, one inference process at a time.
+- **Kept outside the repository:** raw calls, predictions and individual judgments, under benchmark ID expanded-pipeline-20261102. Public results contain counts and digests only.

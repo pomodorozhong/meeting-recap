@@ -1,0 +1,113 @@
+# 2026-11-02: recap facts and citations on the 17-recording synthetic collection
+
+**Status:** complete
+
+**Outcome:** Better transcripts alone didn't ensure better notes: on two calls, full facts were 7/9 for the default, 6/9 for Turbo + Who and 6/9 from the exact turns. Starting a transcript line at each Whisper segment removed the audit's uncited items and gave more correct facts with supporting citations, so it's offered as an option. The recap model and prompt don't change. This rests on 12 targeted facts from three calls, graded once and unblinded.
+
+## Reproduce
+
+| Step | Command |
+| --- | --- |
+| Set up once (needs the network) | `experiments/synthetic-call/collection_setup.sh` |
+| Run everything | `experiments/synthetic-call/collection_run.sh "$FIXTURES" "$RESULTS"` |
+| Rerun this summary's steps | `experiments/synthetic-call/collection_run.sh "$FIXTURES" "$RESULTS" --step recaps`, then `--step replays` |
+| Check saved results without models | `uv run --project experiments/synthetic-call experiments/synthetic-call/collection_scores.py "$FIXTURES" "$RESULTS" > scores.json` |
+
+- **It needs:** `FIXTURES`, the verified collection built by [`collection.py`](../../experiments/synthetic-call/README.md#seventeen-recording-collection), and `RESULTS`, a new absolute path outside Git. `replays` also needs the training case's Turbo and Who outputs from the `decode` and `diarize` steps.
+- **It writes:** every model output under `RESULTS`, with the measurements in `RESULTS/scores.json`. This is one run shared by [several summaries](../../experiments/synthetic-call/README.md#compare-the-pipeline-on-this-collection), so the scorer needs every step's outputs. [The saved measurements](2026-11-02-synthetic-collection-results.json) are the committed copy.
+- **Takes about:** 9 minutes for `recaps`, in the saved timings; `replays` wasn't timed. The whole run takes about 54 minutes, plus the untimed `turns` and `replays` steps.
+- **By hand:** grading the recaps against the fixed checks in the plan. [Fact verdicts bound to output hashes](2026-11-02-synthetic-collection-recaps-judgments.json) holds this run's grades. Grade fresh outputs again, including their cited source lines, because changed text can't inherit an earlier judgment.
+- **Expect to differ:** timings on any rerun, and possibly model text on another machine. On the original M2 Pro, rerunning the `replays` step on 2026-11-03 matched the saved words, transcripts and recaps byte for byte. The `recaps` step wasn't rerun.
+
+## Question
+
+Do clean transcripts rescue recap facts? Does a faster pipeline keep the same facts? Does finer transcript line structure improve citations?
+
+- **Decision it informs:** whether to change the recap model or prompt, whether fast options need extra caution, and whether to offer per-segment lines.
+- **Expected result:** cleaner input can help, but faster component times and readable Markdown don't guarantee preserved owners, dates or corrected decisions. A result of more valid timestamps alone wouldn't pass the citation test.
+- **Builds on:** a [seven-recording trial](https://github.com/pomodorozhong/meeting-recap/blob/c714e05/docs/experiments/2026-11-01-synthetic-collection.md) in draft PR #31, which is **not on `main`**.
+
+## Plan
+
+- **Input:** two hash-verified mono fixtures from the collection at `4c8c2f0`: onboarding (four speakers, testing ownership) and English audit (one speaker, testing corrections). The citation test adds English training.
+- **Assumptions:** one M2 Pro with 16 GB, serial local inference. Anonymous labels are mapped to the reference by maximum shared speaker time.
+
+| Run ID | Input | Settings |
+| --- | --- | --- |
+| `pipeline` | Full Whisper + Sortformer | Qwen3.5 9B `8b2b98c0`, through the pipeline |
+| `fast` | Turbo Q4 + Who | Same model and prompt |
+| `exact` | The script's exact turns | Same model and prompt, summary stage only |
+
+Each recap is scored full, partial, or absent or wrong on nine preregistered semantic checks:
+
+- **Onboarding, turns 9, 10, 12, 14–16:** account test owner and time; documentation owner and time; test access restored; production access still separate and unapproved.
+- **English audit, turns 2, 3, 7, 8/11, 10:** corrected adapter total; usable cable count; scale fault unresolved; corrected booking; delivery expected, not received.
+
+Reopened questions and unsupported details are also audited.
+
+### Changes to the plan
+
+The criteria were fixed before the runs they govern. Their wording was later edited to read against `main`; no threshold or rule changed.
+
+Two comparisons were added during the experiment:
+
+- **Turbo + Who:** added before any recap from this experiment was read. It uses identical language settings, the same prompt and the same nine checks, with the default as comparator.
+- **Per-segment lines (exploratory):** the Turbo + Who audit recap prompted this test, so the audit is its development case, onboarding is a transfer case, and English training had no recap yet when its three anchors were frozen: final count of 18 verified (turns 7/8/18); A's checklist revision by Wednesday noon (21); B responsible for the practice check, due Thursday 10:00 (22). The option passes only if the audit has fewer uncited items and at least one more fully supported anchor, with no loss of full factual anchors on any of the three cases.
+
+On 2026-11-03, after the runs, this summary was split out of one write-up covering every question, so that each question has its own summary and decision. No result changed. Nothing was rerun for the split.
+
+## Results
+
+### End-to-end recaps
+
+| Input | Full Whisper + Sortformer | Turbo + Who | Exact turns + identical recap model |
+| --- | ---: | ---: | ---: |
+| Onboarding (4 checks) | 2 full, 1 partial; 135.66 s | 2 full, 1 partial; 68.97 s | 3 full; 29.57 s |
+| English audit (5 checks) | 5 full; 159.30 s | 4 full, 1 partial; 80.01 s | 3 full, 2 partial; 53.77 s |
+| Full facts across the two calls | **7/9** | **6/9** | **6/9** |
+
+Wall times in the first two columns start from audio; the exact column times only summarization from known turns. A correct value with a contradictory correction or a reopened final status earns partial credit.
+
+- **Onboarding:** the default retained both assignments. Turbo + Who merged speakers and lost the test owner, while recovering the separate production-access decision. All three omitted the successful test retry.
+- **English audit:** the default recovered the facts but reopened settled counts as proposals. The exact-input recap misstated the superseded booking day and reopened receipt of the delivery. The Turbo + Who recap stated delivery had not arrived and also asked whether it had.
+- **Citations:** the Turbo + Who audit recap had 37 invalid citations removed and 21 items left uncited. All the other recaps in this table had zero of either.
+- **Language:** one default English recap was in English despite a prompt requesting Traditional Chinese.
+
+These findings qualify both of the trial's claims: cleaner input can help but is no guarantee, and similar time or aggregate check counts don't establish equivalent factual notes.
+
+### Per-segment transcript lines
+
+With identical Turbo words, Who labels and recap prompt, keeping Whisper segment boundaries gave the recap more precise lines to cite:
+
+| Call | Transcript lines, merged → segmented | Uncited items | Fully correct facts | Fully correct with supporting citations |
+| --- | ---: | ---: | ---: | ---: |
+| English audit (5 checks) | 2 → 21 | 21 → 0 | 4 → 4 | 2 → 4 |
+| Onboarding (4 checks) | 19 → 46 | 0 → 0 | 2 → 3 | 2 → 3 |
+| English training (3 checks) | 22 → 48 | 0 → 0 | 2 → 2 | 2 → 2 |
+
+The audit went from 37 invalid citations removed to zero. Onboarding recovered the successful retry with supporting evidence, but the merged speaker still caused a wrong owner. Neither training recap stated that 18 was the **verified final** count; both kept the assignments. Some segmented lines start in the same displayed second, so a timestamp may still be ambiguous.
+
+The option passed its gate, including the previously unseen training recap. The command `run --asr turbo-q4 --diarizer who --language en --keep-asr-segments --no-summary` on the audit matched the graded segmented transcript byte for byte.
+
+**Limits.** The anchors are targeted factual checks in any section, not a precision estimate, and this is one unblinded grading of intended synthetic speech. Only the audit triggered the citation test. These are paired examples, not an estimate of general recap accuracy.
+
+## Runtime and memory
+
+Wall times are in the recap table, measured with `/usr/bin/time -l`, one inference process at a time on the M2 Pro with 16 GB, with the desktop in normal use. These are individual observations on this machine, not latency guarantees.
+
+## Decision
+
+Don't change the recap model or prompt. Offer separate timestamped lines per ASR segment for finer citations. Keep full and fast recaps reviewable, because even an accurate transcript and a valid citation can accompany a wrong statement. See decision 15.
+
+## Open questions
+
+Long meetings, real-room noise and accuracy against a listener-confirmed reference remain open. The next step is checking owners, decisions and citation support on the private listening reviews, before changing the default.
+
+This run also compared action extraction on two further scripts, using frozen prompts from draft PR #31, which isn't on `main`. That comparison is left out of this summary because its claims belong with that draft's experiment. Its results and judgments are at [commit `d182e52`](https://github.com/pomodorozhong/meeting-recap/blob/d182e52/docs/experiments/2026-11-02-synthetic-collection-pipeline.md#action-recovery-and-evidence).
+
+## Where this ran
+
+- **Code:** the collection is the one merged in #32 (`4c8c2f0`). The runs used development commits based on it, before `--keep-asr-segments` merged in #35. The development commits are not on `main`. Replaying the per-segment commands on the pipeline code in `main` gave the results above.
+- **Models and weights:** the revisions in the plan, and in [`pins.py`](../../experiments/pipelines/whisper-sortformer/pins.py).
+- **Machine:** one M2 Pro with 16 GB, one inference process at a time.
+- **Kept outside the repository:** raw calls, predictions and individual recaps, under benchmark ID `expanded-pipeline-20261102`. Public results contain counts and digests only.

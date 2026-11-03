@@ -2,7 +2,7 @@
 
 **Status:** complete
 
-**Outcome:** On four generated recordings with a long pause made of exact digital zeros, decoding the speech on each side of the pause separately lowered total Mandarin error rates for full Whisper (9.98% to 6.43%) and Turbo (7.59% to 6.56%), barely changed their English rates, and made Breeze worse in both languages. A recording that is entirely digital zeros now skips recognition and the recap, because full Whisper and Turbo returned text on one. The split is an opt-in flag for full Whisper only, because only that version was checked through the pipeline, not because it beat Turbo; neither rule applies to quiet rooms, and neither was tested on a real recording.
+**Outcome:** On four generated recordings with a long pause made of exact digital zeros, decoding the speech on each side of the pause separately lowered total Mandarin error rates for full Whisper (9.98% to 6.43%) and Turbo (7.59% to 6.56%), barely changed their English rates, and made Breeze worse in both languages. A recording that is entirely digital zeros now skips recognition and the recap, because full Whisper and Turbo returned text on one. Splitting at the pause is an opt-in flag for full Whisper only. It's the only version that was run through the pipeline, and the record doesn't say why Turbo wasn't, since the results don't favor either. Neither rule applies to quiet rooms, and neither was tested on a real recording.
 
 ## Reproduce
 
@@ -103,6 +103,7 @@ The combined write-up's reason for offering it is that full Whisper improved or 
 ## Open questions
 
 - Does the split help on real recordings with digital mutes? Nothing here tests that.
+- Why was only full Whisper run through the pipeline with this flag? The record doesn't say, and Turbo's results also met the pass rule.
 - Does the flag behave the same on an English recording through the pipeline, or with Turbo? Neither was run.
 - Why does the split help full Whisper so much on `onboarding` and hurt Breeze so much on `english-audit`?
 - Does any rule help with pauses that have room noise? No voice activity detection was evaluated.

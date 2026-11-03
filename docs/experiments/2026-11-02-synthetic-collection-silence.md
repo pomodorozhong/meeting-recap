@@ -2,7 +2,7 @@
 
 **Status:** complete
 
-**Outcome:** Splitting at five-second digital pauses helped full Whisper and Turbo and made Breeze worse in both languages. Only full Whisper's version was accepted and checked through the pipeline, so it's the one offered. Recognizers can invent text on digital silence, so an all-zero recording now skips recognition and the recap. Both rules apply to exact digital zeros only, not to quiet rooms or audible silence.
+**Outcome:** On four generated recordings with a long pause made of exact digital zeros, decoding the speech on each side of the pause separately lowered total Mandarin error rates for full Whisper (9.98% to 6.43%) and Turbo (7.59% to 6.56%), barely changed their English rates, and made Breeze worse in both languages. A recording that is entirely digital zeros now skips recognition and the recap, because full Whisper and Turbo returned text on one. The split is an opt-in flag for full Whisper only, because only that version was checked through the pipeline, not because it beat Turbo; neither rule applies to quiet rooms, and neither was tested on a real recording.
 
 ## Reproduce
 
@@ -10,89 +10,115 @@
 | --- | --- |
 | Set up once (needs the network) | `experiments/synthetic-call/collection_setup.sh` |
 | Run everything | `experiments/synthetic-call/collection_run.sh "$FIXTURES" "$RESULTS"` |
-| Rerun this summary's steps | `experiments/synthetic-call/collection_run.sh "$FIXTURES" "$RESULTS" --step split`, then `--step replays` |
+| Run only what this summary uses | The same command with `--step decode`, then `--step recaps`, `--step diarize`, `--step split` and `--step replays`, in that order |
 | Check saved results without models | `uv run --project experiments/synthetic-call experiments/synthetic-call/collection_scores.py "$FIXTURES" "$RESULTS" > scores.json` |
 
-- **It needs:** `FIXTURES`, the verified collection built by [`collection.py`](../../experiments/synthetic-call/README.md#seventeen-recording-collection), and `RESULTS`, a new absolute path outside Git. Scoring also reuses the `decode` step's whole-file outputs.
-- **It writes:** every model output under `RESULTS`, with the measurements in `RESULTS/scores.json`. This is one run shared by [several summaries](../../experiments/synthetic-call/README.md#compare-the-pipeline-on-this-collection), so the scorer needs every step's outputs. [The saved measurements](2026-11-02-synthetic-collection-results.json) are the committed copy.
-- **Takes about:** 5.5 minutes for `split`, in the saved timings; `replays` wasn't timed. The whole run takes about 54 minutes, plus the untimed `turns` and `replays` steps.
-- **By hand:** nothing for this summary.
-- **Expect to differ:** timings on any rerun, and possibly model text on another machine. The scorer recalculates the measurements from saved outputs, so it should match the committed file byte for byte.
+The steps depend on each other. `split` compares against the whole-file output from `decode`. The silent-input run is part of `recaps`, which also runs the recap model on two spoken calls. The pause option is the first command in `replays`, and the rest of that step reads outputs from `recaps` and `diarize`.
+
+- **It needs:** `FIXTURES`, the verified collection built by [`collection.py`](../../experiments/synthetic-call/README.md#seventeen-recording-collection), and `RESULTS`, a new absolute path outside Git.
+- **It writes:** model outputs under `RESULTS`, and measurements in `RESULTS/scores.json`. [Several summaries share this one run](../../experiments/synthetic-call/README.md#compare-the-pipeline-on-this-collection), so the scorer needs every step's outputs, including `turns`. [The saved measurements](2026-11-02-synthetic-collection-results.json) are the committed copy.
+- **Takes about:** 5.5 minutes for `split` in the saved timings. All timed steps total about 54 minutes; `turns` and `replays` weren't timed as steps.
+- **By hand:** comparing `onboarding/pause-pipeline` with the experiment's `onboarding/split/whisper.json`. The scorer doesn't read the pause run and no committed script compares them, so its figures below aren't in the results file.
+- **Expect to differ:** timings on any rerun, and possibly model text on another machine. The scorer recalculates from saved outputs, so it should match the committed file byte for byte. The earlier combined write-up says a rerun of `replays` on 2026-11-03 matched the saved words and transcripts byte for byte, and that the other steps weren't rerun, so `split` hasn't been run through this entry point.
 
 ## Question
 
-Does decoding around long digital pauses reduce recognition errors, in either language? What should the pipeline do when a whole recording is digital zeros?
+The pipeline's README describes this rule as aimed at digital edits and mutes, meaning stretches whose samples are exactly zero. Does decoding the speech on each side of a long stretch like that, instead of the whole file at once, reduce recognition errors in Mandarin and in English? And what should the pipeline do with a recording that is entirely zeros, given that text invented there would reach the recap?
 
 - **Decision it informs:** whether to offer the split, for which recognizers, and whether silent input skips recognition.
-- **Expected result:** none stated for the size of the effect. The trial's splitter stays experimental unless neither language regresses. Errors around pauses inside speech are reported separately from recordings that are entirely silent.
-- **Builds on:** a [seven-recording trial](https://github.com/pomodorozhong/meeting-recap/blob/c714e05/docs/experiments/2026-11-01-synthetic-collection.md) in draft PR #31, which is **not on `main`**. Its `silence_split.py` at `c714e05` defines the rule.
+- **Expected result:** no expected size of effect was stated. The pass rule, set before the test, was to keep the split experimental "unless neither language regresses". The plan doesn't say whether that applies per recognizer. A second planned rule covered every candidate in the run: keep one only as an option when results vary by call.
+- **Builds on:** the [seven-recording trial](https://github.com/pomodorozhong/meeting-recap/blob/c714e05/docs/experiments/2026-11-01-synthetic-collection.md) in draft PR #31, which is **not on `main`**. It developed the split on one recording, `stocktake`, and said the result needed another sparse recording to confirm it. The same rule is in [`collection_followup.py`](../../experiments/synthetic-call/collection_followup.py) on `main`.
 
 ## Plan
 
-- **Input:** all 17 hash-verified mono fixtures in the collection at `4c8c2f0`. Four speech recordings have a run of at least five seconds of exact zeros.
-- **Assumptions:** one M2 Pro with 16 GB, serial local inference. Generated text is the known intended speech, not a listener judgment.
+- **Input:** all 17 mono recordings in the collection at `4c8c2f0`, checked against [committed hashes](../../experiments/synthetic-call/reference/collection-sha256.json). Sixteen are speech and one is 12 seconds of digital zeros. Four of the speech recordings have a pause of at least five seconds of exact zeros.
+- **Assumptions:** one M2 Pro with 16 GB, one model process at a time. The reference is the generated script, not a listener's judgment, so nobody graded these results by ear. Each recognizer is told the script's language, and the silent recording is decoded as Mandarin. Word timestamps are on, and earlier text isn't fed back to the recognizer as a prompt.
 
 | Run ID | Model and pinned version | Settings |
 | --- | --- | --- |
-| `split/whisper` | Full Whisper `49e6aa28` | Five-second exact-zero split with 250 ms context, language-matched |
-| `split/turbo` | Turbo Q4 `660c343b` | Same |
-| `split/breeze` | Breeze `172151e3` | Same |
+| `whisper`, `turbo`, `breeze` | Same as the three rows below | Whole file, from the `decode` step |
+| `split/whisper` | Full Whisper (`whisper-large-v3-mlx`) `49e6aa28` | Split wherever at least five seconds of samples are exactly zero, keeping 250 ms of context at each cut |
+| `split/turbo` | Turbo (`whisper-large-v3-turbo-q4`) `660c343b` | Same |
+| `split/breeze` | Breeze (`Breeze-ASR-25-mlx`) `172151e3` | Same |
+| `silence/pipeline` | Full Whisper through the pipeline | `recap.py run --language zh`, whose default diarizer is Sortformer |
+| `onboarding/pause-pipeline` | Full Whisper through the pipeline | `recap.py run --diarizer who --split-digital-pauses --no-summary` |
 
-Unchanged audio reuses the unsplit result.
+A recording without such a pause isn't decoded again: its split result is its whole-file result.
 
 ### Changes to the plan
 
-Each criterion was committed before the run it governs. Later edits changed vocabulary so the text reads against `main`, such as "earlier" to "the trial's". No threshold or rule changed.
+The split and its pass rule were in the plan from its first commit (`e5f17b3`, 2026-11-02 19:33 UTC+8). Two checks were added afterward, before the results commit at 20:42. These commits are in the history of the earlier combined write-up, at [`d182e52`](https://github.com/pomodorozhong/meeting-recap/blob/d182e52/docs/experiments/2026-11-02-synthetic-collection-pipeline.md), and are **not on `main`**. Git shows when the text was committed. The run times are outside the repository, so it can't show the order of each commit and its run.
 
-Two checks were added after earlier results, so they are exploratory rather than part of the first plan:
+- **Entirely silent input, added at 19:41 after seeing text on silence.** The added text reports the counts under "Silent input" below, which the seven-recording trial had also reported for the same file, along with an all-zero rule tested as an experiment. The rule added here is that only a nonempty converted WAV whose samples are all exactly zero skips recognition, producing an empty transcript and a no-speech recap without running the recap model. The run on the silent recording can only show that the rule works on the input that prompted it.
+- **Full-Whisper pause option, added at 20:28 after seeing the split results.** Full Whisper had improved or tied on all four recordings, without its total rising in either language, so the rule was offered for this model only. Before acceptance, the pipeline had to give the same error count as the experiment on `onboarding`, keep timestamps relative to the original recording, and render a transcript. That check shows the pipeline reproduces the experiment. It isn't new evidence that the split helps.
 
-- **Entirely silent input:** added after full Whisper emitted the same 20 alphanumeric characters twice on 12 seconds of digital zero, and Turbo emitted 35 twice. Only a nonempty converted WAV whose samples are *all exactly zero* may skip recognition and produce an empty transcript and a no-speech recap without running the recap model. Ordinary nonzero speech and internal pauses stay on the normal path, and the regression check includes a quiet nonzero sample.
-- **Full-Whisper pause option:** full Whisper improved or tied on each of the four recordings with such a pause, and its total error didn't rise in either language, so the rule was offered as an explicit option for this model only. Before acceptance, the pipeline command had to give the same normalized error count on onboarding as the experiment's split, with timestamps that match the original recording and a rendered transcript.
-
-On 2026-11-03, after the runs, this summary was split out of one write-up covering every question, so that each question has its own summary and decision. No result changed. Nothing was rerun for the split.
+Later edits to these passages changed wording, such as "earlier" to "the trial's", and the pause section's reference to the merged flag. The pass rule and the acceptance check didn't change. On 2026-11-03, after the runs, this summary was split out of the combined write-up so that each question has its own summary. Nothing was rerun for that.
 
 ## Results
 
-An edit is one inserted, deleted or substituted unit: a character in Mandarin, a word in English. "Whole" decodes the entire recording at once, and "split" decodes the speech on each side of a long digital pause separately. Lower is better.
+An **edit** is one inserted, deleted or substituted unit between the script and the recognizer's text. In English the unit is a word. In Mandarin it's a character, after converting to Simplified and keeping only letters and digits, so an English term in a Mandarin script counts letter by letter. Lower is better. "Whole" decodes the entire recording at once, and "split" decodes the speech on each side of the pause separately.
 
-| Speech with a long digital pause | Full Whisper edits, whole → split | Turbo edits | Breeze edits |
+| Recording with a long digital pause | Full Whisper edits, whole → split | Turbo edits, whole → split | Breeze edits, whole → split |
 | --- | ---: | ---: | ---: |
-| Stocktake (Mandarin; same audio as the trial) | 48 → 18 | 48 → 21 | 17 → 25 |
-| Onboarding (Mandarin) | 91 → 11 | 25 → 20 | 18 → 21 |
-| Audit (English) | 16 → 16 | 12 → 12 | 16 → 52 |
-| Training (English) | 14 → 11 | 11 → 11 | 19 → 28 |
+| `stocktake` (Mandarin, 116 characters, about 18 s pause) | 48 → 18 | 48 → 21 | 17 → 25 |
+| `onboarding` (Mandarin, 305 characters, about 12 s pause) | 91 → 11 | 25 → 20 | 18 → 21 |
+| `english-audit` (English, 495 words, about 8 s pause) | 16 → 16 | 12 → 12 | 16 → 52 |
+| `english-training` (English, 526 words, about 8 s pause) | 14 → 11 | 11 → 11 | 19 → 28 |
 
-The other 12 speech recordings have no such pause, so nothing changes. Character error rate (CER) and word error rate (WER) divide total edits by the script's length. These totals cover the 14 independent scripts, leaving out the two remixes that repeat their text:
+Full Whisper and Turbo improved or tied on every row, and Breeze got worse on every row. Most of full Whisper's gain comes from recordings whose failure was already known. `stocktake` is byte-identical to the seven-recording trial's recording and gave the same counts. For `onboarding`, the [collection's README](../../experiments/synthetic-call/README.md#seventeen-recording-collection) already recorded that a full Whisper decode inserted unrelated text around the pause and omitted some following turns. On the two English recordings, for which the sources checked record no earlier failure, full Whisper tied once and saved three edits once.
 
-| Recognizer | Mandarin CER, whole → split | English WER, whole → split |
-| --- | ---: | ---: |
-| Full Whisper | 9.98% → 6.43% | 2.18% → 2.08% |
-| Turbo Q4 | 7.59% → 6.56% | 1.98% → 1.98% |
-| Breeze | 12.08% → 12.44% | 7.43% → 8.92% |
+Character error rate (CER) and word error rate (WER) divide total edits by the script's length in that unit. The totals below cover the 14 independent scripts: eight Mandarin (3,095 characters) and six English (3,028 words). They leave out two remixes that repeat other scripts' text. The other 12 speech recordings have no long pause, so only the four above can move these totals.
 
-On one recording, Breeze's whole-file output has no word timestamps, so we can't count its words inside the pause. Treat that as missing, not zero. Its edit count is still valid.
+| Recognizer | Mandarin CER, whole → split | Mandarin edits | English WER, whole → split | English edits |
+| --- | ---: | ---: | ---: | ---: |
+| Full Whisper | 9.98% → 6.43% | 309 → 199 | 2.18% → 2.08% | 66 → 63 |
+| Turbo | 7.59% → 6.56% | 235 → 203 | 1.98% → 1.98% | 60 → 60 |
+| Breeze | 12.08% → 12.44% | 374 → 385 | 7.43% → 8.92% | 225 → 270 |
 
-**Silent input.** On the silence WAV shared with the trial, full Whisper, Turbo and Breeze again emitted 20 / 35 / 0 normalized characters. With the check, the pipeline returned zero transcript turns and zero recap items in 6.69 s, with recognition and the recap marked as skipped. It still checked and ran the selected diarizer.
+After the split, full Whisper and Turbo are close: full Whisper has four fewer Mandarin edits and three more English edits.
 
-**Pause option through the pipeline.** The full-Whisper command with `--split-digital-pauses --diarizer who --no-summary` matched the onboarding split result: **11 edits instead of 91**. The two stretches of speech and all 274 recognized words and their start and end times matched the experiment, including 105 words after the pause. It rendered 17 transcript lines in 21.45 s end to end.
+**Why the split helps isn't established.** Word positions don't point to text invented inside the pause: counting word midpoints inside the scripted pause, whole-file full Whisper placed none on `stocktake` or `onboarding`, its two largest counts, and split full Whisper placed one on each. A midpoint inside a pause can also be a timestamp error. Its whole-file text was shorter than the script on those two recordings (100 of 116 and 251 of 305 characters), which points toward missing speech, but the results file doesn't separate insertions from deletions. Breeze's whole-file count on `english-training` is missing because one segment has text but no word timestamps. Its edit count there is still valid.
 
-**Limits.** This is a five-second digital-zero rule, not evidence about splitting acoustic pauses, and not a voice activity detector. The check says nothing about room noise or audible silence.
+**Silent input.** The reference for the 12-second silent recording is empty, so any output is invented. Decoded twice each, full Whisper returned 20 characters and Turbo 35, with the same text both times after that conversion, and Breeze returned nothing. Who and Sortformer, the two diarizers (which label who spoke when), each reported no speakers. With the check in place, the pipeline returned zero transcript turns and zero recap items in 6.69 s, and it marked recognition and the recap as skipped. It still checked and ran the diarizer. That result comes from this one file. The check's code is the same for every recognizer, but only full Whisper's path was run.
+
+**Pause option through the pipeline.** On `onboarding`, the only recording checked this way, the command matched the experiment's split at 11 edits. The two speech spans and all 274 recognized words and their times also matched, including 105 words after the pause. It rendered 17 transcript lines in 21.45 s. These figures aren't in the results file. They are recorded in the earlier combined write-up, and [PR #36](https://github.com/pomodorozhong/meeting-recap/pull/36) repeats the word count. No English recording went through the pipeline with this flag.
+
+**Limits.**
+
+- All the pauses here were generated as exact zeros. A pause with room noise doesn't contain zeros, so this says nothing about it, and the rule isn't a voice activity detector.
+- The pipeline checks the converted WAV, so a real mute counts only if its samples are still exactly zero after conversion. No real recording was tested.
+- The evidence for the split is four recordings, two of them with known failures. Unit tests cover a quiet nonzero signal: it isn't treated as silent or cut, using mocked recognition.
 
 ## Runtime and memory
 
-One inference process ran at a time on the M2 Pro with 16 GB, measured with `/usr/bin/time -l`, with the desktop in normal use. Split decoding took 120 s for full Whisper, 54 s for Turbo and 154 s for Breeze in total across the qualifying recordings, each chunk in its own process. The pipeline option reuses a loaded model within one command, so its 21.45 s isn't comparable to those totals.
+Measured with `/usr/bin/time -l`, one model process at a time, on the M2 Pro with 16 GB and the desktop in normal use. These are totals across the four recordings in the first table.
+
+| Recognizer | Whole-file time | Split time | Largest whole-file peak | Largest split peak |
+| --- | ---: | ---: | ---: | ---: |
+| Full Whisper | 84 s | 120 s | 7.80 GB | 6.59 GB |
+| Turbo | 48 s | 54 s | 3.33 GB | 2.63 GB |
+| Breeze | 148 s | 154 s | 12.92 GB | 9.00 GB |
+
+The whole-file runs used one process per recording and the split runs used one per chunk, so the split loaded each model twice as often. Peak is the memory footprint macOS reports, which [doesn't fully count Metal buffers](../../experiments/pipelines/whisper-sortformer/README.md). A two-job Swift compile overlapped part of the early timing of `english-audit` and the silent recording. The record doesn't say whether it touched the 6.69 s pipeline run. The pause option's 21.45 s reuses one loaded model and includes diarization and rendering, so it can't be compared with these totals.
 
 ## Decision
 
-Skip recognition and the recap on entirely zero audio. Offer the exact-zero split with full Whisper only: pass `--split-digital-pauses` when a recording has digitally muted or silenced stretches. Recordings without a five-second run of exact zeros decode unchanged. It made Breeze worse in both languages. It also improved or tied Turbo on every case, but Turbo's version wasn't put through the pipeline's acceptance check, so `--split-digital-pauses` stays limited to full Whisper. See decision 14.
+Skip recognition and the recap when every converted sample is exactly zero. This needs no flag.
+
+Offer the split as `--split-digital-pauses` with full Whisper only, the pipeline's default recognizer. Pass it when a recording has digitally muted or silenced stretches. The pipeline has no command that reports this before a run, and it refuses the flag with `--asr turbo-q4`. Afterward, `asr.json` shows what happened: more than one entry in `spans_samples` means the recording was split. From the code, a recording with no five-second run of zeros decodes as a single span as usual, but this experiment ran no such recording through the flag.
+
+This choice is cautious. The results don't favor full Whisper over Turbo: Turbo also didn't regress in either language, and the two end up close. Turbo is excluded because its version was never put through the pipeline's acceptance check, and the record doesn't say why only full Whisper was. Breeze got worse in both languages, and it isn't one of the pipeline's recognizers. The flag is off by default, which fits the planned rule for results that vary by call. See decision 14 in [`decisions.md`](../decisions.md).
 
 ## Open questions
 
-Whether any rule helps on real-room pauses is untested here, and so is the split with Turbo through the pipeline's command. No voice activity detection was evaluated.
+- Does the split help on real recordings with digital mutes? Nothing here tests that.
+- Does the flag behave the same on an English recording through the pipeline, or with Turbo? Neither was run.
+- Why does the split help full Whisper so much on `onboarding` and hurt Breeze so much on `english-audit`?
+- Does any rule help with pauses that have room noise? No voice activity detection was evaluated.
 
 ## Where this ran
 
-- **Code:** the collection is the one merged in #32 (`4c8c2f0`). The runs used development commits based on it, before silence handling and `--split-digital-pauses` merged in #36. The development commits are not on `main`. Replaying the silence and split commands on the pipeline code in `main` gave the results above.
-- **Models and weights:** the revisions in the plan, and in [`pins.py`](../../experiments/pipelines/whisper-sortformer/pins.py).
-- **Machine:** one M2 Pro with 16 GB, one inference process at a time.
-- **Kept outside the repository:** raw calls and predictions, under benchmark ID `expanded-pipeline-20261102`. Public results contain counts and digests only.
+- **Code:** the collection is the one merged in #32 (`4c8c2f0`). The runs used development commits based on it, which the record doesn't name and which are **not on `main`**, before silence handling and `--split-digital-pauses` merged in #36. So the results file's numbers, including 6.69 s, come from those commits. PR #36 reports that on its pipeline code, the silent recording (with Who, not Sortformer) was skipped as expected, and that all 274 `onboarding` words and times matched the saved experiment output.
+- **Models and weights:** the revisions in the plan. Full Whisper and Turbo are also pinned in [`pins.py`](../../experiments/pipelines/whisper-sortformer/pins.py), and Breeze in `collection_followup.py`. Text normalization used `transformers` 5.22.0 and `opencc-python-reimplemented` 0.1.7.
+- **Machine:** one M2 Pro with 16 GB, one model process at a time. The macOS version isn't recorded.
+- **Kept outside the repository:** raw audio and model outputs, under benchmark ID `expanded-pipeline-20261102`. The results file has counts and digests only. The same run's recognizer and diarizer comparisons are in [the recognition summary](2026-11-02-synthetic-collection-recognition.md) and [the speakers summary](2026-11-02-synthetic-collection-speakers.md).

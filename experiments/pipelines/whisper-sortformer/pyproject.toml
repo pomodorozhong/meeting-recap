@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "Saved recording to speaker-labeled Markdown transcript and recap"
 requires-python = ">=3.11,<3.13"
 dependencies = [
+    "scipy",
     "mlx-whisper==0.4.2",
     "mlx-lm==0.32.2",
     "huggingface-hub",

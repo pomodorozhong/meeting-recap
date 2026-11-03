@@ -2,15 +2,6 @@
 
 ## In progress
 
-### feat/collection-runner
-
-- Task: the first of five PRs that split #37, the 17-recording synthetic comparison, by question. Related to #28, unlinked. This one holds the runner and measurements. Four docs-only PRs follow from `main`: `docs/collection-recognition` (decision 12), `docs/collection-speakers` (13), `docs/collection-silence` (14) and `docs/collection-recaps` (15). They share one run on purpose and link to this PR's files.
-- Verification: 35 pipeline, 53 synthetic-call and 116 skill tests pass. `collection_scores.py` reproduces the committed results byte for byte. `collection_setup.sh` ran for real, and the `replays` step matched the saved words, transcripts and rendered recaps, with only elapsed-time fields differing.
-- Not run: the full `collection_run.sh` from a new folder, or regrading of recaps.
-- Merging: this PR first, then the docs PRs in the order above. Each docs PR adds to the same lines of `docs/decisions.md` and the experiments index, so rebuild the next one after each merge.
-- Keep `codex/expanded-call-benchmark`: its commits show when each criterion was registered, and the recaps summary links to its action results at `d182e52`.
-- Next action: wait for review of this PR.
-
 ### feat/pipeline-baseline
 
 - Saved synthetic-call runs of the pipeline; to be rebuilt on `main`, and deferred by the user. Read that branch's own `HANDOFF.md`.
@@ -19,22 +10,40 @@
 
 - Recap accuracy check and summary-stage variants; to be rebuilt on `main`, and deferred by the user. Read that branch's own `HANDOFF.md`.
 
+### feat/turbo-pause-check
+
+- Task: #46, run Turbo through the pause option's acceptance check. Linked to #46, so its PR closes that issue.
+- PR: none yet. Code checkpoint: `88236e8` on `main`. Not started; this branch only holds the handoff so far.
+- Verification: none run on this branch.
+- Before running: `recap.py` and `asr_stage.py` refuse `--split-digital-pauses` with `--asr turbo-q4`, and a test expects that, so this needs a code change. Commit the experiment's summary before its first run, and use synthetic audio only.
+- Next action: draft the experiment's summary from `docs/experiments/TEMPLATE.md`, then allow the flag with Turbo and run it on `onboarding`.
+
 ## Ranked work
 
-1. #28 Merge `feat/collection-runner`, then the four docs PRs that replace #37, then the private-recording pipeline review, with a public plan committed first.
-2. #18 Complete the two-track listening review, freeze its reference, evaluate both runs and finish the public summary; current turn counts remain provisional.
-3. #11 Publish the 17-recording synthetic recognition evidence with `docs/collection-recognition`; real-call transcript accuracy remains open.
-4. #1 Finish the user-confirmed long-call Who comparison; draft #25 remains open.
-5. #4 Run each remaining runner and the review skill end to end on the synthetic collection, and record the results.
-6. Revisit draft #31, `codex/action-grounding-sequence` and the deferred baseline and recap-accuracy branches. Keep `c714e05` reachable: the synthetic-collection summaries link to it on #31's branch. The runner no longer needs it.
-7. #9 Choose a license.
-8. #7 Decide where private experiment data is backed up.
-9. #5 Extend reproducibility instructions to the remaining public summaries.
-10. #3 Migrate the earlier experiment results into the private review dataset.
-11. Remaining runner follow-ups: external model-cache verification, the no-VAD variant and completion checks outside the HushScribe export fix.
+1. #46 Run Turbo through the pause option's acceptance check (P1, on `feat/turbo-pause-check`).
+2. #28 Run the private-recording pipeline review, with a public plan committed first.
+3. #18 Complete the two-track listening review, freeze its reference, evaluate both runs and finish the public summary; current turn counts remain provisional.
+4. #11 Compare real-call transcript accuracy; the synthetic evidence is on `main`.
+5. #1 Finish the user-confirmed long-call Who comparison; draft #25 remains open.
+6. #47 Grade a recap on a long meeting.
+7. #49 Score label attachment on Turbo's text. Should need no new model runs.
+8. #51 Add the `replays` results to the scorer and results file.
+9. #52 Run the collection entry point end to end on a fresh folder. `collection_run.sh` hasn't been run whole from a new folder.
+10. #57 Add synthetic noisy calls to the test collection.
+11. #53 Warn when a recording's language looks wrong for `--language`.
+12. #54 Reconcile the recognizer memory figures across reports.
+13. #55 Separate temperature from word timestamps in the recognition baseline.
+14. #48 Separate Turbo from Who in the recap comparison.
+15. #50 Test `--keep-asr-segments` with full Whisper and Sortformer.
+16. #56 Clean up claims and stale text in the experiment docs. Start from `docs/recognition-wording` (`fe9ae7a`, pushed, no PR), which rewords three lines of the recognition summary, and run the writing skill over the merged summaries.
+17. #4 Run each remaining runner and the review skill end to end on the synthetic collection, and record the results.
+18. Revisit draft #31, `codex/action-grounding-sequence` and the deferred baseline and recap-accuracy branches. Keep `c714e05` and `d182e52` reachable: the merged summaries link to them, on #31's branch and `codex/expanded-call-benchmark`. The latter's commits also show when each criterion's text was registered.
+19. #9 Choose a license.
+20. #7 Decide where private experiment data is backed up.
+21. #5 Extend reproducibility instructions to the remaining public summaries.
+22. #3 Migrate the earlier experiment results into the private review dataset.
+23. Remaining runner follow-ups: external model-cache verification, the no-VAD variant and completion checks outside the HushScribe export fix.
 
 ## Pending
 
-- P-01 — Delete `codex/synthetic-collection-handoff`, locally and on GitHub. It only holds a stale handoff and has no PR. Needs approval because it removes a remote branch. It blocks nothing.
-- P-02 — Decide draft #31: rewrite it against the 17-recording collection, or close it and keep `c714e05` reachable, for example with a tag. The action comparison left out of #37's split belongs with this decision. It blocks #31's wording pass and `codex/action-grounding-sequence`.
-- P-03 — Delete finished local branches: `codex/digital-silence`, `docs/main-perspective` and `docs/experiment-entry-point` now, and `stack/expanded-call-pipeline` and `codex/expanded-call-experiments` once the split merges. It blocks nothing.
+- P-02 — Decide draft #31: rewrite it against the 17-recording collection, or close it and keep `c714e05` reachable, for example with a tag. The action comparison left out of #37's split belongs with this decision. It blocks #31's wording pass and `codex/action-grounding-sequence`. Checked 2026-11-03: it conflicts with `main` in 10 files and its pipeline options and runners have merged in other forms. What only it holds is the action-recovery work. Recommended: tag `c714e05`, close it, and file an issue for action recovery.

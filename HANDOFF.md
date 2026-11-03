@@ -20,7 +20,7 @@
 
 ## Ranked work
 
-1. #44 Rebuild `docs/collection-recaps` on `main`, since it adds to the same lines of `docs/decisions.md` and the experiments index as #43, then merge it.
+1. #44 Merge `docs/collection-recaps`. It was rebuilt on `88236e8` at `25e56ba` and is mergeable; see P-06.
 2. #46 Run Turbo through the pause option's acceptance check (P1, on `feat/turbo-pause-check`).
 3. #28 Run the private-recording pipeline review, with a public plan committed first.
 4. #18 Complete the two-track listening review, freeze its reference, evaluate both runs and finish the public summary; current turn counts remain provisional.
@@ -47,11 +47,10 @@
 
 ## Pending
 
-- P-01 — Delete `codex/synthetic-collection-handoff`, locally and on GitHub. It only holds a stale handoff and has no PR. Needs approval because it removes a remote branch. It blocks nothing.
-- P-02 — Decide draft #31: rewrite it against the 17-recording collection, or close it and keep `c714e05` reachable, for example with a tag. The action comparison left out of #37's split belongs with this decision. It blocks #31's wording pass and `codex/action-grounding-sequence`.
-- P-03 — Delete finished local branches: `codex/digital-silence`, `docs/main-perspective` and `docs/experiment-entry-point` now, and `stack/expanded-call-pipeline` and `codex/expanded-call-experiments` once the split merges. It blocks nothing.
-- P-04 — Delete the local branches `docs/silence-cold-rewrite` and `docs/collection-silence`. #43 merged at `88236e8` with identical content, and its remote branch is already gone. It blocks nothing.
+- P-02 — Decide draft #31: rewrite it against the 17-recording collection, or close it and keep `c714e05` reachable, for example with a tag. The action comparison left out of #37's split belongs with this decision. It blocks #31's wording pass and `codex/action-grounding-sequence`. Checked 2026-11-03: it conflicts with `main` in 10 files and its pipeline options and runners have merged in other forms. What only it holds is the action-recovery work. Recommended: tag `c714e05`, close it, and file an issue for action recovery.
+- P-03 — Approved. Delete the local branches `stack/expanded-call-pipeline` and `codex/expanded-call-experiments` once #44 merges. Their commits exist on no remote. It blocks nothing.
 - P-05 — Post the cold test's findings on #45, or fold them into its skill. Needs approval because the task ruled out commenting on PRs. It blocks nothing, but #45 shouldn't merge without considering them.
   - Helped: checking sources before rewording, how each test came about, describing only procedures that exist, what the numbers count, and cold read item 4.
   - Unclear: planned tests on recordings whose failure was already known; the template's "the result that decided it" against the cold read's "say the choice is cautious"; how far an added cause or caution may go.
   - Missing: numbers that exist only in prose, not the results file; verifying commands that can't be run; how much commit history belongs in a summary, and leaving it out when the order can't be established; sibling documents repeating a weakened claim; where to record a problem with a decision you may not change.
+- P-06 — Replace #44's body: it still says #43 is unmerged and that a link waits on it. Needs approval because the body was approved as written. Merging #44 needs its own approval. It blocks nothing.

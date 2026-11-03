@@ -39,7 +39,7 @@ Is Turbo always as accurate as full Whisper, and faster? Does Breeze win on spar
 | `breeze` | Breeze `172151e3` | Same |
 | `shipping-zh` | Full Whisper `49e6aa28` | Mandarin forced, on the six English inputs only |
 
-All arms use the pinned MLX runners, word timestamps on, previous-text conditioning off and stock decoding. English WER and Mandarin CER are reported separately with `score_transcripts.py`. Full Whisper, Turbo and Breeze repeat on one short clean case and on silence to check text repeatability. Timed invocations don't cache a model.
+All runs use the pinned MLX runners, word timestamps on, previous-text conditioning off and stock decoding. English WER and Mandarin CER are reported separately with `score_transcripts.py`. Full Whisper, Turbo and Breeze repeat on one short clean case and on silence to check text repeatability. Timed invocations don't cache a model.
 
 ### Changes to the plan
 
@@ -49,7 +49,7 @@ On 2026-11-03, after the runs, this summary was split out of one write-up coveri
 
 ## Results
 
-The 17 audio files span 33.76 minutes. Two WAVs are byte-identical to the trial's (stocktake and digital silence); five of its conditions now have different waveforms. Fourteen independent source calls contribute to language scores. The stressed handoff and logistics mixes repeat source text and are excluded. Each rate is total edits divided by total language-specific reference units.
+The 17 audio files span 33.76 minutes. Two WAVs are byte-identical to the trial's (stocktake and digital silence); five of its conditions now have different waveforms. Fourteen independent source calls contribute to language scores. The two remixes, handoff with one speaker quieter and noise added and logistics with overlapping speech, repeat source text and are excluded. An edit is one inserted, deleted or substituted unit: a word in English (word error rate, WER) and a character in Mandarin (character error rate, CER). Each rate is total edits divided by total reference units in that language, so lower is better.
 
 | Word-timestamp recognizer | English WER (6 calls; 3,028 words) | Mandarin CER (8 calls; 3,095 characters) |
 | --- | ---: | ---: |
@@ -57,14 +57,14 @@ The 17 audio files span 33.76 minutes. Two WAVs are byte-identical to the trial'
 | Full Whisper, declared language | 2.18% (66) | 9.98% (309) |
 | Turbo Q4, declared language | **1.98% (60)** | **7.59% (235)** |
 | Breeze, declared language | 7.43% (225) | 12.08% (374) |
-| [Full Whisper component baseline](../../experiments/synthetic-call/reference/transcript-baseline.json), no word timestamps | 1.88% (57) | 9.27% (287) |
+| [Full Whisper component baseline](../../experiments/synthetic-call/reference/transcript-baseline.json), no word timestamps, temperature zero | 1.88% (57) | 9.27% (287) |
 
 - **Language:** declaring English improved every English call.
 - **Turbo:** the trial's "Turbo never loses" result **does not hold**. Full Whisper made fewer edits on four Mandarin scripts (planning, scheduling, design, localization) and two English scripts (design, tabletop). Turbo's 74-edit Mandarin advantage includes 66 edits from onboarding.
 - **Breeze:** it had the highest error rate of the three recognizers in both languages.
-- **Baseline:** no recognizer with word timestamps beat the baseline, which has none, in both languages. The baseline also uses different decoder settings, so we can't say word timestamps caused the gap.
+- **Baseline:** the component baseline is a saved full Whisper run at the same revision, committed with the collection in #32, without word timestamps. No recognizer with word timestamps beat it in both languages. The baseline also uses different decoder settings, so we can't say word timestamps caused the gap.
 
-**Replication of the trial.** On the stocktake WAV shared with the trial, its 48/48/17 errors for full/Turbo/Breeze repeated. On the resynthesized logistics pair all three worsened with overlap (28→35, 20→34, 17→31 edits). Compared with the clean handoff, the version with one speaker quieter and noise added went from 32 to 13 edits for full Whisper, 13 to 16 for Turbo, and 11 to 11 for Breeze. The trial found that Breeze improved on this kind of audio, but here it didn't change.
+**Replication of the trial.** On the stocktake WAV shared with the trial, its 48 edits for full Whisper, 48 for Turbo and 17 for Breeze repeated. On the resynthesized logistics pair, all three got worse with overlapping speech: full Whisper from 28 to 35 edits, Turbo from 20 to 34, and Breeze from 17 to 31. Compared with the clean handoff, the version with one speaker quieter and noise added went from 32 to 13 edits for full Whisper, 13 to 16 for Turbo, and 11 to 11 for Breeze. The trial found that Breeze improved on this kind of audio, but here it didn't change.
 
 **Repeatability.** Each model ran twice on the handoff and silence recordings. Both runs gave the same text once normalized.
 
@@ -76,13 +76,13 @@ One inference process ran at a time on the M2 Pro with 16 GB. Timings include pr
 
 | ASR, script-matched language | Median wall time, 17 fixtures | Total stage time | Peak process footprint | Fastest on |
 | --- | ---: | ---: | ---: | --- |
-| Full Whisper | 15.84 s | 344.99 s | 9.00 GB | 0 |
+| Full Whisper | 15.84 s | 344.99 s | 9.00 GB | None |
 | Turbo Q4 | 7.86 s | 181.81 s | 4.14 GB | All 16 speech recordings |
 | Breeze | 30.59 s | 640.58 s | 12.92 GB | Digital silence |
 
 ## Decision
 
-Specify the spoken language, with Mandarin as the default. Keep full Whisper as the default recognizer until the private listening review, and offer Turbo for turnaround. See decision 12.
+Specify the spoken language, with Mandarin as the default. Keep full Whisper as the default recognizer until the private listening review, and offer Turbo for turnaround. Breeze isn't offered in the pipeline, and this summary gives no reason to add it. See decision 12.
 
 ## Open questions
 

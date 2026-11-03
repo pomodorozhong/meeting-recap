@@ -1,0 +1,242 @@
+{
+  "recap": {
+    "onboarding": {
+      "pipeline": {
+        "verdicts": [
+          "full",
+          "full",
+          "wrong_or_absent",
+          "partial"
+        ],
+        "reopens_settled_issue": true,
+        "unsupported_or_garbled_detail": true,
+        "summary_sha256": "f45ef4fc7867235fb5843a1dcff9b660b09d9299dea92dc0d2d7db4a9b3955b6",
+        "citation_checks": {
+          "evidence_dropped": 0,
+          "items_without_evidence": 0
+        }
+      },
+      "exact": {
+        "verdicts": [
+          "full",
+          "full",
+          "wrong_or_absent",
+          "full"
+        ],
+        "reopens_settled_issue": false,
+        "unsupported_or_garbled_detail": false,
+        "summary_sha256": "14140b2baa49e9a8e29868483ca500e27f1a7e63a07c879e0a44d8e9224bcac9",
+        "citation_checks": {
+          "evidence_dropped": 0,
+          "items_without_evidence": 0
+        }
+      },
+      "fast": {
+        "verdicts": [
+          "partial",
+          "full",
+          "wrong_or_absent",
+          "full"
+        ],
+        "reopens_settled_issue": false,
+        "unsupported_or_garbled_detail": true,
+        "summary_sha256": "c84c1dad5070d6fea281403a6e2e0b7f9c2b3fe248d591ff9a0f4410cb5d59b5",
+        "citation_checks": {
+          "evidence_dropped": 0,
+          "items_without_evidence": 0
+        }
+      }
+    },
+    "english-audit": {
+      "pipeline": {
+        "verdicts": [
+          "full",
+          "full",
+          "full",
+          "full",
+          "full"
+        ],
+        "reopens_settled_issue": true,
+        "unsupported_or_garbled_detail": false,
+        "summary_sha256": "9cc200410be5d3340ab100b380ffc369aeacee68856e73fdf5f8b7e94f00c78d",
+        "citation_checks": {
+          "evidence_dropped": 0,
+          "items_without_evidence": 0
+        }
+      },
+      "exact": {
+        "verdicts": [
+          "full",
+          "full",
+          "full",
+          "partial",
+          "partial"
+        ],
+        "reopens_settled_issue": true,
+        "unsupported_or_garbled_detail": true,
+        "summary_sha256": "4bd762496069629e2751e97a725afc09fac59915c067d0faf3969b6b0ca120df",
+        "citation_checks": {
+          "evidence_dropped": 0,
+          "items_without_evidence": 0
+        }
+      },
+      "fast": {
+        "verdicts": [
+          "full",
+          "full",
+          "full",
+          "full",
+          "partial"
+        ],
+        "reopens_settled_issue": true,
+        "unsupported_or_garbled_detail": true,
+        "summary_sha256": "44ac3252913283b165df0f03da7566e042cfe3c3b7144bbc193d10d1697b56e4",
+        "citation_checks": {
+          "evidence_dropped": 37,
+          "items_without_evidence": 21
+        }
+      }
+    }
+  },
+  "lines": {
+    "english-audit": {
+      "fast": {
+        "verdicts": [
+          "full",
+          "full",
+          "full",
+          "full",
+          "partial"
+        ],
+        "supported": [
+          true,
+          true,
+          false,
+          false,
+          false
+        ],
+        "summary_sha256": "44ac3252913283b165df0f03da7566e042cfe3c3b7144bbc193d10d1697b56e4",
+        "transcript_sha256": "c8eddfa3ca55661b5abb73fc27742587f5d4ff4d21d4a76c55107293cb69e61b",
+        "line_count": 2,
+        "citation_checks": {
+          "evidence_dropped": 37,
+          "items_without_evidence": 21
+        },
+        "summary_seconds": 62.01
+      },
+      "segment-lines": {
+        "verdicts": [
+          "full",
+          "full",
+          "full",
+          "full",
+          "partial"
+        ],
+        "supported": [
+          true,
+          true,
+          true,
+          true,
+          false
+        ],
+        "summary_sha256": "c21d31403f0287eb582b94233d6dac09a6f05c8d15bf21dfd5797eabefab0db9",
+        "transcript_sha256": "eff61807c2b9d96da880b5bd6ee5a9a422021f1b4fbc09affa587c94bb3b5b8a",
+        "line_count": 21,
+        "citation_checks": {
+          "evidence_dropped": 0,
+          "items_without_evidence": 0
+        },
+        "summary_seconds": 58.64
+      }
+    },
+    "onboarding": {
+      "fast": {
+        "verdicts": [
+          "partial",
+          "full",
+          "wrong_or_absent",
+          "full"
+        ],
+        "supported": [
+          false,
+          true,
+          false,
+          true
+        ],
+        "summary_sha256": "c84c1dad5070d6fea281403a6e2e0b7f9c2b3fe248d591ff9a0f4410cb5d59b5",
+        "transcript_sha256": "ddf1f2b326fc2df095cd163b782e73f00ef8b5c0d686ad10518c7488ecbba187",
+        "line_count": 19,
+        "citation_checks": {
+          "evidence_dropped": 0,
+          "items_without_evidence": 0
+        },
+        "summary_seconds": 36.83
+      },
+      "segment-lines": {
+        "verdicts": [
+          "partial",
+          "full",
+          "full",
+          "full"
+        ],
+        "supported": [
+          false,
+          true,
+          true,
+          true
+        ],
+        "summary_sha256": "0272e32d1948166e7914c2ad54fe465a5272881b70426141c2d1824be1dcf4bf",
+        "transcript_sha256": "838f1dfac6cd699fa05297548b8b521d0ac9b44a59b473c74d207bd74caf1d41",
+        "line_count": 46,
+        "citation_checks": {
+          "evidence_dropped": 0,
+          "items_without_evidence": 0
+        },
+        "summary_seconds": 55.01
+      }
+    },
+    "english-training": {
+      "original-lines": {
+        "verdicts": [
+          "partial",
+          "full",
+          "full"
+        ],
+        "supported": [
+          false,
+          true,
+          true
+        ],
+        "summary_sha256": "cee12e1d19d24de88f3291ba1ace1b025a6ffefd256a1c13219c53347bfe0f65",
+        "transcript_sha256": "55e935bc51ac66f2ff5f56dc3181ebad2af1b171a9f494c6bfe43be32c8f43e5",
+        "line_count": 22,
+        "citation_checks": {
+          "evidence_dropped": 0,
+          "items_without_evidence": 0
+        },
+        "summary_seconds": 49.28
+      },
+      "segment-lines": {
+        "verdicts": [
+          "partial",
+          "full",
+          "full"
+        ],
+        "supported": [
+          false,
+          true,
+          true
+        ],
+        "summary_sha256": "5493f69b74ff616bfde71d51eb6583f6cefb91089dd1b045097262485e2d3002",
+        "transcript_sha256": "97d0bd42fa0fc6968eba927b57c62944e9e01853aa9853b170bb3a758db598d4",
+        "line_count": 48,
+        "citation_checks": {
+          "evidence_dropped": 0,
+          "items_without_evidence": 0
+        },
+        "summary_seconds": 45.92
+      }
+    }
+  },
+  "description": "Preregistered anchor order and rubric: 2026-11-02-synthetic-collection-recaps.md. Single unblinded synthetic-script review."
+}

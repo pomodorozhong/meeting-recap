@@ -13,3 +13,4 @@ Each summary is written from [TEMPLATE.md](TEMPLATE.md) and committed **before**
 | 2026-10-24 | [Both full recordings](2026-10-24-full-recordings.md) | Stable labels over 87 minutes, one voice split across two labels; stop testing models |
 | 2026-10-30 | [Sortformer on a two-person two-track call](2026-10-30-two-track-call.md) | Planned |
 | 2026-11-02 | [Recognizers and language on 17 synthetic recordings](2026-11-02-synthetic-collection-recognition.md) | Declaring the language helped all six English calls; Turbo fastest, but full Whisper made fewer errors on six calls |
+| 2026-11-02 | [Diarizers and attachment on 17 synthetic recordings](2026-11-02-synthetic-collection-speakers.md) | Who about 95× faster in total but merged speakers on clean four-person calls; word attachment recovered the most turns |

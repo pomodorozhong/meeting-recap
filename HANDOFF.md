@@ -2,12 +2,11 @@
 
 ## In progress
 
-### feat/collection-runner
+### docs/experiment-writing-skill
 
-- Task: the first of five PRs that split #37, the 17-recording synthetic comparison, by question. Related to #28, unlinked. This one holds the runner and measurements. Four docs-only PRs follow from `main`: `docs/collection-recognition` (decision 12), `docs/collection-speakers` (13), `docs/collection-silence` (14) and `docs/collection-recaps` (15). They share one run on purpose and link to this PR's files.
-- Verification: 35 pipeline, 53 synthetic-call and 116 skill tests pass. `collection_scores.py` reproduces the committed results byte for byte. `collection_setup.sh` ran for real, and the `replays` step matched the saved words, transcripts and rendered recaps, with only elapsed-time fields differing.
-- Not run: the full `collection_run.sh` from a new folder, or regrading of recaps.
-- Merging: this PR first, then the docs PRs in the order above. Each docs PR adds to the same lines of `docs/decisions.md` and the experiments index, so rebuild the next one after each merge.
+- Task: add the `experiment-writing` skill for experiment summaries and decisions. Unlinked. It holds two references: `writing-principles.md`, copied from `rabbit-holes`, and `experiment-summaries.md`, written for this repository.
+- Verification: its links resolve. It was tried on #43 and #44 by the session that wrote it, so it hasn't had a cold test by a fresh session.
+- Related work: #43 and #44 hold the last two summaries split from #37. Merge #43 first, then #44, and rebuild the remaining PR after each merge. `docs/recognition-wording` holds plain-language fixes for the merged recognition summary, and its PR waits until those two merge and the wording fixes are complete.
 - Keep `codex/expanded-call-benchmark`: its commits show when each criterion was registered, and the recaps summary links to its action results at `d182e52`.
 - Next action: wait for review of this PR.
 
@@ -21,7 +20,7 @@
 
 ## Ranked work
 
-1. #28 Merge `feat/collection-runner`, then the four docs PRs that replace #37, then the private-recording pipeline review, with a public plan committed first.
+1. #28 Merge the writing skill, then #43 and #44, then the recognition wording PR, then the private-recording pipeline review, with a public plan committed first.
 2. #18 Complete the two-track listening review, freeze its reference, evaluate both runs and finish the public summary; current turn counts remain provisional.
 3. #11 Publish the 17-recording synthetic recognition evidence with `docs/collection-recognition`; real-call transcript accuracy remains open.
 4. #1 Finish the user-confirmed long-call Who comparison; draft #25 remains open.

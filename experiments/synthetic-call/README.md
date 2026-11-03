@@ -127,9 +127,33 @@ uv run --locked --project "$S" python "$S/score_transcripts.py" "$OUT" CANDIDATE
   --output candidate-scores.json --baseline "$S/reference/transcript-baseline.json"
 ```
 
-The committed [component baseline](reference/transcript-baseline.json) records **1.88% English WER** (57 errors / 3,028 normalized words, six calls) and **9.27% Mandarin CER** (287 / 3,095 characters, eight calls), with per-call scores, exact input hashes, normalizer versions and recognizer settings. Normalized word counts differ from source word counts because contractions and numbers are expanded. These are recognizer component results; full pipeline benchmarks remain a follow-up. The English training checkback was rewritten after the first screen found garbled speech, then regenerated and checked again. Its final whole-call WER is 2.09%.
+The committed [component baseline](reference/transcript-baseline.json) records **1.88% English WER** (57 errors / 3,028 normalized words, six calls) and **9.27% Mandarin CER** (287 / 3,095 characters, eight calls), with per-call scores, exact input hashes, normalizer versions and recognizer settings. Normalized word counts differ from source word counts because contractions and numbers are expanded. These are recognizer component results; for the full pipeline on this collection, see [the comparison below](#compare-the-pipeline-on-this-collection). The English training checkback was rewritten after the first screen found garbled speech, then regenerated and checked again. Its final whole-call WER is 2.09%.
 
 The report has separate English and Mandarin groups. Comparison exits with an error if either group's error rate increases, so improvement in Mandarin cannot conceal an English regression. Missing run files, mismatched reference hashes or changed normalization also fail. `--maximum-regression` sets an allowed absolute rate increase per language, with zero as the default. Reports use distinct output paths to protect the baseline and source data.
+
+## Compare the pipeline on this collection
+
+One run compares the pipeline's options on all 17 recordings. [`collection_setup.sh`](collection_setup.sh) prepares what it needs, and [`collection_run.sh`](collection_run.sh) runs it up to the hand grading:
+
+| Step | What it runs | Question it serves |
+| --- | --- | --- |
+| `decode` | Full Whisper, Turbo and Breeze on every recording | Recognizers and language |
+| `recaps` | Full pipeline, Turbo + Who, and exact turns on two calls | Recap facts |
+| `diarize` | Sortformer and Who on every recording, Community-1 and LS-EEND on three | Diarizers |
+| `split` | The three recognizers on recordings with a five-second digital pause | Digital silence |
+| `turns` | The review skill's known-turn evaluation of each attachment method | Attachment |
+| `replays` | The pause option and per-segment lines through the pipeline's commands | Digital silence and citations |
+| `scores` | [`collection_scores.py`](collection_scores.py), which needs every step's outputs | All of them |
+
+The `decode` outputs are shared: attachment scoring and the split comparison reuse them, which saves about 22 minutes of a roughly 76-minute total. The [experiments index](../../docs/experiments/README.md) lists one summary per question, and each names the steps it relies on. They all cite one measurements file, [`2026-11-02-synthetic-collection-results.json`](../../docs/experiments/2026-11-02-synthetic-collection-results.json).
+
+Rules that apply to every step:
+
+- Fixtures must pass `collection.py --check`. Outputs stay outside Git, and failed cells are kept.
+- One inference process at a time, on one M2 Pro with 16 GB. No caching a model across timed invocations.
+- No tuning on the scored scripts. Generated text, timestamps and identities are known intended references, not listener judgments.
+
+These runners live here, not in their own experiment folder, because they import `collection.py` and nothing imports across experiment folders. They reach the pipeline and MLX runners only through their commands.
 
 ## Use with the review skill
 

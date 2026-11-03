@@ -172,7 +172,9 @@ The baseline below ran on this environment, as `run.json` now records it (the ba
 - Python 3.12.13, MLX 0.32.4, `mlx-whisper` 0.4.2 and `mlx-lm` 0.32.2, from `uv.lock`;
 - Swift 6.3.3 and ffmpeg 9.0.2.
 
-To reproduce it, generate the call (see [its README](../../synthetic-call/README.md)), run the pipeline on it, and score the run against the call's known turns:
+The November 1 figures require the November 1 audio and reference: run the following in a checkout of `01eb50d` (merged #29). The 17-recording collection (#32) later regenerated the planning audio with different voices. For results and commands on that collection, see [its comparison](../../synthetic-call/README.md#compare-the-pipeline-on-this-collection).
+
+Generate the historical call, run the pipeline on it, and score against that checkout's known turns:
 
 ```bash
 uv run --project experiments/synthetic-call experiments/synthetic-call/generate.py

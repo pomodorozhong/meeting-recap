@@ -10,7 +10,7 @@ The goal is meeting notes produced locally on a MacBook Pro with an M2 Pro and 1
 | 4. Pipeline for saved recordings | In progress: [whisper-sortformer](../experiments/pipelines/whisper-sortformer/README.md) was evaluated on [17 synthetic recordings](experiments/2026-11-02-expanded-pipeline.md); private listening review next |
 | 5. App prototype, then the app | Not started |
 
-For a three-person online Chinese + English call on one mono track, Whisper Large v3 with Chinese forced plus FluidAudio's Sortformer kept the speakers apart (29 of 30 reference turns) and ran faster than real time in under 1.6 GB. HushScribe's Community-1 diarizer did not. Breeze-ASR-25 through MLX runs at about 0.25× real time with Traditional output; on the expanded synthetic collection it had higher aggregate error than language-matched full Whisper in both languages. Accuracy on real calls is still open.
+For a three-person online Chinese + English call on one mono track, Whisper Large v3 with Chinese forced plus FluidAudio's Sortformer kept the speakers apart (29 of 30 reference turns) and ran faster than real time in under 1.6 GB. HushScribe's Community-1 diarizer did not. Breeze-ASR-25 through MLX runs at about 0.25× real time with Traditional output; on the [17-recording synthetic collection](experiments/2026-11-02-expanded-pipeline.md) it had higher aggregate error than language-matched full Whisper in both languages. Accuracy on real calls is still open.
 
 ## Decisions
 

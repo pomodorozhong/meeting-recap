@@ -12,4 +12,4 @@ Each summary is written from [TEMPLATE.md](TEMPLATE.md) and committed **before**
 | 2026-10-24 | [Attaching labels to text](2026-10-24-label-attachment.md) | Method matters little with short segments; overlap per word chosen |
 | 2026-10-24 | [Both full recordings](2026-10-24-full-recordings.md) | Stable labels over 87 minutes, one voice split across two labels; stop testing models |
 | 2026-10-30 | [Sortformer on a two-person two-track call](2026-10-30-two-track-call.md) | Planned |
-| 2026-11-02 | [Retest the pipeline on 17 synthetic calls](2026-11-02-expanded-pipeline.md) | Turbo fastest but lost on six source calls; word attachment held; digital-pause splitting and shorter citation lines passed targeted checks |
+| 2026-11-02 | [The pipeline on 17 synthetic recordings](2026-11-02-expanded-pipeline.md) | Turbo fastest, but full Whisper made fewer errors on six calls; word attachment recovered the most turns; digital-pause splitting and shorter citation lines passed targeted checks |

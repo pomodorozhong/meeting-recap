@@ -86,7 +86,7 @@ Use `--keep-asr-segments` to give the recap a timestamp for each Whisper segment
 
 - **Order:** stages run one after another. Each model runs in its own process, so its memory is freed before the next model loads.
 - **`--no-summary`:** stops after the transcript.
-- **`--diarizer who`:** uses Desert Ant Labs Who (int8) instead of Sortformer. It labels speakers in seconds instead of minutes. It refuses to run when its weights are missing rather than downloading them. Each load sends the SDK's licence check (an install ID, versions and platform, no audio) to `events.desertant.com`; the Who experiment ([#25](https://github.com/pomodorozhong/meeting-recap/pull/25)) found inference still works when that server is unreachable. Its licence is source-available. Sortformer stays the default until #25's long-call scores are in. A resumed run must use the diarizer it started with.
+- **`--diarizer who`:** uses Desert Ant Labs Who (int8) instead of Sortformer. It labels speakers in seconds instead of minutes. It refuses to run when its weights are missing rather than downloading them. Each load sends the SDK's licence check (an install ID, versions and platform, no audio) to `events.desertant.com`; the Who experiment (draft [#25](https://github.com/pomodorozhong/meeting-recap/pull/25), not on `main`) found inference still works when that server is unreachable. Its licence is source-available. Sortformer stays the default until the long-call scores in draft #25 are in. A resumed run must use the diarizer it started with.
 
 | Stage | Writes | What it does |
 | --- | --- | --- |
@@ -227,7 +227,7 @@ With `--diarizer who`, measured the same way:
 - **Turns:** 65 transcript turns, against Sortformer's 67 (73 in the script).
 - **Recap:** 8 topics, 7 decisions, 8 action items, 3 proposals and 3 open questions, all with valid timestamps.
 
-On this one generated call Who is at least as good end to end. That differs from #25, where Who kept slightly fewer turns apart on clip-level turn order. The two measures count different things, and one call can't settle it.
+On this one generated call Who is at least as good end to end. That differs from draft #25 (not on `main`), where Who kept slightly fewer turns apart on clip-level turn order. The two measures count different things, and one call can't settle it.
 
 ### Issues found, most important first
 
@@ -235,7 +235,7 @@ The point of this baseline is to see where the whole pipeline loses most before 
 
 1. **Words cross turn boundaries.** Whisper's word times drift at turn changes, so a reply's first character often stays with the previous speaker (「聽」 then 「得到」). This costs about 3 points of speaker agreement on top of diarization's own errors, and it is visible on almost every short reply. Candidate fixes: split turns at Whisper segment or punctuation boundaries that lie near a diarization change, or align words with a separate forced aligner.
 2. **The recap mixes assignments into decisions.** Who does what appears both as decisions and as action items, two action items repeat one task, and one action item's owner is doubtful. Every item cites real lines, but whether those lines support the item is checked only by reading. Only the private-recording review can say whether this matters.
-3. **Runtime is dominated by Sortformer** at 0.41×, three times Whisper's time. `--diarizer who` removes this cost (2 s instead of 136 s). Choosing it as the default waits for its long-call scores in #25 and the private-recording review.
+3. **Runtime is dominated by Sortformer** at 0.41×, three times Whisper's time. `--diarizer who` removes this cost (2 s instead of 136 s). Choosing it as the default waits for its long-call scores in draft #25 and the private-recording review.
 4. **ASR errors and punctuation.** Homophones land in the transcript and the recap (「分頁」 as 「糞頁」, 「時間」 as 「實踐」). Whisper writes mostly half-width punctuation (34 of 38 marks), which reads oddly in Chinese. `opencc-python-reimplemented` converts 「只有」 to 「隻有」 under both `s2tw` and `s2twp`.
 5. **A spare speaker label** appears for a few characters. Naming handles it; nothing to change yet.
 

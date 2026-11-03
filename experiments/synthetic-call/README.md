@@ -22,9 +22,9 @@ Audio is generated locally. [`reference/`](reference/) holds the planning call's
 
 The F5 female profile is `f5-news-female`, generated with F5-TTS v1 4-bit through `f5-tts-mlx`. It uses the published `news-female.wav` demo reference from a pinned ZipVoice release. [`reference/f5-voice.json`](reference/f5-voice.json) records the archive URL and SHA-256, exact member, reference WAV hash and transcript, model and vocoder revisions, per-file hashes, and sampling settings. The reference clip is downloaded to the Hugging Face cache and checked before inference. Its source archive does not state a separate license for that reference recording.
 
-Every F5 turn specifies `tts_duration_seconds` in its script. The handoff's three audition turns use 4.5, 5.5 and 3.8 seconds with seed 7, eight RK4 steps and CFG 2. The automatic duration predictor produced unusable output in this setup. The male voices are the pinned Qwen presets `dylan`, `ryan` and `aiden`.
+Every F5 turn specifies `tts_duration_seconds` in its script. The handoff call's three voice-check turns use 4.5, 5.5 and 3.8 seconds with seed 7, eight RK4 steps and CFG 2. The automatic duration predictor produced unusable output in this setup. The male voices are the pinned Qwen presets `dylan`, `ryan` and `aiden`.
 
-The localization call has three female speakers with EmotiVoice presets `emotivoice-1093`, `emotivoice-1012` and `emotivoice-1066`. Each ID selects its own factory speaker embedding. [The EmotiVoice pins](emotivoice/pins.json) cover source code, model and SimBERT files, phoneme resources and synthesis settings. Its [locked CPU project](emotivoice/pyproject.toml) uses Torch 2.10.0 and Transformers 4.57.6, matching the verified audition runtime. The main generator runs this child project once for all EmotiVoice turns before loading GPU models. The manifest records the selected voice pins and the child runtime lock hash.
+The localization call has three female speakers with EmotiVoice presets `emotivoice-1093`, `emotivoice-1012` and `emotivoice-1066`. Each ID selects its own factory speaker embedding. [The EmotiVoice pins](emotivoice/pins.json) cover source code, model and SimBERT files, phoneme resources and synthesis settings. Its [locked CPU project](emotivoice/pyproject.toml) uses Torch 2.10.0 and Transformers 4.57.6, matching the runtime these presets were auditioned with. Those auditions are kept outside this repository. The main generator runs this child project once for all EmotiVoice turns before loading GPU models. The manifest records the selected voice pins and the child runtime lock hash.
 
 | Call speaker | Female profile |
 | --- | --- |
@@ -33,10 +33,10 @@ The localization call has three female speakers with EmotiVoice presets `emotivo
 | Localization B | EmotiVoice 1012 |
 | Localization C | EmotiVoice 1066 |
 
-The three EmotiVoice profiles also pass the same English-word gate after level adjustment. Their native audition WAVs match the fixed reference auditions byte for byte.
+The three EmotiVoice profiles also pass the same English-word gate after level adjustment. Their native renders match the reference renders from the voice selection byte for byte. That selection audio is kept outside this repository.
 
 
-The F5 voice passed a fixed three-turn Mandarin screen. Unprompted Whisper Large v3 at revision `49e6aa286ad60c14352c404340ded53710378a11`, forced to Chinese with temperature zero and previous-text conditioning disabled, must recover standalone `log` and `timeout` in their original turns. A second decode checks word timestamps against turn boundaries with a 0.2-second tolerance. Mandarin character agreement after OpenCC conversion must reach 65%. The selected audition reached 97.9%, and independent process launches produced identical WAV bytes. After building the collection below, run the same gate on its generated, levelled 16 kHz handoff turns. It writes a JSON report with input hashes, recognition text, turn checks and the verdict.
+The F5 voice passed a fixed three-turn Mandarin screen. Unprompted Whisper Large v3 at revision `49e6aa286ad60c14352c404340ded53710378a11`, forced to Chinese with temperature zero and previous-text conditioning disabled, must recover standalone `log` and `timeout` in their original turns. A second decode checks word timestamps against turn boundaries with a 0.2-second tolerance. Mandarin character agreement after OpenCC conversion must reach 65%. The selected voice reached 97.9%, and independent process launches produced identical WAV bytes. After building the collection below, run the same gate on its generated, levelled 16 kHz handoff turns. It writes a JSON report with input hashes, recognition text, turn checks and the verdict.
 
 ```bash
 uv run --locked --project experiments/synthetic-call python \
@@ -47,7 +47,7 @@ This screen covers intelligibility on the fixed script. Listening review determi
 
 ### Historical checks
 
-The earlier all-Qwen planning call had SHA-256 `6b7011c6057821e04fe1b3cd78659297218e83d0ed899496e769eb4992a25d48`. Its measured Whisper character error rate was 5.9%, and the earlier Sortformer review recovered 67 of 72 reference turns with seven of ten clips fully correct. Those results describe the earlier audio. Its source and reference files are preserved at commit `e208026`.
+The earlier all-Qwen planning call had SHA-256 `6b7011c6057821e04fe1b3cd78659297218e83d0ed899496e769eb4992a25d48`. Its measured Whisper character error rate was 5.9%, and the earlier Sortformer review recovered 67 of 72 reference turns with seven of ten clips fully correct. Those results describe the earlier audio. Its source and reference files are preserved at commit `e208026`, which is in #32's PR history but not on `main`.
 
 ## Run
 
@@ -100,7 +100,7 @@ The hashes describe seed 7 on the reference M2 Pro with the committed model revi
 
 ## English coverage and transcript regression checks
 
-The six English scripts contain **2,947 scripted words** and produce **19.04 minutes** of audio on the reference machine. They span one through four speakers and use five voice profiles. Each sets `"language": "en"`. The generator selects English for Qwen and records that language in the manifest. The earlier scripts use the Mandarin default.
+The six English scripts contain **2,947 scripted words** and produce **19.04 minutes** of audio on the reference machine. They span one through four speakers and use five voice profiles. Each sets `"language": "en"`. The generator selects English for Qwen and records that language in the manifest. The other scripts use the Mandarin default.
 
 The coverage tests require at least six English scripts, 2,400 words, five voices and one/two/three/four-speaker cases. Every English-tagged turn must contain English speech without CJK characters.
 
@@ -216,7 +216,7 @@ The following sizes were measured from the pinned cached files on the reference 
 | Whisper Large v3 MLX | Voice checks and transcript baseline | 3.08 GB |
 | **Generation and verification total** | **Six model packages** | **9.66 GB** |
 
-The pinned reference WAV, EmotiVoice source and NLTK frontend resources add roughly **29 MB**. These figures exclude Python environments, generated audio, other cached revisions and models from earlier auditions. The revisions and file hashes for the generation models are recorded below, in [`reference/f5-voice.json`](reference/f5-voice.json) and [`emotivoice/pins.json`](emotivoice/pins.json). The verification model is pinned in [`transcribe_collection.py`](transcribe_collection.py) and [`check_voice.py`](check_voice.py).
+The pinned reference WAV, EmotiVoice source and NLTK frontend resources add roughly **29 MB**. These figures exclude Python environments, generated audio, other cached revisions and models tried during voice selection. The revisions and file hashes for the generation models are recorded below, in [`reference/f5-voice.json`](reference/f5-voice.json) and [`emotivoice/pins.json`](emotivoice/pins.json). The verification model is pinned in [`transcribe_collection.py`](transcribe_collection.py) and [`check_voice.py`](check_voice.py).
 
 ## Pins and licenses
 

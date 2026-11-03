@@ -414,7 +414,7 @@ def main(argv=None):
                    help="keep a timestamped transcript and recap input line at each ASR segment boundary")
     p.add_argument("--no-summary", action="store_true", help="stop after the transcript")
     p.add_argument("--diarizer", choices=sorted(DIARIZERS), default="sortformer",
-                   help="sortformer (default) or who: much faster, slightly fewer turns kept apart in #25")
+                   help="sortformer (default) or who: much faster, slightly fewer turns kept apart in draft PR #25")
     p.set_defaults(func=run)
     p = commands.add_parser("render", help="rebuild transcript.md from speakers.json")
     p.add_argument("out")

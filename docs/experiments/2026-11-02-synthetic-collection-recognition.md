@@ -62,11 +62,11 @@ The 17 audio files span 33.76 minutes. Two WAVs are byte-identical to the trial'
 - **Language:** declaring English improved every English call.
 - **Turbo:** the trial's "Turbo never loses" result **does not hold**. Full Whisper made fewer edits on four Mandarin scripts (planning, scheduling, design, localization) and two English scripts (design, tabletop). Turbo's 74-edit Mandarin advantage includes 66 edits from onboarding.
 - **Breeze:** it had the highest error rate of the three recognizers in both languages.
-- **Baseline:** no word-timestamp configuration beats the component baseline in both language groups. That baseline also uses temperature zero, while these arms use the decoder defaults, so the comparison doesn't isolate timestamping as the cause.
+- **Baseline:** no recognizer with word timestamps beat the baseline, which has none, in both languages. The baseline also uses different decoder settings, so we can't say word timestamps caused the gap.
 
-**Replication of the trial.** On the stocktake WAV shared with the trial, its 48/48/17 errors for full/Turbo/Breeze repeated. On the resynthesized logistics pair all three worsened with overlap (28→35, 20→34, 17→31 edits). On the attenuated handoff the changes were 32→13, 13→16, 11→11, so the trial's finding that Breeze improved on that specific degradation did not repeat.
+**Replication of the trial.** On the stocktake WAV shared with the trial, its 48/48/17 errors for full/Turbo/Breeze repeated. On the resynthesized logistics pair all three worsened with overlap (28→35, 20→34, 17→31 edits). Compared with the clean handoff, the version with one speaker quieter and noise added went from 32 to 13 edits for full Whisper, 13 to 16 for Turbo, and 11 to 11 for Breeze. The trial found that Breeze improved on this kind of audio, but here it didn't change.
 
-**Repeatability.** Both raw-versus-repeat checks matched each model's normalized text on handoff and silence.
+**Repeatability.** Each model ran twice on the handoff and silence recordings. Both runs gave the same text once normalized.
 
 **Limits.** Generated scripts are intended speech, and TTS pronunciation can contribute to text errors. These results don't extend to real rooms, longer meetings or listener-confirmed transcripts.
 

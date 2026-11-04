@@ -9,9 +9,9 @@
 - State: the plan (status `planned`) has Stage A (the recap stage on fixed transcripts: chunk and merge versus one pass, thinking, a rewritten prompt, other MLX models) and Stage B (whole pipelines, with Amie as one candidate), a noise-floor control because greedy decoding repeats exactly, and a pass rule written before any run. It is added to the experiments index. The Amie collection (16 real calls) is in the private dataset and is described in `docs/amie-collection.md` on `feat/pipeline-baseline`, which isn't on `main`.
 - Verification: privacy scan of the diff for names, paths and transcript text passes; the cold read in the experiment-writing skill was done; relative links not rechecked by a tool.
 - Continuity: the plan keeps Stages A and B in one file. Stage B's pipelines, keys, grading and rule are fixed now; the winning recap setting and whether B4 exists are added as a dated change after Stage A. The plan's "What Stage A leaves for Stage B" lists what Stage A must record before Stage B starts.
-- Not decided: the pinned A4 models (under 12 GB peak), how agreement with Amie's summary is scored in screening, how long a call fits in one pass, and how many calls get hand-written keys (minimum 6 for the decision).
+- Not decided: the pinned A4 models (under 9 GB peak), how agreement with Amie's summary is scored in screening, how long a call fits in one pass, and how many calls get hand-written keys (minimum 6 for the decision).
 - Next action: wait for the user's review of #59 (it stays a draft until they say). Then, before any run, add the entry point the plan's Reproduce section promises, and the pinned A4 models. The project owner writes the answer keys before any output is seen.
-- The user said Amie notes being publicly viewable is fine; no action. Choices made 2026-11-04: Amie's output is the reference for a screening step, not ground truth; A4 models must peak under 12 GB.
+- The user said Amie notes being publicly viewable is fine; no action. Choices made 2026-11-04: Amie's output is the reference for a screening step, not ground truth; A4 models must peak under 9 GB (lowered from 12 GB: the default GPU budget on 16 GB is about 10.7 GB).
 
 ### docs/recognition-wording
 

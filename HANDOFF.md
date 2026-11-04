@@ -2,6 +2,17 @@
 
 ## In progress
 
+### docs/recap-stage-plan
+
+- Task: the public plan for #28's private-recording review, redesigned to find the best pipeline by scoring final notes (see `docs/experiments/2026-11-04-recap-stage-real-calls.md`). It advances #28 and #47 and closes nothing, so the branch is unlinked. Draft PR [#59](https://github.com/pomodorozhong/meeting-recap/pull/59), pushed at `2e18168`; waiting for the user's read.
+- Code checkpoint: `main` at `3b3efd4` plus the docs commits. Docs only; no code or run.
+- State: the plan (status `planned`) has Stage A (the recap stage on fixed transcripts: chunk and merge versus one pass, thinking, a rewritten prompt, other MLX models) and Stage B (whole pipelines, with Amie as one candidate), a noise-floor control because greedy decoding repeats exactly, and a pass rule written before any run. It is added to the experiments index. The Amie collection (16 real calls) is in the private dataset and is described in `docs/amie-collection.md` on `feat/pipeline-baseline`, which isn't on `main`.
+- Verification: privacy scan of the diff for names, paths and transcript text passes; the cold read in the experiment-writing skill was done; relative links not rechecked by a tool.
+- Continuity: the plan keeps Stages A and B in one file. Stage B's pipelines, keys, grading and rule are fixed now; the winning recap setting and whether B4 exists are added as a dated change after Stage A. The plan's "What Stage A leaves for Stage B" lists what Stage A must record before Stage B starts.
+- Not decided: the pinned A4 models (under 9 GB peak), how agreement with Amie's summary is scored in screening, how long a call fits in one pass, and how many calls get hand-written keys (minimum 6 for the decision).
+- Next action: wait for the user's review of #59 (it stays a draft until they say). Then, before any run, add the entry point the plan's Reproduce section promises, and the pinned A4 models. The project owner writes the answer keys before any output is seen.
+- The user said Amie notes being publicly viewable is fine; no action. Choices made 2026-11-04: Amie's output is the reference for a screening step, not ground truth; A4 models must peak under 9 GB (lowered from 12 GB: the default GPU budget on 16 GB is about 10.7 GB).
+
 ### docs/recognition-wording
 
 - Task: #56, clean up stale claims and unclear wording in the experiment docs. PR [#58](https://github.com/pomodorozhong/meeting-recap/pull/58) is ready for review and closes #56 through its body; the branch isn't linked.
@@ -29,7 +40,7 @@
 ## Ranked work
 
 1. #46 Run Turbo through the pause option's acceptance check (P1, on `feat/turbo-pause-check`).
-2. #28 Run the private-recording pipeline review, with a public plan committed first.
+2. #28 Run the private-recording pipeline review. The public plan is on `docs/recap-stage-plan`; next the entry point, pinned recap models and the project owner's answer keys.
 3. #18 Complete the two-track listening review, freeze its reference, evaluate both runs and finish the public summary; current turn counts remain provisional.
 4. #11 Compare real-call transcript accuracy; the synthetic evidence is on `main`.
 5. #1 Finish the user-confirmed long-call Who comparison; draft #25 remains open.

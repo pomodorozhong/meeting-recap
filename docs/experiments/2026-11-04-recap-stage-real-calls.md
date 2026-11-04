@@ -1,6 +1,6 @@
 # 2026-11-04: recap stage, then whole pipelines, on real calls
 
-**Status:** planned
+**Status:** planned. Stage A is ready to build; Stage B's pipelines and rule are fixed, and its recap setting follows from Stage A.
 
 **Outcome:** pending
 
@@ -60,7 +60,32 @@ A variant advances only if it beats A0 on key items fully correct with the right
 
 ### Stage B: whole pipelines
 
-With the recap setting that won Stage A, compare end to end: full Whisper + Sortformer (the current default), Turbo + Who (the fast option), and Amie's own output. If Stage A shows owner errors come from merged speakers, a candidate with a speaker-merge guard is added and named in the table before it runs. Stage B uses the same key, blind grading and rule, plus wall time and peak memory per call.
+With the recap setting that won Stage A, compare end to end on the same keyed calls, with the same answer keys, blind grading and pass rule as Stage A, plus wall time and peak memory per call.
+
+| Run ID | Pipeline |
+| --- | --- |
+| B1 | Full Whisper + Sortformer with the declared language and word attachment (the current default) |
+| B2 | Turbo + Who (the fast option) |
+| B3 | Amie's own transcript and summary (the same outputs as C1's input, graded as a finished product) |
+| B4 | Added only if Stage A shows owner errors come from merged speakers: B1 with a speaker-merge guard, described in the table before it runs |
+
+What is fixed now, so Stage B isn't redesigned after seeing Stage A:
+
+- the three pipelines above, the keyed calls and their answer keys, the grading steps, and the pass rule, which is Stage A's rule with "baseline" replaced by B1;
+- B1 and B2 use whichever recap setting won Stage A, so they differ only in recognizer and diarizer.
+
+What Stage A's result sets: the recap setting, and whether B4 exists. Both are written into this section as a dated change, committed before any Stage B run.
+
+### What Stage A leaves for Stage B
+
+Stage A is not finished until each of these is recorded here or in the private dataset:
+
+- the recap setting that won, with its run ID, model revision and prompt text, committed as code;
+- the saved labeled transcript for every keyed call, with its hash, so Stage B reuses it for B1;
+- the noise floor from A0-noise, as a number of key items;
+- the answer keys and the shuffled-code mapping for grading, kept private, plus which calls were keyed and why they were chosen;
+- the per-call time and peak memory for the baseline and the winner;
+- any call that didn't fit a variant (A1 especially) and was reported as not run.
 
 ### What this leaves out
 

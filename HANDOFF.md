@@ -4,14 +4,13 @@
 
 ### docs/recap-stage-plan
 
-- Task: the public plan for #28's private-recording review, redesigned to find the best pipeline by scoring final notes (see `docs/experiments/2026-11-04-recap-stage-real-calls.md`). It advances #28 and #47 and closes nothing, so the branch is unlinked. No PR yet.
+- Task: the public plan for #28's private-recording review, redesigned to find the best pipeline by scoring final notes (see `docs/experiments/2026-11-04-recap-stage-real-calls.md`). It advances #28 and #47 and closes nothing, so the branch is unlinked. Draft PR [#59](https://github.com/pomodorozhong/meeting-recap/pull/59), pushed at `2e18168`; waiting for the user's read.
 - Code checkpoint: `main` at `3b3efd4` plus the docs commits. Docs only; no code or run.
 - State: the plan (status `planned`) has Stage A (the recap stage on fixed transcripts: chunk and merge versus one pass, thinking, a rewritten prompt, other MLX models) and Stage B (whole pipelines, with Amie as one candidate), a noise-floor control because greedy decoding repeats exactly, and a pass rule written before any run. It is added to the experiments index. The Amie collection (16 real calls) is in the private dataset and is described in `docs/amie-collection.md` on `feat/pipeline-baseline`, which isn't on `main`.
 - Verification: privacy scan of the diff for names, paths and transcript text passes; the cold read in the experiment-writing skill was done; relative links not rechecked by a tool.
 - Continuity: the plan keeps Stages A and B in one file. Stage B's pipelines, keys, grading and rule are fixed now; the winning recap setting and whether B4 exists are added as a dated change after Stage A. The plan's "What Stage A leaves for Stage B" lists what Stage A must record before Stage B starts.
 - Not decided: which MLX recap models to try (A4 can't start without pinned candidates), how long a call fits in one pass, and how many calls the project owner will key by hand (minimum 6).
-- Next action: get approval to push and open the plan's PR. Then, before any run, add the entry point the plan's Reproduce section promises, and the pinned A4 models. The project owner writes the answer keys before any output is seen.
-- P-03 — Awaiting approval to push `docs/recap-stage-plan` to `origin`. Opening a PR is a separate approval. Blocks publishing the plan.
+- Next action: wait for the user's review of #59 (it stays a draft until they say). Then, before any run, add the entry point the plan's Reproduce section promises, and the pinned A4 models. The project owner writes the answer keys before any output is seen.
 - Check before relying on the Amie notes: `docs/amie-collection.md` (on `feat/pipeline-baseline`) says Amie's "Copy link" makes a note publicly viewable and that the note's public page was used to get the audio. Confirm whether any of the 16 notes were made public, and turn that off if you can.
 
 ### docs/recognition-wording

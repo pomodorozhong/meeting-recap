@@ -38,7 +38,7 @@ Do clean transcripts keep recap facts correct? Does a faster pipeline keep the s
 | `fast` | Turbo Q4 + Who | Same model and prompt |
 | `exact` | The script's exact turns | Same model and prompt, summary stage only |
 
-Each recap is scored full, partial, or absent or wrong on nine checks fixed before the runs:
+Each recap is scored full, partial, or absent or wrong on nine checks, committed before any recap result was recorded (see Changes to the plan):
 
 - **Onboarding, turns 9, 10, 12, 14–16:** account test owner and time; documentation owner and time; test access restored; production access still separate and unapproved.
 - **English audit, turns 2, 3, 7, 8/11, 10:** corrected adapter total; usable cable count; scale fault unresolved; corrected booking; delivery expected, not received.
@@ -47,12 +47,12 @@ Reopened questions and unsupported details are also counted.
 
 ### Changes to the plan
 
-Each criterion was committed before the run it governs. Later edits changed vocabulary so the text reads against `main`, such as "earlier" to "the trial's". No threshold or rule changed. One check was reworded with the same meaning when results were recorded: "B's practice check by Thursday at ten" became "B responsible for the practice check, due Thursday 10:00".
+On the unmerged branch `codex/expanded-call-benchmark`, the nine checks were committed in `e5f17b3`, before `e64bfe5`, the first commit that recorded a recap result. Git shows when text was committed, not when a run happened, so this doesn't show that the checks came before the runs. Later edits changed vocabulary so the text reads against `main`, such as "earlier" to "the trial's". No threshold or rule changed. One check was reworded with the same meaning when results were recorded: "B's practice check by Thursday at ten" became "B responsible for the practice check, due Thursday 10:00".
 
 Two comparisons were added during the experiment:
 
-- **Turbo + Who:** added before any recap from this experiment was read. It uses identical language settings, the same prompt and the same nine checks, with the default as comparator.
-- **Per-segment lines (added after a result):** the Turbo + Who audit recap prompted this test. Onboarding is a second call checked afterward, and English training had no recap yet when its three facts were fixed in advance: final count of 18 verified (turns 7/8/18); A's checklist revision by Wednesday noon (21); B responsible for the practice check, due Thursday 10:00 (22). The option passes only if the audit has fewer uncited items and at least one more fact that is fully correct with supporting citations, and no fully correct fact is lost on any of the three calls.
+- **Turbo + Who:** committed in `168cca5`, before the first commit that recorded a recap result. It uses identical language settings, the same prompt and the same nine checks, with the default as comparator.
+- **Per-segment lines (added after a result):** the Turbo + Who audit recap prompted this test. Onboarding is a second call checked afterward, and English training's three facts were committed with the citation test in `e64bfe5`, before its recap results were recorded in `0b61e1b`: final count of 18 verified (turns 7/8/18); A's checklist revision by Wednesday noon (21); B responsible for the practice check, due Thursday 10:00 (22). The option passes only if the audit has fewer uncited items and at least one more fact that is fully correct with supporting citations, and no fully correct fact is lost on any of the three calls.
 
 On 2026-11-03, after the runs, this summary was split out of one write-up covering every question, so that each question has its own summary and decision. No result changed. Nothing was rerun for the split.
 

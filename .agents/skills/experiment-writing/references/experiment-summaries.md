@@ -45,6 +45,8 @@ Separate what was planned before the runs from what a result prompted. For a tes
 
 Say "planned" and "added after seeing X". Don't use "preregistered" or "exploratory" without saying what happened.
 
+Git shows when text was committed, not when a run happened. If the commits can't establish whether a test was planned before its run, say that, and don't claim it was.
+
 ## Check sources before rewording
 
 Rewording can change a claim without anyone noticing. Before rewriting a sentence, check each number against the results file, and check each attribution against the document it credits. Make sure a sentence crediting "the trial" isn't describing a different experiment.

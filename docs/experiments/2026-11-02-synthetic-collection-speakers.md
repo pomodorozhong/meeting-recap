@@ -41,13 +41,13 @@ Is Who faster but riskier with four voices? Do Community-1 or LS-EEND beat Sortf
 | `community`, `community-count` | Pinned Community-1 FluidAudio port | Automatic and known speaker count, on onboarding, tabletop and committee |
 | `lseend-*` | Four pinned LS-EEND variants | Same three calls |
 
-Speaker-time error is one-to-one, with overlap and no collar. All three attachment methods go through the skill's known-turn evaluator (`review.py known` at `4c8c2f0`, 30 s windows, `ref-CASE` / `eval-CASE`), with no listening session or clip selection. Overlap, attenuated audio, label counts and the four-voice subset are checked separately.
+Speaker-time error is one-to-one, with overlap and no collar, meaning no tolerance around turn boundaries. Attachment gives each piece of recognized text a speaker label: word-level attachment labels each word by the speaker active during it, segment attachment labels each recognizer segment by the speaker who overlaps it most, and line-end attachment labels each segment by the speaker active at its end, as HushScribe does. All three methods go through the skill's known-turn evaluator (`review.py known` at `4c8c2f0`, 30 s windows, `ref-CASE` / `eval-CASE`), with no listening session or clip selection. Overlap, attenuated audio, label counts and the four-voice subset are checked separately.
 
 ### Changes to the plan
 
-The criteria were fixed before the runs they govern. Their wording was later edited to read against `main`; no threshold or rule changed.
+On the unmerged branch `codex/expanded-call-benchmark`, the criteria were committed in `e5f17b3`, before `e5a2db9`, the first commit that recorded speaker results. Git shows when text was committed, not when a run happened, so this doesn't show that the criteria came before the runs. Their wording was later edited to read against `main`; no threshold or rule changed.
 
-Before any diarization inference, a speaker-count correction was added: the English committee script has **three** voices, so it keeps its actual count in the known-count condition, and the four-voice English tabletop was added so a four-voice English test is present. This follows fixture metadata, not predictions.
+A speaker-count correction was committed in `f62eb98`, also before any speaker result was recorded: the English committee script has **three** voices, so it keeps its actual count in the known-count condition, and the four-voice English tabletop was added so a four-voice English test is present. This follows fixture metadata, not predictions.
 
 On 2026-11-03, after the runs, this summary was split out of one write-up covering every question, so that each question has its own summary and decision. No result changed. Nothing was rerun for the split.
 
@@ -55,7 +55,7 @@ On 2026-11-03, after the runs, this summary was split out of one write-up coveri
 
 ### Speaker identity and timing
 
-Speaker-time error is (missed + false-alarm + confused speaker-seconds) / reference speaker-seconds, pooled only over independent scripts in each row. Mapping is one-to-one optimal per file, overlap included, zero collar. Scripted turn intervals include pauses within TTS utterances, so time error also penalizes some valid silence detection.
+Speaker-time error is (missed + false-alarm + confused speaker-seconds) / reference speaker-seconds, pooled only over independent scripts in each row. Lower is better. Mapping is one-to-one optimal per file, overlap included, zero collar. Scripted turn intervals include pauses within TTS utterances, so time error also penalizes some valid silence detection.
 
 | Script speakers | Independent calls | Sortformer | Who int8 |
 | ---: | ---: | ---: | ---: |
@@ -74,11 +74,11 @@ Who's better aggregate on one through three voices doesn't predict every recordi
 
 ### Other diarizers
 
-In the three-case sweep, Sortformer beat all four LS-EEND variants and both Community-1 settings on each call. Automatic / known-count Community-1 errors were 62.7% / 51.2% on onboarding, 54.6% / 26.1% on tabletop, and 70.9% / 70.9% on committee. On committee both settings returned just one of three voices. LS-EEND AMI beat Who on onboarding (18.2% versus 41.8%), but trailed Sortformer (13.8%). These results concern the pinned FluidAudio ports, not the original gated pyannote implementation.
+In the three-case sweep, Sortformer beat all four LS-EEND variants and both Community-1 settings on each call. Community-1's speaker-time error with automatic and known speaker count was 62.7% and 51.2% on onboarding, 54.6% and 26.1% on tabletop, and 70.9% for both on committee. On committee both settings returned just one of three voices. LS-EEND AMI beat Who on onboarding (18.2% versus 41.8%), but trailed Sortformer (13.8%). These results concern the pinned FluidAudio ports, not the original gated pyannote implementation.
 
 ### Attachment
 
-The skill evaluated 16 non-silent recorded mixes, with no excluded clips. Across the 14 independent scripts:
+The skill evaluated 16 non-silent recorded mixes, with no excluded clips. A turn is recovered when it comes out in the script's order. A whole clip is a 30-second window where every turn is recovered and no extra person or turn appears. Higher is better. Across the 14 independent scripts:
 
 | Recognizer + diarizer | Word | Segment | Line-end | Out of |
 | --- | ---: | ---: | ---: | ---: |
@@ -87,7 +87,7 @@ The skill evaluated 16 non-silent recorded mixes, with no excluded clips. Across
 | Full Whisper + Who, turns | 250 | 244 | 243 | 270 |
 | Full Whisper + Who, whole clips | 46 | 41 | 40 | 61 |
 
-For Breeze, six word-attachment arms on three English recordings were refused. Comparing like with like on 11 scripts, word / segment / line-end recovered 192 / 191 / 189 of 204 turns with Sortformer and 185 / 185 / 182 with Who.
+For Breeze, the skill refused word-level attachment on three English recordings, with each diarizer, because Breeze's output had text but no word timestamps. Comparing like with like on the other 11 scripts, word, segment and line-end attachment recovered 192, 191 and 189 of 204 turns with Sortformer, and 185, 185 and 182 with Who.
 
 On the planning call, full Whisper + Sortformer labeled 1,355/1,385 characters correctly at ASR word times (97.8%), but only 1,259/1,314 aligned characters in the delivered transcript (95.8%). With Who the figures were 1,360/1,385 (98.2%) and 1,266/1,314 (96.3%). As in the pipeline's [November 1 baseline](../../experiments/pipelines/whisper-sortformer/README.md) on the earlier planning audio, Who scored slightly above Sortformer, and both scored lower in the delivered transcript than at word times.
 

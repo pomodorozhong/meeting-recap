@@ -2,6 +2,14 @@
 
 ## In progress
 
+### docs/recognition-wording
+
+- Task: #56, clean up stale claims and unclear wording in the experiment docs. PR [#58](https://github.com/pomodorozhong/meeting-recap/pull/58) is ready for review and closes #56 through its body; the branch isn't linked.
+- Code checkpoint: `05f23d0` plus the handoff commits, pushed, on `main` at `0b1c058` (#45). Docs only.
+- State: the template and writing skill say what to write when plan order or a deciding result is missing; the recognition, speakers and recaps summaries name the commits that registered their criteria instead of claiming they came before the runs; a writing-skill pass defines terms and labels numbers in the recognition and speakers summaries; decision 2's recognizer choice is marked replaced by decision 12. No result changes.
+- Verification: relative links resolve, numbers in the two rewritten summaries are unchanged, the cited commit order matches `git log`, and `git diff --check` and a privacy scan pass. Test suites don't apply; the repository has no CI checks.
+- Next action: wait for review of #58. Merging needs the user's approval.
+
 ### feat/pipeline-baseline
 
 - Saved synthetic-call runs of the pipeline; to be rebuilt on `main`, and deferred by the user. Read that branch's own `HANDOFF.md`.
@@ -35,7 +43,7 @@
 13. #55 Separate temperature from word timestamps in the recognition baseline.
 14. #48 Separate Turbo from Who in the recap comparison.
 15. #50 Test `--keep-asr-segments` with full Whisper and Sortformer.
-16. #56 Clean up claims and stale text in the experiment docs. Start from `docs/recognition-wording` (`fe9ae7a`, pushed, no PR), which rewords three lines of the recognition summary, and run the writing skill over the merged summaries.
+16. #56 Merge #58, which cleans up claims and stale text in the experiment docs.
 17. #4 Run each remaining runner and the review skill end to end on the synthetic collection, and record the results.
 18. Revisit draft #31, `codex/action-grounding-sequence` and the deferred baseline and recap-accuracy branches. Keep `c714e05` and `d182e52` reachable: the merged summaries link to them, on #31's branch and `codex/expanded-call-benchmark`. The latter's commits also show when each criterion's text was registered.
 19. #9 Choose a license.
@@ -46,4 +54,4 @@
 
 ## Pending
 
-- P-02 — Decide draft #31: rewrite it against the 17-recording collection, or close it and keep `c714e05` reachable, for example with a tag. The action comparison left out of #37's split belongs with this decision. It blocks #31's wording pass and `codex/action-grounding-sequence`. Checked 2026-11-03: it conflicts with `main` in 10 files and its pipeline options and runners have merged in other forms. What only it holds is the action-recovery work. Recommended: tag `c714e05`, close it, and file an issue for action recovery.
+- P-02 — Decide draft #31: rewrite it against the 17-recording collection, or close it and keep `c714e05` reachable, for example with a tag. The action comparison left out of #37's split belongs with this decision. It blocks #31's wording pass and `codex/action-grounding-sequence`. Checked 2026-11-03: it conflicts with `main` in 10 files and its pipeline options and runners have merged in other forms. What only it holds is the action-recovery work. Recommended: tag `c714e05`, close it, and file an issue for action recovery. On 2026-11-04 the user asked what the tag is for: the recognition, speakers, silence and recaps summaries on `main` link to `c714e05`, which only #31's branch holds, and only the action-recovery work is unique to #31. Still awaiting the decision on whether to keep action recovery.

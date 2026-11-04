@@ -16,3 +16,4 @@ Each summary is written from [TEMPLATE.md](TEMPLATE.md) and committed **before**
 | 2026-11-02 | [Diarizers and attachment on 17 synthetic recordings](2026-11-02-synthetic-collection-speakers.md) | Who about 95× faster in total but merged speakers on clean four-person calls; word attachment recovered the most turns |
 | 2026-11-02 | [Digital silence on 17 synthetic recordings](2026-11-02-synthetic-collection-silence.md) | Exact-zero splitting lowered Mandarin error for full Whisper and Turbo and hurt Breeze; all-zero input now skips recognition and the recap |
 | 2026-11-02 | [Recap facts and citations on 17 synthetic recordings](2026-11-02-synthetic-collection-recaps.md) | Better transcripts didn't ensure better notes (7/9, 6/9, 6/9 facts); per-segment lines improved citation support |
+| 2026-11-04 | [Recap stage, then whole pipelines, on real calls](2026-11-04-recap-stage-real-calls.md) | Planned |

@@ -57,7 +57,7 @@ Variants change one thing from the baseline, in order of expected effect. They a
 | A1 | Whole transcript in one pass instead of chunk and merge | The merge may drop owners and items. Calls too long for the model's context and 16 GB are reported as not run, not shortened |
 | A2 | Thinking on | Earlier errors reopened settled facts and misread corrections |
 | A3 | Rewritten prompt: owner only when clear (otherwise "unknown"), a later value replaces an earlier one, output language stated | Earlier errors were wrong owners and a recap in the wrong language |
-| A4 | Other MLX recap models whose peak memory stays under 12 GB, measured with the recap stage's recorded MLX peak. A model that goes over is reported as not run | The model was never varied. The candidates and their pinned revisions are added to this table before the first A4 run |
+| A4 | Other MLX recap models whose peak memory stays under 9 GB, measured with the recap stage's recorded MLX peak on the longest call. A model that goes over is reported as not run | The model was never varied. The candidates and their pinned revisions are added to this table before the first A4 run |
 | A5 | The winners of A1 to A4 together | Confirms they combine |
 
 Controls:
@@ -103,7 +103,7 @@ The digital-silence pause split, Breeze, the other diarizers, and the action-rec
 
 ### Changes to the plan
 
-- **2026-11-04, before any run, while draft PR #59 was open:** added the screening step against Amie, made Amie the reference in screening and a candidate only against hand-written keys, moved the answer keys to the calls screening flags, and set A4's limit to 12 GB peak memory instead of "fits in 16 GB with room to spare". The project owner asked to use Amie's output as ground truth for now; the plan keeps it a reference because a machine-made transcript and summary can't tell us which notes are correct.
+- **2026-11-04, before any run, while draft PR #59 was open:** added the screening step against Amie, made Amie the reference in screening and a candidate only against hand-written keys, moved the answer keys to the calls screening flags, and set A4's limit to 9 GB peak memory instead of "fits in 16 GB with room to spare". The limit was first 12 GB; it was lowered to 9 GB the same day because macOS by default lets the GPU use only about two-thirds of this Mac's 16 GB (roughly 10.7 GB, from general knowledge of Apple silicon, not read from MLX here), the system already holds about 3 GB, and the peak grows with transcript length, so a 154-minute call peaks higher than the short synthetic calls did. The project owner asked to use Amie's output as ground truth for now; the plan keeps it a reference because a machine-made transcript and summary can't tell us which notes are correct.
 
 ## Results
 
@@ -121,7 +121,7 @@ Pending.
 
 ## Open questions
 
-- Which MLX recap models stay under 12 GB peak memory? A4 can't start without pinned candidates.
+- Which MLX recap models stay under 9 GB peak memory? A4 can't start without pinned candidates.
 - How long a call fits in one pass (A1) with the chosen model and prompt?
 - How is agreement with Amie's summary scored in the screening step?
 - How many calls can be keyed by hand? The decision needs at least 6.

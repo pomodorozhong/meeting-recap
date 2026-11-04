@@ -27,5 +27,6 @@ See [decisions.md](decisions.md). Pipeline candidate: Whisper Large v3 (Chinese 
 
 - [Decisions](decisions.md): what was decided, including the repository layout.
 - [Experiments](experiments/README.md): one public summary per experiment, and the template for new ones.
+- [Amie collection](amie-collection.md): how Amie's own audio, transcript and summary were collected into the private dataset, and what its export lacks.
 - [Runner guide](runners.md): how each model runner is built and run, with pinned versions.
 - [Investigation plan](investigation-plan.md) and [review guide](review-guide.md): the research plan and review criteria from phases 1–3.

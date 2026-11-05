@@ -21,6 +21,15 @@
 - Verification: relative links resolve, numbers in the two rewritten summaries are unchanged, the cited commit order matches `git log`, and `git diff --check` and a privacy scan pass. Test suites don't apply; the repository has no CI checks.
 - Next action: wait for review of #58. Merging needs the user's approval.
 
+### feat/app-recorder-prototype
+
+- Task: a macOS app prototype for iterating the design (decision 16). It records for real; the transcript and recap are invented samples, and nothing is connected to the pipeline. It advances #28 and closes nothing, so the branch is unlinked.
+- PR: none yet; awaiting the user's approval to push and open one (see the request below). Code checkpoint: `b28a33e`, branched from `main` at `ed23701`; `main` has since gained #72, which touches no `app/` files.
+- State: `app/` holds a SwiftPM package (a `RecorderCore` library and the `MeetingRecap` SwiftUI app) with a collapsible recordings list, "New meeting" setup (microphone and call-app pickers), a live recorder, and Audio, Transcript and Recap tabs. Two sample meetings fill the list.
+- Verification: `app/scripts/bundle.sh --test` passes 13 tests (generated audio only). Screenshots confirm the sample tabs, the setup screen, the full-width Start button and the recap spacing. Not exercised: a real recording from the app, the permission prompts, recording from one app, live waveforms, playback of a real recording, and clicks on the Choose menu, check bar, citation jumps, checkboxes, Copy, Save and sidebar collapse.
+- Next action: after the PR, the user records a real call to try the untested parts, then gives more design feedback.
+- P-03 — Push this branch and open its PR (title, body and commits shown in chat). Blocks the PR.
+
 ### feat/pipeline-baseline
 
 - Saved synthetic-call runs of the pipeline; to be rebuilt on `main`, and deferred by the user. Read that branch's own `HANDOFF.md`.

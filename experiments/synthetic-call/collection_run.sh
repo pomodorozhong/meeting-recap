@@ -83,7 +83,10 @@ check_inputs() {
             for case in onboarding english-audit; do
                 for arm in pipeline exact fast; do need scores recaps $case $arm/summary.json; done
             done
-            need scores recaps silence pipeline/summary.json;;
+            need scores recaps silence pipeline/summary.json
+            need scores replays onboarding pause-pipeline/asr.json pause-pipeline/turns.json segment-lines/turns.json
+            need scores replays english-audit segment-pipeline/turns.json segment-lines/turns.json
+            need scores replays english-training original-lines/turns.json segment-lines/turns.json;;
     esac
 }
 

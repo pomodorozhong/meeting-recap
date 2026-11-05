@@ -12,17 +12,17 @@
 
 - Recap accuracy check and summary-stage variants; to be rebuilt on `main`, and deferred by the user. Read that branch's own `HANDOFF.md`.
 
-### feat/turbo-pause-check
+### feat/turbo-pause-check-run
 
-- Task: #46, run Turbo through the pause option's acceptance check. Linked to #46, so its PR closes that issue.
-- PR: none yet. Code checkpoint: `main` at `ed23701`, merged into this branch. Work started 2026-11-05.
-- Verification: none run on this branch.
-- Before running: `recap.py` and `asr_stage.py` refuse `--split-digital-pauses` with `--asr turbo-q4`, and a test expects that, so this needs a code change. Commit the experiment's summary before its first run, and use synthetic audio only.
-- Next action: draft the experiment's summary from `docs/experiments/TEMPLATE.md`, then allow the flag with Turbo and run it on `onboarding`.
+- Task: #46, run Turbo through the pause option's acceptance check. The branch isn't linked to #46 (the linked branch `feat/turbo-pause-check` is checked out in another worktree), so the PR body must say `Closes #46`.
+- PR: none yet. Code checkpoint: `main` at `ed23701` plus the commits on this branch; nothing pushed.
+- State: the plan and `turbo_pause_check.py` were committed before the run; the code change allows `--split-digital-pauses` with Turbo; the run passed all four checks (same spans, 273 words and times, 20 edits, transcript written); the summary is complete and decision 16 is added.
+- Verification: pipeline tests pass (35); the run used the dataset's converted `onboarding` audio, since the original `call.wav` isn't on this machine; a privacy scan of the diff passes.
+- Next action: ask the user to approve pushing this branch and opening the PR with the `open-pr` skill. The old local branch `feat/turbo-pause-check` (and its remote copy) holds only the handoff and a merge of `main`; after the PR, delete or retire it.
 
 ## Ranked work
 
-1. #46 Run Turbo through the pause option's acceptance check (P1, on `feat/turbo-pause-check`).
+1. #46 Turbo pause check: run and written up; waiting for the PR (on `feat/turbo-pause-check-run`).
 2. #28 Run the private-recording pipeline review. The public plan is on `docs/recap-stage-plan`; next the entry point, pinned recap models and the project owner's answer keys.
 3. #18 Complete the two-track listening review, freeze its reference, evaluate both runs and finish the public summary; current turn counts remain provisional.
 4. #11 Compare real-call transcript accuracy; the synthetic evidence is on `main`.

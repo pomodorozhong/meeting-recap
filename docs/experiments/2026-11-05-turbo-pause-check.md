@@ -1,8 +1,8 @@
 # 2026-11-05: Turbo through the pause option's acceptance check
 
-**Status:** planned
+**Status:** complete
 
-**Outcome:** pending
+**Outcome:** With the pause option allowed for Turbo, the pipeline reproduced Turbo's earlier split result on the generated `onboarding` call: the same two speech spans, the same 273 words with the same times, and 20 edits against the script. All four checks in the pass rule held, so the pipeline now accepts the option with Turbo. This covers one Mandarin recording and no real call.
 
 ## Reproduce
 
@@ -14,7 +14,7 @@
 
 - **It needs:** `FIXTURES`, the verified 17-recording collection built by [`collection.py`](../../experiments/synthetic-call/README.md#seventeen-recording-collection); `RESULTS`, a new absolute path outside Git; and `SPLIT_TURBO`, the `onboarding/split/turbo.json` file that the `split` step of [the digital silence experiment](2026-11-02-synthetic-collection-silence.md) wrote, with its `spans.json` beside it. The script exits with an error if any of them is missing.
 - **It writes:** the pipeline's output folder, and `RESULTS/check.json` with each measured value and whether each check passed.
-- **Takes about:** not measured yet.
+- **Takes about:** 34 s from command to verdict on the machine below, models already cached.
 - **By hand:** none.
 - **Expect to differ:** timings. Turbo decodes greedily, so its words should match the saved output exactly; a difference is itself a result.
 
@@ -58,15 +58,29 @@ None.
 
 ## Results
 
-Pending.
+| Check | Saved split output | Pipeline run | Pass |
+| --- | --- | --- | --- |
+| Speech spans, in samples at 16 kHz | 0–884,278 and 1,069,504–1,594,032 | the same two | yes |
+| Recognized words | 273 | 273, each matching in text and in start and end time to within 1 ms | yes |
+| Edits against the script (lower is better) | 20 | 20 | yes |
+| Words starting after the pause | not counted | 105, so times after the pause are measured from the start of the recording | yes |
+| Transcript | not applicable | 24 lines written | yes |
+
+Full Whisper's earlier pipeline check found 274 words on this recording. The one-word difference is two models on one recording, not a comparison between them.
+
+**Limits.**
+
+- One generated Mandarin recording with one long pause. An English recording, a recording with no long pause, and a real recording with a digital mute were not run.
+- The run used the pipeline's converted copy of the recording from the earlier experiment, not the original `call.wav`, which this machine doesn't have. The earlier pipeline run's converted audio has the same SHA-256 as the file used here, so the pipeline decoded the same samples both times. The reference text was rebuilt from the committed script, joining its turns the way the collection builder does, because the fixture's transcript file wasn't available. It gave the same 20 edits as the saved output, which also supports that the text is the same.
+- A pass shows that the pipeline reproduces the experiment for Turbo. It isn't new evidence that the split helps; that evidence is in the digital silence experiment.
 
 ## Runtime and memory
 
-Pending.
+Measured by the pipeline's own stage timers and `asr.json`, one model process at a time, on the machine below. The recognition stage took 29.8 s, of which the recognizer reported 10.6 s of decoding; the rest is loading the model. Peak MLX memory was 1.37 GB. Diarization with Who took 0.7 s. These figures are one run and weren't repeated.
 
 ## Decision
 
-Pending.
+Offer `--split-digital-pauses` with Turbo as well as full Whisper, and remove the refusal. This follows from the pass: decision 14 excluded Turbo only because its version had not been through this check, and it now has. The choice is the same cautious one as decision 14. The option stays off by default, and the evidence is still one generated recording plus the four-recording experiment. Nothing here favors Turbo over full Whisper or the reverse. See decision 16 in [`decisions.md`](../decisions.md).
 
 ## Open questions
 
@@ -74,4 +88,7 @@ Pending.
 
 ## Where this ran
 
-Pending.
+- **Code:** the check script and the code change that allows the option with Turbo are on the branch of the PR that adds this summary, which isn't on `main` until it merges. The plan and script were committed before the run. The run used the commit that removes the refusal.
+- **Models and weights:** Turbo `660c343b`, as in the plan. Who's int8 weights, checked by the pipeline against its pinned digest before the run.
+- **Machine:** M2 Pro, 16 GB, macOS 26.6.2.
+- **Kept outside the repository:** the generated recording's converted audio and the saved split outputs of the digital silence experiment.

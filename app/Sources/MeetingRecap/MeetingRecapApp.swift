@@ -9,7 +9,7 @@ struct MeetingRecapApp: App {
         WindowGroup("Meeting Recap") {
             ContentView()
                 .environment(model)
-                .frame(minWidth: 820, minHeight: 520)
+                .frame(minWidth: 980, minHeight: 640)
                 .onAppear {
                     // A bare executable starts behind the terminal; the bundled app does not need this.
                     NSApp.setActivationPolicy(.regular)

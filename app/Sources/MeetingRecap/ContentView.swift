@@ -1,159 +1,104 @@
 import RecorderCore
 import SwiftUI
 
-func clock(_ seconds: Double) -> String {
-    let total = Int(seconds.rounded())
-    return total >= 3600
-        ? String(format: "%d:%02d:%02d", total / 3600, total % 3600 / 60, total % 60)
-        : String(format: "%d:%02d", total / 60, total % 60)
-}
-
 struct ContentView: View {
     @Environment(AppModel.self) private var model
+    @State private var columns: NavigationSplitViewVisibility = .all
 
     var body: some View {
         @Bindable var model = model
-        NavigationSplitView {
-            List(selection: $model.selection) {
-                Section("Samples") {
-                    Label(Fixtures.title, systemImage: "doc.text")
-                        .tag(Selection.sample)
-                }
-                Section("Recordings") {
-                    if model.recordings.isEmpty {
-                        Text("Nothing recorded yet").foregroundStyle(.secondary)
-                    }
-                    ForEach(model.recordings) { item in
-                        HStack {
-                            Image(systemName: item.isComplete ? "waveform" : "exclamationmark.triangle")
-                                .foregroundStyle(item.isComplete ? Color.secondary : Color.orange)
-                            VStack(alignment: .leading) {
-                                Text(item.id.replacingOccurrences(of: "T", with: "  ")).font(.body.monospacedDigit())
-                                Text(clock(item.durationSeconds)).font(.caption).foregroundStyle(.secondary)
-                            }
-                        }
-                        .tag(Selection.recording(item.id))
-                    }
-                }
-            }
-            .navigationSplitViewColumnWidth(min: 200, ideal: 240)
+        NavigationSplitView(columnVisibility: $columns) {
+            Sidebar()
+                .navigationSplitViewColumnWidth(min: 220, ideal: 260, max: 340)
         } detail: {
-            VStack(spacing: 0) {
-                RecordBar()
-                Divider()
-                if let message = model.errorMessage {
-                    ErrorBanner(message: message) { model.errorMessage = nil }
-                }
-                switch model.selection {
-                case .recording:
-                    if let info = model.recording(for: model.selection) {
-                        ReviewView(title: info.id, info: info)
-                    } else {
-                        Placeholder(text: "Recording not found")
-                    }
-                case .sample:
-                    ReviewView(title: Fixtures.title, info: nil)
-                case nil:
-                    Placeholder(text: "Select a recording")
-                }
-            }
+            DetailView()
         }
+        .onChange(of: model.selection) { model.selectionChanged() }
     }
 }
 
-struct Placeholder: View {
-    let text: String
-    var body: some View {
-        Text(text).foregroundStyle(.secondary).frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-}
-
-struct ErrorBanner: View {
-    let message: String
-    let dismiss: () -> Void
-    var body: some View {
-        HStack(alignment: .top) {
-            Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.orange)
-            Text(message).textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading)
-            Button("Dismiss", action: dismiss).buttonStyle(.borderless)
-        }
-        .padding(10)
-        .background(Color.orange.opacity(0.15))
-    }
-}
-
-/// Record controls and the live meters, always visible above the review pane.
-struct RecordBar: View {
+struct Sidebar: View {
     @Environment(AppModel.self) private var model
 
     var body: some View {
         @Bindable var model = model
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 14) {
-                Button {
-                    Task { model.phase == .recording ? await model.stop() : await model.start() }
-                } label: {
-                    Label(model.phase == .recording ? "Stop" : "Record",
-                          systemImage: model.phase == .recording ? "stop.circle.fill" : "record.circle")
-                        .frame(minWidth: 84)
-                }
-                .keyboardShortcut("r", modifiers: .command)
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
-                .tint(model.phase == .recording ? .red : .accentColor)
-                .disabled(model.phase == .starting || model.phase == .stopping)
-
-                switch model.phase {
-                case .recording:
-                    Text(clock(model.meter.elapsedSeconds)).font(.title2.monospacedDigit())
-                    LevelMeter(label: "Others", peak: model.meter.systemPeak)
-                    LevelMeter(label: "You", peak: model.meter.micPeak)
-                case .starting: ProgressView().controlSize(.small); Text("Starting…").foregroundStyle(.secondary)
-                case .stopping: ProgressView().controlSize(.small); Text("Saving…").foregroundStyle(.secondary)
-                case .idle: Text("Records the call's audio and your microphone to two files.").foregroundStyle(.secondary)
-                }
-                Spacer()
+        List(selection: $model.selection) {
+            if model.phase != .idle {
+                MeetingRow(title: "New meeting", subtitle: model.phase == .stopping ? "Saving…" : "Recording",
+                           trailing: clock(model.meter.elapsedSeconds), recording: true)
+                    .tag(Selection.live)
+            } else if model.draftOpen {
+                MeetingRow(title: "New meeting", subtitle: "Not started").tag(Selection.draft)
             }
-            if model.phase == .idle {
-                HStack(spacing: 14) {
-                    Picker("Microphone", selection: $model.microphone) {
-                        Text("System default").tag(String?.none)
-                        ForEach(model.microphones, id: \.self) { Text($0).tag(String?.some($0)) }
+            if !model.recordings.isEmpty {
+                Section("Recent") {
+                    ForEach(model.recordings) { info in
+                        MeetingRow(title: title(of: info), subtitle: "\(whenLabel(info.date)) · \(clock(info.durationSeconds))",
+                                   pill: pill(for: info))
+                            .tag(Selection.recording(info.id))
                     }
-                    .frame(maxWidth: 300)
-                    TextField("Only this app's audio (optional), such as Teams", text: $model.appFilter)
-                        .textFieldStyle(.roundedBorder)
-                        .frame(maxWidth: 340)
+                }
+            }
+            Section("Samples") {
+                ForEach(Samples.all) { sample in
+                    let toCheck = model.uncertainLines(in: sample).count
+                    MeetingRow(title: sample.title, subtitle: "Sample · \(clock(sample.durationSeconds))",
+                               pill: toCheck > 0 ? ("\(toCheck) to check", .warn) : ("Recap ready", .good))
+                        .tag(Selection.sample(sample.id))
                 }
             }
         }
-        .padding(12)
+        .safeAreaInset(edge: .top, spacing: 0) {
+            Button { model.newMeeting() } label: {
+                Label("New meeting", systemImage: "plus").frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.glassProminent)
+            .controlSize(.large)
+            .keyboardShortcut("n", modifiers: .command)
+            .padding(.horizontal, 12).padding(.bottom, 8)
+        }
+    }
+
+    private func pill(for info: RecordingInfo) -> (String, StatusPill.Tone) {
+        if !info.isComplete || info.droppedSeconds > 0.01 { return ("Audio gap", .bad) }
+        return ("Not transcribed", .neutral)
     }
 }
 
-struct LevelMeter: View {
-    let label: String
-    let peak: Float
-    /// Holds the last peak briefly, so short sounds stay visible between readings.
-    @State private var shown: Float = 0
+func title(of info: RecordingInfo) -> String {
+    if let title = info.title { return title }
+    guard let date = info.date else { return "Meeting" }
+    return "Meeting at " + date.formatted(.dateTime.hour().minute())
+}
+
+func whenLabel(_ date: Date?) -> String {
+    guard let date else { return "" }
+    let time = date.formatted(.dateTime.hour().minute())
+    if Calendar.current.isDateInToday(date) { return "Today \(time)" }
+    if Calendar.current.isDateInYesterday(date) { return "Yesterday \(time)" }
+    return date.formatted(.dateTime.month(.abbreviated).day()) + " " + time
+}
+
+struct MeetingRow: View {
+    let title: String
+    let subtitle: String
+    var trailing: String?
+    var recording = false
+    var pill: (String, StatusPill.Tone)?
 
     var body: some View {
-        let db = peak > 0 ? 20 * log10(peak) : -80
-        let level = CGFloat(min(1, max(0, (db + 60) / 60)))
-        HStack(spacing: 6) {
-            Text(label).font(.caption).foregroundStyle(.secondary)
-            GeometryReader { box in
-                ZStack(alignment: .leading) {
-                    Capsule().fill(.quaternary)
-                    Capsule().fill(level > 0.92 ? Color.red : Color.green)
-                        .frame(width: box.size.width * max(level, CGFloat(shown)))
+        HStack(alignment: .top) {
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 6) {
+                    if recording { Circle().fill(.red).frame(width: 7, height: 7) }
+                    Text(title).lineLimit(1)
                 }
+                Text(subtitle).font(.caption).foregroundStyle(.secondary)
+                if let pill { StatusPill(text: pill.0, tone: pill.1).padding(.top, 2) }
             }
-            .frame(width: 110, height: 8)
+            Spacer(minLength: 0)
+            if let trailing { Text(trailing).font(.callout.monospacedDigit()).foregroundStyle(.red) }
         }
-        .onChange(of: level) { _, new in
-            shown = Float(new)
-            withAnimation(.easeOut(duration: 0.4)) { shown = 0 }
-        }
+        .padding(.vertical, 3)
     }
 }

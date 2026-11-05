@@ -4,14 +4,17 @@ A macOS window that records a call's audio and your microphone for real, and sho
 
 | Part | Status |
 | --- | --- |
-| Recording | Real. System audio and the microphone go to two lossless files on one timeline, as in [`experiments/capture/`](../experiments/capture/README.md). |
-| Recordings list | Real. Reads each recording's `timing.json`; shows its length, silence filled in, audio the encoder dropped, and any write error. |
-| Transcript and recap | Mock. [`Fixtures.swift`](Sources/MeetingRecap/Fixtures.swift) holds an invented three-speaker call with a recap whose every item cites transcript lines. Every recording shows this same sample, under a banner saying so. |
+| Recording | Real. System audio and the microphone go to two lossless files on one timeline, as in [`experiments/capture/`](../experiments/capture/README.md). The Audio tab holds the source settings, the live recorder, and playback. |
+| Recordings list | Real. Each recording shows its date, length and a status pill; the title can be renamed. |
+| Audio tab for a recording | Real. Waveforms of both tracks, playback of both together (click a track to jump), and the gaps filled in and audio dropped. |
+| Transcript and recap | Mock, and only for the two sample meetings in the list. [`Fixtures.swift`](Sources/MeetingRecap/Fixtures.swift) holds two invented meetings: labeled lines with one unsure speaker, and a recap whose every item cites lines. A real recording shows "Not transcribed yet" on those tabs. |
 | Pipeline | Not connected. Phase 5 of the [status](../docs/README.md) says when. |
+
+The window uses Liquid Glass, so it needs macOS 26.
 
 ## Build and run
 
-Needs macOS 15 or later and the Command Line Tools; no Xcode project.
+Needs macOS 26 and the Command Line Tools; no Xcode project.
 
 ```bash
 app/scripts/bundle.sh
@@ -31,13 +34,13 @@ Wear headphones, or the other side of the call leaks into the microphone file. T
 | Path | Holds |
 | --- | --- |
 | `Sources/RecorderCore/` | The recorder as a library: tracks and timeline padding, the capture session, folder safety rules, and the list of recordings. |
-| `Sources/MeetingRecap/` | The SwiftUI shell: record bar with live meters, recordings list, mock review screen. |
+| `Sources/MeetingRecap/` | The SwiftUI shell: collapsible meeting list, and the Audio, Transcript and Recap tabs. |
 | `Tests/RecorderCoreTests/` | Folder rules, the recordings list, and a real file write with a dropout and a late start. Generated audio only. |
 | `scripts/bundle.sh` | Builds, optionally tests, and wraps the app in a bundle. |
 
 ## What is and isn't checked
 
 - Tests pass for the folder rules, the recordings list, silence padding, and both files ending the same length after a dropout.
-- The window renders and the mock screen shows as intended.
-- Not checked: a real recording through ScreenCaptureKit from the app, the permission prompts, and the "only this app's audio" filter. Those need a person to click Record on a call.
+- The sample meetings' Audio, Transcript and Recap tabs and the new-meeting setup screen render as intended (screenshots). Not exercised by clicking: choosing a speaker on the unsure line, the check bar's Previous and Next, citation jumps, action checkboxes, Copy and Save, collapsing the list.
+- Not checked: a real recording through ScreenCaptureKit from the app, the permission prompts, the "only this app's audio" filter, the live waveforms, and playback and waveforms of a real recording. Those need a person to record something.
 - The app filter is a text box matched against app names; a picker of running apps is a follow-up.

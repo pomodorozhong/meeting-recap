@@ -325,8 +325,6 @@ def summary(out, replace=False):
 
 def run(args):
     out = Path(args.out).resolve()
-    if args.split_digital_pauses and args.asr != "large-v3":
-        raise ValueError("--split-digital-pauses requires --asr large-v3")
     # Checked before any stage runs, so a changed download fails in seconds rather than after ASR.
     weights = None if args.resume and Run(out).done("diarize") else pins.check_weights(args.diarizer)
     audio, out = prepare(args.audio, args.out, args.resume, args.diarizer, weights, args.language, args.asr,
@@ -407,7 +405,7 @@ def main(argv=None):
     p.add_argument("--resume", action="store_true", help="continue a failed or partial run in OUT")
     p.add_argument("--asr", choices=pins.ASR_MODELS, default="large-v3", help="pinned MLX Whisper variant")
     p.add_argument("--split-digital-pauses", action="store_true",
-                   help="full Whisper only: split at five seconds of exact zero; keep original timestamps")
+                   help="split at five seconds of exact zero; keep original timestamps")
     p.add_argument("--language", choices=("zh", "en"), default="zh",
                    help="spoken language: Mandarin (default; also for Mandarin with English terms) or English")
     p.add_argument("--keep-asr-segments", action="store_true",

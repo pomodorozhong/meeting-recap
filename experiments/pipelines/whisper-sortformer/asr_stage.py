@@ -51,8 +51,8 @@ def main(wav, out, language="zh", model="large-v3", pause_mode="whole"):
     from pathlib import Path
     import tempfile
 
-    if pause_mode not in ("whole", "split") or (pause_mode == "split" and model != "large-v3"):
-        raise ValueError("digital pause splitting is available for full Whisper only")
+    if pause_mode not in ("whole", "split"):
+        raise ValueError("pause_mode must be 'whole' or 'split'")
     rate, samples = read_samples(wav)
     if not samples.size:
         raise ValueError("the recording contains no samples")

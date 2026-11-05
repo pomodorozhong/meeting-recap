@@ -30,12 +30,26 @@ struct Recap {
     let actions: [RecapItem]
 }
 
+/// What a mock screenshot shows; `ShotThumb` draws a stand-in for each kind. No real screen content is used.
+enum ShotKind { case slides, dashboard, document, chat, calendar, ticket }
+
+/// A screenshot taken during the meeting, placed on the timeline.
+struct Shot: Identifiable, Hashable {
+    let id: Int
+    let time: Double
+    let app: String
+    /// What the pipeline is expected to say about the screenshot.
+    let caption: String
+    let kind: ShotKind
+}
+
 struct Sample: Identifiable {
     let id: String
     let title: String
     let whenLabel: String
     let durationSeconds: Double
     let lines: [TranscriptLine]
+    let shots: [Shot]
     let recap: Recap
 
     var speakerCount: Int { (lines.map(\.speaker).max() ?? 0) + 1 }
@@ -70,6 +84,13 @@ enum Samples {
             (148, 160, 2, "Agreed. I'll also set up a shared inbox for pilot questions.", [2, 1]),
             (163, 178, 0, "Good. Last thing: I'll tell the account team the date once Friday's check is done.", []),
         ]),
+        shots: [
+            Shot(id: 0, time: 4, app: "Slides", caption: "Slide titled “Pilot launch”, listing the date, owners and open risks.", kind: .slides),
+            Shot(id: 1, time: 22, app: "Dashboard", caption: "Build status chart with one failing export check.", kind: .dashboard),
+            Shot(id: 2, time: 57, app: "Docs", caption: "Draft of the onboarding guide with empty screenshot placeholders.", kind: .document),
+            Shot(id: 3, time: 88, app: "Calendar", caption: "Month view with the fifteenth and the twelfth marked.", kind: .calendar),
+            Shot(id: 4, time: 150, app: "Chat", caption: "Team channel with a request for a shared inbox.", kind: .chat),
+        ],
         recap: Recap(
             summary: [
                 RecapItem(id: 0, text: "The pilot build is stable except for an export bug that engineering expects to fix this week.", cites: [1]),
@@ -104,6 +125,11 @@ enum Samples {
             (93, 110, 0, "Of course. Send me their names and I'll add them this afternoon.", []),
             (111, 125, 1, "Perfect, thank you.", []),
         ]),
+        shots: [
+            Shot(id: 0, time: 14, app: "Support", caption: "Ticket for a failed export on version 2.4, status “Open”.", kind: .ticket),
+            Shot(id: 1, time: 42, app: "Docs", caption: "Release notes listing the export fix for version 2.5.", kind: .document),
+            Shot(id: 2, time: 96, app: "Dashboard", caption: "Account page with two free seats.", kind: .dashboard),
+        ],
         recap: Recap(
             summary: [
                 RecapItem(id: 0, text: "The customer's monthly export fails at about eighty percent on version 2.4; the fix ships in 2.5 next Tuesday.", cites: [2, 3]),

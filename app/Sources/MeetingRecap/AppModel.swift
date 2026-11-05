@@ -39,7 +39,7 @@ struct AppChoice: Identifiable, Hashable {
 }
 
 enum DetailTab: String, CaseIterable, Identifiable {
-    case audio = "Audio", transcript = "Transcript", recap = "Recap"
+    case audio = "Audio", timeline = "Timeline", recap = "Recap"
     var id: String { rawValue }
 }
 
@@ -143,7 +143,7 @@ enum DetailTab: String, CaseIterable, Identifiable {
     func jump(to lines: [Int]) {
         highlighted = Set(lines)
         scrollTarget = lines.min()
-        tab = .transcript
+        tab = .timeline
     }
 
     // MARK: Recording

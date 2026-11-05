@@ -74,11 +74,11 @@ struct DetailView: View {
         case (.audio, .live): RecorderPanel()
         case (.audio, .sample(let sample)): SamplePlayback(sample: sample)
         case (.audio, .recording(let info)): RecordingPlayback(info: info)
-        case (.transcript, .sample(let sample)): TranscriptTab(sample: sample)
+        case (.timeline, .sample(let sample)): TimelineTab(sample: sample)
         case (.recap, .sample(let sample)): RecapTab(sample: sample)
-        case (.transcript, .recording), (.recap, .recording):
-            ContentUnavailableView("Not transcribed yet", systemImage: "text.bubble",
-                                   description: Text("The transcription pipeline isn't connected in this prototype. The sample meetings show what this tab will look like."))
+        case (.timeline, .recording), (.recap, .recording):
+            ContentUnavailableView("Not processed yet", systemImage: "text.bubble",
+                                   description: Text("The transcription pipeline isn't connected in this prototype, and screenshots aren't captured yet. The sample meetings show what this tab will look like."))
         default: EmptyView()
         }
     }
@@ -131,7 +131,7 @@ struct RecordingHeader: View {
     }
 }
 
-/// Audio, Transcript and Recap. A tab that can't show anything yet is dimmed.
+/// Audio, Timeline and Recap. A tab that can't show anything yet is dimmed.
 struct TabSwitcher: View {
     @Binding var selection: DetailTab
     let enabled: Set<DetailTab>

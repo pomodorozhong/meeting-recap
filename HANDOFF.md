@@ -30,12 +30,11 @@
 
 ### feat/recap-stage-entry-point
 
-- Task: #28 (advances it; branch not linked, since the PR won't resolve the issue). No PR yet.
-- Code checkpoint: `2cf8232`, local only, built on `main`. Adds `experiments/recap-stage/run.py` (Stage A variants A0, A0-noise, A1, A2, A3), its uv project and `tests/experiments/test_recap_stage.py`; the plan's Reproduce section now describes it.
-- Verified: `tests/experiments` discovery, 21 tests, pass (fake model, generated transcripts). The real model has not been run, so the MLX calls (`Model`, thinking template, peak-memory reset) are untested.
-- Next: run `run.py` once on a short synthetic labeled transcript to check the real model path, then open the PR with the `open-pr` skill.
+- Task: #28 (advances it; branch not linked, since the PR won't resolve the issue). PR: [#77](https://github.com/pomodorozhong/meeting-recap/pull/77), open and awaiting review.
+- Code checkpoint: `2cf8232` (the PR tip is a later `docs:` commit), built on `main`. Adds `experiments/recap-stage/run.py` (Stage A variants A0, A0-noise, A1, A2, A3), its uv project and `tests/experiments/test_recap_stage.py`; the plan's Reproduce section now describes it.
+- Verified: `tests/experiments` discovery, 21 tests, pass (fake model). Real model: all five variants ran on a 7-line made-up transcript with the pinned Qwen3.5 9B (A0 26 s, A0-noise 20 s, A1 24 s, A2 317 s, A3 37 s; peak MLX 5.9 to 6.0 GB; every cited timestamp matched a line). A1's not-run path and long-call chunk-and-merge were not exercised with the real model.
+- Next: wait for review of #77. Then, before any real-call run, settle the screening method and A4 models.
 - Still open in the plan before any real-call run: the screening score method and prompt (decision 1), A4's candidate models and pins, and the owner's answer keys.
-- Pending: P-03, push this branch and open its PR. Not approved.
 
 ## Ranked work
 

@@ -36,3 +36,4 @@ Private material lives in the review dataset outside the checkout, at `$MEETING_
   ```bash
   uv run --no-project --with opencc-python-reimplemented python -m unittest discover -s tests/skill -t tests/skill
   ```
+- After changing `app/`, run `app/scripts/bundle.sh --test` from anywhere. It runs the tests (generated audio only) and rebuilds the app bundle. The package has no dependencies, so it needs no lock file.

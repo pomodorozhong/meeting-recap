@@ -28,10 +28,19 @@
 - Verification: pipeline tests pass (35); the run used the dataset's converted `onboarding` audio, since the original `call.wav` isn't on this machine; a privacy scan of the diff passes.
 - Next action: ask the user to approve pushing this branch and opening the PR with the `open-pr` skill. The old local branch `feat/turbo-pause-check` (and its remote copy) holds only the handoff and a merge of `main`; after the PR, delete or retire it.
 
+### feat/recap-stage-entry-point
+
+- Task: #28 (advances it; branch not linked, since the PR won't resolve the issue). No PR yet.
+- Code checkpoint: `2cf8232`, local only, built on `main`. Adds `experiments/recap-stage/run.py` (Stage A variants A0, A0-noise, A1, A2, A3), its uv project and `tests/experiments/test_recap_stage.py`; the plan's Reproduce section now describes it.
+- Verified: `tests/experiments` discovery, 21 tests, pass (fake model, generated transcripts). The real model has not been run, so the MLX calls (`Model`, thinking template, peak-memory reset) are untested.
+- Next: run `run.py` once on a short synthetic labeled transcript to check the real model path, then open the PR with the `open-pr` skill.
+- Still open in the plan before any real-call run: the screening score method and prompt (decision 1), A4's candidate models and pins, and the owner's answer keys.
+- Pending: P-03, push this branch and open its PR. Not approved.
+
 ## Ranked work
 
 1. #46 Turbo pause check: run and written up; waiting for the PR (on `feat/turbo-pause-check-run`).
-2. #28 Run the private-recording pipeline review. The public plan is on `docs/recap-stage-plan`; next the entry point, pinned recap models and the project owner's answer keys.
+2. #28 Run the private-recording pipeline review. The public plan is on `main`; the Stage A entry point is built on `feat/recap-stage-entry-point` (unpushed); next the real-model check, the screening method, pinned A4 models and the project owner's answer keys.
 3. #18 Complete the two-track listening review, freeze its reference, evaluate both runs and finish the public summary; current turn counts remain provisional.
 4. #11 Compare real-call transcript accuracy; the synthetic evidence is on `main`.
 5. #1 Finish the user-confirmed long-call Who comparison; draft #25 remains open.

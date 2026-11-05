@@ -24,11 +24,10 @@
 ### feat/app-recorder-prototype
 
 - Task: a macOS app prototype for iterating the design (decision 16). It records for real; the transcript and recap are invented samples, and nothing is connected to the pipeline. It advances #28 and closes nothing, so the branch is unlinked.
-- PR: none yet; awaiting the user's approval to push and open one (see the request below). Code checkpoint: `b28a33e`, branched from `main` at `ed23701`; `main` has since gained #72, which touches no `app/` files.
-- State: `app/` holds a SwiftPM package (a `RecorderCore` library and the `MeetingRecap` SwiftUI app) with a collapsible recordings list, "New meeting" setup (microphone and call-app pickers), a live recorder, and Audio, Transcript and Recap tabs. Two sample meetings fill the list.
-- Verification: `app/scripts/bundle.sh --test` passes 13 tests (generated audio only). Screenshots confirm the sample tabs, the setup screen, the full-width Start button and the recap spacing. Not exercised: a real recording from the app, the permission prompts, recording from one app, live waveforms, playback of a real recording, and clicks on the Choose menu, check bar, citation jumps, checkboxes, Copy, Save and sidebar collapse.
-- Next action: after the PR, the user records a real call to try the untested parts, then gives more design feedback.
-- P-03 — Push this branch and open its PR (title, body and commits shown in chat). Blocks the PR.
+- PR: opened from this branch against `main` and awaiting review; the number is in the PR itself. Code checkpoint: `44c2eb5`, branched from `main` at `ed23701`; `main` has since gained #72, which touches no `app/` files.
+- State: `app/` holds a SwiftPM package (a `RecorderCore` library and the `MeetingRecap` SwiftUI app) with a collapsible recordings list, "New meeting" setup (microphone and call-app pickers), a live recorder, and Audio, Timeline and Recap tabs. The Timeline shows speech and screenshots in time order under an overview strip. Two sample meetings fill the list; their screenshots are drawn placeholders, and the app doesn't capture screenshots. Screenshot capture is planned in #73.
+- Verification: `app/scripts/bundle.sh --test` passes 13 tests (generated audio only). Screenshots confirm the sample Audio, Timeline and Recap tabs, the setup screen, the full-width Start button and the recap spacing. Not exercised: a real recording from the app, the permission prompts, recording from one app, live waveforms, playback of a real recording, and clicks on the Choose menu, check bar, citation jumps, strip jumps, checkboxes, Copy, Save and sidebar collapse.
+- Next action: the user records a real call to try the untested parts, then gives more design feedback. Open design question: should recap items cite screenshots as well as lines.
 
 ### feat/pipeline-baseline
 
@@ -71,6 +70,7 @@
 21. #5 Extend reproducibility instructions to the remaining public summaries.
 22. #3 Migrate the earlier experiment results into the private review dataset.
 23. Remaining runner follow-ups: external model-cache verification, the no-VAD variant and completion checks outside the HushScribe export fix.
+24. #73 Design how screenshots are captured and used in the recap (new, not yet ranked against the rest).
 
 ## Pending
 

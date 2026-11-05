@@ -16,12 +16,21 @@ public enum RecordingFolder {
 
     /// A new folder name from the local date and time, such as `2026-11-05T14-30-00`.
     public static func name(for date: Date, timeZone: TimeZone = .current) -> String {
+        nameFormat(timeZone).string(from: date)
+    }
+
+    /// The time a folder name stands for, or nil when the name isn't one `name(for:)` made.
+    public static func date(fromName name: String, timeZone: TimeZone = .current) -> Date? {
+        nameFormat(timeZone).date(from: name)
+    }
+
+    private static func nameFormat(_ timeZone: TimeZone) -> DateFormatter {
         let format = DateFormatter()
         format.locale = Locale(identifier: "en_US_POSIX")
         format.calendar = Calendar(identifier: .gregorian)
         format.timeZone = timeZone
         format.dateFormat = "yyyy-MM-dd'T'HH-mm-ss"
-        return format.string(from: date)
+        return format
     }
 
     /// The folder with symlinks resolved. Throws when it is inside a Git checkout (a worktree's `.git` is a file)
@@ -66,6 +75,10 @@ public struct RecordingInfo: Identifiable, Hashable, Sendable {
     public let problems: [String]
     public let silenceFilledSeconds: Double
     public let droppedSeconds: Double
+    /// When the recording started, from its folder name.
+    public let date: Date?
+    /// The name the person gave it, if any.
+    public let title: String?
 
     public var isComplete: Bool { problems.isEmpty }
 }
@@ -84,8 +97,12 @@ public enum RecordingLibrary {
     }
 
     static func read(folder: URL) -> RecordingInfo {
+        let date = RecordingFolder.date(fromName: folder.lastPathComponent)
+        let title = (try? String(contentsOf: folder.appendingPathComponent("title.txt"), encoding: .utf8))
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.flatMap { $0.isEmpty ? nil : $0 }
         func incomplete(_ why: String) -> RecordingInfo {
-            RecordingInfo(folder: folder, durationSeconds: 0, problems: [why], silenceFilledSeconds: 0, droppedSeconds: 0)
+            RecordingInfo(folder: folder, durationSeconds: 0, problems: [why], silenceFilledSeconds: 0, droppedSeconds: 0,
+                          date: date, title: title)
         }
         guard let data = try? Data(contentsOf: folder.appendingPathComponent("timing.json")),
               let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
@@ -101,6 +118,17 @@ public enum RecordingLibrary {
             else if entry["written"] as? Bool != true { problems.append("\(track): not written completely") }
         }
         return RecordingInfo(folder: folder, durationSeconds: duration, problems: problems,
-                             silenceFilledSeconds: silence, droppedSeconds: dropped)
+                             silenceFilledSeconds: silence, droppedSeconds: dropped, date: date, title: title)
+    }
+
+    /// Saves the name shown for a recording; an empty name removes it.
+    public static func rename(folder: URL, to title: String) throws {
+        let file = folder.appendingPathComponent("title.txt")
+        let trimmed = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.isEmpty {
+            try? FileManager.default.removeItem(at: file)
+        } else {
+            try trimmed.write(to: file, atomically: true, encoding: .utf8)
+        }
     }
 }

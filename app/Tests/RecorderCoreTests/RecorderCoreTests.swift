@@ -45,6 +45,13 @@ func temporaryFolder() throws -> URL {
         #expect(throws: CaptureError.self) { try RecordingFolder.validate(folder) }
     }
 
+    @Test func folderNamesRoundTripToDates() {
+        let date = Date(timeIntervalSince1970: 1_800_000_000)
+        let name = RecordingFolder.name(for: date, timeZone: .gmt)
+        #expect(RecordingFolder.date(fromName: name, timeZone: .gmt) == date)
+        #expect(RecordingFolder.date(fromName: "not-a-date") == nil)
+    }
+
     @Test func folderNamesSortByTime() {
         let a = RecordingFolder.name(for: Date(timeIntervalSince1970: 0), timeZone: .gmt)
         let b = RecordingFolder.name(for: Date(timeIntervalSince1970: 3600), timeZone: .gmt)
@@ -86,6 +93,19 @@ func temporaryFolder() throws -> URL {
         let byID = Dictionary(uniqueKeysWithValues: RecordingLibrary.list(root: root).map { ($0.id, $0) })
         #expect(byID["a"]?.isComplete == false)
         #expect(byID["b"]?.problems.count == 2)
+    }
+
+    @Test func readsAndClearsTitles() throws {
+        let root = try temporaryFolder()
+        let folder = root.appendingPathComponent("2026-01-01T10-00-00")
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        try writeTiming(folder)
+        #expect(RecordingLibrary.list(root: root)[0].title == nil)
+        #expect(RecordingLibrary.list(root: root)[0].date != nil)
+        try RecordingLibrary.rename(folder: folder, to: "  Customer call  ")
+        #expect(RecordingLibrary.list(root: root)[0].title == "Customer call")
+        try RecordingLibrary.rename(folder: folder, to: " ")
+        #expect(RecordingLibrary.list(root: root)[0].title == nil)
     }
 
     @Test func ignoresPlainFiles() throws {

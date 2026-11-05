@@ -2,28 +2,11 @@
 
 ## In progress
 
-### docs/recap-stage-plan
 
-- Task: the public plan for #28's private-recording review, redesigned to find the best pipeline by scoring final notes (see `docs/experiments/2026-11-04-recap-stage-real-calls.md`). It advances #28 and #47 and closes nothing, so the branch is unlinked. Draft PR [#59](https://github.com/pomodorozhong/meeting-recap/pull/59), pushed at `2e18168`; waiting for the user's read.
-- Code checkpoint: `main` at `3b3efd4` plus the docs commits. Docs only; no code or run.
-- State: the plan (status `planned`) has Stage A (the recap stage on fixed transcripts: chunk and merge versus one pass, thinking, a rewritten prompt, other MLX models) and Stage B (whole pipelines, with Amie as one candidate), a noise-floor control because greedy decoding repeats exactly, and a pass rule written before any run. It is added to the experiments index. The Amie collection (16 real calls) is in the private dataset and is described in `docs/amie-collection.md` on `feat/pipeline-baseline`, which isn't on `main`.
-- Verification: privacy scan of the diff for names, paths and transcript text passes; the cold read in the experiment-writing skill was done; relative links not rechecked by a tool.
-- Continuity: the plan keeps Stages A and B in one file. Stage B's pipelines, keys, grading and rule are fixed now; the winning recap setting and whether B4 exists are added as a dated change after Stage A. The plan's "What Stage A leaves for Stage B" lists what Stage A must record before Stage B starts.
-- Not decided: the pinned A4 models (under 9 GB peak), how agreement with Amie's summary is scored in screening, how long a call fits in one pass, and how many calls get hand-written keys (minimum 6 for the decision).
-- Next action: wait for the user's review of #59 (it stays a draft until they say). Then, before any run, add the entry point the plan's Reproduce section promises, and the pinned A4 models. The project owner writes the answer keys before any output is seen.
-- The user said Amie notes being publicly viewable is fine; no action. Choices made 2026-11-04: Amie's output is the reference for a screening step, not ground truth; A4 models must peak under 9 GB (lowered from 12 GB: the default GPU budget on 16 GB is about 10.7 GB).
-
-### docs/recognition-wording
-
-- Task: #56, clean up stale claims and unclear wording in the experiment docs. PR [#58](https://github.com/pomodorozhong/meeting-recap/pull/58) is ready for review and closes #56 through its body; the branch isn't linked.
-- Code checkpoint: `05f23d0` plus the handoff commits, pushed, on `main` at `0b1c058` (#45). Docs only.
-- State: the template and writing skill say what to write when plan order or a deciding result is missing; the recognition, speakers and recaps summaries name the commits that registered their criteria instead of claiming they came before the runs; a writing-skill pass defines terms and labels numbers in the recognition and speakers summaries; decision 2's recognizer choice is marked replaced by decision 12. No result changes.
-- Verification: relative links resolve, numbers in the two rewritten summaries are unchanged, the cited commit order matches `git log`, and `git diff --check` and a privacy scan pass. Test suites don't apply; the repository has no CI checks.
-- Next action: wait for review of #58. Merging needs the user's approval.
 
 ### feat/app-recorder-prototype
 
-- Task: a macOS app prototype for iterating the design (decision 16). It records for real; the transcript and recap are invented samples, and nothing is connected to the pipeline. It advances #28 and closes nothing, so the branch is unlinked.
+- Task: a macOS app prototype for iterating the design (decision 17). It records for real; the transcript and recap are invented samples, and nothing is connected to the pipeline. It advances #28 and closes nothing, so the branch is unlinked.
 - PR: opened from this branch against `main` and awaiting review; the number is in the PR itself. Code checkpoint: `44c2eb5`, branched from `main` at `ed23701`; `main` has since gained #72, which touches no `app/` files.
 - State: `app/` holds a SwiftPM package (a `RecorderCore` library and the `MeetingRecap` SwiftUI app) with a collapsible recordings list, "New meeting" setup (microphone and call-app pickers), a live recorder, and Audio, Timeline and Recap tabs. The Timeline shows speech and screenshots in time order under an overview strip. Two sample meetings fill the list; their screenshots are drawn placeholders, and the app doesn't capture screenshots. Screenshot capture is planned in #73.
 - Verification: `app/scripts/bundle.sh --test` passes 13 tests (generated audio only). Screenshots confirm the sample Audio, Timeline and Recap tabs, the setup screen, the full-width Start button and the recap spacing. Not exercised: a real recording from the app, the permission prompts, recording from one app, live waveforms, playback of a real recording, and clicks on the Choose menu, check bar, citation jumps, strip jumps, checkboxes, Copy, Save and sidebar collapse.
@@ -37,17 +20,17 @@
 
 - Recap accuracy check and summary-stage variants; to be rebuilt on `main`, and deferred by the user. Read that branch's own `HANDOFF.md`.
 
-### feat/turbo-pause-check
+### feat/turbo-pause-check-run
 
-- Task: #46, run Turbo through the pause option's acceptance check. Linked to #46, so its PR closes that issue.
-- PR: none yet. Code checkpoint: `88236e8` on `main`. Not started; this branch only holds the handoff so far.
-- Verification: none run on this branch.
-- Before running: `recap.py` and `asr_stage.py` refuse `--split-digital-pauses` with `--asr turbo-q4`, and a test expects that, so this needs a code change. Commit the experiment's summary before its first run, and use synthetic audio only.
-- Next action: draft the experiment's summary from `docs/experiments/TEMPLATE.md`, then allow the flag with Turbo and run it on `onboarding`.
+- Task: #46, run Turbo through the pause option's acceptance check. The branch isn't linked to #46 (the linked branch `feat/turbo-pause-check` is checked out in another worktree), so the PR body must say `Closes #46`.
+- PR: none yet. Code checkpoint: `main` at `ed23701` plus the commits on this branch; nothing pushed.
+- State: the plan and `turbo_pause_check.py` were committed before the run; the code change allows `--split-digital-pauses` with Turbo; the run passed all four checks (same spans, 273 words and times, 20 edits, transcript written); the summary is complete and decision 16 is added.
+- Verification: pipeline tests pass (35); the run used the dataset's converted `onboarding` audio, since the original `call.wav` isn't on this machine; a privacy scan of the diff passes.
+- Next action: ask the user to approve pushing this branch and opening the PR with the `open-pr` skill. The old local branch `feat/turbo-pause-check` (and its remote copy) holds only the handoff and a merge of `main`; after the PR, delete or retire it.
 
 ## Ranked work
 
-1. #46 Run Turbo through the pause option's acceptance check (P1, on `feat/turbo-pause-check`).
+1. #46 Turbo pause check: run and written up; waiting for the PR (on `feat/turbo-pause-check-run`).
 2. #28 Run the private-recording pipeline review. The public plan is on `docs/recap-stage-plan`; next the entry point, pinned recap models and the project owner's answer keys.
 3. #18 Complete the two-track listening review, freeze its reference, evaluate both runs and finish the public summary; current turn counts remain provisional.
 4. #11 Compare real-call transcript accuracy; the synthetic evidence is on `main`.
@@ -62,7 +45,6 @@
 13. #55 Separate temperature from word timestamps in the recognition baseline.
 14. #48 Separate Turbo from Who in the recap comparison.
 15. #50 Test `--keep-asr-segments` with full Whisper and Sortformer.
-16. #56 Merge #58, which cleans up claims and stale text in the experiment docs.
 17. #4 Run each remaining runner and the review skill end to end on the synthetic collection, and record the results.
 18. Revisit draft #31, `codex/action-grounding-sequence` and the deferred baseline and recap-accuracy branches. Keep `c714e05` and `d182e52` reachable: the merged summaries link to them, on #31's branch and `codex/expanded-call-benchmark`. The latter's commits also show when each criterion's text was registered.
 19. #9 Choose a license.

@@ -1,6 +1,6 @@
 # App prototype
 
-A macOS window that records a call's audio and your microphone for real, and shows a **mock** transcript and recap. It isn't connected to any pipeline. See [decision 16](../docs/decisions.md) for why.
+A macOS window that records a call's audio and your microphone for real, and shows a **mock** transcript and recap. It isn't connected to any pipeline. See [decision 17](../docs/decisions.md) for why.
 
 | Part | Status |
 | --- | --- |

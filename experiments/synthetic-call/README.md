@@ -145,7 +145,37 @@ One run compares the pipeline's options on all 17 recordings. [`collection_setup
 | `replays` | The pause option and per-segment lines through the pipeline's commands | Digital silence and citations |
 | `scores` | [`collection_scores.py`](collection_scores.py), which needs every step's outputs | All of them |
 
+Each step reads earlier steps' outputs, so run them in the order shown. A step started on a `RESULTS` folder that lacks an input stops before running any model, and the message names the missing file and the step that writes it. `decode` is the exception: it creates `RESULTS`, so it needs a path that doesn't exist yet.
+
+| Step | Needs from earlier steps |
+| --- | --- |
+| `recaps` | `decode` input digests (`input.sha256`) |
+| `diarize`, `split` | `decode` input digests and converted audio |
+| `turns` | `decode` full Whisper and Breeze outputs; `diarize` Who and Sortformer outputs and weight digests |
+| `replays` | `recaps` Turbo + Who run on the onboarding and English audit calls; `decode` Turbo output and audio and `diarize` Who output for English training |
+| `scores` | every step above |
+
 The `decode` outputs are shared: attachment scoring and the split comparison reuse them, which saves about 22 minutes of a roughly 76-minute total. The [experiments index](../../docs/experiments/README.md) lists one summary per question, and each names the steps it relies on. They all cite one measurements file, [`2026-11-02-synthetic-collection-results.json`](../../docs/experiments/2026-11-02-synthetic-collection-results.json).
+
+### Rerun on a new folder (2026-11-06)
+
+`collection_run.sh` ran from `decode` to `scores` on a new `RESULTS` folder, with exit status 0, in about 66 minutes. That is longer than the roughly 54 minutes of timed steps because it includes `turns` and `replays`. The scorer then recalculated the measurements, and a second `--step scores` on the same folder wrote a byte-identical file. Compared with the [committed measurements](../../docs/experiments/2026-11-02-synthetic-collection-results.json), 410 values differ:
+
+| Kind | Values that differ | What it means |
+| --- | --- | --- |
+| Timings | 144 | Expected on any rerun. |
+| Peak memory | 148 | The same models used slightly different peak memory, by a few percent in the cases checked. |
+| Output file digests | 97 | Most digests differ only because each output file records its own run time. After removing that field, the Turbo, full Whisper (except one call), Breeze and Who outputs hold the same content. The Sortformer outputs have the same speech spans, listed in a different order with different anonymous labels. One full Whisper output (English design) differs in a few word times and one word. The text of all six recap summaries (three settings on each of two calls) is byte-identical to the original run. |
+| Scores | 21 | Four kinds, below. |
+
+The 21 score values that moved:
+
+- **Full Whisper forced to Mandarin on English recordings** (a check of what happens with the wrong language): on the English committee call it produced 13 normalized units instead of 204, and 486 edits instead of 328. On English tabletop it produced 49 units instead of 37, with the edit count unchanged. Wrong-language output is unstable between runs, so these values shouldn't be compared across runs.
+- **Community-1 with the speaker count given** (a diarization setting): on onboarding it found 4 speakers instead of 3 and its error rate rose from 0.51 to 0.57. On English tabletop its error rate rose from 0.26 to 0.40. The cause was not investigated.
+- **Speaker-label agreement at word times** (how many script characters get the right speaker): on English design, the rerun's full Whisper text differed by one word, so full Whisper + Sortformer agreed on 2,378 of 2,396 characters instead of 2,377 of 2,395, and full Whisper + Who on 2,396 of 2,396 instead of 2,395 of 2,395. On logistics overlap, with the same text, full Whisper + Sortformer agreed on 161 characters instead of 158, and Turbo + Sortformer on 158 instead of 156 at word times and 136 instead of 135 in the delivered transcript. The Sortformer differences are one to three characters, and their cause was not investigated.
+- **Line-end attachment with full Whisper + Sortformer on English tabletop:** 22 of 24 turns recovered instead of 24, and 4 of 6 whole clips instead of 5. Over the 14 independent scripts that moves the line-end total from 252 to 250 turns of 270 and from 40 to 39 whole clips of 61. The cause was not investigated, and the Sortformer output on that call has the same speech spans in a different order with different anonymous labels.
+
+The recognizers' error counts, the digital-silence split comparison, the Who diarization scores and the recap checks are unchanged. Word and segment attachment are unchanged. The Sortformer rows above are the only attachment or speaker-label results that moved.
 
 Rules that apply to every step:
 

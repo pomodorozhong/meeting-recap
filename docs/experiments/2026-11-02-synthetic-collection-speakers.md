@@ -10,14 +10,14 @@
 | --- | --- |
 | Set up once (needs the network) | `experiments/synthetic-call/collection_setup.sh` |
 | Run everything | `experiments/synthetic-call/collection_run.sh "$FIXTURES" "$RESULTS"` |
-| Rerun this summary's steps | `experiments/synthetic-call/collection_run.sh "$FIXTURES" "$RESULTS" --step diarize`, then `--step turns` |
+| Rerun this summary's steps | `--step decode` on a new `RESULTS` first, because `diarize` and `turns` read its output; then `experiments/synthetic-call/collection_run.sh "$FIXTURES" "$RESULTS" --step diarize`, then `--step turns` |
 | Check saved results without models | `uv run --project experiments/synthetic-call experiments/synthetic-call/collection_scores.py "$FIXTURES" "$RESULTS" > scores.json` |
 
-- **It needs:** `FIXTURES`, the verified collection built by [`collection.py`](../../experiments/synthetic-call/README.md#seventeen-recording-collection), and `RESULTS`, a new absolute path outside Git. `turns` also needs the full Whisper and Breeze outputs of the `decode` step.
+- **It needs:** `FIXTURES`, the verified collection built by [`collection.py`](../../experiments/synthetic-call/README.md#seventeen-recording-collection), and `RESULTS`, a new absolute path outside Git. `diarize` needs the converted audio and input digests from `decode`. `turns` also needs the full Whisper and Breeze outputs from `decode`, and the Who and Sortformer outputs from `diarize`. A step started without them stops before running any model and names the missing file and the step that writes it.
 - **It writes:** every model output under `RESULTS`, with the measurements in `RESULTS/scores.json`. This is one run shared by [several summaries](../../experiments/synthetic-call/README.md#compare-the-pipeline-on-this-collection), so the scorer needs every step's outputs. [The saved measurements](2026-11-02-synthetic-collection-results.json) are the committed copy.
-- **Takes about:** 16 minutes for `diarize`, in the saved timings; `turns` wasn't timed. The whole run takes about 54 minutes, plus the untimed `turns` and `replays` steps.
+- **Takes about:** 16 minutes for `diarize`, in the saved timings; `turns` wasn't timed. The whole run takes about 54 minutes of timed steps, and a full run on a new folder on 2026-11-06 took about 66 minutes with `turns` and `replays`.
 - **By hand:** nothing for this summary.
-- **Expect to differ:** timings on any rerun, and possibly model output on another machine. The scorer recalculates the measurements from saved outputs, so it should match the committed file byte for byte.
+- **Expect to differ:** timings on any rerun, and possibly model output on another machine. The scorer recalculates the measurements from saved outputs, so on the same outputs it matches byte for byte. A full run on a new folder on 2026-11-06 reproduced the Who scores and the word and segment attachment counts. Sortformer-based results moved slightly: one to three characters of speaker-label agreement on two calls, and line-end attachment with full Whisper on English tabletop recovered 22 of 24 turns instead of 24, so the line-end total is 250 turns of 270 instead of 252. Community-1 with the speaker count given also moved on two calls (error rate 0.51 to 0.57 on onboarding and 0.26 to 0.40 on English tabletop), which this summary's conclusions don't rest on. The [other differences](../../experiments/synthetic-call/README.md#rerun-on-a-new-folder-2026-11-06) were timings, memory and file digests.
 
 The setup script also restores the Community-1 and LS-EEND weights from the pins in [`alternative-diarizers.json`](../../experiments/synthetic-call/reference/alternative-diarizers.json).
 

@@ -13,11 +13,11 @@
 | Rerun this summary's step | `experiments/synthetic-call/collection_run.sh "$FIXTURES" "$RESULTS" --step decode` |
 | Check saved results without models | `uv run --project experiments/synthetic-call experiments/synthetic-call/collection_scores.py "$FIXTURES" "$RESULTS" > scores.json` |
 
-- **It needs:** `FIXTURES`, the verified collection built by [`collection.py`](../../experiments/synthetic-call/README.md#seventeen-recording-collection), and `RESULTS`, a new absolute path outside Git.
+- **It needs:** `FIXTURES`, the verified collection built by [`collection.py`](../../experiments/synthetic-call/README.md#seventeen-recording-collection), and `RESULTS`, a new absolute path outside Git. `--step decode` creates it, so a path that exists makes it stop. It needs nothing from earlier steps.
 - **It writes:** every model output under `RESULTS`, with the measurements in `RESULTS/scores.json`. This is one run shared by [several summaries](../../experiments/synthetic-call/README.md#compare-the-pipeline-on-this-collection), so the scorer needs every step's outputs. [The saved measurements](2026-11-02-synthetic-collection-results.json) are the committed copy.
-- **Takes about:** 24 minutes for this summary's `decode` step, in the saved timings. The whole run takes about 54 minutes, plus the untimed `turns` and `replays` steps.
+- **Takes about:** 24 minutes for this summary's `decode` step, in the saved timings. The whole run takes about 54 minutes of timed steps, and a full run on a new folder on 2026-11-06 took about 66 minutes with `turns` and `replays`.
 - **By hand:** nothing for this summary.
-- **Expect to differ:** timings on any rerun, and possibly model text on another machine. The scorer recalculates the measurements from saved outputs, so it should match the committed file byte for byte.
+- **Expect to differ:** timings on any rerun, and possibly model text on another machine. The scorer recalculates the measurements from saved outputs, so on the same outputs it matches byte for byte. A full run on a new folder on 2026-11-06 reproduced every recognizer score except the full Whisper wrong-language control on two English calls, which changed; the [other differences](../../experiments/synthetic-call/README.md#rerun-on-a-new-folder-2026-11-06) were timings, memory and file digests.
 
 ## Question
 

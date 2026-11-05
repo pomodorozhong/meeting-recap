@@ -10,14 +10,14 @@
 | --- | --- |
 | Set up once (needs the network) | `experiments/synthetic-call/collection_setup.sh` |
 | Run everything | `experiments/synthetic-call/collection_run.sh "$FIXTURES" "$RESULTS"` |
-| Rerun this summary's steps | `experiments/synthetic-call/collection_run.sh "$FIXTURES" "$RESULTS" --step recaps`, then `--step replays` |
+| Rerun this summary's steps | `--step decode` on a new `RESULTS`, then `--step diarize`, because `recaps` and `replays` read their output; then `experiments/synthetic-call/collection_run.sh "$FIXTURES" "$RESULTS" --step recaps`, then `--step replays` |
 | Check saved results without models | `uv run --project experiments/synthetic-call experiments/synthetic-call/collection_scores.py "$FIXTURES" "$RESULTS" > scores.json` |
 
-- **It needs:** `FIXTURES`, the verified collection built by [`collection.py`](../../experiments/synthetic-call/README.md#seventeen-recording-collection), and `RESULTS`, a new absolute path outside Git. `replays` also needs the training case's Turbo and Who outputs from the `decode` and `diarize` steps.
+- **It needs:** `FIXTURES`, the verified collection built by [`collection.py`](../../experiments/synthetic-call/README.md#seventeen-recording-collection), and `RESULTS`, a new absolute path outside Git. `recaps` needs the input digests from `decode`. `replays` needs the Turbo + Who recap runs from `recaps`, and the English training call's Turbo output from `decode` and Who output from `diarize`. A step started without them stops before running any model and names the missing file and the step that writes it.
 - **It writes:** every model output under `RESULTS`, with the measurements in `RESULTS/scores.json`. This is one run shared by [several summaries](../../experiments/synthetic-call/README.md#compare-the-pipeline-on-this-collection), so the scorer needs every step's outputs. [The saved measurements](2026-11-02-synthetic-collection-results.json) are the committed copy.
-- **Takes about:** 9 minutes for `recaps`, in the saved timings; `replays` wasn't timed. The whole run takes about 54 minutes, plus the untimed `turns` and `replays` steps.
+- **Takes about:** 9 minutes for `recaps`, in the saved timings; `replays` wasn't timed. The whole run takes about 54 minutes of timed steps, and a full run on a new folder on 2026-11-06 took about 66 minutes with `turns` and `replays`.
 - **By hand:** grading the recaps against the fixed checks in the plan. [Fact verdicts bound to output hashes](2026-11-02-synthetic-collection-recaps-judgments.json) holds this run's grades. Grade fresh outputs again, including their cited source lines, because changed text can't inherit an earlier judgment.
-- **Expect to differ:** timings on any rerun, and possibly model text on another machine. On the original M2 Pro, rerunning the `replays` step on 2026-11-03 matched the saved words, transcripts and recaps byte for byte. The `recaps` step wasn't rerun.
+- **Expect to differ:** timings on any rerun, and possibly model text on another machine. On the original M2 Pro, rerunning the `replays` step on 2026-11-03 matched the saved words, transcripts and recaps byte for byte. The 2026-11-06 full run on a new folder also ran `recaps`: the text of all six recap summaries (three settings on each of onboarding and English audit) was byte-identical to the original run, and the recap checks were unchanged. The [other differences](../../experiments/synthetic-call/README.md#rerun-on-a-new-folder-2026-11-06) were timings, memory and file digests.
 
 ## Question
 

@@ -14,6 +14,7 @@ case "$mode" in
     *) echo "$usage" >&2; exit 2;;
 esac
 steps="decode recaps diarize split turns replays scores"
+cases="onboarding english-audit silence handoff stocktake localization scheduling design logistics english-handoff english-design english-training english-tabletop english-committee handoff-channel logistics-overlap script"
 root=$(cd "$(dirname "$0")/../.." && pwd)
 synth="$root/experiments/synthetic-call"
 pipe="$root/experiments/pipelines/whisper-sortformer"
@@ -29,6 +30,11 @@ case "$results" in /*) ;; *) echo "RESULTS must be an absolute path" >&2; exit 2
 fixtures=$(cd "$fixtures" && pwd)
 if [[ "$mode" = --step ]]; then
     case " $steps " in *" $step "*) ;; *) echo "unknown step: $step (one of: $steps)" >&2; exit 2;; esac
+    if [[ "$step" = decode ]]; then
+        [[ ! -e "$results" ]] || { echo "--step decode creates RESULTS; choose a new folder" >&2; exit 2; }
+    else
+        [[ -d "$results" ]] || { echo "no RESULTS folder: $results; run the decode step first" >&2; exit 2; }
+    fi
 elif [[ -e "$results" ]]; then
     echo "RESULTS already exists; choose a new folder, or rerun one failed step with --step" >&2
     exit 2
@@ -37,6 +43,49 @@ for needed in "$python" "$pipe_python" "$root/experiments/mlx/.venv/bin/python" 
     "$pipe/.build/release/who-diarize" "$root/experiments/diarization/.build/release/diarexp"; do
     [[ -e "$needed" ]] || { echo "missing $needed; run experiments/synthetic-call/collection_setup.sh first" >&2; exit 2; }
 done
+
+need() {  # need STEP FROM CASE FILE...: stop before running STEP if an earlier step's output is missing
+    local step=$1 from=$2 case=$3 file
+    shift 3
+    for file in "$@"; do
+        [[ -e "$results/$case/$file" ]] || {
+            echo "step $step needs $case/$file, written by the $from step; run the steps in order ($steps)" >&2
+            exit 2
+        }
+    done
+}
+
+check_inputs() {
+    local step=$1 case
+    case "$step" in
+        recaps) for case in onboarding english-audit silence; do need recaps decode $case input.sha256; done;;
+        diarize | split) for case in $cases; do need $step decode $case input.sha256 audio.wav; done;;
+        turns)
+            for case in $cases; do
+                [[ $case = silence ]] && continue
+                need turns decode $case input.sha256 whisper.json breeze.json
+                need turns diarize $case who.json sortformer.json weights.json
+            done;;
+        replays)
+            for case in onboarding english-audit; do
+                need replays recaps $case fast/asr.json fast/diarization.json fast/audio.wav fast/speakers.json
+            done
+            need replays decode english-training turbo.json audio.wav
+            need replays diarize english-training who.json;;
+        scores)
+            for case in $cases; do
+                need scores decode $case input.sha256 audio.wav whisper.json turbo.json breeze.json
+                need scores diarize $case who.json sortformer.json
+                need scores split $case split/spans.json
+                [[ $case = silence ]] || need scores turns $case turn-order.json
+            done
+            need scores diarize onboarding weights.json
+            for case in onboarding english-audit; do
+                for arm in pipeline exact fast; do need scores recaps $case $arm/summary.json; done
+            done
+            need scores recaps silence pipeline/summary.json;;
+    esac
+}
 
 lines() {  # lines CASE ASR DIARIZATION AUDIO OUT [compare_lines options]
     local case=$1 asr=$2 diarization=$3 audio=$4 out=$5
@@ -61,6 +110,7 @@ replays() {
 }
 
 run_step() {
+    check_inputs "$1"
     echo "== $1"
     case "$1" in
         decode) "$synth/collection_decode.sh" "$fixtures" "$results";;

@@ -85,7 +85,7 @@ With identical Turbo words, Who labels and recap prompt, keeping Whisper segment
 | Onboarding (4 checks) | 19 → 46 | 0 → 0 | 2 → 3 | 2 → 3 |
 | English training (3 checks) | 22 → 48 | 0 → 0 | 2 → 2 | 2 → 2 |
 
-The audit went from 37 invalid citations removed to zero. Onboarding recovered the successful retry with supporting evidence, but the merged speaker still caused a wrong owner. Neither training recap stated that 18 was the **verified final** count; both stated who was assigned what. Some segmented lines start in the same displayed second, so a timestamp may still be ambiguous.
+The transcript-line counts, the uncited items and the invalid citations removed are in the results file under `replays`, as counts and digests only. The audit went from 37 invalid citations removed to zero. Onboarding recovered the successful retry with supporting evidence, but the merged speaker still caused a wrong owner. Neither training recap stated that 18 was the **verified final** count; both stated who was assigned what. Some segmented lines start in the same displayed second, so a timestamp may still be ambiguous.
 
 The option met the pass rule set before the test, including on the training call, whose recap hadn't been generated yet. The command `run --asr turbo-q4 --diarizer who --language en --keep-asr-segments --no-summary` on the audit matched the graded segmented transcript byte for byte.
 

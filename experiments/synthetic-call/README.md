@@ -175,6 +175,8 @@ The 21 score values that moved:
 - **Speaker-label agreement at word times** (how many script characters get the right speaker): on English design, the rerun's full Whisper text differed by one word, so full Whisper + Sortformer agreed on 2,378 of 2,396 characters instead of 2,377 of 2,395, and full Whisper + Who on 2,396 of 2,396 instead of 2,395 of 2,395. On logistics overlap, with the same text, full Whisper + Sortformer agreed on 161 characters instead of 158, and Turbo + Sortformer on 158 instead of 156 at word times and 136 instead of 135 in the delivered transcript. The Sortformer differences are one to three characters, and their cause was not investigated.
 - **Line-end attachment with full Whisper + Sortformer on English tabletop:** 22 of 24 turns recovered instead of 24, and 4 of 6 whole clips instead of 5. Over the 14 independent scripts that moves the line-end total from 252 to 250 turns of 270 and from 40 to 39 whole clips of 61. The cause was not investigated, and the Sortformer output on that call has the same speech spans in a different order with different anonymous labels.
 
+The scorer's `replays` figures (pause option and transcript lines) also matched on this folder, except the pause option's wall time: 30.04 s instead of 21.45 s.
+
 The recognizers' error counts, the digital-silence split comparison, the Who diarization scores and the recap checks are unchanged. Word and segment attachment are unchanged. The Sortformer rows above are the only attachment or speaker-label results that moved.
 
 Rules that apply to every step:

@@ -1,8 +1,8 @@
 # 2026-11-06: per-segment lines with full Whisper + Sortformer
 
-**Status:** planned
+**Status:** review pending
 
-**Outcome:** pending
+**Outcome:** pending. The recaps are written and waiting for hand grading; only what can be counted without grading is below.
 
 ## Reproduce
 
@@ -16,7 +16,7 @@ This test uses the same run and the same grading round as [the recognizer and di
 
 - **It needs:** `FIXTURES` and a new `PAIRS` folder, as in the other summary.
 - **It writes:** the folder for each call and setting, including `whisper-sortformer-segments`, and the shared grading sheets. A verdicts file committed after grading will hold this test's grades.
-- **Takes about:** about 8 minutes of the shared 30 to 35 minutes; the real figure goes in Results.
+- **Takes about:** 7.7 minutes for its three runs with the flag, and 8.0 minutes for its three runs without it, inside the 32 minutes of the shared batch (pipeline run totals added).
 - **By hand:** the shared grading round. Nothing separate.
 - **Expect to differ:** timings, and possibly model text on another machine.
 
@@ -46,8 +46,23 @@ The comparison uses the same recap model, prompt and 12 fact checks as the recap
 
 ### Changes to the plan
 
-None yet.
+None.
 
 ## Results
 
-Pending.
+The batch ran on 2026-11-06. The recaps are not graded yet, so the pass rule can't be applied.
+
+**What can be counted without grading.** A **line** is one transcript line the recap can cite. An **uncited item** is a recap item with no valid cited line, and an **invalid citation** is one the pipeline removed because it pointed at no transcript line. Lower is better for both.
+
+| Call | Setting | Transcript lines | Uncited items | Invalid citations removed |
+| --- | --- | ---: | ---: | ---: |
+| Onboarding | without the flag | 16 | 0 | 0 |
+| Onboarding | with `--keep-asr-segments` | 34 | 0 | 0 |
+| English audit | without the flag | 2 | 0 | 0 |
+| English audit | with `--keep-asr-segments` | 39 | 0 | 0 |
+| English training | without the flag | 22 | 0 | 0 |
+| English training | with `--keep-asr-segments` | 54 | 0 | 0 |
+
+The flag more than doubled the lines on onboarding and English training and gave the audit 39 lines instead of 2. No setting has uncited items or invalid citations, with or without the flag. So rule 1 of the pass rule has nothing to apply to on these three calls, and the flag can only pass through rule 2: more facts fully correct with supporting citations on at least one call, graded by hand.
+
+**Waiting on grading.** Whether the flag changes how many of the 12 facts are fully correct with supporting citations, and whether it loses any. The result and the wording for the flag's documentation go here after grading.

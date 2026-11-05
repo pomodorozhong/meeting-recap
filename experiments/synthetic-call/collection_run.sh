@@ -63,7 +63,7 @@ check_inputs() {
         turns)
             for case in $cases; do
                 [[ $case = silence ]] && continue
-                need turns decode $case input.sha256 whisper.json breeze.json
+                need turns decode $case input.sha256 whisper.json breeze.json turbo.json
                 need turns diarize $case who.json sortformer.json weights.json
             done;;
         replays)

@@ -36,14 +36,17 @@ struct DraftSetup: View {
             .glassCard()
             .onAppear { model.refreshApps() }
 
-            HStack(spacing: 14) {
+            VStack(spacing: 10) {
                 Button { Task { await model.start() } } label: {
-                    Label("Start recording", systemImage: "record.circle").padding(.horizontal, 10)
+                    HStack(spacing: 8) {
+                        if model.phase == .starting { ProgressView().controlSize(.small) }
+                        Label("Start recording", systemImage: "record.circle")
+                    }
+                    .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.glassProminent).tint(.red).controlSize(.large)
+                .buttonStyle(.glassProminent).tint(.red).controlSize(.extraLarge)
                 .keyboardShortcut("r", modifiers: .command)
                 .disabled(model.phase == .starting)
-                if model.phase == .starting { ProgressView().controlSize(.small) }
                 Text("Wear headphones, or the call leaks into your microphone.")
                     .font(.callout).foregroundStyle(.secondary)
             }

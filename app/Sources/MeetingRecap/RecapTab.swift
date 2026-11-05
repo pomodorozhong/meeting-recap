@@ -8,7 +8,7 @@ struct RecapTab: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
-                VStack(alignment: .leading, spacing: 18) {
+                VStack(alignment: .leading, spacing: 26) {
                     section("Summary") { ForEach(sample.recap.summary) { item in line(item) } }
                     section("Decisions") { ForEach(sample.recap.decisions) { item in line(item) } }
                     section("Action items") { ForEach(sample.recap.actions) { item in action(item) } }
@@ -35,7 +35,7 @@ struct RecapTab: View {
     }
 
     private func section<Content: View>(_ name: String, @ViewBuilder _ content: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 14) {
             Text(name).font(.title3.weight(.semibold))
             content()
         }
@@ -43,7 +43,7 @@ struct RecapTab: View {
 
     private func line(_ item: RecapItem) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: 6) {
-            Text(item.text).font(.system(.body, design: .serif)).fixedSize(horizontal: false, vertical: true)
+            Text(item.text).font(.system(.body, design: .serif)).lineSpacing(7).fixedSize(horizontal: false, vertical: true)
             chips(item)
             Spacer(minLength: 0)
         }
@@ -62,7 +62,7 @@ struct RecapTab: View {
                 Text(Palette.speakerName(speaker) + ":").foregroundStyle(.secondary)
             }
             Text(item.text).strikethrough(done).foregroundStyle(done ? .secondary : .primary)
-                .fixedSize(horizontal: false, vertical: true)
+                .lineSpacing(7).fixedSize(horizontal: false, vertical: true)
             chips(item)
             if let due = item.due { Text("· \(due)").foregroundStyle(.secondary) }
             Spacer(minLength: 0)

@@ -315,7 +315,8 @@ class Runs(unittest.TestCase):
         self.assertAlmostEqual(data["segments"][1]["words"][0]["start"], offset + 0.1)
         self.assertAlmostEqual(data["segments"][1]["end"], offset + 0.2)
         args = ("run", str(self.audio), str(self.out), "--no-summary")
-        self.assertEqual(self.main(*args, "--asr", "turbo-q4", "--split-digital-pauses"), 1)
+        turbo = ("run", str(self.audio), str(self.root / "turbo-out"), "--no-summary")
+        self.assertEqual(self.main(*turbo, "--asr", "turbo-q4", "--split-digital-pauses"), 0)
         self.assertEqual(self.main(*args, "--split-digital-pauses"), 0)
         self.assertEqual(self.main(*args, "--resume"), 1)
 

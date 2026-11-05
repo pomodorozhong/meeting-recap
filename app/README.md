@@ -42,5 +42,5 @@ Wear headphones, or the other side of the call leaks into the microphone file. T
 
 - Tests pass for the folder rules, the recordings list, silence padding, and both files ending the same length after a dropout.
 - The sample meetings' Audio, Transcript and Recap tabs and the new-meeting setup screen render as intended (screenshots). Not exercised by clicking: choosing a speaker on the unsure line, the check bar's Previous and Next, citation jumps, action checkboxes, Copy and Save, collapsing the list.
-- Not checked: a real recording through ScreenCaptureKit from the app, the permission prompts, the "only this app's audio" filter, the live waveforms, and playback and waveforms of a real recording. Those need a person to record something.
-- The app filter is a text box matched against app names; a picker of running apps is a follow-up.
+- Not checked: a real recording through ScreenCaptureKit from the app, the permission prompts, recording from a single app, the live waveforms, and playback and waveforms of a real recording. Those need a person to record something.
+- The call source is a picker of the apps running now, call apps first. A recording from one app (rather than everything) has not been tried.

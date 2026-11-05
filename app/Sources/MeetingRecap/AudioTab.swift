@@ -9,20 +9,32 @@ struct DraftSetup: View {
     var body: some View {
         @Bindable var model = model
         VStack(alignment: .leading, spacing: 18) {
-            VStack(alignment: .leading, spacing: 14) {
-                Picker("Your microphone", selection: $model.microphone) {
-                    Text("System default").tag(String?.none)
-                    ForEach(model.microphones, id: \.self) { Text($0).tag(String?.some($0)) }
+            VStack(alignment: .leading, spacing: 18) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("You").font(.headline)
+                    Picker("Microphone", selection: $model.microphone) {
+                        Text("System default microphone").tag(String?.none)
+                        ForEach(model.microphones, id: \.self) { Text($0).tag(String?.some($0)) }
+                    }
+                    .labelsHidden()
+                    Text("Your microphone is saved as its own track.").font(.caption).foregroundStyle(.secondary)
                 }
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Call audio from")
-                    TextField("Call audio from", text: $model.appFilter, prompt: Text("All apps"))
-                        .labelsHidden()
-                    Text("Type an app's name, such as Teams or Chrome, to leave out music and alerts.")
+                    Text("The call").font(.headline)
+                    Picker("Record the call from", selection: $model.callApp) {
+                        Text("Everything on this Mac").tag(String?.none)
+                        Divider()
+                        ForEach(model.runningApps) { Text($0.name).tag(String?.some($0.id)) }
+                    }
+                    .labelsHidden()
+                    Text(model.callAppName.map { "Only \($0)'s sound goes in the Call track. Music and alerts from other apps are left out." }
+                         ?? "All sound this Mac plays goes in the Call track, including music and alerts. Pick the app you're calling in to leave those out.")
                         .font(.caption).foregroundStyle(.secondary)
                 }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
             .glassCard()
+            .onAppear { model.refreshApps() }
 
             HStack(spacing: 14) {
                 Button { Task { await model.start() } } label: {

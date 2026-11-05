@@ -14,6 +14,30 @@ enum Selection: Hashable {
     case recording(String)
 }
 
+/// An app that can be picked as the source of the Call track.
+struct AppChoice: Identifiable, Hashable {
+    /// The bundle ID.
+    let id: String
+    let name: String
+
+    /// Apps people take calls in, listed first.
+    private static let callApps = ["teams", "zoom", "meet", "chrome", "slack", "webex", "facetime", "discord", "safari", "firefox", "edge", "arc"]
+
+    static func running() -> [AppChoice] {
+        let own = Bundle.main.bundleIdentifier
+        let apps = NSWorkspace.shared.runningApplications.compactMap { app -> AppChoice? in
+            guard app.activationPolicy == .regular, let id = app.bundleIdentifier, id != own,
+                  let name = app.localizedName else { return nil }
+            return AppChoice(id: id, name: name)
+        }
+        func rank(_ app: AppChoice) -> Int {
+            let key = (app.name + " " + app.id).lowercased()
+            return callApps.firstIndex { key.contains($0) } ?? callApps.count
+        }
+        return Array(Set(apps)).sorted { (rank($0), $0.name.lowercased()) < (rank($1), $1.name.lowercased()) }
+    }
+}
+
 enum DetailTab: String, CaseIterable, Identifiable {
     case audio = "Audio", transcript = "Transcript", recap = "Recap"
     var id: String { rawValue }
@@ -41,8 +65,9 @@ enum DetailTab: String, CaseIterable, Identifiable {
     var tab: DetailTab = .audio
     var draftOpen = false
     var errorMessage: String?
-    /// Capture system audio only from apps matching this text; empty means all system audio.
-    var appFilter = ""
+    /// The bundle ID of the one app whose sound goes in the Call track, or nil for all sound on this Mac.
+    var callApp: String?
+    private(set) var runningApps: [AppChoice] = []
     /// A microphone name, or nil for the system default.
     var microphone: String?
 
@@ -67,7 +92,16 @@ enum DetailTab: String, CaseIterable, Identifiable {
         recordings = RecordingLibrary.list(root: root)
         microphones = CaptureSession.microphoneNames()
         if let microphone, !microphones.contains(microphone) { self.microphone = nil }
+        refreshApps()
     }
+
+    /// The apps running now, call apps first; needs no permission.
+    func refreshApps() {
+        runningApps = AppChoice.running()
+        if let callApp, !runningApps.contains(where: { $0.id == callApp }) { self.callApp = nil }
+    }
+
+    var callAppName: String? { runningApps.first { $0.id == callApp }?.name }
 
     func selectionChanged() {
         if selection != .draft { draftOpen = false }
@@ -128,7 +162,7 @@ enum DetailTab: String, CaseIterable, Identifiable {
             session.onFailure = { [weak self] message in
                 Task { @MainActor in await self?.finish(failure: message) }
             }
-            let apps = appFilter.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+            let apps = callApp.map { [$0] } ?? []
             do {
                 try await session.start(apps: apps, micName: microphone)
             } catch {

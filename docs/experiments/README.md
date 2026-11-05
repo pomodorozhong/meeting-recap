@@ -18,3 +18,4 @@ Each summary is written from [TEMPLATE.md](TEMPLATE.md) and committed **before**
 | 2026-11-02 | [Recap facts and citations on 17 synthetic recordings](2026-11-02-synthetic-collection-recaps.md) | Better transcripts didn't ensure better notes (7/9, 6/9, 6/9 facts); per-segment lines improved citation support |
 | 2026-11-04 | [Recap stage, then whole pipelines, on real calls](2026-11-04-recap-stage-real-calls.md) | Planned |
 | 2026-11-05 | [Turbo through the pause option's acceptance check](2026-11-05-turbo-pause-check.md) | The pipeline reproduced Turbo's split on one generated call (same spans, words and times, 20 edits); the flag now works with Turbo |
+| 2026-11-06 | [Which part of Turbo + Who changed the recap facts](2026-11-06-recap-recognizer-vs-diarizer.md) | Review pending: 12 recaps written, hand grading waiting |

@@ -1,8 +1,8 @@
 # 2026-11-06: which part of Turbo + Who changed the recap facts
 
-**Status:** planned
+**Status:** review pending
 
-**Outcome:** pending
+**Outcome:** pending. The 12 recaps are written and waiting for hand grading; only what can be counted without grading is below.
 
 ## Reproduce
 
@@ -14,7 +14,7 @@
 
 - **It needs:** `FIXTURES`, the verified collection built by [`collection.py`](../../experiments/synthetic-call/README.md#seventeen-recording-collection), and `PAIRS`, a new absolute path outside Git. The script is shared with the test of `--keep-asr-segments` with the defaults (issue #50), which uses the same run and the same grading round.
 - **It writes:** one pipeline output folder per call and setting under `PAIRS`, plus a grading sheet for each call whose recaps are labeled by letter, the key to those letters (`key.json`), and an empty `grades.json`. `--report` writes `report.json` with the counts and, in a verdicts file committed after grading, the grades bound to the hash of each recap.
-- **Takes about:** 30 to 35 minutes for the 15 runs, estimated from the saved timings of earlier runs (47 to 157 s each); the real total goes in Results.
+- **Takes about:** 32 minutes for the 15 runs of the shared batch (the pipeline's own run totals added; they ranged from 48 to 202 s).
 - **By hand:** read each lettered recap in `PAIRS/grading/<call>.md`, fill in `grades.json` for the 12 checks, then run `--report`. The sheet doesn't say which setting made a recap, but the number of transcript lines can give it away, so the grading is blinded only in part.
 - **Expect to differ:** timings, and possibly model text on another machine. On the same machine and code, rerunning a setting that was run before (full Whisper + Sortformer and Turbo + Who on two calls) should give byte-identical text, because decoding is greedy.
 
@@ -49,8 +49,33 @@ All four settings are run again on all three calls in one batch so that the code
 
 ### Changes to the plan
 
-None yet.
+None.
 
 ## Results
 
-Pending.
+The batch ran on 2026-11-06 and wrote all 12 recaps for these four settings. They are not graded yet, so there are no fact counts, and the question above is open.
+
+**Repeats.** The four settings that were graded in the recap facts experiment (full Whisper + Sortformer and Turbo + Who, on onboarding and English audit) produced transcripts and recaps that match the saved ones byte for byte. Turbo + Who on English training matches the saved merged-lines recap too.
+
+**What can be counted without grading.** A **line** is one transcript line the recap can cite. An **uncited item** is a recap item with no valid cited line, and an **invalid citation** is a citation the pipeline removed because it pointed at no transcript line. Lower is better for both.
+
+| Call | Setting | Transcript lines | Uncited items | Invalid citations removed | Run seconds |
+| --- | --- | ---: | ---: | ---: | ---: |
+| Onboarding | full Whisper + Sortformer | 16 | 0 | 0 | 146 |
+| Onboarding | Turbo + Sortformer | 17 | 0 | 0 | 108 |
+| Onboarding | full Whisper + Who | 19 | 0 | 0 | 95 |
+| Onboarding | Turbo + Who | 19 | 0 | 0 | 48 |
+| English audit | full Whisper + Sortformer | 2 | 0 | 0 | 157 |
+| English audit | Turbo + Sortformer | 2 | 21 | 37 | 165 |
+| English audit | full Whisper + Who | 2 | 0 | 0 | 70 |
+| English audit | Turbo + Who | 2 | 21 | 37 | 78 |
+| English training | full Whisper + Sortformer | 22 | 0 | 0 | 174 |
+| English training | Turbo + Sortformer | 22 | 0 | 0 | 202 |
+| English training | full Whisper + Who | 22 | 0 | 0 | 131 |
+| English training | Turbo + Who | 22 | 0 | 0 | 92 |
+
+On English audit, which has one speaker, the diarizer made no difference: each recognizer gave the same recap text with Sortformer and with Who. The 21 uncited items and 37 invalid citations appear with Turbo and not with full Whisper, whichever diarizer is used. That is a property of Turbo's transcript on this call, not of Who. This summary doesn't establish why, because both recognizers' transcripts have two lines.
+
+Run seconds come from one run of each setting and include loading models, so they can't rank the settings precisely.
+
+**Waiting on grading.** For each recap: the 12 facts, which cited lines support them, and the two flags. Counts and the effect on the question go here after grading.

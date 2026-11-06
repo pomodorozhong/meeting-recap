@@ -1,6 +1,6 @@
 # 2026-11-04: recap stage, then whole pipelines, on real calls
 
-**Status:** planned. A screening step against Amie's output comes first; Stage A's decision and Stage B need hand-written answer keys. Stage B's pipelines and rule are fixed, and its recap setting follows from Stage A.
+**Status:** mechanical pass on all 16 calls done (below); grading, screening and the keys are not. A screening step against Amie's output comes first; Stage A's decision and Stage B need hand-written answer keys. Stage B's pipelines and rule are fixed, and its recap setting follows from Stage A.
 
 **Outcome:** pending
 
@@ -113,13 +113,40 @@ The digital-silence pause split, Breeze, the other diarizers, and the action-rec
 
 ## Results
 
-Pending.
+### Mechanical pass on all 16 calls (exploratory, 2026-11-06 to 07)
 
-**Limits.** To be filled in. Known already: the keys are written by one person for a small set of calls, Amie's settings are unknown, and nothing here covers a call in a language or room outside this set.
+Run once on this Mac with `experiments/recap-stage/run.py` (this pull request's code, A0 to A3) on 16 saved real calls of 16 to 154 minutes. Each transcript came from full Whisper with Mandarin declared, Sortformer, word attachment and one line per Whisper segment, then every variant read that same file. This pass measures only whether the recap stage produces valid, citable notes. Nothing was graded for correctness, no answer keys exist yet, and Amie's output was not used. Every call was run with the language declared as Mandarin, whatever its actual language.
+
+| Variant | Valid notes | How the others ended |
+| --- | --- | --- |
+| A0 (baseline) | 3 of 16 | 10 cut off in the merge reply, 2 cut off in a chunk reply, 1 invalid JSON that was not cut off |
+| A0-noise (keys reordered) | 1 of 16 | 12 cut off in a chunk reply, 2 cut off in the merge reply, 1 invalid JSON that was not cut off |
+| A1 (one pass) | 10 of 12 run | 4 not run (prompts of 37,000 to 59,000 tokens, over the 32,000 limit); 2 cut off |
+| A2 (thinking on) | 0 of 16 | all 16 ran out of 16,384 tokens while still reasoning, before any JSON |
+| A3 (rewritten prompt) | 2 of 16 | 12 cut off in the merge reply, 2 cut off in a chunk reply |
+
+- **Cause of most failures:** a reply reaches the 4,096-token output cap, which is about 8,000 characters, and stops partway through its JSON. The merge reply is the usual one, because it must repeat every chunk's items. The cap is the pipeline's own (`MAX_TOKENS` in its summary stage), so the shipped recap would fail the same way on a call that needs a merge. The three baseline successes are the three shortest calls (two or three chunks each); every call of 37 minutes or more failed.
+- **Noise:** a change that shouldn't matter, reordering the schema's keys, moved the baseline from 3 valid to 1 valid, and moved 10 merge-step failures to 12 chunk-step ones. The valid-notes rate is too low for A0-noise to serve as the noise floor the plan's pass rule needs.
+- **Citations on the notes that were valid:** every timestamp matched a transcript line for A0, A0-noise and A3 (0 of 202 items lacked a supporting timestamp, none dropped). A1 had 5 of 245 items with no matching timestamp left, both calls over 76 minutes, and 33 cited timestamps dropped as not matching any line across 5 of its 10 valid calls.
+- **Items per recap:** A1 gave 18 to 34 items per call. The valid chunked recaps, all of the three shortest calls, gave 25 to 49. No comparison of what those items say has been made.
+
+Because most baseline recaps are not valid notes, a comparison of notes against answer keys cannot start from this pass. Only A1 gives notes on most calls, and it cannot run on the longest four.
+
+**Limits.** To be filled in after grading. Known already: the keys are written by one person for a small set of calls, Amie's settings are unknown, and nothing here covers a call in a language or room outside this set. The mechanical pass ran once per variant with greedy decoding, so it shows no spread, and it says nothing about whether valid notes are correct.
 
 ## Runtime and memory
 
-Pending. Per run, from `/usr/bin/time -l` and the recap stage's recorded peak MLX memory.
+**Transcripts (full Whisper + Sortformer, one run per call, `--no-summary`):** 11 to 78 minutes for calls of 16 to 154 minutes, roughly half the call's length. The outer `/usr/bin/time -l` reported a maximum resident size of 1.1 to 3.7 GB, which does not include the model processes' GPU memory. Runs were one after another, with the Mac otherwise in use.
+
+**Recap variants (peak MLX memory, wall time per call):**
+
+| Variant | Peak MLX memory | Time per call |
+| --- | --- | --- |
+| A0, A0-noise, A3 | 6.9 to 8.0 GB, rising with the number of chunks | 1 to 17 minutes |
+| A1 (the 12 calls it ran on) | 7.2 to 9.6 GB, rising with prompt length; the 31,000-token prompt peaked at 9.6 GB | 1.5 to 4 minutes |
+| A2 | 6.9 to 7.0 GB | 8 to 17 minutes, all spent in the failed reasoning |
+
+A1's 9.6 GB peak is above the 9 GB limit the plan sets for A4 models, which the plan measures on the longest call. Whether that limit still fits is for the plan to decide.
 
 ## Decision
 

@@ -10,7 +10,13 @@ This file is the plan, committed before any run. Results and the sections after 
 
 ## Reproduce
 
-Not written yet. The pull request that adds the entry point (a script that reads a fixed labeled transcript and writes one recap per variant) must land before the first run.
+Stage A's entry point is [`experiments/recap-stage/run.py`](../../experiments/recap-stage/run.py). It reads one saved labeled transcript (a JSON list of lines like `[00:01:05] Speaker A: ...`) and writes one recap per variant, with each reply, its timing, peak MLX memory and evidence check in its `run.json`. Variants A0, A0-noise, A1, A2 and A3 are implemented, with the recap model pinned to the pipeline's revision. A4 and A5 are added after the plan's table names the A4 models and Stage A's winners.
+
+```bash
+uv run --project experiments/recap-stage experiments/recap-stage/run.py LABELED_TRANSCRIPT.json OUT_FOLDER
+```
+
+It skips variants that already finished (`--force` reruns them) and refuses an output folder holding recaps of a different transcript. A1 is reported as "not run" when its prompt is over 32,000 tokens (`--max-prompt-tokens`), not shortened. Grading, the screening against Amie and the answer keys are not in the script. Tests, on generated transcripts with a fake model: `tests/experiments/test_recap_stage.py`.
 
 ## Question
 

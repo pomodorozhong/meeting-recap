@@ -1,4 +1,4 @@
-"""Evaluate both raw diarizers and 12 attachments through the review skill on one synthetic case."""
+"""Evaluate both raw diarizers and 18 attachments (three recognizers, two diarizers, three methods) through the review skill on one synthetic case."""
 import argparse
 import hashlib
 import json
@@ -50,9 +50,11 @@ def run(source, result, dataset):
         who_segments = scratch / "who-segments.json"
         who_segments.write_text(json.dumps(who["segments"]))
         breeze = load(result / "breeze.json")
+        turbo = load(result / "turbo.json")
         for name, kind, file, config in (
             ("whisper", "transcript", result / "whisper.json", whisper["model_revision"]),
             ("breeze", "transcript", result / "breeze.json", breeze["model_revision"]),
+            ("turbo", "transcript", result / "turbo.json", turbo["model_revision"]),
             ("sortformer", "segments", result / "sortformer.json", load(result / "weights.json")["sortformer"]),
             ("who", "segments", who_segments, who["model_revision"]),
         ):
@@ -67,7 +69,7 @@ def run(source, result, dataset):
             except ValueError as error:
                 errors[rid] = str(error)
     runs = [parents[d] for d in ("sortformer", "who") if d in parents]
-    for asr in ("whisper", "breeze"):
+    for asr in ("whisper", "breeze", "turbo"):
         for diarizer in ("sortformer", "who"):
             if asr not in parents or diarizer not in parents:
                 continue

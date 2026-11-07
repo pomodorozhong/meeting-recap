@@ -331,6 +331,42 @@
             "turns_recovered": 60,
             "clips": 10,
             "clips_correct": 5
+          },
+          "script-turbo-sortformer-word": {
+            "reference_turns": 72,
+            "turns_recovered": 64,
+            "clips": 10,
+            "clips_correct": 5
+          },
+          "script-turbo-sortformer-seg": {
+            "reference_turns": 72,
+            "turns_recovered": 64,
+            "clips": 10,
+            "clips_correct": 5
+          },
+          "script-turbo-sortformer-line": {
+            "reference_turns": 72,
+            "turns_recovered": 63,
+            "clips": 10,
+            "clips_correct": 4
+          },
+          "script-turbo-who-word": {
+            "reference_turns": 72,
+            "turns_recovered": 63,
+            "clips": 10,
+            "clips_correct": 4
+          },
+          "script-turbo-who-seg": {
+            "reference_turns": 72,
+            "turns_recovered": 63,
+            "clips": 10,
+            "clips_correct": 4
+          },
+          "script-turbo-who-line": {
+            "reference_turns": 72,
+            "turns_recovered": 61,
+            "clips": 10,
+            "clips_correct": 4
           }
         },
         "code": "392dce6fc3f134526bd54d5c7b076b59c14c94a2f91ec7d1c078009bf2626163"
@@ -557,6 +593,42 @@
             "turns_recovered": 12,
             "clips": 2,
             "clips_correct": 2
+          },
+          "handoff-turbo-sortformer-word": {
+            "reference_turns": 12,
+            "turns_recovered": 12,
+            "clips": 2,
+            "clips_correct": 2
+          },
+          "handoff-turbo-sortformer-seg": {
+            "reference_turns": 12,
+            "turns_recovered": 12,
+            "clips": 2,
+            "clips_correct": 2
+          },
+          "handoff-turbo-sortformer-line": {
+            "reference_turns": 12,
+            "turns_recovered": 12,
+            "clips": 2,
+            "clips_correct": 2
+          },
+          "handoff-turbo-who-word": {
+            "reference_turns": 12,
+            "turns_recovered": 12,
+            "clips": 2,
+            "clips_correct": 2
+          },
+          "handoff-turbo-who-seg": {
+            "reference_turns": 12,
+            "turns_recovered": 12,
+            "clips": 2,
+            "clips_correct": 2
+          },
+          "handoff-turbo-who-line": {
+            "reference_turns": 12,
+            "turns_recovered": 12,
+            "clips": 2,
+            "clips_correct": 2
           }
         },
         "code": "392dce6fc3f134526bd54d5c7b076b59c14c94a2f91ec7d1c078009bf2626163"
@@ -763,6 +835,42 @@
           "logistics-breeze-who-line": {
             "reference_turns": 14,
             "turns_recovered": 10,
+            "clips": 2,
+            "clips_correct": 0
+          },
+          "logistics-turbo-sortformer-word": {
+            "reference_turns": 14,
+            "turns_recovered": 14,
+            "clips": 2,
+            "clips_correct": 0
+          },
+          "logistics-turbo-sortformer-seg": {
+            "reference_turns": 14,
+            "turns_recovered": 13,
+            "clips": 2,
+            "clips_correct": 1
+          },
+          "logistics-turbo-sortformer-line": {
+            "reference_turns": 14,
+            "turns_recovered": 12,
+            "clips": 2,
+            "clips_correct": 0
+          },
+          "logistics-turbo-who-word": {
+            "reference_turns": 14,
+            "turns_recovered": 11,
+            "clips": 2,
+            "clips_correct": 0
+          },
+          "logistics-turbo-who-seg": {
+            "reference_turns": 14,
+            "turns_recovered": 11,
+            "clips": 2,
+            "clips_correct": 0
+          },
+          "logistics-turbo-who-line": {
+            "reference_turns": 14,
+            "turns_recovered": 11,
             "clips": 2,
             "clips_correct": 0
           }
@@ -992,6 +1100,42 @@
             "turns_recovered": 2,
             "clips": 2,
             "clips_correct": 0
+          },
+          "stocktake-turbo-sortformer-word": {
+            "reference_turns": 2,
+            "turns_recovered": 2,
+            "clips": 2,
+            "clips_correct": 2
+          },
+          "stocktake-turbo-sortformer-seg": {
+            "reference_turns": 2,
+            "turns_recovered": 2,
+            "clips": 2,
+            "clips_correct": 2
+          },
+          "stocktake-turbo-sortformer-line": {
+            "reference_turns": 2,
+            "turns_recovered": 2,
+            "clips": 2,
+            "clips_correct": 2
+          },
+          "stocktake-turbo-who-word": {
+            "reference_turns": 2,
+            "turns_recovered": 2,
+            "clips": 2,
+            "clips_correct": 0
+          },
+          "stocktake-turbo-who-seg": {
+            "reference_turns": 2,
+            "turns_recovered": 2,
+            "clips": 2,
+            "clips_correct": 2
+          },
+          "stocktake-turbo-who-line": {
+            "reference_turns": 2,
+            "turns_recovered": 2,
+            "clips": 2,
+            "clips_correct": 2
           }
         },
         "code": "392dce6fc3f134526bd54d5c7b076b59c14c94a2f91ec7d1c078009bf2626163"
@@ -1200,6 +1344,42 @@
             "turns_recovered": 12,
             "clips": 2,
             "clips_correct": 2
+          },
+          "scheduling-turbo-sortformer-word": {
+            "reference_turns": 12,
+            "turns_recovered": 12,
+            "clips": 2,
+            "clips_correct": 1
+          },
+          "scheduling-turbo-sortformer-seg": {
+            "reference_turns": 12,
+            "turns_recovered": 12,
+            "clips": 2,
+            "clips_correct": 2
+          },
+          "scheduling-turbo-sortformer-line": {
+            "reference_turns": 12,
+            "turns_recovered": 12,
+            "clips": 2,
+            "clips_correct": 2
+          },
+          "scheduling-turbo-who-word": {
+            "reference_turns": 12,
+            "turns_recovered": 12,
+            "clips": 2,
+            "clips_correct": 2
+          },
+          "scheduling-turbo-who-seg": {
+            "reference_turns": 12,
+            "turns_recovered": 12,
+            "clips": 2,
+            "clips_correct": 2
+          },
+          "scheduling-turbo-who-line": {
+            "reference_turns": 12,
+            "turns_recovered": 12,
+            "clips": 2,
+            "clips_correct": 2
           }
         },
         "code": "392dce6fc3f134526bd54d5c7b076b59c14c94a2f91ec7d1c078009bf2626163"
@@ -1404,6 +1584,42 @@
             "clips_correct": 3
           },
           "design-breeze-who-line": {
+            "reference_turns": 15,
+            "turns_recovered": 15,
+            "clips": 3,
+            "clips_correct": 3
+          },
+          "design-turbo-sortformer-word": {
+            "reference_turns": 15,
+            "turns_recovered": 15,
+            "clips": 3,
+            "clips_correct": 2
+          },
+          "design-turbo-sortformer-seg": {
+            "reference_turns": 15,
+            "turns_recovered": 15,
+            "clips": 3,
+            "clips_correct": 2
+          },
+          "design-turbo-sortformer-line": {
+            "reference_turns": 15,
+            "turns_recovered": 15,
+            "clips": 3,
+            "clips_correct": 3
+          },
+          "design-turbo-who-word": {
+            "reference_turns": 15,
+            "turns_recovered": 15,
+            "clips": 3,
+            "clips_correct": 3
+          },
+          "design-turbo-who-seg": {
+            "reference_turns": 15,
+            "turns_recovered": 15,
+            "clips": 3,
+            "clips_correct": 3
+          },
+          "design-turbo-who-line": {
             "reference_turns": 15,
             "turns_recovered": 15,
             "clips": 3,
@@ -1697,6 +1913,42 @@
             "clips_correct": 0
           },
           "onboarding-breeze-who-line": {
+            "reference_turns": 16,
+            "turns_recovered": 12,
+            "clips": 3,
+            "clips_correct": 0
+          },
+          "onboarding-turbo-sortformer-word": {
+            "reference_turns": 16,
+            "turns_recovered": 16,
+            "clips": 3,
+            "clips_correct": 3
+          },
+          "onboarding-turbo-sortformer-seg": {
+            "reference_turns": 16,
+            "turns_recovered": 16,
+            "clips": 3,
+            "clips_correct": 3
+          },
+          "onboarding-turbo-sortformer-line": {
+            "reference_turns": 16,
+            "turns_recovered": 16,
+            "clips": 3,
+            "clips_correct": 3
+          },
+          "onboarding-turbo-who-word": {
+            "reference_turns": 16,
+            "turns_recovered": 13,
+            "clips": 3,
+            "clips_correct": 0
+          },
+          "onboarding-turbo-who-seg": {
+            "reference_turns": 16,
+            "turns_recovered": 12,
+            "clips": 3,
+            "clips_correct": 0
+          },
+          "onboarding-turbo-who-line": {
             "reference_turns": 16,
             "turns_recovered": 12,
             "clips": 3,
@@ -2016,6 +2268,42 @@
             "turns_recovered": 15,
             "clips": 3,
             "clips_correct": 3
+          },
+          "localization-turbo-sortformer-word": {
+            "reference_turns": 15,
+            "turns_recovered": 15,
+            "clips": 3,
+            "clips_correct": 2
+          },
+          "localization-turbo-sortformer-seg": {
+            "reference_turns": 15,
+            "turns_recovered": 15,
+            "clips": 3,
+            "clips_correct": 2
+          },
+          "localization-turbo-sortformer-line": {
+            "reference_turns": 15,
+            "turns_recovered": 15,
+            "clips": 3,
+            "clips_correct": 2
+          },
+          "localization-turbo-who-word": {
+            "reference_turns": 15,
+            "turns_recovered": 15,
+            "clips": 3,
+            "clips_correct": 3
+          },
+          "localization-turbo-who-seg": {
+            "reference_turns": 15,
+            "turns_recovered": 15,
+            "clips": 3,
+            "clips_correct": 3
+          },
+          "localization-turbo-who-line": {
+            "reference_turns": 15,
+            "turns_recovered": 15,
+            "clips": 3,
+            "clips_correct": 3
           }
         },
         "code": "392dce6fc3f134526bd54d5c7b076b59c14c94a2f91ec7d1c078009bf2626163"
@@ -2246,6 +2534,42 @@
             "clips_correct": 5
           },
           "english-audit-breeze-who-line": {
+            "reference_turns": 5,
+            "turns_recovered": 5,
+            "clips": 5,
+            "clips_correct": 5
+          },
+          "english-audit-turbo-sortformer-word": {
+            "reference_turns": 5,
+            "turns_recovered": 5,
+            "clips": 5,
+            "clips_correct": 5
+          },
+          "english-audit-turbo-sortformer-seg": {
+            "reference_turns": 5,
+            "turns_recovered": 5,
+            "clips": 5,
+            "clips_correct": 5
+          },
+          "english-audit-turbo-sortformer-line": {
+            "reference_turns": 5,
+            "turns_recovered": 5,
+            "clips": 5,
+            "clips_correct": 5
+          },
+          "english-audit-turbo-who-word": {
+            "reference_turns": 5,
+            "turns_recovered": 5,
+            "clips": 5,
+            "clips_correct": 5
+          },
+          "english-audit-turbo-who-seg": {
+            "reference_turns": 5,
+            "turns_recovered": 5,
+            "clips": 5,
+            "clips_correct": 5
+          },
+          "english-audit-turbo-who-line": {
             "reference_turns": 5,
             "turns_recovered": 5,
             "clips": 5,
@@ -2539,6 +2863,42 @@
             "turns_recovered": 17,
             "clips": 6,
             "clips_correct": 2
+          },
+          "english-handoff-turbo-sortformer-word": {
+            "reference_turns": 20,
+            "turns_recovered": 20,
+            "clips": 6,
+            "clips_correct": 6
+          },
+          "english-handoff-turbo-sortformer-seg": {
+            "reference_turns": 20,
+            "turns_recovered": 20,
+            "clips": 6,
+            "clips_correct": 5
+          },
+          "english-handoff-turbo-sortformer-line": {
+            "reference_turns": 20,
+            "turns_recovered": 20,
+            "clips": 6,
+            "clips_correct": 5
+          },
+          "english-handoff-turbo-who-word": {
+            "reference_turns": 20,
+            "turns_recovered": 20,
+            "clips": 6,
+            "clips_correct": 6
+          },
+          "english-handoff-turbo-who-seg": {
+            "reference_turns": 20,
+            "turns_recovered": 20,
+            "clips": 6,
+            "clips_correct": 5
+          },
+          "english-handoff-turbo-who-line": {
+            "reference_turns": 20,
+            "turns_recovered": 20,
+            "clips": 6,
+            "clips_correct": 5
           }
         },
         "code": "392dce6fc3f134526bd54d5c7b076b59c14c94a2f91ec7d1c078009bf2626163"
@@ -2754,6 +3114,42 @@
             "turns_recovered": 19,
             "clips": 5,
             "clips_correct": 3
+          },
+          "english-design-turbo-sortformer-word": {
+            "reference_turns": 20,
+            "turns_recovered": 20,
+            "clips": 5,
+            "clips_correct": 4
+          },
+          "english-design-turbo-sortformer-seg": {
+            "reference_turns": 20,
+            "turns_recovered": 20,
+            "clips": 5,
+            "clips_correct": 5
+          },
+          "english-design-turbo-sortformer-line": {
+            "reference_turns": 20,
+            "turns_recovered": 20,
+            "clips": 5,
+            "clips_correct": 5
+          },
+          "english-design-turbo-who-word": {
+            "reference_turns": 20,
+            "turns_recovered": 20,
+            "clips": 5,
+            "clips_correct": 5
+          },
+          "english-design-turbo-who-seg": {
+            "reference_turns": 20,
+            "turns_recovered": 20,
+            "clips": 5,
+            "clips_correct": 5
+          },
+          "english-design-turbo-who-line": {
+            "reference_turns": 20,
+            "turns_recovered": 20,
+            "clips": 5,
+            "clips_correct": 5
           }
         },
         "code": "392dce6fc3f134526bd54d5c7b076b59c14c94a2f91ec7d1c078009bf2626163"
@@ -3024,6 +3420,42 @@
           "english-tabletop-breeze-who-line": {
             "reference_turns": 24,
             "turns_recovered": 18,
+            "clips": 6,
+            "clips_correct": 1
+          },
+          "english-tabletop-turbo-sortformer-word": {
+            "reference_turns": 24,
+            "turns_recovered": 24,
+            "clips": 6,
+            "clips_correct": 3
+          },
+          "english-tabletop-turbo-sortformer-seg": {
+            "reference_turns": 24,
+            "turns_recovered": 24,
+            "clips": 6,
+            "clips_correct": 2
+          },
+          "english-tabletop-turbo-sortformer-line": {
+            "reference_turns": 24,
+            "turns_recovered": 24,
+            "clips": 6,
+            "clips_correct": 2
+          },
+          "english-tabletop-turbo-who-word": {
+            "reference_turns": 24,
+            "turns_recovered": 21,
+            "clips": 6,
+            "clips_correct": 4
+          },
+          "english-tabletop-turbo-who-seg": {
+            "reference_turns": 24,
+            "turns_recovered": 21,
+            "clips": 6,
+            "clips_correct": 1
+          },
+          "english-tabletop-turbo-who-line": {
+            "reference_turns": 24,
+            "turns_recovered": 21,
             "clips": 6,
             "clips_correct": 1
           }
@@ -3307,6 +3739,42 @@
             "turns_recovered": 20,
             "clips": 6,
             "clips_correct": 3
+          },
+          "english-committee-turbo-sortformer-word": {
+            "reference_turns": 21,
+            "turns_recovered": 20,
+            "clips": 6,
+            "clips_correct": 4
+          },
+          "english-committee-turbo-sortformer-seg": {
+            "reference_turns": 21,
+            "turns_recovered": 20,
+            "clips": 6,
+            "clips_correct": 5
+          },
+          "english-committee-turbo-sortformer-line": {
+            "reference_turns": 21,
+            "turns_recovered": 20,
+            "clips": 6,
+            "clips_correct": 5
+          },
+          "english-committee-turbo-who-word": {
+            "reference_turns": 21,
+            "turns_recovered": 21,
+            "clips": 6,
+            "clips_correct": 6
+          },
+          "english-committee-turbo-who-seg": {
+            "reference_turns": 21,
+            "turns_recovered": 21,
+            "clips": 6,
+            "clips_correct": 6
+          },
+          "english-committee-turbo-who-line": {
+            "reference_turns": 21,
+            "turns_recovered": 21,
+            "clips": 6,
+            "clips_correct": 6
           }
         },
         "code": "392dce6fc3f134526bd54d5c7b076b59c14c94a2f91ec7d1c078009bf2626163"
@@ -3533,6 +4001,42 @@
             "turns_recovered": 20,
             "clips": 6,
             "clips_correct": 1
+          },
+          "english-training-turbo-sortformer-word": {
+            "reference_turns": 22,
+            "turns_recovered": 22,
+            "clips": 6,
+            "clips_correct": 6
+          },
+          "english-training-turbo-sortformer-seg": {
+            "reference_turns": 22,
+            "turns_recovered": 22,
+            "clips": 6,
+            "clips_correct": 6
+          },
+          "english-training-turbo-sortformer-line": {
+            "reference_turns": 22,
+            "turns_recovered": 22,
+            "clips": 6,
+            "clips_correct": 6
+          },
+          "english-training-turbo-who-word": {
+            "reference_turns": 22,
+            "turns_recovered": 22,
+            "clips": 6,
+            "clips_correct": 6
+          },
+          "english-training-turbo-who-seg": {
+            "reference_turns": 22,
+            "turns_recovered": 22,
+            "clips": 6,
+            "clips_correct": 6
+          },
+          "english-training-turbo-who-line": {
+            "reference_turns": 22,
+            "turns_recovered": 22,
+            "clips": 6,
+            "clips_correct": 6
           }
         },
         "code": "392dce6fc3f134526bd54d5c7b076b59c14c94a2f91ec7d1c078009bf2626163"
@@ -3759,6 +4263,42 @@
             "turns_recovered": 12,
             "clips": 2,
             "clips_correct": 2
+          },
+          "handoff-channel-turbo-sortformer-word": {
+            "reference_turns": 12,
+            "turns_recovered": 12,
+            "clips": 2,
+            "clips_correct": 2
+          },
+          "handoff-channel-turbo-sortformer-seg": {
+            "reference_turns": 12,
+            "turns_recovered": 12,
+            "clips": 2,
+            "clips_correct": 2
+          },
+          "handoff-channel-turbo-sortformer-line": {
+            "reference_turns": 12,
+            "turns_recovered": 12,
+            "clips": 2,
+            "clips_correct": 2
+          },
+          "handoff-channel-turbo-who-word": {
+            "reference_turns": 12,
+            "turns_recovered": 12,
+            "clips": 2,
+            "clips_correct": 2
+          },
+          "handoff-channel-turbo-who-seg": {
+            "reference_turns": 12,
+            "turns_recovered": 12,
+            "clips": 2,
+            "clips_correct": 2
+          },
+          "handoff-channel-turbo-who-line": {
+            "reference_turns": 12,
+            "turns_recovered": 12,
+            "clips": 2,
+            "clips_correct": 2
           }
         },
         "code": "392dce6fc3f134526bd54d5c7b076b59c14c94a2f91ec7d1c078009bf2626163"
@@ -3963,6 +4503,42 @@
             "clips_correct": 2
           },
           "logistics-overlap-breeze-who-line": {
+            "reference_turns": 14,
+            "turns_recovered": 14,
+            "clips": 2,
+            "clips_correct": 2
+          },
+          "logistics-overlap-turbo-sortformer-word": {
+            "reference_turns": 14,
+            "turns_recovered": 13,
+            "clips": 2,
+            "clips_correct": 1
+          },
+          "logistics-overlap-turbo-sortformer-seg": {
+            "reference_turns": 14,
+            "turns_recovered": 12,
+            "clips": 2,
+            "clips_correct": 1
+          },
+          "logistics-overlap-turbo-sortformer-line": {
+            "reference_turns": 14,
+            "turns_recovered": 12,
+            "clips": 2,
+            "clips_correct": 1
+          },
+          "logistics-overlap-turbo-who-word": {
+            "reference_turns": 14,
+            "turns_recovered": 14,
+            "clips": 2,
+            "clips_correct": 2
+          },
+          "logistics-overlap-turbo-who-seg": {
+            "reference_turns": 14,
+            "turns_recovered": 14,
+            "clips": 2,
+            "clips_correct": 2
+          },
+          "logistics-overlap-turbo-who-line": {
             "reference_turns": 14,
             "turns_recovered": 14,
             "clips": 2,

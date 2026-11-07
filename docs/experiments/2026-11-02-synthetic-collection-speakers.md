@@ -2,7 +2,7 @@
 
 **Status:** complete
 
-**Outcome:** Who took about 95× less total time than Sortformer and had lower error on one to three voices, but merged speakers on all three clean four-person calls, and beat Sortformer on the four-person overlap mix. Word-level attachment recovered the most turns. Sortformer and word attachment stay the default. Who is offered when speed matters more than speaker accuracy, especially with one to three speakers.
+**Outcome:** Who took about 95× less total time than Sortformer and had lower error on one to three voices, but merged speakers on all three clean four-person calls, and beat Sortformer on the four-person overlap mix. Word-level attachment recovered the most turns with full Whisper, Breeze and Turbo, though with Turbo the margin over the other methods is one to three turns of 270. Sortformer and word attachment stay the default. Who is offered when speed matters more than speaker accuracy, especially with one to three speakers.
 
 ## Reproduce
 
@@ -13,7 +13,7 @@
 | Rerun this summary's steps | `--step decode` on a new `RESULTS` first, because `diarize` and `turns` read its output; then `experiments/synthetic-call/collection_run.sh "$FIXTURES" "$RESULTS" --step diarize`, then `--step turns` |
 | Check saved results without models | `uv run --project experiments/synthetic-call experiments/synthetic-call/collection_scores.py "$FIXTURES" "$RESULTS" > scores.json` |
 
-- **It needs:** `FIXTURES`, the verified collection built by [`collection.py`](../../experiments/synthetic-call/README.md#seventeen-recording-collection), and `RESULTS`, a new absolute path outside Git. `diarize` needs the converted audio and input digests from `decode`. `turns` also needs the full Whisper and Breeze outputs from `decode`, and the Who and Sortformer outputs from `diarize`. A step started without them stops before running any model and names the missing file and the step that writes it.
+- **It needs:** `FIXTURES`, the verified collection built by [`collection.py`](../../experiments/synthetic-call/README.md#seventeen-recording-collection), and `RESULTS`, a new absolute path outside Git. `diarize` needs the converted audio and input digests from `decode`. `turns` also needs the full Whisper, Breeze and Turbo outputs from `decode`, and the Who and Sortformer outputs from `diarize`. A step started without them stops before running any model and names the missing file and the step that writes it.
 - **It writes:** every model output under `RESULTS`, with the measurements in `RESULTS/scores.json`. This is one run shared by [several summaries](../../experiments/synthetic-call/README.md#compare-the-pipeline-on-this-collection), so the scorer needs every step's outputs. [The saved measurements](2026-11-02-synthetic-collection-results.json) are the committed copy.
 - **Takes about:** 16 minutes for `diarize`, in the saved timings; `turns` wasn't timed. The whole run takes about 54 minutes of timed steps, and a full run on a new folder on 2026-11-06 took about 66 minutes with `turns` and `replays`.
 - **By hand:** nothing for this summary.
@@ -48,6 +48,8 @@ Speaker-time error is one-to-one, with overlap and no collar, meaning no toleran
 On the unmerged branch `codex/expanded-call-benchmark`, the criteria were committed in `e5f17b3`, before `e5a2db9`, the first commit that recorded speaker results. Git shows when text was committed, not when a run happened, so this doesn't show that the criteria came before the runs. Their wording was later edited to read against `main`; no threshold or rule changed.
 
 A speaker-count correction was committed in `f62eb98`, also before any speaker result was recorded: the English committee script has **three** voices, so it keeps its actual count in the known-count condition, and the four-voice English tabletop was added so a four-voice English test is present. This follows fixture metadata, not predictions.
+
+**Turbo added to the attachment evaluation (2026-11-06, [#49](https://github.com/pomodorozhong/meeting-recap/issues/49)).** The original evaluation attached only full Whisper's and Breeze's text. Turbo was added after those results were known, because decisions 12 and 13 offer Turbo and keep word attachment as the default without a Turbo measurement of it. It uses the same saved Turbo and diarizer outputs, the same evaluator and the same 30-second windows, with no new model run. Nothing was decided in advance about what Turbo's rows should show, and the full Whisper and Breeze rows are unchanged.
 
 On 2026-11-03, after the runs, this summary was split out of one write-up covering every question, so that each question has its own summary and decision. No result changed. Nothing was rerun for the split.
 
@@ -86,6 +88,12 @@ The skill evaluated 16 non-silent recorded mixes, with no excluded clips. A turn
 | Full Whisper + Sortformer, whole clips | **47** | 43 | 40 | 61 |
 | Full Whisper + Who, turns | 250 | 244 | 243 | 270 |
 | Full Whisper + Who, whole clips | 46 | 41 | 40 | 61 |
+| Turbo + Sortformer, turns | **261** | 260 | 258 | 270 |
+| Turbo + Sortformer, whole clips | 45 | **47** | 46 | 61 |
+| Turbo + Who, turns | **252** | 251 | 249 | 270 |
+| Turbo + Who, whole clips | **46** | 44 | 44 | 61 |
+
+With Turbo, word attachment again recovered the most turns with either diarizer, but only by 1 to 3 turns of 270, so this doesn't separate the methods the way full Whisper's 4 to 7 turns do. On whole clips, segment attachment with Sortformer was best (47 against 45 for word attachment), a gap of two clips out of 61. The Turbo rows don't show whether either gap would hold on other calls. On the 2026-11-06 rerun, run on that folder's own outputs, every Turbo row matched except line-end attachment with Sortformer on the English tabletop call, which recovered 22 of 24 turns instead of 24 (the same row for full Whisper moved the same way). That would put Turbo + Sortformer line-end at 256 and full Whisper + Sortformer line-end at 250 of 270; the cause was not investigated. The same Turbo text also recovered more turns than full Whisper's with each diarizer (261 against 258 with Sortformer, 252 against 250 with Who, using word attachment).
 
 For Breeze, the skill refused word-level attachment on three English recordings, with each diarizer, because Breeze's output had text but no word timestamps. Comparing like with like on the other 11 scripts, word, segment and line-end attachment recovered 192, 191 and 189 of 204 turns with Sortformer, and 185, 185 and 182 with Who.
 
@@ -101,7 +109,7 @@ Across all 17 standalone diarizer runs, Who took 9.34 s in total (median 0.57 s;
 
 ## Decision
 
-Keep Sortformer with word-level attachment as the default. Offer Who when speed matters more than speaker accuracy, especially with one to three speakers. Who's merged speakers on clean four-person calls decided this, despite its speed and lower error on fewer voices.
+Keep Sortformer with word-level attachment as the default, for Turbo as well as full Whisper. Turbo's rows were added after the original decision and leave it unchanged: word attachment still recovered the most turns with Turbo, and its two-clip loss to segment attachment on whole clips with Sortformer is too small to justify a different default. Offer Who when speed matters more than speaker accuracy, especially with one to three speakers. Who's merged speakers on clean four-person calls decided this, despite its speed and lower error on fewer voices.
 
 Editing `speakers.json` can't undo that failure, because it can merge labels but not split one. If a run shows fewer labels than the people who spoke, rerun with Sortformer. A matching count doesn't prove the labels are right: on the four-person overlap mix, both diarizers found four labels and still had 13.6% and 20.4% speaker-time error. This count check follows from these results, but wasn't tested as a procedure. See decision 13.
 

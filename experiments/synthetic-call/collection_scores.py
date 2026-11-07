@@ -1,6 +1,7 @@
 """Score the registered 17-file matrix; emits only hashes, counts, timings and fitted label metrics."""
 import argparse
 import contextlib
+import hashlib
 from collections import Counter, defaultdict
 from importlib.metadata import version
 import json
@@ -88,6 +89,59 @@ def pipeline_timing(case, arm):
     stages = load(case / arm / "stages.json")
     stats["peak_stage_footprint_bytes"] = max(v.get("peak_footprint_bytes", 0) for v in stages.values())
     return stats
+
+
+TOLERANCE_SECONDS = 0.001
+# Folders written by the `replays` step: (case, key in the results file, folder, merged lines or segmented).
+LINE_FOLDERS = (("english-audit", "merged_lines", "fast"), ("english-audit", "segment_lines", "segment-lines"),
+                ("onboarding", "merged_lines", "fast"), ("onboarding", "segment_lines", "segment-lines"),
+                ("english-training", "merged_lines", "original-lines"),
+                ("english-training", "segment_lines", "segment-lines"))
+
+
+def lines_row(folder):
+    """Counts and digests of one transcript-line layout; no transcript text."""
+    row = {"transcript_lines": len(load(folder / "turns.json")), "turns_sha256": digest(folder / "turns.json"),
+           "transcript_sha256": digest(folder / "transcript.md")}
+    if (folder / "summary.json").exists():
+        checks = load(folder / "summary.json")["checks"]
+        row.update(invalid_citations_removed=checks["evidence_dropped"],
+                   items_without_evidence=checks["items_without_evidence"],
+                   summary_md_sha256=digest(folder / "summary.md"))
+    return row
+
+
+def word_list(asr):
+    return [(w["word"], w["start"], w["end"]) for s in asr["segments"] for w in s.get("words", [])]
+
+
+def pause_row(case, reference, normalize, saved_split_errors):
+    """Compare the pause option's pipeline run with the experiment's split of the same recording."""
+    folder = case / "pause-pipeline"
+    asr, saved = load(folder / "asr.json"), load(case / "split/whisper.json")
+    saved_spans = load(case / "split/spans.json")
+    got, want = word_list(asr), word_list(saved)
+    same_length = len(got) == len(want)
+    gaps = [max(abs(a[1] - b[1]), abs(a[2] - b[2])) for a, b in zip(got, want)]
+    edits = edit_distance(reference, normalize(asr["text"]))
+    pause_start = saved_spans[0][1] / 16000
+    return {
+        "provenance_matches": (asr["model"], asr["model_revision"]) == MODELS["whisper"],
+        "spans_samples": asr["spans_samples"],
+        "words": len(got), "saved_split_words": len(want),
+        "words_after_pause": sum(w[1] >= pause_start for w in got),
+        "edits": edits, "saved_split_edits": saved_split_errors,
+        "words_sha256": hashlib.sha256(json.dumps([[w, round(a, 3), round(b, 3)] for w, a, b in got],
+                                                  ensure_ascii=False).encode()).hexdigest(),
+        "acceptance": {
+            "same_edits": edits == saved_split_errors,
+            "same_spans": asr["spans_samples"] == [list(x) for x in saved_spans],
+            "same_words": same_length and [w[0] for w in got] == [w[0] for w in want],
+            "word_times_within_1ms": same_length and all(g <= TOLERANCE_SECONDS for g in gaps),
+            "largest_word_time_difference_seconds": max(gaps, default=0.0),
+        },
+        **lines_row(folder), "pipeline_seconds": load(folder / "stages.json")["total"]["seconds"],
+    }
 
 
 def aggregate(report):
@@ -188,6 +242,15 @@ def score(fixtures, results):
             row["recap"]["pipeline"]["stages"] = {
                 k: {m:v[m] for m in ("seconds","peak_footprint_bytes") if m in v}
                 for k,v in load(case / "pipeline/stages.json").items()}
+        replay = {key: lines_row(case / folder) for case_name, key, folder in LINE_FOLDERS if case_name == name}
+        if name == "onboarding":
+            replay["pause_pipeline"] = pause_row(case, reference, normalize[lang], row["asr"]["whisper"]["split_errors"])
+        if name == "english-audit":
+            replay["segment_pipeline"] = lines_row(case / "segment-pipeline")
+            replay["segment_pipeline"]["same_turns_as_segment_lines"] = (
+                replay["segment_pipeline"]["turns_sha256"] == replay["segment_lines"]["turns_sha256"])
+        if replay:
+            row["replays"] = replay
         if name == "silence":
             silent = case / "pipeline"
             if (load(silent / "asr.json")["skipped"] != "digital_silence"

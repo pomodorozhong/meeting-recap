@@ -1763,6 +1763,54 @@
             "items_without_evidence": 0
           }
         }
+      },
+      "replays": {
+        "merged_lines": {
+          "transcript_lines": 19,
+          "turns_sha256": "043b0207434c59cce2be4501ab1583c3daaf8aff6d82646faee69d03f23adc00",
+          "transcript_sha256": "ddf1f2b326fc2df095cd163b782e73f00ef8b5c0d686ad10518c7488ecbba187",
+          "invalid_citations_removed": 0,
+          "items_without_evidence": 0,
+          "summary_md_sha256": "8772e5c58aa9f7da4462600338a918d7a576a9612a4c3be5852c1f1548e1620d"
+        },
+        "segment_lines": {
+          "transcript_lines": 46,
+          "turns_sha256": "c1b7a5b452fe5750ae28d2c549c8254837b84bff84ef7cc98f0095b0839bfc7f",
+          "transcript_sha256": "838f1dfac6cd699fa05297548b8b521d0ac9b44a59b473c74d207bd74caf1d41",
+          "invalid_citations_removed": 0,
+          "items_without_evidence": 0,
+          "summary_md_sha256": "a883e6a7a402862c0094ebc848808c6e0974d753c864ae0ee2fcd6fbaa11c8de"
+        },
+        "pause_pipeline": {
+          "provenance_matches": true,
+          "spans_samples": [
+            [
+              0,
+              884278
+            ],
+            [
+              1069504,
+              1594032
+            ]
+          ],
+          "words": 274,
+          "saved_split_words": 274,
+          "words_after_pause": 105,
+          "edits": 11,
+          "saved_split_edits": 11,
+          "words_sha256": "a9360121bf910ef3edc6dfe06a46b5aadecff4a3fc5f8a6ff9b616c9555c3a34",
+          "acceptance": {
+            "same_edits": true,
+            "same_spans": true,
+            "same_words": true,
+            "word_times_within_1ms": true,
+            "largest_word_time_difference_seconds": 0.0
+          },
+          "transcript_lines": 17,
+          "turns_sha256": "553da4acddd85d014d8a5e8d0f727a462dfe5d499a9b287314419182697434ac",
+          "transcript_sha256": "96b02b9d933a0ce92adabbdf89d15f05c3b6e47107695abd6235d98f1c7c92d5",
+          "pipeline_seconds": 21.45
+        }
       }
     },
     "localization": {
@@ -2263,6 +2311,30 @@
             "evidence_dropped": 37,
             "items_without_evidence": 21
           }
+        }
+      },
+      "replays": {
+        "merged_lines": {
+          "transcript_lines": 2,
+          "turns_sha256": "4f8702987a215cb8c475973ef54fd1e4cf379d7fca3416c964b0279c399f57fc",
+          "transcript_sha256": "c8eddfa3ca55661b5abb73fc27742587f5d4ff4d21d4a76c55107293cb69e61b",
+          "invalid_citations_removed": 37,
+          "items_without_evidence": 21,
+          "summary_md_sha256": "e50a0712e201f59a5e4cd51683b84a91350244982e61c6dc13c560c111d45cad"
+        },
+        "segment_lines": {
+          "transcript_lines": 21,
+          "turns_sha256": "85dd15054102c6e62e0109a505a8949e0b194ed02413846f9d3f3be91448c36f",
+          "transcript_sha256": "eff61807c2b9d96da880b5bd6ee5a9a422021f1b4fbc09affa587c94bb3b5b8a",
+          "invalid_citations_removed": 0,
+          "items_without_evidence": 0,
+          "summary_md_sha256": "2fe5b0751ced9801c9c66f907b6f7b515bcb54d0d2360c004a1111cf931922a8"
+        },
+        "segment_pipeline": {
+          "transcript_lines": 21,
+          "turns_sha256": "85dd15054102c6e62e0109a505a8949e0b194ed02413846f9d3f3be91448c36f",
+          "transcript_sha256": "eff61807c2b9d96da880b5bd6ee5a9a422021f1b4fbc09affa587c94bb3b5b8a",
+          "same_turns_as_segment_lines": true
         }
       }
     },
@@ -3464,6 +3536,24 @@
           }
         },
         "code": "392dce6fc3f134526bd54d5c7b076b59c14c94a2f91ec7d1c078009bf2626163"
+      },
+      "replays": {
+        "merged_lines": {
+          "transcript_lines": 22,
+          "turns_sha256": "31e896bd905cae8ad7f761a26958b9b3d42a02ae33e7de4b26f89f9c505038ce",
+          "transcript_sha256": "55e935bc51ac66f2ff5f56dc3181ebad2af1b171a9f494c6bfe43be32c8f43e5",
+          "invalid_citations_removed": 0,
+          "items_without_evidence": 0,
+          "summary_md_sha256": "d2aae0834bf9d3397bf66eaf27a6db3a7d0cec97f13096abf7223c4182c072e6"
+        },
+        "segment_lines": {
+          "transcript_lines": 48,
+          "turns_sha256": "52a437cc059ddee694b7324c1c257f47c2f5999cbfa062e3ecc5d84dd0db9f4b",
+          "transcript_sha256": "97d0bd42fa0fc6968eba927b57c62944e9e01853aa9853b170bb3a758db598d4",
+          "invalid_citations_removed": 0,
+          "items_without_evidence": 0,
+          "summary_md_sha256": "2f8023a34aec57f101856eb47358311cc3eea3b8ad9c6b0a2dc3746c9bd8e41f"
+        }
       }
     },
     "handoff-channel": {

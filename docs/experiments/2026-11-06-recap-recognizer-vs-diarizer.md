@@ -10,12 +10,13 @@
 | --- | --- |
 | Set up once (needs the network) | `experiments/synthetic-call/collection_setup.sh` |
 | Run everything up to the hand grading | `uv run --project experiments/synthetic-call experiments/synthetic-call/collection_recap_pairs.py "$FIXTURES" "$PAIRS"` |
+| Grade in the browser (a local page on 127.0.0.1) | `uv run --project experiments/synthetic-call experiments/synthetic-call/collection_recap_pairs.py "$FIXTURES" "$PAIRS" --serve`, then open the URL it prints |
 | Count the grades once filled in | `uv run --project experiments/synthetic-call experiments/synthetic-call/collection_recap_pairs.py "$FIXTURES" "$PAIRS" --report` |
 
 - **It needs:** `FIXTURES`, the verified collection built by [`collection.py`](../../experiments/synthetic-call/README.md#seventeen-recording-collection), and `PAIRS`, a new absolute path outside Git. The script is shared with the test of `--keep-asr-segments` with the defaults (issue #50), which uses the same run and the same grading round.
 - **It writes:** one pipeline output folder per call and setting under `PAIRS`, plus a grading sheet for each call whose recaps are labeled by letter, the key to those letters (`key.json`), and an empty `grades.json`. `--report` writes `report.json` with the counts and, in a verdicts file committed after grading, the grades bound to the hash of each recap.
 - **Takes about:** 32 minutes for the 15 runs of the shared batch (the pipeline's own run totals added; they ranged from 48 to 202 s).
-- **By hand:** read each lettered recap in `PAIRS/grading/<call>.md`, fill in `grades.json` for the 12 checks, then run `--report`. The sheet doesn't say which setting made a recap, but the number of transcript lines can give it away, so the grading is blinded only in part.
+- **By hand:** grade each lettered recap on the page that `--serve` opens (it shows each recap beside its own transcript with speakers in different colors, highlights the lines the recap cites, and plays the call's audio, so each timestamp jumps to that moment; answers save to `grades.json` as you click), or read `PAIRS/grading/<call>.md` and fill in `grades.json` yourself, for the 12 checks; then run `--report`. The sheet doesn't say which setting made a recap, but the number of transcript lines can give it away, so the grading is blinded only in part.
 - **Expect to differ:** timings, and possibly model text on another machine. On the same machine and code, rerunning a setting that was run before (full Whisper + Sortformer and Turbo + Who on two calls) should give byte-identical text, because decoding is greedy.
 
 ## Question

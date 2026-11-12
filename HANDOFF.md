@@ -28,10 +28,18 @@
 - Verification: pipeline tests pass (35); the run used the dataset's converted `onboarding` audio, since the original `call.wav` isn't on this machine; a privacy scan of the diff passes.
 - Next action: ask the user to approve pushing this branch and opening the PR with the `open-pr` skill. The old local branch `feat/turbo-pause-check` (and its remote copy) holds only the handoff and a merge of `main`; after the PR, delete or retire it.
 
+### feat/recap-stage-entry-point
+
+- Task: #28 (advances it; branch not linked, since the PR won't resolve the issue). PR: [#77](https://github.com/pomodorozhong/meeting-recap/pull/77), open and awaiting review.
+- Code checkpoint: `2cf8232` (the PR tip is a later `docs:` commit), built on `main`. Adds `experiments/recap-stage/run.py` (Stage A variants A0, A0-noise, A1, A2, A3), its uv project and `tests/experiments/test_recap_stage.py`; the plan's Reproduce section now describes it.
+- Verified: `tests/experiments` discovery, 21 tests, pass (fake model). Real model: all five variants ran on a 7-line made-up transcript with the pinned Qwen3.5 9B (A0 26 s, A0-noise 20 s, A1 24 s, A2 317 s, A3 37 s; peak MLX 5.9 to 6.0 GB; every cited timestamp matched a line). A1's not-run path and long-call chunk-and-merge were not exercised with the real model.
+- Next: wait for review of #77. Then, before any real-call run, settle the screening method and A4 models.
+- Still open in the plan before any real-call run: the screening score method and prompt (decision 1), A4's candidate models and pins, and the owner's answer keys.
+
 ## Ranked work
 
 1. #46 Turbo pause check: run and written up; waiting for the PR (on `feat/turbo-pause-check-run`).
-2. #28 Run the private-recording pipeline review. The public plan is on `docs/recap-stage-plan`; next the entry point, pinned recap models and the project owner's answer keys.
+2. #28 Run the private-recording pipeline review. The public plan is on `main`; the Stage A entry point is built on `feat/recap-stage-entry-point` (unpushed); next the real-model check, the screening method, pinned A4 models and the project owner's answer keys.
 3. #18 Complete the two-track listening review, freeze its reference, evaluate both runs and finish the public summary; current turn counts remain provisional.
 4. #11 Compare real-call transcript accuracy; the synthetic evidence is on `main`.
 5. #1 Finish the user-confirmed long-call Who comparison; draft #25 remains open.

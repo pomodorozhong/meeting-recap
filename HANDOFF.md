@@ -34,34 +34,31 @@
 - Code checkpoint: `2cf8232` (the PR tip is a later `docs:` commit), built on `main`. Adds `experiments/recap-stage/run.py` (Stage A variants A0, A0-noise, A1, A2, A3), its uv project and `tests/experiments/test_recap_stage.py`; the plan's Reproduce section now describes it.
 - Verified: `tests/experiments` discovery, 21 tests, pass (fake model). Real model: all five variants ran on a 7-line made-up transcript with the pinned Qwen3.5 9B (A0 26 s, A0-noise 20 s, A1 24 s, A2 317 s, A3 37 s; peak MLX 5.9 to 6.0 GB; every cited timestamp matched a line). A1's not-run path and long-call chunk-and-merge were not exercised with the real model.
 - Mechanical pass on all 16 real calls is done and summarized in the plan's Results (committed locally on this branch, not yet pushed): most recaps are not valid notes, because replies hit the 4,096-token output cap, mostly at the merge step; A1 gives valid notes on 10 of 12 runs but cannot run on the 4 longest calls; A2 never finishes. Private outputs are in a stage-a folder outside the checkout. The plan's pass rule needs a decision on this before keys are written.
-- Next: wait for review of #77. Then, before any real-call run, settle the screening method and A4 models.
+- Next: wait for review of #77. Then the recap cut-off fix ranked first in [docs/next-steps.md](docs/next-steps.md), registered as a dated plan change before it runs; A4 models and answer keys follow it.
 - Still open in the plan before any real-call run: the screening score method and prompt (decision 1), A4's candidate models and pins, and the owner's answer keys.
 
 ## Ranked work
 
-1. #46 Turbo pause check: run and written up; waiting for the PR (on `feat/turbo-pause-check-run`).
-2. #28 Run the private-recording pipeline review. The public plan is on `main`; the Stage A entry point is built on `feat/recap-stage-entry-point` (unpushed); next the real-model check, the screening method, pinned A4 models and the project owner's answer keys.
+1. Follow [docs/next-steps.md](docs/next-steps.md), the effort and impact ranking of 2026-11-13. Its top items: review and merge #77, #81 and #82; decide P-02; then fix the recap cut-off (most real-call recaps hit the 4,096-token output cap) before any grading or model comparison. The items below are the full backlog it ranks.
+2. #28 Run the private-recording pipeline review. The plan is on `main`; the Stage A entry point is in #77, awaiting review. Next: fix the recap cut-off, then A1's length limit and pinned A4 models, then the project owner's answer keys.
 3. #18 Complete the two-track listening review, freeze its reference, evaluate both runs and finish the public summary; current turn counts remain provisional.
 4. #11 Compare real-call transcript accuracy; the synthetic evidence is on `main`.
 5. #1 Finish the user-confirmed long-call Who comparison; draft #25 remains open.
-6. #47 Grade a recap on a long meeting.
-7. #49 Score label attachment on Turbo's text. Should need no new model runs.
-8. #51 Add the `replays` results to the scorer and results file.
-9. #52 Run the collection entry point end to end on a fresh folder. `collection_run.sh` hasn't been run whole from a new folder.
-10. #57 Add synthetic noisy calls to the test collection.
-11. #53 Warn when a recording's language looks wrong for `--language`.
-12. #54 Reconcile the recognizer memory figures across reports.
-13. #55 Separate temperature from word timestamps in the recognition baseline.
-14. #48 Separate Turbo from Who in the recap comparison.
-15. #50 Test `--keep-asr-segments` with full Whisper and Sortformer.
-17. #4 Run each remaining runner and the review skill end to end on the synthetic collection, and record the results.
-18. Revisit draft #31, `codex/action-grounding-sequence` and the deferred baseline and recap-accuracy branches. Keep `c714e05` and `d182e52` reachable: the merged summaries link to them, on #31's branch and `codex/expanded-call-benchmark`. The latter's commits also show when each criterion's text was registered.
-19. #9 Choose a license.
-20. #7 Decide where private experiment data is backed up.
-21. #5 Extend reproducibility instructions to the remaining public summaries.
-22. #3 Migrate the earlier experiment results into the private review dataset.
-23. Remaining runner follow-ups: external model-cache verification, the no-VAD variant and completion checks outside the HushScribe export fix.
-24. #73 Design how screenshots are captured and used in the recap (new, not yet ranked against the rest).
+6. #47 Grade a recap on a long meeting; can fold into #28's Stage A grading.
+7. #48 Separate Turbo from Who in the recap comparison; in #81, awaiting review.
+8. #50 Test `--keep-asr-segments` with full Whisper and Sortformer; in #82, awaiting review.
+9. #57 Add synthetic noisy calls to the test collection.
+10. #53 Warn when a recording's language looks wrong for `--language`.
+11. #54 Reconcile the recognizer memory figures across reports.
+12. #55 Separate temperature from word timestamps in the recognition baseline.
+13. #4 Run each remaining runner and the review skill end to end on the synthetic collection, and record the results.
+14. Revisit draft #31, `codex/action-grounding-sequence` and the deferred baseline and recap-accuracy branches. Keep `c714e05` and `d182e52` reachable: the merged summaries link to them, on #31's branch and `codex/expanded-call-benchmark`. The latter's commits also show when each criterion's text was registered.
+15. #9 Choose a license.
+16. #7 Decide where private experiment data is backed up.
+17. #5 Extend reproducibility instructions to the remaining public summaries.
+18. #3 Migrate the earlier experiment results into the private review dataset.
+19. Remaining runner follow-ups: external model-cache verification, the no-VAD variant and completion checks outside the HushScribe export fix.
+20. #73 Design how screenshots are captured and used in the recap.
 
 ## Pending
 

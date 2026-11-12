@@ -4,13 +4,13 @@
 
 
 
-### feat/app-recorder-prototype
+### feat/app-meeting-tab
 
-- Task: a macOS app prototype for iterating the design (decision 17). It records for real; the transcript and recap are invented samples, and nothing is connected to the pipeline. It advances #28 and closes nothing, so the branch is unlinked.
-- PR: opened from this branch against `main` and awaiting review; the number is in the PR itself. Code checkpoint: `44c2eb5`, branched from `main` at `ed23701`; `main` has since gained #72, which touches no `app/` files.
-- State: `app/` holds a SwiftPM package (a `RecorderCore` library and the `MeetingRecap` SwiftUI app) with a collapsible recordings list, "New meeting" setup (microphone and call-app pickers), a live recorder, and Audio, Timeline and Recap tabs. The Timeline shows speech and screenshots in time order under an overview strip. Two sample meetings fill the list; their screenshots are drawn placeholders, and the app doesn't capture screenshots. Screenshot capture is planned in #73.
-- Verification: `app/scripts/bundle.sh --test` passes 13 tests (generated audio only). Screenshots confirm the sample Audio, Timeline and Recap tabs, the setup screen, the full-width Start button and the recap spacing. Not exercised: a real recording from the app, the permission prompts, recording from one app, live waveforms, playback of a real recording, and clicks on the Choose menu, check bar, citation jumps, strip jumps, checkboxes, Copy, Save and sidebar collapse.
-- Next action: the user records a real call to try the untested parts, then gives more design feedback. Open design question: should recap items cite screenshots as well as lines.
+- Task: the app prototype's next design step ([#74](https://github.com/pomodorozhong/meeting-recap/pull/74) merged the first one): one Meeting tab in place of Audio and Timeline, with a player that stays on screen. It advances #28 and [#73](https://github.com/pomodorozhong/meeting-recap/issues/73) and closes nothing, so the branch is unlinked.
+- PR: none yet; awaiting the user's approval to push and open one. Code checkpoint: `main` at `4f26736` plus the commits on this branch.
+- State: tabs are Meeting and Recap. The sticky player holds play, both waveforms and a strip of turns and screenshot marks, with one playhead; clicking any of them, or a line or screenshot, moves it and scrolls the feed. A sample's playhead is simulated because it has no audio. A real recording shows the player and its files; its transcript and screenshots aren't connected. The app doesn't capture screenshots (#73).
+- Verification: `app/scripts/bundle.sh --test` passes 13 tests (generated audio only). A screenshot of the sample Meeting tab with the playhead at 1:10 shows the layout. Not exercised: clicking and dragging the player, line and screenshot seeks, the playing highlight and auto-scroll, Play on a sample, that the player stays put while the feed scrolls, and everything on a real recording (permission prompts, one-app capture, live waveforms, playback).
+- Next action: the user tries it and gives design feedback. Open question: should recap items cite screenshots as well as lines.
 
 ### feat/pipeline-baseline
 

@@ -1,6 +1,6 @@
 # Project status
 
-The goal is meeting notes produced locally on a MacBook Pro with an M2 Pro and 16 GB of memory, covering the 22 behaviors in the [feature catalogue](https://github.com/pomodorozhong/rabbit-holes/blob/master/topics/ai_meeting_notes/feature-catalogue.md) (`MN-01`–`MN-22`). Research phases 1–3 ran in [rabbit-holes](https://github.com/pomodorozhong/rabbit-holes/issues/167); building continues here. What to work on next is in [HANDOFF.md](../HANDOFF.md).
+The goal is meeting notes produced locally on a MacBook Pro with an M2 Pro and 16 GB of memory, covering the 22 behaviors in the [feature catalogue](https://github.com/pomodorozhong/rabbit-holes/blob/master/topics/ai_meeting_notes/feature-catalogue.md) (`MN-01`–`MN-22`). Research phases 1–3 ran in [rabbit-holes](https://github.com/pomodorozhong/rabbit-holes/issues/167); building continues here. What to work on next is in the [GitHub issues](https://github.com/pomodorozhong/meeting-recap/issues).
 
 | Phase | Status |
 | --- | --- |

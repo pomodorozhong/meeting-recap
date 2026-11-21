@@ -39,7 +39,7 @@ struct AppChoice: Identifiable, Hashable {
 }
 
 enum DetailTab: String, CaseIterable, Identifiable {
-    case audio = "Audio", timeline = "Timeline", recap = "Recap"
+    case meeting = "Meeting", recap = "Recap"
     var id: String { rawValue }
 }
 
@@ -60,9 +60,12 @@ enum DetailTab: String, CaseIterable, Identifiable {
     private(set) var callSilentSeconds: Double = 0
     private(set) var recordings: [RecordingInfo] = []
     private(set) var microphones: [String] = []
+    private(set) var samplePosition: Double = 0
+    private(set) var samplePlaying = false
+    private var sampleTask: Task<Void, Never>?
 
     var selection: Selection? = .sample(Samples.weeklyPlanning.id)
-    var tab: DetailTab = .audio
+    var tab: DetailTab = .meeting
     var draftOpen = false
     var errorMessage: String?
     /// The bundle ID of the one app whose sound goes in the Call track, or nil for all sound on this Mac.
@@ -108,8 +111,39 @@ enum DetailTab: String, CaseIterable, Identifiable {
         if case .recording = selection {} else { player.stop() }
         highlighted = []
         scrollTarget = nil
-        if selection == .draft || selection == .live { tab = .audio }
+        stopSample()
+        samplePosition = 0
+        if selection == .draft || selection == .live { tab = .meeting }
     }
+
+    // MARK: Sample playback
+    // A sample has no audio, so its playhead is simulated: it runs in real time and can be moved, so the design
+    // can be judged with something playing.
+
+    func toggleSample(duration: Double) {
+        if samplePlaying { stopSample(); return }
+        if samplePosition >= duration - 0.1 { samplePosition = 0 }
+        samplePlaying = true
+        sampleTask = Task { [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .milliseconds(100))
+                guard let self, self.samplePlaying else { return }
+                self.samplePosition += 0.1
+                if self.samplePosition >= duration {
+                    self.samplePosition = duration
+                    self.stopSample()
+                }
+            }
+        }
+    }
+
+    func stopSample() {
+        samplePlaying = false
+        sampleTask?.cancel()
+        sampleTask = nil
+    }
+
+    func seekSample(to seconds: Double) { samplePosition = max(0, seconds) }
 
     func newMeeting() {
         if phase == .idle {
@@ -118,7 +152,7 @@ enum DetailTab: String, CaseIterable, Identifiable {
         } else {
             selection = .live
         }
-        tab = .audio
+        tab = .meeting
     }
 
     func rename(_ info: RecordingInfo, to title: String) {
@@ -143,7 +177,7 @@ enum DetailTab: String, CaseIterable, Identifiable {
     func jump(to lines: [Int]) {
         highlighted = Set(lines)
         scrollTarget = lines.min()
-        tab = .timeline
+        tab = .meeting
     }
 
     // MARK: Recording
@@ -213,7 +247,7 @@ enum DetailTab: String, CaseIterable, Identifiable {
         phase = .idle
         refresh()
         selection = .recording(session.folder.lastPathComponent)
-        tab = .audio
+        tab = .meeting
         if !problems.isEmpty {
             errorMessage = "The recording may be incomplete:\n" + problems.joined(separator: "\n")
         }

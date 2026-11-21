@@ -1,7 +1,62 @@
+import RecorderCore
 import SwiftUI
 
-/// The meeting in time order: what was said and what was on screen, with an overview strip on top.
-struct TimelineTab: View {
+/// What the player card needs, from a real recording or from a sample.
+struct PlayerState {
+    var position: Double
+    var duration: Double
+    var isPlaying: Bool
+    var toggle: () -> Void
+}
+
+/// The player: play, both tracks, and (for a sample) who spoke when and where the screenshots fall. It sits above the
+/// scrolling part of the Meeting tab, so it stays on screen.
+struct PlayerCard: View {
+    let state: PlayerState
+    let call: [WaveBar]
+    let mic: [WaveBar]
+    var sample: Sample?
+    var speakerOf: ((TranscriptLine) -> Int)?
+    var showShots: Binding<Bool>?
+    /// Jumps to a time in seconds.
+    let seek: (Double) -> Void
+
+    var body: some View {
+        let fraction = state.duration > 0 ? state.position / state.duration : 0
+        VStack(spacing: 8) {
+            HStack(spacing: 12) {
+                Button { state.toggle() } label: {
+                    Image(systemName: state.isPlaying ? "pause.fill" : "play.fill").frame(width: 16, height: 16)
+                }
+                .buttonStyle(.glass).buttonBorderShape(.circle)
+                .keyboardShortcut(.space, modifiers: [])
+                Text("\(clock(state.position)) / \(clock(state.duration))")
+                    .font(.callout.monospacedDigit()).foregroundStyle(.secondary)
+                Spacer()
+                if let showShots {
+                    Toggle(isOn: showShots) { Label("Screenshots", systemImage: "camera") }
+                        .toggleStyle(.button).buttonStyle(.glass).controlSize(.small)
+                }
+            }
+            LaneRow(label: "Call") {
+                WaveformView(bars: call, playhead: fraction, height: 28, onSeek: { seek($0 * state.duration) })
+            }
+            LaneRow(label: "You") {
+                WaveformView(bars: mic, playhead: fraction, height: 28, onSeek: { seek($0 * state.duration) })
+            }
+            if let sample, let speakerOf {
+                LaneRow(label: "Turns") {
+                    TimelineStrip(sample: sample, showShots: showShots?.wrappedValue ?? true, position: state.position,
+                                  speakerOf: speakerOf, pick: seek)
+                }
+            }
+        }
+        .glassCard(radius: 20, padding: 12)
+    }
+}
+
+/// A sample meeting: the player on top, then speech and screenshots in time order. Playback is simulated.
+struct SampleMeeting: View {
     @Environment(AppModel.self) private var model
     let sample: Sample
     @State private var cursor = -1
@@ -31,25 +86,48 @@ struct TimelineTab: View {
         return all.sorted { ($0.time, $0.id) < ($1.time, $1.id) }
     }
 
+    /// The line being spoken at the playhead, once playback has started.
+    private var currentLine: Int? {
+        guard model.samplePosition > 0 else { return nil }
+        return sample.lines.last { $0.start <= model.samplePosition }?.id
+    }
+
     var body: some View {
         let uncertain = model.uncertainLines(in: sample)
+        let speakerOf = { (line: TranscriptLine) in model.speaker(of: line, in: sample) }
         ScrollViewReader { proxy in
             VStack(alignment: .leading, spacing: 12) {
-                header
-                TimelineStrip(sample: sample, showShots: showShots, speakerOf: { model.speaker(of: $0, in: sample) }) { time in
-                    if let nearest = entries.min(by: { abs($0.time - time) < abs($1.time - time) }) {
-                        withAnimation { proxy.scrollTo(nearest.id, anchor: .top) }
-                    }
-                }
-                checkBar(uncertain)
+                PlayerCard(
+                    state: PlayerState(position: model.samplePosition, duration: sample.durationSeconds,
+                                       isPlaying: model.samplePlaying,
+                                       toggle: { model.toggleSample(duration: sample.durationSeconds) }),
+                    call: Waveforms.bars(for: sample, lane: .call, speakerOf: speakerOf),
+                    mic: Waveforms.bars(for: sample, lane: .you, speakerOf: speakerOf),
+                    sample: sample, speakerOf: speakerOf, showShots: $showShots
+                ) { seconds in jump(to: seconds, proxy: proxy) }
+
                 ScrollView {
-                    LazyVStack(alignment: .leading, spacing: 6) {
-                        ForEach(entries) { entry in
-                            switch entry {
-                            case .line(let line): LineRow(sample: sample, line: line).id(entry.id)
-                            case .shot(let shot): ShotRow(shot: shot).id(entry.id)
+                    VStack(alignment: .leading, spacing: 12) {
+                        legend
+                        checkBar(uncertain)
+                        LazyVStack(alignment: .leading, spacing: 6) {
+                            ForEach(entries) { entry in
+                                switch entry {
+                                case .line(let line):
+                                    LineRow(sample: sample, line: line, current: line.id == currentLine) {
+                                        model.seekSample(to: line.start)
+                                    }.id(entry.id)
+                                case .shot(let shot):
+                                    ShotRow(shot: shot) { model.seekSample(to: shot.time) }.id(entry.id)
+                                }
                             }
                         }
+                        HStack(alignment: .top, spacing: 16) {
+                            TalkTime(sample: sample)
+                            FilesCard(rows: [("Length", clock(sample.durationSeconds)), ("Gaps filled", "none"), ("Dropped", "none")],
+                                      folder: nil)
+                        }
+                        .padding(.top, 12)
                     }
                     .padding(.bottom, 20)
                 }
@@ -59,6 +137,10 @@ struct TimelineTab: View {
                 guard let target = model.scrollTarget else { return }
                 withAnimation { proxy.scrollTo("l\(target)", anchor: .center) }
                 model.scrollTarget = nil
+            }
+            .onChange(of: currentLine) {
+                guard model.samplePlaying, let id = currentLine else { return }
+                withAnimation { proxy.scrollTo("l\(id)", anchor: .center) }
             }
             .onAppear {
                 // Arriving from a recap citation: the target was set before this view existed.
@@ -71,7 +153,14 @@ struct TimelineTab: View {
         }
     }
 
-    private var header: some View {
+    private func jump(to seconds: Double, proxy: ScrollViewProxy) {
+        model.seekSample(to: seconds)
+        if let target = entries.last(where: { $0.time <= seconds }) ?? entries.first {
+            withAnimation { proxy.scrollTo(target.id, anchor: .top) }
+        }
+    }
+
+    private var legend: some View {
         HStack(spacing: 16) {
             ForEach(0..<sample.speakerCount, id: \.self) { index in
                 HStack(spacing: 5) {
@@ -79,9 +168,6 @@ struct TimelineTab: View {
                     Text(Palette.speakerName(index) + (index == 0 ? " (you)" : "")).font(.callout).foregroundStyle(.secondary)
                 }
             }
-            Spacer()
-            Toggle(isOn: $showShots) { Label("Screenshots", systemImage: "camera") }
-                .toggleStyle(.button).buttonStyle(.glass).controlSize(.small)
         }
     }
 
@@ -114,10 +200,67 @@ struct TimelineTab: View {
     }
 }
 
-/// The whole meeting in one strip: who spoke when, and where the screenshots fall. Click to jump.
+/// A real recording: the player on top. The transcript and screenshots aren't connected yet.
+struct RecordingMeeting: View {
+    @Environment(AppModel.self) private var model
+    let info: RecordingInfo
+    @State private var call: [WaveBar] = []
+    @State private var mic: [WaveBar] = []
+
+    var body: some View {
+        let player = model.player
+        VStack(alignment: .leading, spacing: 12) {
+            PlayerCard(
+                state: PlayerState(position: player.position, duration: player.duration, isPlaying: player.isPlaying,
+                                   toggle: { player.toggle() }),
+                call: call, mic: mic
+            ) { seconds in
+                if player.duration > 0 { player.seek(to: seconds / player.duration) }
+            }
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    Label("The transcript and screenshots appear here once the pipeline is connected. The sample meetings show how.",
+                          systemImage: "text.bubble")
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .glassCard()
+                    HStack(alignment: .top, spacing: 16) {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Talk time").font(.headline)
+                            Text("Speakers and how long each talked appear after transcription.")
+                                .font(.callout).foregroundStyle(.secondary)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading).glassCard()
+                        FilesCard(rows: [
+                            ("Length", clock(info.durationSeconds)),
+                            ("Gaps filled", info.silenceFilledSeconds > 0.5 ? String(format: "%.1f s", info.silenceFilledSeconds) : "none"),
+                            ("Dropped", info.droppedSeconds > 0.01 ? String(format: "%.1f s", info.droppedSeconds) : "none"),
+                        ], folder: info.folder, problems: info.problems)
+                    }
+                }
+                .padding(.bottom, 20)
+            }
+            .scrollIndicators(.hidden)
+        }
+        .task(id: info.id) {
+            model.player.load(folder: info.folder)
+            call = []; mic = []
+            let folder = info.folder
+            let (system, mine) = await Task.detached {
+                (Waveforms.levels(of: folder.appendingPathComponent("system.m4a")),
+                 Waveforms.levels(of: folder.appendingPathComponent("mic.m4a")))
+            }.value
+            call = system.map { WaveBar(level: max($0, 0.04), color: $0 > 0 ? Palette.call : .secondary.opacity(0.4)) }
+            mic = mine.map { WaveBar(level: max($0, 0.04), color: $0 > 0 ? Palette.you : .secondary.opacity(0.4)) }
+        }
+    }
+}
+
+/// The whole meeting in one strip: who spoke when, where the screenshots fall, and the playhead. Click to jump.
 struct TimelineStrip: View {
     let sample: Sample
     let showShots: Bool
+    let position: Double
     let speakerOf: (TranscriptLine) -> Int
     let pick: (Double) -> Void
 
@@ -136,25 +279,28 @@ struct TimelineStrip: View {
                 if showShots {
                     ForEach(sample.shots) { shot in
                         VStack(spacing: 0) {
-                            Rectangle().fill(.secondary).frame(width: 1, height: 6)
-                            Image(systemName: "camera.fill").font(.system(size: 10)).foregroundStyle(.secondary)
+                            Rectangle().fill(.secondary).frame(width: 1, height: 4)
+                            Image(systemName: "camera.fill").font(.system(size: 9)).foregroundStyle(.secondary)
                         }
                         .frame(width: 16)
                         .offset(x: shot.time / total * width - 8, y: 16)
                     }
                 }
+                Rectangle().fill(.primary).frame(width: 1.5, height: 16)
+                    .offset(x: min(max(position / total, 0), 1) * width - 0.75)
             }
-            .frame(width: width, height: 40, alignment: .topLeading)
+            .frame(width: width, height: 34, alignment: .topLeading)
             .contentShape(Rectangle())
-            .gesture(DragGesture(minimumDistance: 0).onEnded { pick(min(max($0.location.x / width, 0), 1) * total) })
+            .gesture(DragGesture(minimumDistance: 0).onChanged { pick(min(max($0.location.x / width, 0), 1) * total) })
         }
-        .frame(height: 40)
+        .frame(height: 34)
         .help("Click to jump to that moment.")
     }
 }
 
 struct ShotRow: View {
     let shot: Shot
+    var onTap: () -> Void = {}
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
@@ -173,6 +319,8 @@ struct ShotRow: View {
             Spacer(minLength: 0)
         }
         .padding(.vertical, 6).padding(.horizontal, 10)
+        .contentShape(Rectangle())
+        .onTapGesture(perform: onTap)
     }
 }
 
@@ -250,6 +398,9 @@ struct LineRow: View {
     @Environment(AppModel.self) private var model
     let sample: Sample
     let line: TranscriptLine
+    /// True while the playhead is on this line.
+    var current = false
+    var onTap: () -> Void = {}
 
     var body: some View {
         let speaker = model.speaker(of: line, in: sample)
@@ -261,7 +412,7 @@ struct LineRow: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text(Palette.speakerName(speaker) + (speaker == 0 ? " (you)" : ""))
                     .font(.caption.weight(.medium)).foregroundStyle(Palette.speaker(speaker))
-                Text(line.text).textSelection(.enabled)
+                Text(line.text)
                 if unsure {
                     HStack(spacing: 8) {
                         Text("Speaker unsure: " + line.candidates.map(Palette.speakerName).joined(separator: " or "))
@@ -279,10 +430,13 @@ struct LineRow: View {
         }
         .padding(.vertical, 6).padding(.horizontal, 10)
         .background(rowBackground(unsure: unsure), in: RoundedRectangle(cornerRadius: 12))
+        .contentShape(Rectangle())
+        .onTapGesture(perform: onTap)
     }
 
     private func rowBackground(unsure: Bool) -> AnyShapeStyle {
         if model.highlighted.contains(line.id) { return AnyShapeStyle(Color.yellow.opacity(0.22)) }
+        if current { return AnyShapeStyle(Color.accentColor.opacity(0.2)) }
         if unsure { return AnyShapeStyle(Color.orange.opacity(0.14)) }
         return AnyShapeStyle(.clear)
     }

@@ -4,7 +4,7 @@ A fully local AI meeting assistant that records, transcribes, and summarizes mee
 
 ## Status
 
-Research and experiments. On an M2 Pro / 16 GB Mac, Whisper Large v3 with Chinese forced plus FluidAudio's Sortformer diarizer produced a usable transcript and kept the speakers apart on a three-person Chinese + English call. The next step is a pipeline for saved recordings. See [docs/README.md](docs/README.md) for status, [docs/decisions.md](docs/decisions.md) for decisions, [HANDOFF.md](HANDOFF.md) for what to work on next, and [docs/experiments/](docs/experiments/) for every experiment.
+Research and experiments. On an M2 Pro / 16 GB Mac, Whisper Large v3 with Chinese forced plus FluidAudio's Sortformer diarizer produced a usable transcript and kept the speakers apart on a three-person Chinese + English call. The next step is a pipeline for saved recordings. See [docs/README.md](docs/README.md) for status, [docs/decisions.md](docs/decisions.md) for decisions, [GitHub issues](https://github.com/pomodorozhong/meeting-recap/issues) for what to work on next, and [docs/experiments/](docs/experiments/) for every experiment.
 
 ## Setup
 

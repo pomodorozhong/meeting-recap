@@ -23,6 +23,19 @@ open app/.build/MeetingRecap.app
 
 Add `--test` to run the tests first. The first Record asks for **Microphone** and **Screen & System Audio Recording**; after allowing the second, quit and reopen the app. The bundle is signed ad hoc, so macOS may ask again after a rebuild.
 
+### If Record says permission is off
+
+System Settings can show Meeting Recap as allowed while recording still fails. macOS ties each permission to the exact build it was granted to, and an ad hoc signature changes whenever the code changes, so the switch in Settings can belong to an older build. Every build also shares the bundle ID `local.meeting-recap.app`, so two builds in different checkouts or worktrees share one permission entry, and whichever was granted last takes it from the other.
+
+To fix it, quit every copy of the app, then clear both permissions:
+
+```bash
+tccutil reset ScreenCapture local.meeting-recap.app
+tccutil reset Microphone local.meeting-recap.app
+```
+
+Open only the build you want to use, press Record, allow both permissions, then quit and reopen it. Don't open another build afterwards, or the permissions move to it. Switching the setting off and on in System Settings doesn't help, because it keeps the stale entry.
+
 ## Where recordings go
 
 `~/Library/Application Support/MeetingRecap/Recordings/<date and time>/` holding `system.m4a`, `mic.m4a` and `timing.json`. The app refuses a folder inside a Git checkout or one that already holds files. This is not the review dataset at `$MEETING_REVIEW_DATA`; copy a recording there by hand to run experiments on it.

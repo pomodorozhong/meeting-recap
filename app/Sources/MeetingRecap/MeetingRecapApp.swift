@@ -14,6 +14,8 @@ struct MeetingRecapApp: App {
                     // A bare executable starts behind the terminal; the bundled app does not need this.
                     NSApp.setActivationPolicy(.regular)
                     NSApp.activate(ignoringOtherApps: true)
+                    // `open MeetingRecap.app --args --demo` starts a demo recording, as the sidebar's demo button does.
+                    if CommandLine.arguments.contains("--demo") { model.startDemo() }
                 }
         }
     }

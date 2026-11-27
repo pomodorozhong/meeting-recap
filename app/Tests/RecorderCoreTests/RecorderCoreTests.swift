@@ -183,3 +183,27 @@ func pcmBuffer(seconds: Double, start: Double, channels: Int, value: Float) thro
         }
     }
 }
+
+@Suite struct NotesFileTests {
+    @Test func roundTripsFinishedAndUnfinishedNotes() throws {
+        let folder = try temporaryFolder()
+        let notes = [
+            Note(id: 0, start: 12.34, end: 18.9, text: "Invented note with a\ttab"),
+            Note(id: 1, start: 40, end: nil, text: "still typing"),
+        ]
+        try NotesFile.write(notes, to: folder)
+        let read = NotesFile.read(folder: folder)
+        #expect(read.count == 2)
+        #expect(read[0].start == 12.3 && read[0].end == 18.9 && read[0].text == "Invented note with a tab")
+        #expect(read[1].start == 40 && read[1].end == nil && read[1].text == "still typing")
+    }
+
+    @Test func missingFileMeansNoNotes() throws {
+        #expect(NotesFile.read(folder: try temporaryFolder()).isEmpty)
+    }
+
+    @Test func skipsCommentsAndBrokenLines() {
+        let notes = NotesFile.parse("# header\nnot a note\n5.0\t6.0\tkept\n")
+        #expect(notes.map(\.text) == ["kept"])
+    }
+}

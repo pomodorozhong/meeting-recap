@@ -1,71 +1,45 @@
 import AVFoundation
 import SwiftUI
 
-struct WaveBar: Hashable {
-    var level: Float
-    var color: Color
-}
-
-/// Bars for one track, drawn left to right across the recording, or right-aligned for a live recording.
-struct WaveformView: View {
-    var bars: [WaveBar]
-    var playhead: Double?
-    var alignRight = false
-    var height: CGFloat = 44
-    var onSeek: ((Double) -> Void)?
-
-    var body: some View {
-        Canvas { context, size in
-            let count = max(bars.count, 1)
-            let step: CGFloat = alignRight ? 3 : size.width / CGFloat(count)
-            let width = max(1.5, step * 0.62)
-            for (index, bar) in bars.enumerated() {
-                let x = alignRight ? size.width - CGFloat(bars.count - index) * step : CGFloat(index) * step
-                let barHeight = max(2, CGFloat(bar.level) * size.height)
-                let rect = CGRect(x: x, y: (size.height - barHeight) / 2, width: width, height: barHeight)
-                context.fill(Path(roundedRect: rect, cornerRadius: width / 2), with: .color(bar.color))
-            }
-            if let playhead {
-                let x = CGFloat(playhead) * size.width
-                context.fill(Path(CGRect(x: x - 0.75, y: 0, width: 1.5, height: size.height)), with: .color(.primary))
-            }
-        }
-        .frame(height: height)
-        .background(.quaternary.opacity(0.4), in: RoundedRectangle(cornerRadius: 10))
-        .overlay {
-            if let onSeek {
-                GeometryReader { box in
-                    Color.clear.contentShape(Rectangle())
-                        .gesture(DragGesture(minimumDistance: 0).onChanged { drag in
-                            onSeek(min(1, max(0, drag.location.x / box.size.width)))
-                        })
-                }
-            }
-        }
-    }
-}
-
 enum Waveforms {
     static let bucketCount = 240
 
-    /// Bars for a sample meeting: a speaker's lines light up the lane they would have been recorded on (Speaker A on
-    /// the microphone, everyone else on the call), in that speaker's color. Invented, like the rest of the sample.
-    static func bars(for sample: Sample, lane: Lane, speakerOf: (TranscriptLine) -> Int) -> [WaveBar] {
-        (0..<bucketCount).map { index in
-            let time = Double(index) / Double(bucketCount) * sample.durationSeconds
-            guard let line = sample.lines.first(where: { time >= $0.start && time < $0.end }),
-                  (speakerOf(line) == 0) == (lane == .you)
-            else { return WaveBar(level: 0.04, color: .secondary.opacity(0.4)) }
-            let noise = abs(sin(Double(index) * 12.9898 + Double(line.id) * 4.1) * 43758.5453).truncatingRemainder(dividingBy: 1)
-            return WaveBar(level: Float(0.25 + 0.75 * noise), color: Palette.speaker(speakerOf(line)))
+    /// A level (on the 60 dB scale) above which a track counts as someone talking: about -27 dBFS.
+    static let talkLevel: Float = 0.55
+
+    /// Who was talking, for a real recording with no transcript yet: you (in your color) when the microphone is above
+    /// `talkLevel` and louder than the call; otherwise someone on the call, in grey, since who that is isn't known
+    /// until transcription. Both lists cover `duration` in equal buckets.
+    static func turns(call: [Float], mic: [Float], duration: Double) -> [TurnSpan] {
+        let count = max(call.count, mic.count)
+        guard count > 0, duration > 0 else { return [] }
+        let width = duration / Double(count)
+        var spans: [TurnSpan] = []
+        for index in 0..<count {
+            let callLevel = index < call.count ? call[index] : 0
+            let micLevel = index < mic.count ? mic[index] : 0
+            extend(&spans, who: who(call: callLevel, mic: micLevel), from: Double(index) * width, length: width)
+        }
+        return spans
+    }
+
+    /// 0 for you, 1 for someone on the call, nil for nobody, from one stretch's peak levels.
+    static func who(call: Float, mic: Float) -> Int? {
+        if mic >= talkLevel, mic >= call { return 0 }
+        if call >= talkLevel { return 1 }
+        return nil
+    }
+
+    /// Adds one stretch to `spans`, joining it to the last span when the same person talked right before.
+    static func extend(_ spans: inout [TurnSpan], who: Int?, from start: Double, length: Double) {
+        guard let who else { return }
+        if let last = spans.last, last.who == who, abs(last.end - start) < length / 2 {
+            spans[spans.count - 1].end = start + length
+        } else {
+            spans.append(TurnSpan(start: start, end: start + length, who: who,
+                                  color: who == 0 ? Palette.you : Palette.unknownSpeaker))
         }
     }
-
-    static func liveBars(_ levels: [Float], color: Color) -> [WaveBar] {
-        levels.map { WaveBar(level: max($0, 0.04), color: $0 > 0 ? color : .secondary.opacity(0.4)) }
-    }
-
-    enum Lane { case call, you }
 
     /// Peak levels (0...1, on a 60 dB scale) of an audio file, in `bucketCount` buckets across its length.
     static func levels(of url: URL) -> [Float] {

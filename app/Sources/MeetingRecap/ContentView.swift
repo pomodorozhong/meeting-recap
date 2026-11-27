@@ -24,7 +24,8 @@ struct Sidebar: View {
         @Bindable var model = model
         List(selection: $model.selection) {
             if model.phase != .idle {
-                MeetingRow(title: "New meeting", subtitle: model.phase == .stopping ? "Saving…" : "Recording",
+                MeetingRow(title: "New meeting",
+                           subtitle: model.isDemo ? "Demo · not saved" : model.phase == .stopping ? "Saving…" : "Recording",
                            trailing: clock(model.meter.elapsedSeconds), recording: true)
                     .tag(Selection.live)
             } else if model.draftOpen {
@@ -49,13 +50,22 @@ struct Sidebar: View {
             }
         }
         .safeAreaInset(edge: .top, spacing: 0) {
-            Button { model.newMeeting() } label: {
-                Label("New meeting", systemImage: "plus").frame(maxWidth: .infinity)
+            VStack(spacing: 0) {
+                Button { model.newMeeting() } label: {
+                    Label("New meeting", systemImage: "plus").frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.glassProminent)
+                .controlSize(.large)
+                .keyboardShortcut("n", modifiers: .command)
+                .padding(.horizontal, 12).padding(.bottom, 6)
+                Button { model.startDemo() } label: {
+                    Label("New meeting (demo)", systemImage: "plus").frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.glass)
+                .disabled(model.phase != .idle)
+                .help("Shows the recording screen with invented sound. Nothing is recorded or saved.")
+                .padding(.horizontal, 12).padding(.bottom, 8)
             }
-            .buttonStyle(.glassProminent)
-            .controlSize(.large)
-            .keyboardShortcut("n", modifiers: .command)
-            .padding(.horizontal, 12).padding(.bottom, 8)
         }
     }
 

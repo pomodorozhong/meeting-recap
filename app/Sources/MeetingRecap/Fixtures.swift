@@ -1,4 +1,5 @@
 import Foundation
+import RecorderCore
 
 // Mock content. Nothing here comes from a real call or from the pipeline: these are two invented meetings shaped like
 // what the pipeline is expected to produce (labeled lines with times, one line whose speaker is unsure, and a recap
@@ -50,6 +51,8 @@ struct Sample: Identifiable {
     let durationSeconds: Double
     let lines: [TranscriptLine]
     let shots: [Shot]
+    /// Notes the person typed during the meeting, invented like the rest.
+    let notes: [Note]
     let recap: Recap
 
     var speakerCount: Int { (lines.map(\.speaker).max() ?? 0) + 1 }
@@ -57,6 +60,10 @@ struct Sample: Identifiable {
 
 enum Samples {
     static let all = [weeklyPlanning, customerCall]
+
+    private static func notes(_ rows: [(Double, Double, String)]) -> [Note] {
+        rows.enumerated().map { Note(id: $0.offset, start: $0.element.0, end: $0.element.1, text: $0.element.2) }
+    }
 
     private static func lines(_ rows: [(Double, Double, Int, String, [Int])]) -> [TranscriptLine] {
         rows.enumerated().map {
@@ -91,6 +98,12 @@ enum Samples {
             Shot(id: 3, time: 88, app: "Calendar", caption: "Month view with the fifteenth and the twelfth marked.", kind: .calendar),
             Shot(id: 4, time: 150, app: "Chat", caption: "Team channel with a request for a shared inbox.", kind: .chat),
         ],
+        notes: notes([
+            (18, 24, "Export bug is the only blocker"),
+            (55, 79, "Guide needs final-build screenshots, B sends them after the fix (Thu?)"),
+            (99, 104, "Guide due 12th, customers 15th"),
+            (134, 139, "Friday: go or slip"),
+        ]),
         recap: Recap(
             summary: [
                 RecapItem(id: 0, text: "The pilot build is stable except for an export bug that engineering expects to fix this week.", cites: [1]),
@@ -130,6 +143,11 @@ enum Samples {
             Shot(id: 1, time: 42, app: "Docs", caption: "Release notes listing the export fix for version 2.5.", kind: .document),
             Shot(id: 2, time: 96, app: "Dashboard", caption: "Account page with two free seats.", kind: .dashboard),
         ],
+        notes: notes([
+            (25, 29, "2.4 export stops at ~80%"),
+            (41, 63, "Workaround: split by region until 2.5 ships Tuesday. Email steps today"),
+            (94, 97, "Add 2 seats"),
+        ]),
         recap: Recap(
             summary: [
                 RecapItem(id: 0, text: "The customer's monthly export fails at about eighty percent on version 2.4; the fix ships in 2.5 next Tuesday.", cites: [2, 3]),

@@ -6,7 +6,8 @@ A macOS window that records a call's audio and your microphone for real, and sho
 | --- | --- |
 | Recording | Real. System audio and the microphone go to two lossless files on one timeline, as in [`experiments/capture/`](../experiments/capture/README.md). The Meeting tab holds the source settings and the live recorder before and during a recording, and playback after it. |
 | Recordings list | Real. Each recording shows its date, length and a status pill; the title can be renamed. |
-| Meeting tab for a recording | Real. A player that stays on screen above the rest: waveforms of both tracks, playback of both together (click a track to jump), and below it the gaps filled in and audio dropped. |
+| Meeting tab for a recording | Real. A player that stays on screen above the rest: the timeline below, and playback of both tracks together (click the timeline to jump), and below it the gaps filled in and audio dropped. |
+| Timeline and typed notes | Real. The Meeting tab shows one timeline during and after a recording: a Turns row (with screenshots above it) and a Notes row across the whole meeting. While recording it shows a fixed two-minute window that fills from the left and then slides with the recording, settles each half second's turn once so earlier turns never change, has an Overview row above it with the whole recording so far and a frame around the stretch shown, and has the timer and Stop in place of playback; afterwards it plays back and clicking jumps. For a real recording, Turns shows who was talking from the two tracks' loudness until the transcript is connected: you in your color, anyone on the call in grey, since who that is isn't known yet. Under the timeline is the feed of your notes; while recording, a box at the bottom takes one note per line, timed from its first character to Return on the recording's timeline, and saves to `notes.txt` as you type. A finished note can be fixed and keeps its times. The sample meetings have a few invented notes. Notes can't be added after the recording yet, and aren't fed to the recap. **New meeting (demo)** in the sidebar, or `open app/.build/MeetingRecap.app --args --demo`, runs the recording screen with invented sound and saves nothing, so the design can be seen without the permissions. |
 | Meeting feed and recap | Mock, and only for the two sample meetings in the list. [`Fixtures.swift`](Sources/MeetingRecap/Fixtures.swift) holds two invented meetings: labeled lines with one unsure speaker, drawn stand-ins for screenshots placed at their times, and a recap whose every item cites lines. On the Meeting tab the feed of lines and screenshots sits under the player; clicking a line, a screenshot or the turns strip moves the playhead. A sample has no audio, so its playhead is simulated. The app doesn't capture screenshots yet. A real recording shows only the player, and "Not processed yet" on the Recap tab. |
 | Pipeline | Not connected. Phase 5 of the [status](../docs/README.md) says when. |
 
@@ -38,7 +39,7 @@ Open only the build you want to use, press Record, allow both permissions, then 
 
 ## Where recordings go
 
-`~/Library/Application Support/MeetingRecap/Recordings/<date and time>/` holding `system.m4a`, `mic.m4a` and `timing.json`. The app refuses a folder inside a Git checkout or one that already holds files. This is not the review dataset at `$MEETING_REVIEW_DATA`; copy a recording there by hand to run experiments on it.
+`~/Library/Application Support/MeetingRecap/Recordings/<date and time>/` holding `system.m4a`, `mic.m4a` and `timing.json`, plus `notes.txt` when you typed notes (a header, then `start<TAB>end<TAB>note` per line, in seconds on the same timeline as `timing.json`). The app refuses a folder inside a Git checkout or one that already holds files. This is not the review dataset at `$MEETING_REVIEW_DATA`; copy a recording there by hand to run experiments on it.
 
 Wear headphones, or the other side of the call leaks into the microphone file. The options and file details are as in the [capture README](../experiments/capture/README.md).
 
@@ -46,9 +47,9 @@ Wear headphones, or the other side of the call leaks into the microphone file. T
 
 | Path | Holds |
 | --- | --- |
-| `Sources/RecorderCore/` | The recorder as a library: tracks and timeline padding, the capture session, folder safety rules, and the list of recordings. |
+| `Sources/RecorderCore/` | The recorder as a library: tracks and timeline padding, the capture session, folder safety rules, the notes file, and the list of recordings. |
 | `Sources/MeetingRecap/` | The SwiftUI shell: collapsible meeting list, and the Meeting and Recap tabs. |
-| `Tests/RecorderCoreTests/` | Folder rules, the recordings list, and a real file write with a dropout and a late start. Generated audio only. |
+| `Tests/RecorderCoreTests/` | Folder rules, the notes file, the recordings list, and a real file write with a dropout and a late start. Generated audio only. |
 | `scripts/bundle.sh` | Builds, optionally tests, and wraps the app in a bundle. |
 
 ## What is and isn't checked

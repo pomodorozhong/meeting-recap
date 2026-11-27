@@ -120,7 +120,8 @@ def simulate(runs, turns, duration, interval, lock):
         proposed = np.zeros_like(shown)
         for r, sid in enumerate(ids):
             proposed[sid] |= rows[r]
-        lock_frame = 0 if lock is None else max(0, frames(t - lock))
+        # Only audio an earlier update already showed can be locked; newer audio is shown first.
+        lock_frame = 0 if lock is None else min(n_prev, max(0, frames(t - lock)))
         for j, (a, b) in enumerate(turn_frames):
             if a >= n_prev:
                 continue  # not shown before this update
@@ -169,7 +170,8 @@ def pooled(rows):
     settle = sorted(s for r in rows for s in r["settle_seconds"])
     out.update({
         "locked_change_rate": out["locked_changes"] / out["locked_checks"] if out["locked_checks"] else None,
-        "provisional_change_rate": out["provisional_changes"] / out["provisional_checks"],
+        "provisional_change_rate": (out["provisional_changes"] / out["provisional_checks"]
+                                    if out["provisional_checks"] else None),
         "first_label_right_rate": out["first_label_right"] / out["turns"],
         "live_error_rate": err / ref,
         "settle_median_s": statistics.median(settle),
@@ -198,7 +200,9 @@ def main():
             for lock in LOCKS:
                 row["settings"][f"{interval}/{lock}"] = simulate(runs, turns, duration, interval, lock)
         report["cases"][case] = row
-    for group, names in (("scripted", SCRIPTED), ("controls", CONTROLS)):
+    by_count = {f"scripted-{n}-speakers": tuple(c for c in SCRIPTED if report["cases"][c]["speakers"] == n)
+                for n in (1, 2, 3, 4)}
+    for group, names in (("scripted", SCRIPTED), *by_count.items(), ("controls", CONTROLS)):
         rows = {name: report["cases"][name] for name in names}
         ref = sum(r["whole_run"]["reference_s"] for r in rows.values())
         report["pooled"][group] = {

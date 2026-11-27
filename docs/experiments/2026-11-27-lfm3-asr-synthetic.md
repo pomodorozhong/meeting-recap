@@ -90,7 +90,18 @@ The declared prompt was better than `Perform ASR.` in both languages. Every Mand
 
 ## Runtime and memory
 
-Measured by the runner on the M2 Pro, with the model loaded once per run (2.1 s from the cache): decoding the 31.9 minutes took 151.6 s for `lfm3-declared` and 149.9 s for `lfm3-auto`, a real-time factor of about 0.08. Each whole run took about 155 s of wall time by `/usr/bin/time`. Peak MLX memory was 4.3 GB. The published wall times on the same calls were 316 s for full Whisper and 166 s for Turbo, but each of those launched a process and loaded the model per call, so they are not a like-for-like comparison.
+Measured by the runner on the M2 Pro, with the model loaded once per run (2.1 s from the cache): decoding the 31.9 minutes took 151.6 s for `lfm3-declared` and 149.9 s for `lfm3-auto`, a real-time factor of about 0.08. Each whole run took about 155 s of wall time by `/usr/bin/time`. Peak MLX allocations were 4.3 GB; that counts MLX's own memory only, not the whole process. The published wall times on the same calls were 316 s for full Whisper and 166 s for Turbo, but each of those launched a process and loaded the model per call, so they are not a like-for-like comparison.
+
+Peak memory measured like the published figures, after the runs on 2026-11-27: one Python process per call (`lfm3-declared` settings, model loaded in that process), with the peak memory footprint from `/usr/bin/time -l`. The other columns are the saved figures from the [recognizer comparison](2026-11-02-synthetic-collection-recognition.md#runtime-and-memory) on the same calls.
+
+| Call (length) | LFM3 | Full Whisper | Turbo Q4 | Breeze |
+| --- | ---: | ---: | ---: | ---: |
+| `script` (5.5 min) | 5.06 GB | 9.00 GB | 4.16 GB | 13.43 GB |
+| `english-training` (3.4 min) | 5.08 GB | 7.46 GB | 3.35 GB | 11.96 GB |
+| `handoff` (0.9 min) | 4.98 GB | 6.26 GB | 2.27 GB | 7.95 GB |
+| `stocktake` (0.8 min) | 4.89 GB | 5.53 GB | 2.04 GB | 6.84 GB |
+
+LFM3's peak stays near 5 GB because it only sees one window of at most 30 s; the others take the whole file, and their peaks grow with the call. On the longest call LFM3 used about half of full Whisper's peak, and Turbo still used the least. Real calls of 20–65 minutes were not measured.
 
 ## Decision
 

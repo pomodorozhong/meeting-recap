@@ -1,8 +1,8 @@
 # 2026-11-28: four small language models as the recap model
 
-**Status:** runs in progress (thinking-on arm)
+**Status:** complete
 
-**Outcome:** Spark X2.6-4B matched Qwen3.5 9B on the two synthetic calls: 6 of 9 facts fully correct with supporting citations, the same number of reopened questions, and a 35% lower memory peak, but about the same time. Gemma4 E2B, MiniCPM5 2B and LFM3-1.7B each got 4 of 9 facts fully correct or fewer, and LFM3 returned unreadable JSON on one call. The default doesn't change yet: Spark goes on to the long real calls of #28 as a candidate recap model (decision 20).
+**Outcome:** Two settings matched Qwen3.5 9B on the two synthetic calls, with 6 of 9 facts fully correct with supporting citations and the same number of reopened questions. Spark X2.6-4B with thinking off had a 35% lower memory peak and took about the same time. Gemma4 E2B with thinking on had a 29% lower peak and took about 27 s per call. With thinking off, Gemma4 E2B, MiniCPM5 2B and LFM3-1.7B got 4 of 9 or fewer. With thinking on, every model except Gemma4 thought until the 16,384-token cap on both calls and returned no usable recap, Qwen included. The default doesn't change yet: Spark (thinking off) and Gemma4 E2B (thinking on) go on to the long real calls of #28 as candidate recap models (decision 20).
 
 ## Reproduce
 
@@ -13,8 +13,8 @@
 | Check saved results without models | `uv run --project experiments/small-recap-models experiments/small-recap-models/scores.py "$OUT"` rebuilds the measurements from saved runs; [the saved measurements](2026-11-28-small-recap-models-results.json) are the committed copy |
 
 - **It needs:** `FIXTURES`, the verified 17-recording collection built by [`collection.py`](../../experiments/synthetic-call/README.md#seventeen-recording-collection), and `OUT`, a new absolute path outside Git. The script refuses a folder inside Git.
-- **It writes:** for each call, `OUT/<call>/lines.json` (the transcript lines every model reads) and `OUT/<call>/<model>/{notes.json,summary.md,run.json}`; `OUT/<model>.time` from `/usr/bin/time -l`; and the measurements in `OUT/scores.json`.
-- **Takes about:** 3 minutes for all five models, including model loading (`run.sh` on 2026-11-28, models already downloaded). Grading by hand took longer.
+- **It writes:** for each call, `OUT/<call>/lines.json` (the transcript lines every model reads) and `OUT/<call>/<run>/{notes.json,summary.md,run.json}`, where `<run>` is the model name, with `-thinking` for the thinking-on arm; `OUT/<run>.time` from `/usr/bin/time -l`; and the measurements in `OUT/scores.json`.
+- **Takes about:** 3 minutes for the thinking-off arm and 41 minutes for the thinking-on arm, including model loading (2026-11-28, models already downloaded). Most of the thinking-on time is models thinking until the cap. Grading by hand took longer.
 - **By hand:** grading each recap against the fixed checks below, saved as `OUT/judgments.json` in the format `scores.py` describes, then rerunning `scores.py`.
 - **Expect to differ:** timings and memory on any rerun. Model text should repeat on the same machine and package versions, since decoding is greedy.
 
@@ -60,6 +60,8 @@ The thinking-on runs are judged by the same rule, against the thinking-off Qwen3
 
 ## Results
 
+### Thinking off
+
 All five models ran on both calls. Qwen3.5 9B's recaps were byte-identical to the 2026-11-02 `exact` recaps, so this run gave every model the same lines and prompt as that experiment. Grading Qwen's recaps again gave the same verdicts as on 2026-11-02.
 
 | Model | Onboarding (4 checks) | English audit (5 checks) | Fully correct | **Fully correct, supporting citations** | Calls with a reopened settled question | Unreadable replies |
@@ -79,9 +81,31 @@ The per-check verdicts, citation counts and digests of every graded recap are in
 
 Under the rule fixed before the runs, Spark X2.6-4B meets the bar to **replace** Qwen: as many facts fully correct with supporting citations (6), no more reopened questions, and no unreadable reply. No model qualifies as a **lighter option**: the ones that use under half of Qwen's memory (MiniCPM and LFM3) are two facts behind, and LFM3 had an unreadable reply.
 
-**Limits.** Nine checks on two short synthetic calls, graded once by a grader who knew which model wrote each recap. Both calls fit in one prompt, so this says nothing about the merge step, where most long real calls fail (#28). The prompt was written and tuned for Qwen, which may favor it.
+### Thinking on
+
+Only Gemma4 E2B returned recaps. The other eight replies reached the 16,384-token cap. Seven never closed their thinking: Qwen, MiniCPM and Spark went round the same points dozens of times (MiniCPM repeated one line of reasoning over 130 times), and LFM3 was still drafting its JSON inside its thinking. LFM3 closed its thinking on the audit, but its JSON was cut off at the cap. Under the plan, each counts as unreadable and scores zero on its call.
+
+| Run | Onboarding (4 checks) | English audit (5 checks) | Fully correct | **Fully correct, supporting citations** | Calls with a reopened settled question | Unreadable replies |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Qwen3.5 9B, thinking off (baseline) | 3 full | 3 full, 2 partial | 6/9 | **6/9** | 1 | 0 |
+| Gemma4 E2B, thinking on | 2 full, 1 partial | 4 full, 1 partial | 6/9 | **6/9** | 1 | 0 |
+| Qwen3.5 9B, thinking on | capped, scored 0 | capped, scored 0 | 0/9 | **0/9** | 0 | 2 |
+| Spark X2.6-4B, thinking on | capped, scored 0 | capped, scored 0 | 0/9 | **0/9** | 0 | 2 |
+| MiniCPM5 2B, thinking on | capped, scored 0 | capped, scored 0 | 0/9 | **0/9** | 0 | 2 |
+| LFM3-1.7B, thinking on | capped, scored 0 | capped, scored 0 | 0/9 | **0/9** | 0 | 2 |
+
+- **Gemma4 with thinking** gained four facts with supporting citations over Gemma4 without it (6 against 2). On onboarding it cited both assignments, which it had left uncited before, but it still said the test environment needed confirmation after access had been restored. On the audit it stated the corrected booking, which it had missed before, reopened nothing, and implied that the cables hadn't arrived without giving the Friday date. It again wrote the English call's recap in English. It still left 4 onboarding items uncited (7 citations dropped).
+- **Qwen with thinking** is variant A2 of the [real-call recap plan](2026-11-04-recap-stage-real-calls.md). With the same 16,384-token cap, it thought for about 8 minutes per call and never reached its JSON on either 1- to 2-minute call. That makes it unlikely to finish on calls of 37 minutes or more.
+
+Under the rule fixed before the runs, Gemma4 E2B with thinking on also meets the bar to **replace** Qwen: as many facts fully correct with supporting citations (6), no more reopened questions, and no unreadable reply. No thinking-on run qualifies as a **lighter option**.
+
+### Limits
+
+Nine checks on two short synthetic calls, graded once by a grader who knew which model wrote each recap. Both calls fit in one prompt, so this says nothing about the merge step, where most long real calls fail (#28). The prompt was written and tuned for Qwen with thinking off, which may favor it. The thinking-on arm tried one cap and each model's default thinking settings; a larger cap or a thinking budget might change which models finish.
 
 ## Runtime and memory
+
+Thinking off:
 
 | Model | Recap seconds, onboarding / audit | MLX peak | Process peak footprint | Process wall time, both calls with loading |
 | --- | ---: | ---: | ---: | ---: |
@@ -93,19 +117,33 @@ Under the rule fixed before the runs, Spark X2.6-4B meets the bar to **replace**
 
 Recap seconds and the MLX peak come from each `run.json`. The process figures come from `/usr/bin/time -l` around each model's process, one at a time, on the M2 Pro with the desktop in normal use. Spark writes long replies (1,879 tokens on the audit against Qwen's 1,402), so it saved memory but little time. These are single observations on one machine.
 
+Thinking on:
+
+| Model | Recap seconds, onboarding / audit | MLX peak | Process peak footprint | Process wall time, both calls with loading |
+| --- | ---: | ---: | ---: | ---: |
+| Gemma4 E2B | 27.7 / 27.1 | 4.2 GB | 4.8 GB | 59 s |
+| Qwen3.5 9B | 476.1 / 476.3, capped | 6.3 GB | 8.0 GB | 957 s |
+| Spark X2.6-4B | 345.8 / 346.2, capped | 4.0 GB | 5.6 GB | 695 s |
+| MiniCPM5 2B | 233.4 / 236.5, capped | 2.5 GB | 4.1 GB | 472 s |
+| LFM3-1.7B | 129.2 / 128.2, capped | 1.8 GB | 2.4 GB | 260 s |
+
+Gemma4's thinking-on replies were about 1,700 tokens each, so thinking cost it about 15 s per call over thinking off. Every other model spent the full 16,384 tokens.
+
 ## Decision
 
-Keep Qwen3.5 9B as the recap model for now, and take Spark X2.6-4B to the long real calls of #28 as one of the pinned A4 recap models, as the plan required before decision 7 changes. Rule out Gemma4 E2B, MiniCPM5 2B and LFM3-1.7B as recap models for now. See decision 20.
+Keep Qwen3.5 9B with thinking off as the recap model for now. Take two candidates to the long real calls of #28 as pinned A4 recap models, as the plan required before decision 7 changes: Spark X2.6-4B with thinking off, and Gemma4 E2B with thinking on. Rule out MiniCPM5 2B and LFM3-1.7B with this prompt, and Gemma4 E2B with thinking off. Thinking on doesn't work for Qwen, Spark, MiniCPM or LFM3 within a 16,384-token cap. See decision 20.
 
 ## Open questions
 
-- Does Spark keep its facts on calls of 37 minutes or more, where the merge step runs and most of Qwen's recaps fail at the output cap (#28)? Its longer replies may hit that cap sooner.
+- Do Spark and Gemma4 with thinking keep their facts on calls of 37 minutes or more, where the merge step runs and most of Qwen's recaps fail at the output cap (#28)? Spark's longer replies may hit that cap sooner. Gemma4's thinking stayed short here, but nothing shows it will on a long call.
+- Why did Gemma4 stop thinking after about 1,700 tokens while the other four never stopped? A thinking budget, such as Spark's `thinking_effort` setting, or a prompt that asks for brief reasoning, might rescue the others; neither was tried.
+- Variant A2 of the real-call plan (Qwen with thinking) failed here on two short calls, so it probably needs a different cap or a thinking budget before it's worth running on the long ones.
 - Would a prompt written for smaller models (shorter rules, an example) close MiniCPM's and LFM3's gap? Every model here used the prompt tuned for Qwen.
 - LFM3 through mlx-lm, once [ml-explore/mlx-lm#2016](https://github.com/ml-explore/mlx-lm/pull/2016) lands: the same weights should give the same text, but this run didn't check.
 
 ## Where this ran
 
-- **Code:** commit `c69e43c` on the branch for #96, plus the scoring fix and the closed stdin in `run.sh` that the same PR commits; the recaps came from the `run.py` at `c69e43c`, which those changes don't touch.
+- **Code:** the thinking-off recaps came from the `run.py` at commit `c69e43c` and the thinking-on recaps from `74d8e8b`, both on the branch for #96. `74d8e8b` adds the thinking option and the Gemma4 channel rule, and re-reading the thinking-off replies with it gave the same notes.
 - **Models and weights:** the revisions in the plan.
 - **Machine:** one M2 Pro with 16 GB, macOS 26.6.2; MLX 0.32.4, mlx-lm 0.32.2, mlx-vlm 0.8.1, transformers 5.24.1.
 - **Kept outside the repository:** the transcript lines, recaps and judgments with notes, in the private review dataset under benchmark ID `small-recap-models-20261128`. Public results hold counts and digests only.

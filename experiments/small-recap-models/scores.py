@@ -9,7 +9,7 @@ Reads OUT/<case>/<model>/run.json, OUT/<model>.time (from /usr/bin/time -l) and,
                             "reopens_settled_issue": bool, "unsupported_or_garbled_detail": bool,
                             "summary_sha256": "<sha256 of summary.md that was graded>", "notes": "..."}}}
 
-"supported" says, per check, whether the lines the recap cites for that fact support it. A verdict counts only
+A run whose reply wasn't readable JSON scores zero without a judgment. "supported" says, per check, whether the lines the recap cites for that fact support it. A verdict counts only
 while summary_sha256 matches the summary.md on disk, so changed text never inherits an earlier grade. The output
 holds no recap or transcript text, so it can be committed; the judgments' "notes" stay out of it.
 """
@@ -36,7 +36,11 @@ def time_stats(path):
             "max_rss_bytes": int(rss.group(1)) if rss else None}
 
 
-def grade(judgment, summary, checks):
+def grade(judgment, summary, checks, failed=False):
+    if failed:  # an unreadable reply scores zero on its call, as the plan says
+        return {"graded": True, "failed": True, "verdicts": ["wrong_or_absent"] * checks, "supported": [False] * checks,
+                "full": 0, "partial": 0, "full_and_supported": 0, "reopens_settled_issue": False,
+                "unsupported_or_garbled_detail": False, "summary_sha256": None}
     if judgment is None:
         return {"graded": False}
     if summary is None or hashlib.sha256(summary.read_bytes()).hexdigest() != judgment["summary_sha256"]:
@@ -79,7 +83,7 @@ def main(out):
                 "evidence": run.get("evidence"),
                 "summary_sha256": hashlib.sha256(summary.read_bytes()).hexdigest() if summary.is_file() else None,
                 "grade": grade(judgments.get(case, {}).get(name), summary if summary.is_file() else None,
-                               CHECKS[case]),
+                               CHECKS[case], failed=run["status"] == "failed"),
             }
         result["cases"][case] = entry
     json.dump(result, sys.stdout, indent=1)

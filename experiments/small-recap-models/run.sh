@@ -17,7 +17,7 @@ models=${*:-$("$python" "$here/models.py" list)}
 mkdir -p "$out"
 export HF_HUB_OFFLINE=1  # every model was downloaded by setup.sh; a missing one fails instead of downloading
 for model in $models; do
-    /usr/bin/time -l "$python" "$here/run.py" "$fixtures" "$out" --model "$model" 2> "$out/$model.time"
+    /usr/bin/time -l "$python" "$here/run.py" "$fixtures" "$out" --model "$model" 2> "$out/$model.time" < /dev/null
     tail -n 25 "$out/$model.time" | grep -E "real|peak memory footprint" || true
 done
 "$python" "$here/scores.py" "$out" > "$out/scores.json"

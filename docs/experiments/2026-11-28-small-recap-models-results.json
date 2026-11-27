@@ -1,0 +1,474 @@
+{
+ "models": {
+  "qwen3.5-9b": {
+   "repo": "mlx-community/Qwen3.5-9B-4bit",
+   "revision": "8b2b98c00a6b4d291155e4890773ca8f769aee53",
+   "loader": "mlx-lm",
+   "process": {
+    "process_seconds": 68.3,
+    "peak_footprint_bytes": 6725047096,
+    "max_rss_bytes": 1193607168
+   }
+  },
+  "gemma4-e2b": {
+   "repo": "lmstudio-community/gemma-4-E2B-it-MLX-4bit",
+   "revision": "31512dab743c73974a99795270031a6f85072d94",
+   "loader": "mlx-lm",
+   "process": {
+    "process_seconds": 30.9,
+    "peak_footprint_bytes": 4777086936,
+    "max_rss_bytes": 3273785344
+   }
+  },
+  "minicpm5-2b": {
+   "repo": "openbmb/MiniCPM5-2B-MLX",
+   "revision": "c8c072dbfbc5ce9c8faf3fbff9665b86fdc29c62",
+   "loader": "mlx-lm",
+   "process": {
+    "process_seconds": 13.18,
+    "peak_footprint_bytes": 2648476072,
+    "max_rss_bytes": 1798504448
+   }
+  },
+  "lfm3-1.7b": {
+   "repo": "LiquidAI/LFM3-1.7B-MLX-4bit",
+   "revision": "91f34088d6946482cbcae11b85d4657093618c34",
+   "loader": "mlx-vlm",
+   "process": {
+    "process_seconds": 13.14,
+    "peak_footprint_bytes": 2169423960,
+    "max_rss_bytes": 1460649984
+   }
+  },
+  "spark-x2.6-4b": {
+   "repo": "mlx-community/Spark-X2.6-4B-OptiQ-4bit",
+   "revision": "6d83e911abefcbbb9c7c595e6517264f36db03dd",
+   "loader": "mlx-lm",
+   "process": {
+    "process_seconds": 59.68,
+    "peak_footprint_bytes": 4364127520,
+    "max_rss_bytes": 3354640384
+   }
+  }
+ },
+ "cases": {
+  "onboarding": {
+   "inputs": {
+    "transcript_sha256": "51c916110986a65520d9e3d657e6ebb471979d9b05a6263e77ba14563465c153",
+    "lines_sha256": "86aef1f5d4f6b68992980fe7ca469774c9c5b2a604b963a700d5a8a17d1333d2",
+    "lines": 16
+   },
+   "checks": 4,
+   "runs": {
+    "qwen3.5-9b": {
+     "status": "done",
+     "reason": null,
+     "seconds": 19.74,
+     "mlx_peak_bytes": 6211080564,
+     "chunks": 1,
+     "prompt_tokens": [
+      832
+     ],
+     "reply_tokens": [
+      517
+     ],
+     "evidence": {
+      "evidence_dropped": 0,
+      "items_without_evidence": 0
+     },
+     "summary_sha256": "723f014c4201a25ff7898f2f5df826123deb89acf923241335d7c9b77ea9f844",
+     "grade": {
+      "graded": true,
+      "verdicts": [
+       "full",
+       "full",
+       "wrong_or_absent",
+       "full"
+      ],
+      "supported": [
+       true,
+       true,
+       false,
+       true
+      ],
+      "full": 3,
+      "partial": 0,
+      "full_and_supported": 3,
+      "reopens_settled_issue": false,
+      "unsupported_or_garbled_detail": false,
+      "summary_sha256": "723f014c4201a25ff7898f2f5df826123deb89acf923241335d7c9b77ea9f844"
+     }
+    },
+    "gemma4-e2b": {
+     "status": "done",
+     "reason": null,
+     "seconds": 14.0,
+     "mlx_peak_bytes": 4176021902,
+     "chunks": 1,
+     "prompt_tokens": [
+      848
+     ],
+     "reply_tokens": [
+      816
+     ],
+     "evidence": {
+      "evidence_dropped": 11,
+      "items_without_evidence": 10
+     },
+     "summary_sha256": "ec31850eab5b48198b951ef2f825a47bdf6ec5b79ac7af9eb0c5f1e4d3994826",
+     "grade": {
+      "graded": true,
+      "verdicts": [
+       "full",
+       "full",
+       "wrong_or_absent",
+       "partial"
+      ],
+      "supported": [
+       false,
+       false,
+       false,
+       false
+      ],
+      "full": 2,
+      "partial": 1,
+      "full_and_supported": 0,
+      "reopens_settled_issue": true,
+      "unsupported_or_garbled_detail": true,
+      "summary_sha256": "ec31850eab5b48198b951ef2f825a47bdf6ec5b79ac7af9eb0c5f1e4d3994826"
+     }
+    },
+    "minicpm5-2b": {
+     "status": "done",
+     "reason": null,
+     "seconds": 3.47,
+     "mlx_peak_bytes": 2297159174,
+     "chunks": 1,
+     "prompt_tokens": [
+      844
+     ],
+     "reply_tokens": [
+      217
+     ],
+     "evidence": {
+      "evidence_dropped": 0,
+      "items_without_evidence": 2
+     },
+     "summary_sha256": "a0eab0cb884aefe2ab01a14c02e83a03a4eedea135146a3b2a597dd74a1d25e5",
+     "grade": {
+      "graded": true,
+      "verdicts": [
+       "wrong_or_absent",
+       "wrong_or_absent",
+       "wrong_or_absent",
+       "partial"
+      ],
+      "supported": [
+       false,
+       false,
+       false,
+       true
+      ],
+      "full": 0,
+      "partial": 1,
+      "full_and_supported": 0,
+      "reopens_settled_issue": true,
+      "unsupported_or_garbled_detail": true,
+      "summary_sha256": "a0eab0cb884aefe2ab01a14c02e83a03a4eedea135146a3b2a597dd74a1d25e5"
+     }
+    },
+    "lfm3-1.7b": {
+     "status": "failed",
+     "reason": "summary model returned invalid JSON: Expecting value: line 4 column 3 (char 288)",
+     "seconds": 2.91,
+     "mlx_peak_bytes": 1739310498,
+     "chunks": 1,
+     "prompt_tokens": [
+      856
+     ],
+     "reply_tokens": [
+      272
+     ],
+     "evidence": null,
+     "summary_sha256": null,
+     "grade": {
+      "graded": true,
+      "failed": true,
+      "verdicts": [
+       "wrong_or_absent",
+       "wrong_or_absent",
+       "wrong_or_absent",
+       "wrong_or_absent"
+      ],
+      "supported": [
+       false,
+       false,
+       false,
+       false
+      ],
+      "full": 0,
+      "partial": 0,
+      "full_and_supported": 0,
+      "reopens_settled_issue": false,
+      "unsupported_or_garbled_detail": false,
+      "summary_sha256": null
+     }
+    },
+    "spark-x2.6-4b": {
+     "status": "done",
+     "reason": null,
+     "seconds": 16.49,
+     "mlx_peak_bytes": 3812639962,
+     "chunks": 1,
+     "prompt_tokens": [
+      864
+     ],
+     "reply_tokens": [
+      705
+     ],
+     "evidence": {
+      "evidence_dropped": 0,
+      "items_without_evidence": 0
+     },
+     "summary_sha256": "34fc42c9f670c0a10544ff90e5632e2fc2663463f1bc682f28a68982e62150d6",
+     "grade": {
+      "graded": true,
+      "verdicts": [
+       "full",
+       "full",
+       "partial",
+       "partial"
+      ],
+      "supported": [
+       true,
+       true,
+       true,
+       true
+      ],
+      "full": 2,
+      "partial": 2,
+      "full_and_supported": 2,
+      "reopens_settled_issue": false,
+      "unsupported_or_garbled_detail": false,
+      "summary_sha256": "34fc42c9f670c0a10544ff90e5632e2fc2663463f1bc682f28a68982e62150d6"
+     }
+    }
+   }
+  },
+  "english-audit": {
+   "inputs": {
+    "transcript_sha256": "03ab7cf0ec09dd88b08ad3aeb813c117fc6d59e268353c90fb3f597f06cc7287",
+    "lines_sha256": "adb99df1f600ed565acf62c30ea7622127b6d33c4d97b769695ba7c126de2424",
+    "lines": 2
+   },
+   "checks": 5,
+   "runs": {
+    "qwen3.5-9b": {
+     "status": "done",
+     "reason": null,
+     "seconds": 43.44,
+     "mlx_peak_bytes": 6251108970,
+     "chunks": 1,
+     "prompt_tokens": [
+      942
+     ],
+     "reply_tokens": [
+      1402
+     ],
+     "evidence": {
+      "evidence_dropped": 0,
+      "items_without_evidence": 0
+     },
+     "summary_sha256": "9956ccb576825cca5d6975a2e8f87c32238d706f9da50cbb6f29f20c19268157",
+     "grade": {
+      "graded": true,
+      "verdicts": [
+       "full",
+       "full",
+       "full",
+       "partial",
+       "partial"
+      ],
+      "supported": [
+       true,
+       true,
+       true,
+       true,
+       false
+      ],
+      "full": 3,
+      "partial": 2,
+      "full_and_supported": 3,
+      "reopens_settled_issue": true,
+      "unsupported_or_garbled_detail": true,
+      "summary_sha256": "9956ccb576825cca5d6975a2e8f87c32238d706f9da50cbb6f29f20c19268157"
+     }
+    },
+    "gemma4-e2b": {
+     "status": "done",
+     "reason": null,
+     "seconds": 12.29,
+     "mlx_peak_bytes": 4223198944,
+     "chunks": 1,
+     "prompt_tokens": [
+      979
+     ],
+     "reply_tokens": [
+      754
+     ],
+     "evidence": {
+      "evidence_dropped": 0,
+      "items_without_evidence": 0
+     },
+     "summary_sha256": "b482ee7705e50cbf79ff79a0effb06d8bfd93814268439b3a4b0be1d60c19992",
+     "grade": {
+      "graded": true,
+      "verdicts": [
+       "full",
+       "full",
+       "partial",
+       "wrong_or_absent",
+       "partial"
+      ],
+      "supported": [
+       true,
+       true,
+       true,
+       false,
+       true
+      ],
+      "full": 2,
+      "partial": 2,
+      "full_and_supported": 2,
+      "reopens_settled_issue": true,
+      "unsupported_or_garbled_detail": true,
+      "summary_sha256": "b482ee7705e50cbf79ff79a0effb06d8bfd93814268439b3a4b0be1d60c19992"
+     }
+    },
+    "minicpm5-2b": {
+     "status": "done",
+     "reason": null,
+     "seconds": 7.1,
+     "mlx_peak_bytes": 2350473436,
+     "chunks": 1,
+     "prompt_tokens": [
+      960
+     ],
+     "reply_tokens": [
+      562
+     ],
+     "evidence": {
+      "evidence_dropped": 0,
+      "items_without_evidence": 0
+     },
+     "summary_sha256": "03597f6df4b39e02db4579279eb231fce3afbbf1bfaaf1a8945c30e67bc449d2",
+     "grade": {
+      "graded": true,
+      "verdicts": [
+       "full",
+       "full",
+       "full",
+       "full",
+       "wrong_or_absent"
+      ],
+      "supported": [
+       true,
+       true,
+       true,
+       true,
+       false
+      ],
+      "full": 4,
+      "partial": 0,
+      "full_and_supported": 4,
+      "reopens_settled_issue": true,
+      "unsupported_or_garbled_detail": true,
+      "summary_sha256": "03597f6df4b39e02db4579279eb231fce3afbbf1bfaaf1a8945c30e67bc449d2"
+     }
+    },
+    "lfm3-1.7b": {
+     "status": "done",
+     "reason": null,
+     "seconds": 7.64,
+     "mlx_peak_bytes": 1842082800,
+     "chunks": 1,
+     "prompt_tokens": [
+      977
+     ],
+     "reply_tokens": [
+      908
+     ],
+     "evidence": {
+      "evidence_dropped": 0,
+      "items_without_evidence": 0
+     },
+     "summary_sha256": "2fa2f76053fcfda92ccd8dc13e014b52ede03c88cd77b639137e79539c216901",
+     "grade": {
+      "graded": true,
+      "verdicts": [
+       "full",
+       "full",
+       "full",
+       "full",
+       "partial"
+      ],
+      "supported": [
+       true,
+       true,
+       true,
+       true,
+       true
+      ],
+      "full": 4,
+      "partial": 1,
+      "full_and_supported": 4,
+      "reopens_settled_issue": true,
+      "unsupported_or_garbled_detail": true,
+      "summary_sha256": "2fa2f76053fcfda92ccd8dc13e014b52ede03c88cd77b639137e79539c216901"
+     }
+    },
+    "spark-x2.6-4b": {
+     "status": "done",
+     "reason": null,
+     "seconds": 40.47,
+     "mlx_peak_bytes": 3926887512,
+     "chunks": 1,
+     "prompt_tokens": [
+      972
+     ],
+     "reply_tokens": [
+      1879
+     ],
+     "evidence": {
+      "evidence_dropped": 24,
+      "items_without_evidence": 19
+     },
+     "summary_sha256": "e69b2b8a5e8572a57dc48fc1cd51051823ef10738c4959446daf2d9733fa37fe",
+     "grade": {
+      "graded": true,
+      "verdicts": [
+       "full",
+       "full",
+       "full",
+       "full",
+       "partial"
+      ],
+      "supported": [
+       true,
+       true,
+       true,
+       true,
+       true
+      ],
+      "full": 4,
+      "partial": 1,
+      "full_and_supported": 4,
+      "reopens_settled_issue": true,
+      "unsupported_or_garbled_detail": true,
+      "summary_sha256": "e69b2b8a5e8572a57dc48fc1cd51051823ef10738c4959446daf2d9733fa37fe"
+     }
+    }
+   }
+  }
+ }
+}

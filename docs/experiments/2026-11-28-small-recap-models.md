@@ -1,8 +1,8 @@
 # 2026-11-28: four small language models as the recap model
 
-**Status:** planned
+**Status:** complete
 
-**Outcome:** pending.
+**Outcome:** Spark X2.6-4B matched Qwen3.5 9B on the two synthetic calls: 6 of 9 facts fully correct with supporting citations, the same number of reopened questions, and a 35% lower memory peak, but about the same time. Gemma4 E2B, MiniCPM5 2B and LFM3-1.7B each got 4 of 9 facts fully correct or fewer, and LFM3 returned unreadable JSON on one call. The default doesn't change yet: Spark goes on to the long real calls of #28 as a candidate recap model (decision 20).
 
 ## Reproduce
 
@@ -14,7 +14,7 @@
 
 - **It needs:** `FIXTURES`, the verified 17-recording collection built by [`collection.py`](../../experiments/synthetic-call/README.md#seventeen-recording-collection), and `OUT`, a new absolute path outside Git. The script refuses a folder inside Git.
 - **It writes:** for each call, `OUT/<call>/lines.json` (the transcript lines every model reads) and `OUT/<call>/<model>/{notes.json,summary.md,run.json}`; `OUT/<model>.time` from `/usr/bin/time -l`; and the measurements in `OUT/scores.json`.
-- **Takes about:** pending.
+- **Takes about:** 3 minutes for all five models, including model loading (`run.sh` on 2026-11-28, models already downloaded). Grading by hand took longer.
 - **By hand:** grading each recap against the fixed checks below, saved as `OUT/judgments.json` in the format `scores.py` describes, then rerunning `scores.py`.
 - **Expect to differ:** timings and memory on any rerun. Model text should repeat on the same machine and package versions, since decoding is greedy.
 
@@ -58,23 +58,52 @@ None.
 
 ## Results
 
-Pending.
+All five models ran on both calls. Qwen3.5 9B's recaps were byte-identical to the 2026-11-02 `exact` recaps, so this run gave every model the same lines and prompt as that experiment. Grading Qwen's recaps again gave the same verdicts as on 2026-11-02.
+
+| Model | Onboarding (4 checks) | English audit (5 checks) | Fully correct | **Fully correct, supporting citations** | Calls with a reopened settled question | Unreadable replies |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Qwen3.5 9B (baseline) | 3 full | 3 full, 2 partial | 6/9 | **6/9** | 1 | 0 |
+| Spark X2.6-4B | 2 full, 2 partial | 4 full, 1 partial | 6/9 | **6/9** | 1 | 0 |
+| MiniCPM5 2B | 1 partial | 4 full | 4/9 | **4/9** | 2 | 0 |
+| LFM3-1.7B | unreadable, scored 0 | 4 full, 1 partial | 4/9 | **4/9** | 1 | 1 |
+| Gemma4 E2B | 2 full, 1 partial | 2 full, 2 partial | 4/9 | **2/9** | 2 | 0 |
+
+The per-check verdicts, citation counts and digests of every graded recap are in [the saved measurements](2026-11-28-small-recap-models-results.json).
+
+- **Onboarding** (four speakers, Mandarin) separated the models. Qwen and Spark gave both assignments with owner, time and a supporting line. MiniCPM lost both, leaving an empty action item and an empty open question. Gemma had both assignments, but none of its action items cited a valid line (11 citations dropped, 10 items uncited). LFM3's reply had a trailing comma inside the JSON, which the pipeline's parser rejects too. Spark was the only model to mention the successful retry, though it implied rather than stated that access was restored. Gemma and MiniCPM listed "test environment still awaiting confirmation" as a decision after access had been restored.
+- **English audit** (one speaker) was easier for the small models than for Qwen. Spark, MiniCPM and LFM3 each stated the corrected Thursday booking cleanly. Qwen gave the right day and time but called the superseded entry Thursday at four instead of Wednesday, as it did on 2026-11-02. Every model except MiniCPM gave the Friday delivery but then asked again whether it had arrived. MiniCPM left the delivery date out and repeated one action item four times.
+- **Citations:** Spark left 19 items uncited on the audit (24 citations dropped as invalid), against Qwen's zero. Every fact it got right still had a supporting line, but a reader gets fewer cited lines to check the rest.
+- **Language:** Gemma and LFM3 wrote the English call's recap in English, despite the prompt asking for Traditional Chinese. MiniCPM used some Simplified characters.
+
+Under the rule fixed before the runs, Spark X2.6-4B meets the bar to **replace** Qwen: as many facts fully correct with supporting citations (6), no more reopened questions, and no unreadable reply. No model qualifies as a **lighter option**: the ones that use under half of Qwen's memory (MiniCPM and LFM3) are two facts behind, and LFM3 had an unreadable reply.
 
 **Limits.** Nine checks on two short synthetic calls, graded once by a grader who knew which model wrote each recap. Both calls fit in one prompt, so this says nothing about the merge step, where most long real calls fail (#28). The prompt was written and tuned for Qwen, which may favor it.
 
 ## Runtime and memory
 
-Pending. Wall time of the recap call, the MLX peak, and the process's peak memory footprint from `/usr/bin/time -l`, one model process at a time.
+| Model | Recap seconds, onboarding / audit | MLX peak | Process peak footprint | Process wall time, both calls with loading |
+| --- | ---: | ---: | ---: | ---: |
+| Qwen3.5 9B | 19.7 / 43.4 | 6.2 GB | 6.7 GB | 68 s |
+| Spark X2.6-4B | 16.5 / 40.5 | 3.9 GB | 4.4 GB | 60 s |
+| Gemma4 E2B | 14.0 / 12.3 | 4.2 GB | 4.8 GB | 31 s |
+| MiniCPM5 2B | 3.5 / 7.1 | 2.4 GB | 2.6 GB | 13 s |
+| LFM3-1.7B | 2.9 / 7.6 | 1.8 GB | 2.2 GB | 13 s |
+
+Recap seconds and the MLX peak come from each `run.json`. The process figures come from `/usr/bin/time -l` around each model's process, one at a time, on the M2 Pro with the desktop in normal use. Spark writes long replies (1,879 tokens on the audit against Qwen's 1,402), so it saved memory but little time. These are single observations on one machine.
 
 ## Decision
 
-Pending.
+Keep Qwen3.5 9B as the recap model for now, and take Spark X2.6-4B to the long real calls of #28 as one of the pinned A4 recap models, as the plan required before decision 7 changes. Rule out Gemma4 E2B, MiniCPM5 2B and LFM3-1.7B as recap models for now. See decision 20.
 
 ## Open questions
 
+- Does Spark keep its facts on calls of 37 minutes or more, where the merge step runs and most of Qwen's recaps fail at the output cap (#28)? Its longer replies may hit that cap sooner.
+- Would a prompt written for smaller models (shorter rules, an example) close MiniCPM's and LFM3's gap? Every model here used the prompt tuned for Qwen.
+- LFM3 through mlx-lm, once [ml-explore/mlx-lm#2016](https://github.com/ml-explore/mlx-lm/pull/2016) lands: the same weights should give the same text, but this run didn't check.
+
 ## Where this ran
 
-- **Code:** pending.
+- **Code:** commit `c69e43c` on the branch for #96, plus the scoring fix and the closed stdin in `run.sh` that the same PR commits; the recaps came from the `run.py` at `c69e43c`, which those changes don't touch.
 - **Models and weights:** the revisions in the plan.
-- **Machine:** one M2 Pro with 16 GB.
-- **Kept outside the repository:** the transcript lines, recaps and judgments with notes, in the private review dataset. Public results hold counts and digests only.
+- **Machine:** one M2 Pro with 16 GB, macOS 26.6.2; MLX 0.32.4, mlx-lm 0.32.2, mlx-vlm 0.8.1, transformers 5.24.1.
+- **Kept outside the repository:** the transcript lines, recaps and judgments with notes, in the private review dataset under benchmark ID `small-recap-models-20261128`. Public results hold counts and digests only.

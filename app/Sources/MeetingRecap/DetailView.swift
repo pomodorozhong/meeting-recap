@@ -56,7 +56,9 @@ struct DetailView: View {
         case .draft:
             Header(title: "New meeting", subtitle: "Not started")
         case .live:
-            Header(title: "New meeting", subtitle: model.phase == .stopping ? "Saving…" : "Recording", recording: true)
+            Header(title: "New meeting",
+                   subtitle: model.isDemo ? "Demo recording · invented sound, nothing is saved" : model.phase == .stopping ? "Saving…" : "Recording",
+                   recording: true)
         case .sample(let sample):
             Header(title: sample.title, subtitle: "\(clock(sample.durationSeconds)) · \(sample.speakerCount) speakers") {
                 StatusPill(text: "Sample", tone: .neutral)

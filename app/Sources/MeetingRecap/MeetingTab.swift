@@ -9,46 +9,88 @@ struct PlayerState {
     var toggle: () -> Void
 }
 
-/// The player: play, both tracks, and (for a sample) who spoke when and where the screenshots fall. It sits above the
-/// scrolling part of the Meeting tab, so it stays on screen.
+/// While recording: the card shows the timer and Stop in place of playback, and the timeline grows with the recording.
+struct LiveControls {
+    var elapsed: Double
+    var stopping: Bool
+    var stopLabel = "Stop and save"
+    /// The stretch the timeline shows: a fixed length, so turns keep their size, ending at the newest audio once the
+    /// recording is longer than that.
+    var windowStart: Double
+    var windowLength: Double
+    /// Every turn so far, for the overview of the whole recording above the window.
+    var allTurns: [TurnSpan] = []
+    var stop: () -> Void
+}
+
+/// One stretch on the Turns row: who talked, and in which color.
+struct TurnSpan: Hashable {
+    var start: Double
+    var end: Double
+    var who: Int
+    var color: Color
+}
+
+/// The meeting's timeline, the same while recording and afterwards: who talked when, with the screenshots above it,
+/// and your notes. Afterwards it spans the whole meeting; while recording it shows a fixed window that fills from the
+/// left and then moves with the recording, and there is no playhead. It sits above the scrolling part of the Meeting
+/// tab, so it stays on screen.
 struct PlayerCard: View {
     let state: PlayerState
-    let call: [WaveBar]
-    let mic: [WaveBar]
-    var sample: Sample?
-    var speakerOf: ((TranscriptLine) -> Int)?
+    var live: LiveControls?
+    var turns: [TurnSpan] = []
+    var shots: [Shot] = []
     var showShots: Binding<Bool>?
+    var notes: [Note] = []
     /// Jumps to a time in seconds.
     let seek: (Double) -> Void
 
     var body: some View {
-        let fraction = state.duration > 0 ? state.position / state.duration : 0
+        let position: Double? = live == nil ? state.position : nil
+        let start = live?.windowStart ?? 0
+        let length = live?.windowLength ?? state.duration
         VStack(spacing: 8) {
             HStack(spacing: 12) {
-                Button { state.toggle() } label: {
-                    Image(systemName: state.isPlaying ? "pause.fill" : "play.fill").frame(width: 16, height: 16)
+                if let live {
+                    Circle().fill(.red).frame(width: 10, height: 10)
+                    Text(clock(live.elapsed)).font(.title2.weight(.medium).monospacedDigit())
+                    Text("Timeline: \(clock(live.windowStart)) – \(clock(live.windowStart + live.windowLength))")
+                        .font(.callout.monospacedDigit()).foregroundStyle(.secondary)
+                    Spacer()
+                    Button { live.stop() } label: {
+                        Label(live.stopping ? "Saving…" : live.stopLabel, systemImage: "stop.circle.fill")
+                    }
+                    .buttonStyle(.glassProminent).tint(.red)
+                    .keyboardShortcut("r", modifiers: .command)
+                    .disabled(live.stopping)
+                } else {
+                    Button { state.toggle() } label: {
+                        Image(systemName: state.isPlaying ? "pause.fill" : "play.fill").frame(width: 16, height: 16)
+                    }
+                    .buttonStyle(.glass).buttonBorderShape(.circle)
+                    .keyboardShortcut(.space, modifiers: [])
+                    Text("\(clock(state.position)) / \(clock(state.duration))")
+                        .font(.callout.monospacedDigit()).foregroundStyle(.secondary)
+                    Spacer()
                 }
-                .buttonStyle(.glass).buttonBorderShape(.circle)
-                .keyboardShortcut(.space, modifiers: [])
-                Text("\(clock(state.position)) / \(clock(state.duration))")
-                    .font(.callout.monospacedDigit()).foregroundStyle(.secondary)
-                Spacer()
                 if let showShots {
                     Toggle(isOn: showShots) { Label("Screenshots", systemImage: "camera") }
                         .toggleStyle(.button).buttonStyle(.glass).controlSize(.small)
                 }
             }
-            LaneRow(label: "Call") {
-                WaveformView(bars: call, playhead: fraction, height: 28, onSeek: { seek($0 * state.duration) })
-            }
-            LaneRow(label: "You") {
-                WaveformView(bars: mic, playhead: fraction, height: 28, onSeek: { seek($0 * state.duration) })
-            }
-            if let sample, let speakerOf {
-                LaneRow(label: "Turns") {
-                    TimelineStrip(sample: sample, showShots: showShots?.wrappedValue ?? true, position: state.position,
-                                  speakerOf: speakerOf, pick: seek)
+            if let live {
+                LaneRow(label: "Overview") {
+                    OverviewStrip(turns: live.allTurns, notes: notes, duration: live.elapsed,
+                                  windowStart: live.windowStart, windowLength: live.windowLength)
                 }
+            }
+            LaneRow(label: "Turns") {
+                TurnsStrip(turns: turns, shots: (showShots?.wrappedValue ?? true) ? shots : [], start: start, duration: length,
+                           position: position, pick: live == nil ? seek : nil)
+            }
+            LaneRow(label: "Notes") {
+                NotesStrip(notes: notes, start: start, duration: length, now: live?.elapsed, position: position,
+                           pick: live == nil ? seek : nil)
             }
         }
         .glassCard(radius: 20, padding: 12)
@@ -65,11 +107,13 @@ struct SampleMeeting: View {
     private enum Entry: Identifiable {
         case line(TranscriptLine)
         case shot(Shot)
+        case note(Note)
 
         var id: String {
             switch self {
             case .line(let line): "l\(line.id)"
             case .shot(let shot): "s\(shot.id)"
+            case .note(let note): "n\(note.id)"
             }
         }
 
@@ -77,12 +121,13 @@ struct SampleMeeting: View {
             switch self {
             case .line(let line): line.start
             case .shot(let shot): shot.time
+            case .note(let note): note.start
             }
         }
     }
 
     private var entries: [Entry] {
-        let all = sample.lines.map(Entry.line) + (showShots ? sample.shots.map(Entry.shot) : [])
+        let all = sample.lines.map(Entry.line) + (showShots ? sample.shots.map(Entry.shot) : []) + sample.notes.map(Entry.note)
         return all.sorted { ($0.time, $0.id) < ($1.time, $1.id) }
     }
 
@@ -101,9 +146,8 @@ struct SampleMeeting: View {
                     state: PlayerState(position: model.samplePosition, duration: sample.durationSeconds,
                                        isPlaying: model.samplePlaying,
                                        toggle: { model.toggleSample(duration: sample.durationSeconds) }),
-                    call: Waveforms.bars(for: sample, lane: .call, speakerOf: speakerOf),
-                    mic: Waveforms.bars(for: sample, lane: .you, speakerOf: speakerOf),
-                    sample: sample, speakerOf: speakerOf, showShots: $showShots
+                    turns: sample.lines.map { TurnSpan(start: $0.start, end: $0.end, who: speakerOf($0), color: Palette.speaker(speakerOf($0))) },
+                    shots: sample.shots, showShots: $showShots, notes: sample.notes
                 ) { seconds in jump(to: seconds, proxy: proxy) }
 
                 ScrollView {
@@ -119,6 +163,8 @@ struct SampleMeeting: View {
                                     }.id(entry.id)
                                 case .shot(let shot):
                                     ShotRow(shot: shot) { model.seekSample(to: shot.time) }.id(entry.id)
+                                case .note(let note):
+                                    NoteRow(note: note) { model.seekSample(to: note.start) }.id(entry.id)
                                 }
                             }
                         }
@@ -200,25 +246,30 @@ struct SampleMeeting: View {
     }
 }
 
-/// A real recording: the player on top. The transcript and screenshots aren't connected yet.
+/// A real recording: the same timeline as while it was recording, with playback, then your notes. The transcript and
+/// screenshots aren't connected yet.
 struct RecordingMeeting: View {
     @Environment(AppModel.self) private var model
     let info: RecordingInfo
-    @State private var call: [WaveBar] = []
-    @State private var mic: [WaveBar] = []
+    @State private var call: [Float] = []
+    @State private var mic: [Float] = []
+    @State private var notes: [Note] = []
 
     var body: some View {
         let player = model.player
+        let seek = { (seconds: Double) in
+            if player.duration > 0 { player.seek(to: seconds / player.duration) }
+        }
+        let duration = player.duration > 0 ? player.duration : info.durationSeconds
         VStack(alignment: .leading, spacing: 12) {
             PlayerCard(
-                state: PlayerState(position: player.position, duration: player.duration, isPlaying: player.isPlaying,
+                state: PlayerState(position: player.position, duration: duration, isPlaying: player.isPlaying,
                                    toggle: { player.toggle() }),
-                call: call, mic: mic
-            ) { seconds in
-                if player.duration > 0 { player.seek(to: seconds / player.duration) }
-            }
+                turns: Waveforms.turns(call: call, mic: mic, duration: duration), notes: notes, seek: seek
+            )
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
+                    NotesFeed(notes: notes) { seek($0.start) }
                     Label("The transcript and screenshots appear here once the pipeline is connected. The sample meetings show how.",
                           systemImage: "text.bubble")
                         .foregroundStyle(.secondary)
@@ -245,56 +296,194 @@ struct RecordingMeeting: View {
         .task(id: info.id) {
             model.player.load(folder: info.folder)
             call = []; mic = []
+            notes = NotesFile.read(folder: info.folder)
             let folder = info.folder
-            let (system, mine) = await Task.detached {
+            (call, mic) = await Task.detached {
                 (Waveforms.levels(of: folder.appendingPathComponent("system.m4a")),
                  Waveforms.levels(of: folder.appendingPathComponent("mic.m4a")))
             }.value
-            call = system.map { WaveBar(level: max($0, 0.04), color: $0 > 0 ? Palette.call : .secondary.opacity(0.4)) }
-            mic = mine.map { WaveBar(level: max($0, 0.04), color: $0 > 0 ? Palette.you : .secondary.opacity(0.4)) }
         }
     }
 }
 
-/// The whole meeting in one strip: who spoke when, where the screenshots fall, and the playhead. Click to jump.
-struct TimelineStrip: View {
-    let sample: Sample
-    let showShots: Bool
-    let position: Double
-    let speakerOf: (TranscriptLine) -> Int
-    let pick: (Double) -> Void
+/// Your notes in time order, under the timeline. `onEdit`, while recording, lets a finished note be fixed in place.
+struct NotesFeed: View {
+    let notes: [Note]
+    var onEdit: ((Note, String) -> Void)?
+    let pick: (Note) -> Void
+
+    var body: some View {
+        if !notes.isEmpty {
+            VStack(alignment: .leading, spacing: 6) {
+                ForEach(notes) { note in
+                    NoteRow(note: note, onTap: { pick(note) }, onEdit: onEdit.map { edit in { edit(note, $0) } }).id("n\(note.id)")
+                }
+            }
+        }
+    }
+}
+
+/// Who talked when, with the screenshots above it, and the playhead. Click to jump (not while recording).
+struct TurnsStrip: View {
+    let turns: [TurnSpan]
+    let shots: [Shot]
+    /// The time at the left edge, and how many seconds the strip shows.
+    var start: Double = 0
+    let duration: Double
+    let position: Double?
+    let pick: ((Double) -> Void)?
 
     var body: some View {
         GeometryReader { box in
             let width = box.size.width
-            let total = max(sample.durationSeconds, 1)
+            let total = max(duration, 1)
+            // Screenshots sit above the turns: a camera with a tick pointing down at its moment.
+            let top: CGFloat = 18
             ZStack(alignment: .topLeading) {
                 RoundedRectangle(cornerRadius: 3).fill(.quaternary.opacity(0.5)).frame(width: width, height: 16)
-                ForEach(sample.lines) { line in
+                    .offset(y: top)
+                ForEach(Array(turns.enumerated()), id: \.offset) { _, turn in
                     RoundedRectangle(cornerRadius: 2)
-                        .fill(Palette.speaker(speakerOf(line)))
-                        .frame(width: max(2, (line.end - line.start) / total * width), height: 16)
-                        .offset(x: line.start / total * width)
+                        .fill(turn.color)
+                        .frame(width: max(2, (turn.end - turn.start) / total * width), height: 16)
+                        .offset(x: (turn.start - start) / total * width, y: top)
                 }
-                if showShots {
-                    ForEach(sample.shots) { shot in
-                        VStack(spacing: 0) {
-                            Rectangle().fill(.secondary).frame(width: 1, height: 4)
-                            Image(systemName: "camera.fill").font(.system(size: 9)).foregroundStyle(.secondary)
-                        }
-                        .frame(width: 16)
-                        .offset(x: shot.time / total * width - 8, y: 16)
+                ForEach(shots) { shot in
+                    VStack(spacing: 0) {
+                        Image(systemName: "camera.fill").font(.system(size: 9)).foregroundStyle(.secondary)
+                        Rectangle().fill(.secondary).frame(width: 1, height: 4)
                     }
+                    .frame(width: 16)
+                    .offset(x: (shot.time - start) / total * width - 8, y: 1)
                 }
-                Rectangle().fill(.primary).frame(width: 1.5, height: 16)
-                    .offset(x: min(max(position / total, 0), 1) * width - 0.75)
+                if let position {
+                    Rectangle().fill(.primary).frame(width: 1.5, height: 16)
+                        .offset(x: min(max((position - start) / total, 0), 1) * width - 0.75, y: top)
+                }
             }
             .frame(width: width, height: 34, alignment: .topLeading)
+            .clipped()
             .contentShape(Rectangle())
-            .gesture(DragGesture(minimumDistance: 0).onChanged { pick(min(max($0.location.x / width, 0), 1) * total) })
+            .gesture(DragGesture(minimumDistance: 0).onChanged { drag in
+                pick?(start + min(max(drag.location.x / width, 0), 1) * total)
+            })
         }
         .frame(height: 34)
-        .help("Click to jump to that moment.")
+        .help(pick == nil ? "Who is talking: you or the call." : "Click to jump to that moment.")
+    }
+}
+
+/// While recording: the whole recording so far in one thin strip, turns above and notes below, with a frame around
+/// the stretch the timeline under it shows. It squeezes as the recording grows; the turns themselves never change.
+struct OverviewStrip: View {
+    let turns: [TurnSpan]
+    let notes: [Note]
+    let duration: Double
+    let windowStart: Double
+    let windowLength: Double
+
+    var body: some View {
+        Canvas { context, size in
+            let total = max(duration, windowLength, 1)
+            func x(_ time: Double) -> CGFloat { CGFloat(time / total) * size.width }
+            context.fill(Path(roundedRect: CGRect(x: 0, y: 3, width: size.width, height: 10), cornerRadius: 2),
+                         with: .color(.secondary.opacity(0.12)))
+            for turn in turns {
+                let rect = CGRect(x: x(turn.start), y: 3, width: max(1, x(turn.end) - x(turn.start)), height: 6)
+                context.fill(Path(rect), with: .color(turn.color))
+            }
+            for note in notes {
+                let end = note.end ?? duration
+                let rect = CGRect(x: x(note.start), y: 10, width: max(2, x(end) - x(note.start)), height: 3)
+                context.fill(Path(rect), with: .color(Palette.note.opacity(note.end == nil ? 0.55 : 1)))
+            }
+            // Dim what the timeline below doesn't show, and frame what it does.
+            let left = x(windowStart), right = min(size.width, x(windowStart + windowLength))
+            context.fill(Path(CGRect(x: 0, y: 0, width: left, height: size.height)), with: .color(.black.opacity(0.35)))
+            context.fill(Path(CGRect(x: right, y: 0, width: size.width - right, height: size.height)),
+                         with: .color(.black.opacity(0.35)))
+            let frame = CGRect(x: left, y: 0, width: right - left, height: size.height).insetBy(dx: 0.75, dy: 0.75)
+            context.stroke(Path(roundedRect: frame, cornerRadius: 3), with: .color(.primary.opacity(0.7)), lineWidth: 1.5)
+        }
+        .frame(height: 16)
+        .help("The whole recording so far. The frame is the stretch shown below.")
+    }
+}
+
+/// Your notes on their own row under the turns: each spans from its first keystroke to Return. Click to jump.
+struct NotesStrip: View {
+    let notes: [Note]
+    /// The time at the left edge, and how many seconds the strip shows.
+    var start: Double = 0
+    let duration: Double
+    /// While recording, where a note still being typed reaches.
+    var now: Double?
+    let position: Double?
+    let pick: ((Double) -> Void)?
+
+    var body: some View {
+        GeometryReader { box in
+            let width = box.size.width
+            let total = max(duration, 1)
+            ZStack(alignment: .topLeading) {
+                RoundedRectangle(cornerRadius: 3).fill(.quaternary.opacity(0.5)).frame(width: width, height: 10)
+                ForEach(notes) { note in
+                    let end: Double = note.end ?? now ?? (start + duration)
+                    let span: Double = (end - note.start) / total * Double(width)
+                    let x: Double = (note.start - start) / total * Double(width)
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(Palette.note.opacity(note.end == nil ? 0.55 : 1))
+                        .frame(width: max(4, span), height: 10)
+                        .offset(x: x)
+                }
+                if let position {
+                    Rectangle().fill(.primary).frame(width: 1.5, height: 10)
+                        .offset(x: min(max((position - start) / total, 0), 1) * width - 0.75)
+                }
+            }
+            .frame(width: width, height: 10, alignment: .topLeading)
+            .clipped()
+            .contentShape(Rectangle())
+            .gesture(DragGesture(minimumDistance: 0).onChanged { drag in
+                pick?(start + min(max(drag.location.x / width, 0), 1) * total)
+            })
+        }
+        .frame(height: 10)
+        .help("Your notes, from first keystroke to Return.")
+    }
+}
+
+/// A note you typed, in the feed at its start time. With `onEdit` its text can be fixed; its times stay.
+struct NoteRow: View {
+    let note: Note
+    var onTap: () -> Void = {}
+    var onEdit: ((String) -> Void)?
+    @State private var text = ""
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            RoundedRectangle(cornerRadius: 2).fill(Palette.note).frame(width: 4)
+            Text(clock(note.start)).font(.caption.monospacedDigit()).foregroundStyle(.secondary)
+                .frame(width: 40, alignment: .leading).padding(.top, 2)
+            VStack(alignment: .leading, spacing: 3) {
+                Label("Your note" + (note.end.map { " · typed until \(clock($0))" } ?? ""), systemImage: "pencil")
+                    .font(.caption.weight(.medium)).foregroundStyle(Palette.note)
+                if let onEdit {
+                    TextField("Note", text: $text, axis: .vertical)
+                        .textFieldStyle(.plain)
+                        .onAppear { text = note.text }
+                        .onChange(of: text) { if !text.isEmpty, text != note.text { onEdit(text) } }
+                        .onSubmit { onEdit(text) }
+                } else {
+                    Text(note.text).fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(.vertical, 6).padding(.horizontal, 10)
+        .background(Palette.note.opacity(0.08), in: RoundedRectangle(cornerRadius: 12))
+        .contentShape(Rectangle())
+        .onTapGesture(perform: onTap)
     }
 }
 

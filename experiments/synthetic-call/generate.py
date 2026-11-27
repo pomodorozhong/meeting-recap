@@ -94,6 +94,14 @@ def generate(script_path, out, seed=7):
             sf.write(out / "turns" / f"{i + 1:02d}-{turn['speaker']}.wav", clips[-1], RATE)
             print(f"{i + 1}/{len(turns)} {turn['speaker']} {len(clips[-1]) / RATE:.1f}s", flush=True)
     elapsed = time.time() - started
+    assemble(out, turns, clips, {"script": script_path.name, **config, "seed": seed,
+                                 "speakers": speakers}, elapsed)
+
+
+def assemble(out, turns, clips, manifest, elapsed):
+    """Mix levelled 16 kHz turn clips and write the call with its timed references."""
+    import numpy as np
+    import soundfile as sf
 
     segments, cursor, lead = [], 0.0, 0.5
     for turn, clip in zip(turns, clips):
@@ -110,7 +118,7 @@ def generate(script_path, out, seed=7):
     transcript = {"text": "".join(turn["text"] for turn in turns), "segments": [
         {"start": seg["start_seconds"], "end": seg["end_seconds"],
          "text": turn["text"], "speaker": turn["speaker"]} for seg, turn in zip(segments, turns)]}
-    manifest = {"script": script_path.name, **config, "seed": seed, "speakers": speakers,
+    manifest = {**manifest,
                 "duration_seconds": round(len(mix) / RATE, 3), "elapsed_seconds": round(elapsed, 1),
                 "call_sha256": hashlib.sha256((out / "call.wav").read_bytes()).hexdigest()}
     for name, payload in (("segments", segments), ("transcript", transcript), ("manifest", manifest)):

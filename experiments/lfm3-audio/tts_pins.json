@@ -1,0 +1,30 @@
+{
+ "engine": "LFM3-Audio-2B through MLX-VLM",
+ "model": {
+  "repository": "LiquidAI/LFM3-Audio-2B-MLX-bf16",
+  "revision": "452469a1afe66dd4932d0e9237603229fa606c0d",
+  "base_model": "LiquidAI/LFM3-Audio-2B",
+  "license": "lfm1.0"
+ },
+ "prompt": "Perform TTS in {language} using a {gender} voice.",
+ "languages": {"zh": "Chinese", "en": "American English"},
+ "voices": {
+  "f5-news-female": "female",
+  "emotivoice-1093": "female",
+  "emotivoice-1012": "female",
+  "emotivoice-1066": "female",
+  "dylan": "male",
+  "ryan": "male",
+  "aiden": "male"
+ },
+ "settings": {
+  "generation_mode": "audio",
+  "audio_temperature": 1.0,
+  "audio_top_k": 128,
+  "audio_repetition_penalty": 1.1,
+  "audio_repetition_window": 4096,
+  "max_tokens": 2048,
+  "sample_rate": 24000,
+  "turn_seed": "seed + turn index, as the Qwen turns"
+ }
+}

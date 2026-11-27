@@ -1,8 +1,8 @@
 # 2026-11-27: LFM3-Audio-2B transcription on the synthetic collection
 
-**Status:** planned
+**Status:** complete
 
-**Outcome:** pending.
+**Outcome:** With the language declared, LFM3 had a lower Mandarin error rate than the full Whisper component baseline (7.27% against 9.27%) and a slightly higher English one (2.01% against 1.88%), so under the rule set before the run it is a candidate for Mandarin only. Most of its Mandarin lead comes from the two calls with long pauses, where whole-call Whisper inserts text; Whisper and Turbo with the existing digital-pause split both beat it there. It writes only Simplified Chinese and gives no word timestamps.
 
 ## Reproduce
 
@@ -55,19 +55,55 @@ None.
 
 ## Results
 
-Pending.
+All 28 call reports completed, and no window hit the token limit. Scores are from `score_transcripts.py`; an edit is one inserted, deleted or substituted word in English or character in Mandarin, and lower is better.
+
+| Recognizer | English WER (6 calls; 3,028 words) | Mandarin CER (8 calls; 3,095 characters) |
+| --- | ---: | ---: |
+| `lfm3-declared` | 2.01% (61) | 7.27% (225) |
+| `lfm3-auto` | 2.15% (65) | 8.17% (253) |
+| Full Whisper component baseline, no word timestamps | **1.88% (57)** | 9.27% (287) |
+| Full Whisper, word timestamps | 2.18% (66) | 9.98% (309) |
+| Turbo Q4, word timestamps | 1.98% (60) | 7.59% (235) |
+| Full Whisper, digital-pause split | 2.08% (63) | **6.43% (199)** |
+| Turbo Q4, digital-pause split | 1.98% (60) | 6.56% (203) |
+
+The rows other than LFM3's are the published scores on the same audio, from the [recognizer comparison](2026-11-02-synthetic-collection-recognition.md), its [results file](2026-11-02-synthetic-collection-results.json) and the [component baseline](../../experiments/synthetic-call/reference/transcript-baseline.json). The pause-split rows come from the [silence summary](2026-11-02-synthetic-collection-silence.md); they were not in this plan's rule, but they are the fairer comparison, because LFM3's windows also split each call.
+
+Per call, `lfm3-declared` against the component baseline (edits):
+
+| Call | LFM3 | Whisper | Call | LFM3 | Whisper |
+| --- | ---: | ---: | --- | ---: | ---: |
+| script | 106 | 64 | english-audit | 13 | 13 |
+| handoff | 13 | 16 | english-handoff | 5 | 8 |
+| logistics | 22 | 28 | english-design | 3 | 5 |
+| stocktake | 16 | 48 | english-tabletop | 6 | 7 |
+| scheduling | 12 | 9 | english-committee | 20 | 13 |
+| design | 22 | 20 | english-training | 14 | 11 |
+| onboarding | 21 | 89 | | | |
+| localization | 13 | 13 | | | |
+
+LFM3 made fewer edits on seven calls and more on five. In Mandarin, `stocktake` (an 18-second pause) and `onboarding` (a 12-second pause) account for 137 of Whisper's edits against 37 of LFM3's. On the other six Mandarin calls LFM3 made 188 edits against Whisper's 150, mostly on the 73-turn `script` call.
+
+The declared prompt was better than `Perform ASR.` in both languages. Every Mandarin output was in Simplified script: 769 characters that have a different Traditional form, and no Traditional-only characters. LFM3 gives text per window only, so its timing is no finer than the 25–30 s windows.
+
+**Limits.** Synthetic speech from scripts, scored against the script, not a listener. One run of each configuration. The two long pauses favour any method that splits the audio, and the plan's rule compared LFM3's windows with whole-call Whisper. Nothing here tests real calls, overlapping speech in a room, or speaker attribution.
 
 ## Runtime and memory
 
-Pending.
+Measured by the runner on the M2 Pro, with the model loaded once per run (2.1 s from the cache): decoding the 31.9 minutes took 151.6 s for `lfm3-declared` and 149.9 s for `lfm3-auto`, a real-time factor of about 0.08. Each whole run took about 155 s of wall time by `/usr/bin/time`. Peak MLX memory was 4.3 GB. The published wall times on the same calls were 316 s for full Whisper and 166 s for Turbo, but each of those launched a process and loaded the model per call, so they are not a like-for-like comparison.
 
 ## Decision
 
-Pending.
+Under the rule set before the run, LFM3 is a candidate for Mandarin only: it beat the component baseline in Mandarin (7.27% ≤ 9.27%) and missed it in English (2.01% > 1.88%). The rule leaves to #27 whether a Mandarin-only recognizer is worth its cost. Against that choice: the pause-split Whisper and Turbo runs already do better in Mandarin, LFM3's lead comes from the two long-pause calls, and it would need Traditional conversion and a separate aligner for speaker labels. LFM3 is not added to the pipeline.
+
+## Open questions
+
+- Does #27 take LFM3 to its real-call excerpt as a Mandarin candidate, or close with the current recognizers?
+- Would Whisper with the same quiet-point windows match LFM3's gain on the long-pause calls? That would separate the windowing from the model.
 
 ## Where this ran
 
-- **Code:** the runner in [`experiments/lfm3-audio/`](../../experiments/lfm3-audio/), at the commit that adds this summary.
+- **Code:** both runs used commit `5014068`, which adds the plan and the runner; it is on `feat/lfm3-asr`, not yet on `main`.
 - **Models and weights:** `LiquidAI/LFM3-Audio-2B-MLX-bf16` at `452469a1afe66dd4932d0e9237603229fa606c0d`, license `lfm1.0`. Python packages are pinned in [`uv.lock`](../../experiments/lfm3-audio/uv.lock).
-- **Machine:** M2 Pro, 16 GB.
+- **Machine:** M2 Pro, 16 GB; MLX-VLM 0.8.1 with the MLX build in its lock; runs on 2026-11-27.
 - **Kept outside the repository:** the fixtures and the run outputs.

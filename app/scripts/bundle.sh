@@ -5,7 +5,10 @@
 #   app/scripts/bundle.sh          # build and bundle
 #   app/scripts/bundle.sh --test   # also run the tests
 #
-# The app is signed ad hoc, so macOS may ask for the two permissions again after a rebuild.
+# The app is signed ad hoc, so each changed build has a new signature and the permissions macOS granted to the old one
+# stop working, even though System Settings still shows them as allowed. When the signature changes, this script
+# clears both permissions so the next Record asks again (see README.md, "If Record says permission is off"). It
+# leaves them alone while the app is running, so a rebuild never cuts off a recording in progress.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -23,6 +26,10 @@ fi
 swift build -c release
 binary="$(swift build -c release --show-bin-path)/MeetingRecap"
 app=.build/MeetingRecap.app
+bundle_id=local.meeting-recap.app
+cdhash() { codesign -dvvv "$1" 2>&1 | sed -n 's/^CDHash=//p' | head -n 1; }
+old_hash=""
+[[ -d "$app" ]] && old_hash="$(cdhash "$app")"
 rm -rf "$app"
 mkdir -p "$app/Contents/MacOS"
 cp "$binary" "$app/Contents/MacOS/MeetingRecap"
@@ -45,6 +52,17 @@ cat > "$app/Contents/Info.plist" <<'PLIST'
 </dict>
 </plist>
 PLIST
-codesign --force --sign - --identifier local.meeting-recap.app "$app"
+codesign --force --sign - --identifier "$bundle_id" "$app"
+
+if [[ "$(cdhash "$app")" != "$old_hash" ]]; then
+    if pgrep -xq MeetingRecap; then
+        echo "The signature changed, but Meeting Recap is running, so its permissions were left alone. Quit it and run:"
+        echo "  tccutil reset ScreenCapture $bundle_id && tccutil reset Microphone $bundle_id"
+    else
+        tccutil reset ScreenCapture "$bundle_id" >/dev/null
+        tccutil reset Microphone "$bundle_id" >/dev/null
+        echo "The signature changed, so both permissions were cleared. Press Record and allow both, then quit and reopen the app."
+    fi
+fi
 echo "built $(pwd)/$app"
 echo "open it with: open $(pwd)/$app"

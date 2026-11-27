@@ -21,13 +21,13 @@ app/scripts/bundle.sh
 open app/.build/MeetingRecap.app
 ```
 
-Add `--test` to run the tests first. The first Record asks for **Microphone** and **Screen & System Audio Recording**; after allowing the second, quit and reopen the app. The bundle is signed ad hoc, so macOS may ask again after a rebuild.
+Add `--test` to run the tests first. The first Record asks for **Microphone** and **Screen & System Audio Recording**; after allowing the second, quit and reopen the app. The bundle is signed ad hoc, so a rebuild that changes the code changes its signature; `bundle.sh` then clears both permissions, and the next Record asks for them again (allow, then quit and reopen). If the app is running, the script leaves the permissions alone and prints the commands to run after you quit it.
 
 ### If Record says permission is off
 
 System Settings can show Meeting Recap as allowed while recording still fails. macOS ties each permission to the exact build it was granted to, and an ad hoc signature changes whenever the code changes, so the switch in Settings can belong to an older build. Every build also shares the bundle ID `local.meeting-recap.app`, so two builds in different checkouts or worktrees share one permission entry, and whichever was granted last takes it from the other.
 
-To fix it, quit every copy of the app, then clear both permissions:
+`bundle.sh` clears them after each rebuild that changes the signature. If you switch to another build without rebuilding, or the script skipped the reset because the app was running, quit every copy of the app, then clear both permissions:
 
 ```bash
 tccutil reset ScreenCapture local.meeting-recap.app

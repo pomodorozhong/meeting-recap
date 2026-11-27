@@ -255,6 +255,22 @@ It also lists 7 questions the call answers, which a recap must not list as open.
 uv run --project experiments/synthetic-call python -m unittest discover -s tests/synthetic_call -t tests/synthetic_call
 ```
 
+## LFM3 voices for comparison
+
+[`generate_lfm3.py`](generate_lfm3.py) speaks the fourteen existing collection scripts again with [LFM3-Audio-2B](https://huggingface.co/LiquidAI/LFM3-Audio-2B), so its voices can be compared with the F5, Qwen and EmotiVoice ones the collection uses. Only the voices change: the scripts, turn order, gaps, levelling and mixing are the same as in `generate.py`. It is a comparison aid, not a new voice for the collection: the collection, its hashes and every published result still use the old voices.
+
+```bash
+S=experiments/synthetic-call
+uv run --locked --project "$S" python "$S/generate_lfm3.py" "$S/out/lfm3"
+uv run --locked --project "$S" python "$S/generate_lfm3.py" "$S/out/lfm3" handoff scheduling
+```
+
+Each call gets a folder under the output folder in the same layout as above, plus `lfm3-report.json` with each turn's prompt, length, stop reason and time. Finished folders are skipped. The model runs in the locked [`experiments/lfm3-audio`](../lfm3-audio/) project, shared with the LFM3 transcription runner, because MLX-VLM needs a newer `mlx-audio` than this project pins. [`tts_pins.json`](../lfm3-audio/tts_pins.json) records the model revision, prompt, sampling settings and the old-voice mapping.
+
+LFM3 has no named voices: its TTS prompt is `Perform TTS in <language> using a <female|male> voice.` So each speaker gets the gender of their old voice, Mandarin scripts use `Chinese` and English scripts use `American English`. **Speakers of the same gender in one call share one voice prompt**, so they may sound alike; this affects every call with two speakers of the same gender, namely `script`, `design`, `logistics`, `onboarding`, `localization`, `english-design`, `english-committee` and `english-tabletop`. Sampling uses the model card's speech settings with the turn's seed (seed + turn index), and a repeat run of `handoff` gave the same WAV bytes.
+
+**Rejected as a collection voice on 2026-11-27.** It failed the English-word gate on the handoff call and sounded poor in an informal listen; see [the summary](../../docs/experiments/2026-11-27-lfm3-tts-synthetic.md). The generator stays so a later LFM release can be compared on the same scripts with one command.
+
 ## Model count and disk space
 
 Generating the complete collection uses **three TTS systems**: Qwen3-TTS, F5-TTS and EmotiVoice. Including the separately downloaded Vocos and SimBERT supporting models, this is **five model packages using about 6.58 GB on disk**. The seven voice profiles share these weights; selecting another preset does not require another model download.
@@ -285,8 +301,9 @@ The pinned reference WAV, EmotiVoice source and NLTK frontend resources add roug
 | [SimBERT encoder mirror](https://huggingface.co/WangZeJun/simbert-base-chinese) | `8096d1f9a7f7c2d9dbd7974511c4bc4a1755932b`, all used files SHA-256 pinned | Apache-2.0 upstream SimBERT and bert4vec |
 | NLTK phoneme frontend resources | Immutable NLTK data revision and ZIP/extracted-file SHA-256 in `emotivoice/pins.json` | Resource metadata retained in pinned archives |
 | Published female reference in [ZipVoice demo archive](https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/sherpa-onnx-zipvoice-distill-int8-zh-en-emilia.tar.bz2) | Archive and exact reference WAV SHA-256 in `f5-voice.json` | Reference-specific redistribution terms are unstated in that archive |
+| [LiquidAI/LFM3-Audio-2B-MLX-bf16](https://huggingface.co/LiquidAI/LFM3-Audio-2B-MLX-bf16), MLX port of [LiquidAI/LFM3-Audio-2B](https://huggingface.co/LiquidAI/LFM3-Audio-2B), used only by `generate_lfm3.py` | `452469a1afe66dd4932d0e9237603229fa606c0d` | `lfm1.0` (see the model's LICENSE file) |
 
-Dependencies are declared in [`pyproject.toml`](pyproject.toml) and every package is pinned in [`uv.lock`](uv.lock); `uv run` uses both when it runs in this folder or with `--project`. The root environment and isolated EmotiVoice environment each have a committed lock. Check both with `uv lock --check --project experiments/synthetic-call` and `uv lock --check --project experiments/synthetic-call/emotivoice`. The generator prepares the locked child environment automatically when an EmotiVoice speaker is present.
+Dependencies are declared in [`pyproject.toml`](pyproject.toml) and every package is pinned in [`uv.lock`](uv.lock); `uv run` uses both when it runs in this folder or with `--project`. The root environment and isolated EmotiVoice environment each have a committed lock. Check both with `uv lock --check --project experiments/synthetic-call` and `uv lock --check --project experiments/synthetic-call/emotivoice`. The LFM3 comparison uses the lock in `experiments/lfm3-audio`, checked with `uv lock --check --project experiments/lfm3-audio`. The generator prepares the locked child environment automatically when an EmotiVoice speaker is present.
 
 ## Input profile for comparable real recordings
 

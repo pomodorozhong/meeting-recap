@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="680" height="930" viewBox="0 0 680 930" role="img">
+<title>Flow of the small recap models experiment</title>
+<desc>Two synthetic calls become exact-turn transcript lines. Five models each recap them twice, with thinking off and with thinking on, using the pipeline's prompt. Unreadable replies score zero; readable ones are graded by hand on nine fact checks and citation support. scores.py collects counts and digests, and a decision rule fixed before the runs sorts each run into replace, lighter option, or ruled out.</desc>
+<style>
+text { font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; }
+.t { font-size: 14px; font-weight: 500; }
+.s { font-size: 12px; }
+.n rect, .n polygon { fill: #F1EFE8; stroke: #888780; stroke-width: 0.75; }
+.n .t { fill: #2C2C2A; } .n .s { fill: #5F5E5A; }
+.m rect { fill: #EEEDFE; stroke: #534AB7; stroke-width: 0.75; }
+.m .t { fill: #3C3489; } .m .s { fill: #534AB7; }
+.o rect { fill: #E1F5EE; stroke: #0F6E56; stroke-width: 0.75; }
+.o .t { fill: #085041; } .o .s { fill: #0F6E56; }
+.l { fill: none; stroke: #73726C; stroke-width: 1.5; }
+.lab { font-size: 12px; fill: #5F5E5A; }
+</style>
+<defs><marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#73726C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<rect x="0" y="0" width="680" height="930" fill="#FFFFFF"/>
+<g class="n"><rect x="210" y="30" width="260" height="56" rx="8"/><text class="t" x="340" y="52" text-anchor="middle">Synthetic collection</text><text class="s" x="340" y="72" text-anchor="middle">Onboarding, English audit</text></g>
+<line class="l" x1="340" y1="86" x2="340" y2="114" marker-end="url(#a)"/>
+<g class="n"><rect x="210" y="116" width="260" height="56" rx="8"/><text class="t" x="340" y="138" text-anchor="middle">Exact-turn lines</text><text class="s" x="340" y="158" text-anchor="middle">Same input for every run</text></g>
+<path class="l" d="M340 172 L340 186 M96 186 L584 186"/>
+<line class="l" x1="96" y1="186" x2="96" y2="200" marker-end="url(#a)"/>
+<line class="l" x1="218" y1="186" x2="218" y2="200" marker-end="url(#a)"/>
+<line class="l" x1="340" y1="186" x2="340" y2="200" marker-end="url(#a)"/>
+<line class="l" x1="462" y1="186" x2="462" y2="200" marker-end="url(#a)"/>
+<line class="l" x1="584" y1="186" x2="584" y2="200" marker-end="url(#a)"/>
+<g class="m"><rect x="40" y="202" width="112" height="56" rx="8"/><text class="t" x="96" y="224" text-anchor="middle">Qwen3.5 9B</text><text class="s" x="96" y="244" text-anchor="middle">baseline</text></g>
+<g class="m"><rect x="162" y="202" width="112" height="56" rx="8"/><text class="t" x="218" y="224" text-anchor="middle">Gemma4 E2B</text><text class="s" x="218" y="244" text-anchor="middle">mlx-lm</text></g>
+<g class="m"><rect x="284" y="202" width="112" height="56" rx="8"/><text class="t" x="340" y="224" text-anchor="middle">MiniCPM5 2B</text><text class="s" x="340" y="244" text-anchor="middle">mlx-lm</text></g>
+<g class="m"><rect x="406" y="202" width="112" height="56" rx="8"/><text class="t" x="462" y="224" text-anchor="middle">LFM3-1.7B</text><text class="s" x="462" y="244" text-anchor="middle">mlx-vlm</text></g>
+<g class="m"><rect x="528" y="202" width="112" height="56" rx="8"/><text class="t" x="584" y="224" text-anchor="middle">Spark X2.6-4B</text><text class="s" x="584" y="244" text-anchor="middle">mlx-lm</text></g>
+<path class="l" d="M96 258 L96 272 M218 258 L218 272 M340 258 L340 272 M462 258 L462 272 M584 258 L584 272 M96 272 L584 272 M340 272 L340 286 M210 286 L470 286"/>
+<line class="l" x1="210" y1="286" x2="210" y2="298" marker-end="url(#a)"/>
+<line class="l" x1="470" y1="286" x2="470" y2="298" marker-end="url(#a)"/>
+<g class="n"><rect x="110" y="300" width="200" height="56" rx="8"/><text class="t" x="210" y="322" text-anchor="middle">Thinking off</text><text class="s" x="210" y="342" text-anchor="middle">4,096-token cap</text></g>
+<g class="n"><rect x="370" y="300" width="200" height="56" rx="8"/><text class="t" x="470" y="322" text-anchor="middle">Thinking on</text><text class="s" x="470" y="342" text-anchor="middle">16,384-token cap</text></g>
+<path class="l" d="M210 356 L210 370 M470 356 L470 370 M210 370 L470 370"/>
+<line class="l" x1="340" y1="370" x2="340" y2="396" marker-end="url(#a)"/>
+<g class="n"><rect x="200" y="398" width="280" height="56" rx="8"/><text class="t" x="340" y="420" text-anchor="middle">Recap with pipeline prompt</text><text class="s" x="340" y="440" text-anchor="middle">Greedy, one model per process</text></g>
+<line class="l" x1="340" y1="454" x2="340" y2="482" marker-end="url(#a)"/>
+<g class="n"><polygon points="340,484 450,518 340,552 230,518"/><text class="t" x="340" y="523" text-anchor="middle">Readable JSON?</text></g>
+<line class="l" x1="230" y1="518" x2="192" y2="518" marker-end="url(#a)"/>
+<text class="lab" x="211" y="508" text-anchor="middle">No</text>
+<g class="n"><rect x="40" y="490" width="150" height="56" rx="8"/><text class="t" x="115" y="512" text-anchor="middle">Score zero</text><text class="s" x="115" y="532" text-anchor="middle">9 of 20 replies</text></g>
+<path class="l" d="M115 546 L115 702 L206 702" marker-end="url(#a)"/>
+<line class="l" x1="340" y1="552" x2="340" y2="586" marker-end="url(#a)"/>
+<text class="lab" x="352" y="572">Yes</text>
+<g class="n"><rect x="210" y="588" width="260" height="56" rx="8"/><text class="t" x="340" y="610" text-anchor="middle">Grade by hand</text><text class="s" x="340" y="630" text-anchor="middle">9 fact checks, citations</text></g>
+<line class="l" x1="340" y1="644" x2="340" y2="672" marker-end="url(#a)"/>
+<g class="n"><rect x="210" y="674" width="260" height="56" rx="8"/><text class="t" x="340" y="696" text-anchor="middle">scores.py</text><text class="s" x="340" y="716" text-anchor="middle">Counts and digests only</text></g>
+<line class="l" x1="340" y1="730" x2="340" y2="758" marker-end="url(#a)"/>
+<g class="n"><rect x="210" y="760" width="260" height="56" rx="8"/><text class="t" x="340" y="782" text-anchor="middle">Decision rule</text><text class="s" x="340" y="802" text-anchor="middle">Fixed before the runs</text></g>
+<path class="l" d="M340 816 L340 830 M130 830 L550 830"/>
+<line class="l" x1="130" y1="830" x2="130" y2="844" marker-end="url(#a)"/>
+<line class="l" x1="340" y1="830" x2="340" y2="844" marker-end="url(#a)"/>
+<line class="l" x1="550" y1="830" x2="550" y2="844" marker-end="url(#a)"/>
+<g class="o"><rect x="40" y="846" width="180" height="56" rx="8"/><text class="t" x="130" y="868" text-anchor="middle">Replace bar met</text><text class="s" x="130" y="888" text-anchor="middle">Spark off, Gemma4 on</text></g>
+<g class="o"><rect x="250" y="846" width="180" height="56" rx="8"/><text class="t" x="340" y="868" text-anchor="middle">Lighter option</text><text class="s" x="340" y="888" text-anchor="middle">None qualified</text></g>
+<g class="o"><rect x="460" y="846" width="180" height="56" rx="8"/><text class="t" x="550" y="868" text-anchor="middle">Ruled out</text><text class="s" x="550" y="888" text-anchor="middle">The other 7 runs</text></g>
+</svg>

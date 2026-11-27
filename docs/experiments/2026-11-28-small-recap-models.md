@@ -4,6 +4,8 @@
 
 **Outcome:** Two settings matched Qwen3.5 9B on the two synthetic calls, with 6 of 9 facts fully correct with supporting citations and the same number of reopened questions. Spark X2.6-4B with thinking off had a 35% lower memory peak and took about the same time. Gemma4 E2B with thinking on had a 29% lower peak and took about 27 s per call. With thinking off, Gemma4 E2B, MiniCPM5 2B and LFM3-1.7B got 4 of 9 or fewer. With thinking on, every model except Gemma4 thought until the 16,384-token cap on both calls and returned no usable recap, Qwen included. The default doesn't change yet: Spark (thinking off) and Gemma4 E2B (thinking on) go on to the long real calls of #28 as candidate recap models (decision 20).
 
+![Flow of the experiment: the same exact-turn lines go to five models, each run with thinking off and on; unreadable replies score zero, readable ones are graded by hand, and a rule fixed before the runs sorts each run](2026-11-28-small-recap-models-flow.svg)
+
 ## Reproduce
 
 | Step | Command |

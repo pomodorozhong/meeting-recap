@@ -1,8 +1,8 @@
 # 2026-11-27: Who's speaker labels when rerun on a growing recording
 
-**Status:** planned
+**Status:** complete
 
-**Outcome:** pending.
+**Outcome:** no setting is good enough. Pooled over the fourteen scripted calls, a locked turn would have changed in 5.8% to 12.0% of checks against the 2% bar, and every lock made the live display's error worse than Who's single run (10.0% to 15.7% against 7.9%). Labels held on the two-person calls, but Who's reruns split one-voice calls and reshuffled three- and four-person calls, so overlap mapping plus a lock delay isn't enough for #71's live labels in general; stable identities need something like #76's voice prints.
 
 ## Reproduce
 
@@ -14,7 +14,7 @@
 
 - **It needs:** `FIXTURES`, the verified 17-recording synthetic collection built by [`collection.py`](../../experiments/synthetic-call/README.md#seventeen-recording-collection), and `RESULTS`, a new folder outside Git. Who's weights come from the folder `recap.py setup --who` fills, or `WHO_MODELS`.
 - **It writes:** `RESULTS/prefixes.json` (Who's labels on every prefix, with run times), `RESULTS/time.txt` (`/usr/bin/time -l` of the one Who process) and `RESULTS/stability.json` (the measurements).
-- **Takes about:** pending.
+- **Takes about:** 77 s for `run.sh` on 2026-11-27: the fixture check, a 21 s Who load, 141 Who runs (25 s in all) and the analysis.
 - **By hand:** nothing.
 - **Expect to differ:** run times and peak memory. Who's labels should repeat on the same machine; `stability.py` recalculates every measurement from `prefixes.json`.
 
@@ -52,25 +52,78 @@ A known turn's label is the shown ID covering most of its time. Measures, pooled
 
 ### Changes to the plan
 
-None.
+**Lock only audio already shown (2026-11-27, after the first run).** The first run's analysis locked audio older than *t* minus the lock delay even when no update had shown it yet. With a 60 s interval and a 30 s lock, the 30 s heard between two updates was locked with no label, which gave that setting a 55% live error. The fix (`c060c00`) locks only audio an earlier update showed, which is what the plan describes. Only the 60 s interval with the 30 s lock changed; Who was not rerun.
+
+**Breakdown by speaker count (same commit).** Added after seeing the pooled results, to show where the changes come from. The pass rule still applies to the pooled scripted calls only.
 
 ## Results
 
-Pending.
+Who's single run on each whole call had 7.88% speaker-time error pooled over the scripted calls, and 9.23% over the two controls, matching the pooled figures of the [2026-11-02 runs](2026-11-02-synthetic-collection-speakers.md) for each speaker count.
+
+### Pooled over the fourteen scripted calls (285 turns)
+
+The pass rule needs a locked change rate under 2% and a live error of at most 10.88% (7.88% plus 3 points). A check is one turn at one update.
+
+| Interval | Lock | Locked changes | Turns changed after lock | Provisional changes | First label right | Live error |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 15 s | 30 s | 166/1,389 (12.0%) | 48 | 36/386 (9.3%) | 84.6% | 13.0% |
+| 15 s | 60 s | 102/982 (10.4%) | 30 | 70/793 (8.8%) | 82.8% | 12.0% |
+| 15 s | 120 s | 27/463 (5.8%) | 13 | 108/1,312 (8.2%) | 77.9% | 10.0% |
+| 15 s | none | | | 132/1,775 (7.4%) | 74.4% | 7.9% |
+| 30 s | 30 s | 87/805 (10.8%) | 43 | 9/85 (10.6%) | 86.0% | 13.8% |
+| 30 s | 60 s | 49/574 (8.5%) | 29 | 36/316 (11.4%) | 84.2% | 13.2% |
+| 30 s | 120 s | 26/283 (9.2%) | 15 | 63/607 (10.4%) | 81.8% | 11.0% |
+| 30 s | none | | | 88/890 (9.9%) | 77.5% | 7.9% |
+| 60 s | 30 s | 35/420 (8.3%) | 22 | 3/48 (6.2%) | 86.3% | 15.7% |
+| 60 s | 60 s | 31/385 (8.1%) | 18 | 7/83 (8.4%) | 86.3% | 15.7% |
+| 60 s | 120 s | 13/203 (6.4%) | 8 | 17/265 (6.4%) | 84.9% | 11.8% |
+| 60 s | none | | | 25/468 (5.3%) | 84.9% | 7.9% |
+
+No setting passes. The one closest, every 15 s with a 120 s lock, still had a locked turn's label disagree in 5.8% of checks, on 13 of 285 turns, and its live error was 10.0%. Without a lock the display ends where Who's whole-call run ends (7.9%), but labels keep moving long after a turn: rerun every 15 s, 46 turns (16%) last changed more than 30 s after they ended, 33 (12%) more than 60 s and 13 (5%) more than 120 s, the latest 222 s after.
+
+Who merged shown IDs 37 times and added new ones after its first run 51 times, on 15 s updates without a lock.
+
+### By number of speakers, every 30 s
+
+| Script speakers | Calls | Whole-call run | Lock 60 s: locked changes | Lock 60 s: live error | No lock: provisional changes | First label right (no lock) |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 1 | 2 | 7.9% | 14/33 (42.4%) | 34.2% | 27/59 (45.8%) | 47.6% |
+| 2 | 4 | 2.7% | 0/78 (0%) | 2.4% | 2/138 (1.4%) | 97.0% |
+| 3 | 5 | 3.3% | 27/395 (6.8%) | 4.7% | 45/568 (7.9%) | 81.9% |
+| 4 | 3 | 26.9% | 8/68 (11.8%) | 36.9% | 14/125 (11.2%) | 53.7% |
+
+- **Two speakers:** labels held. With a 60 or 120 s lock, no locked turn changed, and the live error matched the whole-call run.
+- **One speaker:** on the 190 s English audit, Who found no speech at all on the 15, 60 and 120 s prefixes, the only empty runs in the experiment, and split the one voice into two labels on the 75, 90 and 150 s prefixes. With a 60 s lock those gaps and splits stayed on screen, so the live error was 35.1% against 4.5% for the whole-call run. The 49 s stocktake only split on the whole call, as it did in the 2026-11-02 run.
+- **Three speakers:** most changes came from the 306 s planning call (25 of 27 locked changes with a 60 s lock), which Who also splits into four labels on the whole call.
+- **Four speakers:** the four-person calls start with Who's whole-call merges (26.9%), and locking made them worse: English tabletop went from 20.9% to 38.3% with a 60 s lock.
+
+### Controls
+
+Labels held on both controls: the attenuated handoff and the overlapping logistics mix had no locked or provisional changes at 30 s updates, and the live error matched the whole-call run (9.2%, or 10.3% with the 30 s lock).
+
+**Limits.** These are synthetic TTS calls of 44 to 306 s, so they say nothing about real rooms or calls of an hour, where Who has more audio to change its mind about. A turn's label is the shown ID covering most of it, so a change inside a turn shorter than half of it isn't counted. The mapping is one rule among several possible; a smarter one could hide some changes, but not a split or merge Who itself makes and later undoes, which is what most changes were. The rates are per check, so a long call with many updates weighs more than a short one.
 
 ## Runtime and memory
 
-Pending.
+One process loaded Who once (20.7 s) and ran all 141 prefixes in 24.7 s, measured inside the process; `/usr/bin/time -l` gave 46 s wall time for the process and a peak memory footprint of 0.47 GB (0.49 GB maximum resident). The desktop was in normal use.
+
+A run took 0.02 to 0.04 s on prefixes up to 60 s, then about 0.26 to 0.34 s from 75 s on. Who's code cuts audio longer than its window into pieces and joins them by voice, which likely explains the step; the window length wasn't checked. The whole 306 s planning call took 0.64 s. So run time is no obstacle to updating every 15 s on calls of this length.
 
 ## Decision
 
-Pending.
+Don't build #71's live labels on Who reruns with overlap mapping and a lock delay. No interval and lock met the pass rule: locked turns would have changed in at least 5.8% of checks, and locking pushed the live error to between 10.0% and 15.7%, against 7.9% for Who's single run. The cause is Who changing its own mind as the recording grows (splitting one voice, merging or reshuffling three or four), which no mapping of its labels can hide. Stable identities need a speaker model we keep between runs, such as #76's voice prints.
+
+If a speaking indicator ships before that, it should show labels only for two-person calls, or show a neutral "someone is speaking" and leave names to the recap after the call. On two-person calls every 30 s with a 60 s lock gave no locked changes and 2.4% live error, but four calls are too few to rely on.
 
 ## Open questions
 
+- Would #76's voice prints hold steadier on the same prefixes? Rerunning this script with them in place of the mapping step would tell.
+- Do changes grow or fade on calls of an hour? These calls are at most 306 s.
+- How do the changes look on real calls? This needs recordings someone has listened to.
+
 ## Where this ran
 
-- **Code:** pending.
+- **Code:** `who-prefixes` at `3e5039d` produced `prefixes.json`; `stability.py` at `c060c00` produced the reported measurements. Both are on the unmerged branch `feat/who-label-stability`.
 - **Models and weights:** Who int8 at the revision `pins.py` checks, through `desert-ant-core` `1a5efed67f44731b5eb5433aa9be3eebae05e269`.
-- **Machine:** one M2 Pro with 16 GB.
+- **Machine:** one M2 Pro with 16 GB, macOS 26.6.2, Swift 6.3.3.
 - **Kept outside the repository:** the fixtures and raw outputs, under benchmark ID `who-label-stability-20261127`. Public results contain counts only.

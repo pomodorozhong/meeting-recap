@@ -7,8 +7,9 @@ prompt as the pipeline's recap with Qwen3.5 9B, so any difference between recaps
 
 FIXTURES is the verified 17-recording collection. For each case, the script turns the script's exact turns into
 transcript lines the way the pipeline's `summarize` does for the `exact` arm of the collection run, and writes
-OUT/<case>/lines.json. Each model then writes OUT/<case>/<model>/{notes.json,summary.md,run.json}. A model whose
-run.json already exists for a case is skipped; --force reruns it. run.sh runs each model in its own process, so
+OUT/<case>/lines.json. Each model then writes OUT/<case>/<run>/{notes.json,summary.md,run.json}, where <run> is
+the model name, or the name plus "-thinking" with --thinking. A run whose run.json already exists for a case is
+skipped; --force reruns it. run.sh runs each model in its own process, so
 only one model is in memory at a time.
 """
 import argparse
@@ -35,6 +36,7 @@ MODELS = {
 # tests/experiments/test_small_recap_models.py checks that they still match.
 CHUNK_CHARACTERS = 6000
 MAX_TOKENS = 4096
+THINKING_MAX_TOKENS = 16384  # thinking spends tokens before the JSON, as in the recap-stage plan's A2
 MAX_GAP_SECONDS = 1.0
 SECTIONS = ("topics", "decisions", "action_items", "proposals", "open_questions")
 
@@ -119,8 +121,9 @@ def chunks(lines, size=CHUNK_CHARACTERS):
 def parse_notes(text):
     """Read the model's JSON object, tolerating thinking text, a code fence or text around it."""
     text = re.sub(r"<think>.*?</think>", "", text, flags=re.S)
-    if "</think>" in text:
-        text = text.rsplit("</think>", 1)[1]
+    for close in ("</think>", "<channel|>"):  # Gemma 4 closes its thinking channel with <channel|>
+        if close in text:
+            text = text.rsplit(close, 1)[1]
     start, end = text.find("{"), text.rfind("}")
     if start < 0 or end < start:
         raise ValueError("summary model returned no JSON object")
@@ -192,21 +195,21 @@ class Model:
             self.model, self.processor = load(path)
             self.tokenizer = getattr(self.processor, "tokenizer", self.processor)
 
-    def render(self, prompt):
+    def render(self, prompt, thinking=False):
         return self.tokenizer.apply_chat_template([{"role": "user", "content": prompt}], add_generation_prompt=True,
-                                                  enable_thinking=False, tokenize=False)
+                                                  enable_thinking=thinking, tokenize=False)
 
     def count(self, text):
         return len(self.tokenizer.encode(text, add_special_tokens=False))
 
-    def generate(self, text):
+    def generate(self, text, max_tokens=MAX_TOKENS):
         if self.loader == "mlx-lm":
             from mlx_lm import generate
 
-            return generate(self.model, self.tokenizer, prompt=text, max_tokens=MAX_TOKENS)
+            return generate(self.model, self.tokenizer, prompt=text, max_tokens=max_tokens)
         from mlx_vlm import generate
 
-        return generate(self.model, self.processor, text, max_tokens=MAX_TOKENS, temperature=0.0, verbose=False).text
+        return generate(self.model, self.processor, text, max_tokens=max_tokens, temperature=0.0, verbose=False).text
 
     def reset_peak(self):
         import mlx.core as mx
@@ -219,20 +222,26 @@ class Model:
         return int(mx.get_peak_memory())
 
 
-def recap(name, lines, model):
+def run_id(name, thinking):
+    return name + "-thinking" if thinking else name
+
+
+def recap(name, lines, model, thinking=False):
     """Recap one transcript. Returns (run record, notes or None); notes is None when the reply can't be read."""
     repo, revision, loader = MODELS[name]
-    record = {"model": name, "repo": repo, "revision": revision, "loader": loader, "decoding": "greedy",
-              "thinking": False, "max_tokens": MAX_TOKENS, "chunk_characters": CHUNK_CHARACTERS}
+    max_tokens = THINKING_MAX_TOKENS if thinking else MAX_TOKENS
+    record = {"run": run_id(name, thinking), "model": name, "repo": repo, "revision": revision, "loader": loader,
+              "decoding": "greedy", "thinking": thinking, "max_tokens": max_tokens,
+              "chunk_characters": CHUNK_CHARACTERS}
     parts = chunks(lines)
     record["chunks"] = len(parts)
     model.reset_peak()
     replies, started = [], time.time()
 
     def ask(kind, prompt):
-        text = model.render(prompt)
+        text = model.render(prompt, thinking)
         begun = time.time()
-        reply = model.generate(text)
+        reply = model.generate(text, max_tokens)
         replies.append({"kind": kind, "prompt_tokens": model.count(text), "reply_tokens": model.count(reply),
                         "seconds": time.time() - begun, "reply": reply})
         return reply
@@ -279,6 +288,8 @@ def main(argv=None, model_class=Model, convert=None):
     parser.add_argument("out", type=Path, help="a new folder outside Git")
     parser.add_argument("--model", required=True, choices=MODELS)
     parser.add_argument("--cases", default=",".join(CASES))
+    parser.add_argument("--thinking", action="store_true",
+                        help=f"turn the model's thinking on, with a {THINKING_MAX_TOKENS}-token output cap")
     parser.add_argument("--force", action="store_true", help="rerun cases that already have a run.json")
     args = parser.parse_args(argv)
     cases = [c for c in args.cases.split(",") if c]
@@ -296,21 +307,22 @@ def main(argv=None, model_class=Model, convert=None):
     except ValueError as error:
         parser.error(str(error))
 
-    todo = [c for c in cases if args.force or not (args.out / c / args.model / "run.json").exists()]
+    run_name = run_id(args.model, args.thinking)
+    todo = [c for c in cases if args.force or not (args.out / c / run_name / "run.json").exists()]
     model = model_class(args.model) if todo else None
     for case in cases:
         if case not in todo:
-            print(f"{case} {args.model}: already done, skipping (--force reruns it)")
+            print(f"{case} {run_name}: already done, skipping (--force reruns it)")
             continue
-        record, notes = recap(args.model, prepared[case], model)
-        folder = args.out / case / args.model
+        record, notes = recap(args.model, prepared[case], model, args.thinking)
+        folder = args.out / case / run_name
         folder.mkdir(exist_ok=True)
         if notes is not None:
             (folder / "notes.json").write_text(json.dumps(notes, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
             (folder / "summary.md").write_text(summary_markdown(notes), encoding="utf-8")
         # run.json is written last, so its presence means the case finished (done or failed).
         (folder / "run.json").write_text(json.dumps(record, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
-        print(f"{case} {args.model}: {record['status']}" + (f" ({record['reason']})" if "reason" in record else ""))
+        print(f"{case} {run_name}: {record['status']}" + (f" ({record['reason']})" if "reason" in record else ""))
 
 
 if __name__ == "__main__":

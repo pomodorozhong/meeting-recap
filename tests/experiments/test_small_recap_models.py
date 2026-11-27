@@ -42,14 +42,14 @@ class FakeModel:
         self.reply = reply or "```json\n" + json.dumps(NOTES) + "\n```"
         FakeModel.instances.append(self)
 
-    def render(self, prompt):
-        return "R|" + prompt
+    def render(self, prompt, thinking=False):
+        return ("T|" if thinking else "N|") + prompt
 
     def count(self, text):
         return len(text)
 
-    def generate(self, text):
-        self.prompts.append(text)
+    def generate(self, text, max_tokens=None):
+        self.prompts.append((text, max_tokens))
         return self.reply
 
     def reset_peak(self):
@@ -107,6 +107,8 @@ class Recap(unittest.TestCase):
     def test_parse_handles_thinking_fences_and_bad_json(self):
         self.assertEqual(run.parse_notes("<think>a</think>```json\n" + json.dumps(NOTES) + "```")["decisions"][0]["text"], "d")
         self.assertEqual(run.parse_notes("x\n</think>\n" + json.dumps(NOTES))["decisions"][0]["text"], "d")
+        gemma = '<|channel>thought\nplan {"not": "this"}<channel|>```json\n' + json.dumps(NOTES) + "\n```"
+        self.assertEqual(run.parse_notes(gemma)["decisions"][0]["text"], "d")
         for bad in ("no json here", '{"topics": [}'):
             with self.subTest(bad=bad), self.assertRaises(ValueError):
                 run.parse_notes(bad)
@@ -116,6 +118,17 @@ class Recap(unittest.TestCase):
         self.assertGreater(record["chunks"], 1)
         self.assertEqual([r["kind"] for r in record["replies"]], ["extract"] * record["chunks"] + ["merge"])
         self.assertEqual(record["status"], "done")
+
+    def test_thinking_turns_thinking_on_with_more_room(self):
+        model = FakeModel("spark-x2.6-4b")
+        record, _ = run.recap("spark-x2.6-4b", transcript(2), model, thinking=True)
+        self.assertEqual((record["run"], record["thinking"], record["max_tokens"]),
+                         ("spark-x2.6-4b-thinking", True, run.THINKING_MAX_TOKENS))
+        self.assertEqual(model.prompts[0][0][:2], "T|")
+        self.assertEqual(model.prompts[0][1], run.THINKING_MAX_TOKENS)
+        record, _ = run.recap("spark-x2.6-4b", transcript(2), model)
+        self.assertEqual((record["run"], record["max_tokens"]), ("spark-x2.6-4b", run.MAX_TOKENS))
+        self.assertEqual(model.prompts[1][0][:2], "N|")
 
     def test_unreadable_reply_is_a_failed_result(self):
         record, notes = run.recap("lfm3-1.7b", transcript(2), FakeModel("lfm3-1.7b", "sorry"))
@@ -150,6 +163,19 @@ class EntryPoint(unittest.TestCase):
         self.assertEqual(len(FakeModel.instances), 1)
         self.run_main("--model", "minicpm5-2b", "--force")
         self.assertEqual(len(FakeModel.instances), 2)
+
+    def test_thinking_arm_writes_beside_the_thinking_off_run(self):
+        self.run_main("--model", "minicpm5-2b")
+        self.run_main("--model", "minicpm5-2b", "--thinking")
+        for name in ("minicpm5-2b", "minicpm5-2b-thinking"):
+            record = json.loads((self.root / "out/onboarding" / name / "run.json").read_text())
+            self.assertEqual(record["thinking"], name.endswith("-thinking"))
+        self.assertEqual(len(FakeModel.instances), 2)
+        with contextlib.redirect_stdout(io.StringIO()) as out:
+            scores.main(self.root / "out")
+        runs = json.loads(out.getvalue())["cases"]["onboarding"]["runs"]
+        self.assertEqual(sorted(runs), ["minicpm5-2b", "minicpm5-2b-thinking"])
+        self.assertTrue(runs["minicpm5-2b-thinking"]["thinking"])
 
     def test_refuses_changed_lines_in_the_same_folder(self):
         self.run_main("--model", "minicpm5-2b")

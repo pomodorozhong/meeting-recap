@@ -1,6 +1,6 @@
 # 2026-11-28: four small language models as the recap model
 
-**Status:** complete
+**Status:** runs in progress (thinking-on arm)
 
 **Outcome:** Spark X2.6-4B matched Qwen3.5 9B on the two synthetic calls: 6 of 9 facts fully correct with supporting citations, the same number of reopened questions, and a 35% lower memory peak, but about the same time. Gemma4 E2B, MiniCPM5 2B and LFM3-1.7B each got 4 of 9 facts fully correct or fewer, and LFM3 returned unreadable JSON on one call. The default doesn't change yet: Spark goes on to the long real calls of #28 as a candidate recap model (decision 20).
 
@@ -9,7 +9,7 @@
 | Step | Command |
 | --- | --- |
 | Set up once (needs the network) | `experiments/small-recap-models/setup.sh` |
-| Run everything | `experiments/small-recap-models/run.sh "$FIXTURES" "$OUT"` |
+| Run everything | `experiments/small-recap-models/run.sh "$FIXTURES" "$OUT"`, then `experiments/small-recap-models/run.sh "$FIXTURES" "$OUT" --thinking` |
 | Check saved results without models | `uv run --project experiments/small-recap-models experiments/small-recap-models/scores.py "$OUT"` rebuilds the measurements from saved runs; [the saved measurements](2026-11-28-small-recap-models-results.json) are the committed copy |
 
 - **It needs:** `FIXTURES`, the verified 17-recording collection built by [`collection.py`](../../experiments/synthetic-call/README.md#seventeen-recording-collection), and `OUT`, a new absolute path outside Git. The script refuses a folder inside Git.
@@ -54,7 +54,9 @@ For each check, the grader also records whether the lines the recap cites for th
 
 ### Changes to the plan
 
-None.
+**2026-11-28, after the thinking-off results: a thinking-on arm.** Every run above has thinking off, which matches the pipeline but may undersell small models, which often gain the most from thinking. All five models' chat templates take `enable_thinking`, so each model runs a second time with thinking on, under run ID `<model>-thinking`, with a 16,384-token output cap, as in the recap-stage plan's variant A2. Nothing else changes: the same lines, prompt, greedy decoding, nine checks, citation grading and grader. The parser also drops Gemma4's thinking channel, which ends with `<channel|>` instead of `</think>`; re-reading every thinking-off reply with it gave the same notes, and LFM3's onboarding reply still fails. A thinking-on reply that hits the cap before its JSON counts as unreadable.
+
+The thinking-on runs are judged by the same rule, against the thinking-off Qwen3.5 9B baseline above, since that is the current default; each run's own memory peak is used. This change is committed before any thinking-on run. It was decided after the thinking-off results were known, so the choice to test thinking at all was not blind to them.
 
 ## Results
 

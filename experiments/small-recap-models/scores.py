@@ -2,9 +2,9 @@
 
     uv run --project experiments/small-recap-models experiments/small-recap-models/scores.py OUT > scores.json
 
-Reads OUT/<case>/<model>/run.json, OUT/<model>.time (from /usr/bin/time -l) and, if present, OUT/judgments.json:
+Reads OUT/<case>/<run>/run.json, OUT/<run>.time (from /usr/bin/time -l) and, if present, OUT/judgments.json:
 
-    {"<case>": {"<model>": {"verdicts": ["full" | "partial" | "wrong_or_absent", ...],
+    {"<case>": {"<run>": {"verdicts": ["full" | "partial" | "wrong_or_absent", ...],
                             "supported": [true | false, ...],
                             "reopens_settled_issue": bool, "unsupported_or_garbled_detail": bool,
                             "summary_sha256": "<sha256 of summary.md that was graded>", "notes": "..."}}}
@@ -19,7 +19,9 @@ from pathlib import Path
 import re
 import sys
 
-from run import CASES, MODELS
+from run import CASES, MODELS, run_id
+
+RUNS = [run_id(name, thinking) for thinking in (False, True) for name in MODELS]
 
 CHECKS = {"onboarding": 4, "english-audit": 5}
 
@@ -62,14 +64,14 @@ def main(out):
     judgments = json.loads(judgments_path.read_text()) if judgments_path.is_file() else {}
     result = {"models": {}, "cases": {}}
     for name, (repo, revision, loader) in MODELS.items():
-        result["models"][name] = {"repo": repo, "revision": revision, "loader": loader,
-                                  "process": time_stats(out / f"{name}.time")}
+        result["models"][name] = {"repo": repo, "revision": revision, "loader": loader}
+    result["processes"] = {name: time_stats(out / f"{name}.time") for name in RUNS}
     for case in CASES:
         inputs = out / case / "inputs.json"
         if not inputs.is_file():
             continue
         entry = {"inputs": json.loads(inputs.read_text()), "checks": CHECKS[case], "runs": {}}
-        for name in MODELS:
+        for name in RUNS:
             run_path = out / case / name / "run.json"
             if not run_path.is_file():
                 continue
@@ -77,6 +79,7 @@ def main(out):
             summary = out / case / name / "summary.md"
             entry["runs"][name] = {
                 "status": run["status"], "reason": run.get("reason"), "seconds": round(run["seconds"], 2),
+                "thinking": run.get("thinking", False), "max_tokens": run.get("max_tokens"),
                 "mlx_peak_bytes": run["mlx_peak_bytes"], "chunks": run["chunks"],
                 "prompt_tokens": [r["prompt_tokens"] for r in run["replies"]],
                 "reply_tokens": [r["reply_tokens"] for r in run["replies"]],

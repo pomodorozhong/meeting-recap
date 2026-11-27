@@ -2,7 +2,7 @@
 
 **Status:** complete
 
-**Outcome:** With the language declared, LFM3 had a lower Mandarin error rate than the full Whisper component baseline (7.27% against 9.27%) and a slightly higher English one (2.01% against 1.88%), so under the rule set before the run it is a candidate for Mandarin only. Most of its Mandarin lead comes from the two calls with long pauses, where whole-call Whisper inserts text; Whisper and Turbo with the existing digital-pause split both beat it there. It writes only Simplified Chinese and gives no word timestamps.
+**Outcome:** With the language declared, LFM3 had a lower Mandarin error rate than the full Whisper component baseline (7.27% against 9.27%) and a slightly higher English one (2.01% against 1.88%), so under the rule set before the run it is a candidate for Mandarin only. Most of its Mandarin lead comes from the two calls with long pauses, where whole-call Whisper inserts text; Whisper and Turbo with the existing digital-pause split both beat it there. It writes only Simplified Chinese and gives no word timestamps. The current recognizers stay, and #27 closes.
 
 ## Reproduce
 
@@ -94,11 +94,10 @@ Measured by the runner on the M2 Pro, with the model loaded once per run (2.1 s 
 
 ## Decision
 
-Under the rule set before the run, LFM3 is a candidate for Mandarin only: it beat the component baseline in Mandarin (7.27% ≤ 9.27%) and missed it in English (2.01% > 1.88%). The rule leaves to #27 whether a Mandarin-only recognizer is worth its cost. Against that choice: the pause-split Whisper and Turbo runs already do better in Mandarin, LFM3's lead comes from the two long-pause calls, and it would need Traditional conversion and a separate aligner for speaker labels. LFM3 is not added to the pipeline.
+Under the rule set before the run, LFM3 is a candidate for Mandarin only: it beat the component baseline in Mandarin (7.27% ≤ 9.27%) and missed it in English (2.01% > 1.88%). The rule left to #27 whether a Mandarin-only recognizer is worth its cost. On 2026-11-27 the project owner decided it isn't: the pause-split Whisper and Turbo runs already do better in Mandarin, LFM3's lead comes from the two long-pause calls, and it would need Traditional conversion and a separate aligner for speaker labels. Keep the current recognizers; LFM3 is not added to the pipeline, and #27 closes without the real-call excerpt.
 
 ## Open questions
 
-- Does #27 take LFM3 to its real-call excerpt as a Mandarin candidate, or close with the current recognizers?
 - Would Whisper with the same quiet-point windows match LFM3's gain on the long-pause calls? That would separate the windowing from the model.
 
 ## Where this ran

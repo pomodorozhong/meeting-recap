@@ -1,8 +1,8 @@
 # 2026-11-28: oMLX against mlx-lm for the recap stage
 
-**Status:** planned
+**Status:** complete
 
-**Outcome:** pending.
+**Outcome:** oMLX 0.8.4 did not reproduce the stage's output: its reply matched `summary_stage.py` byte for byte on 1 of 4 synthetic calls. The same code in oMLX's newer MLX and mlx-lm matched on all 4, so the server causes the difference, not the versions. It loaded the pinned snapshot, its memory peak matched the stage's within 0.1 GB, and it took thinking off. A repeat run reused the cached prompt and finished 18 to 36% faster, from skipping the model load and the prefill; generation was no faster. Under the rule set before the run, the slow runs in the recap-stage plan keep `mlx-lm`.
 
 ## Reproduce
 
@@ -14,7 +14,7 @@
 
 - **It needs:** `FIXTURES`, the verified 17-recording collection built by [`collection.py`](../../experiments/synthetic-call/README.md#seventeen-recording-collection), and `OUT`, a new absolute path outside Git. Port 8771 free on the loopback interface.
 - **It writes:** under `OUT`, the transcript lines of each call, every reply from the three runners below with its timing, the `/usr/bin/time -l` report of each runner's process, and the comparison in `OUT/results.json`.
-- **Takes about:** pending.
+- **Takes about:** 17 minutes for the four calls and three runners (`run.sh` on 2026-11-28, model already downloaded).
 - **By hand:** nothing.
 - **Expect to differ:** timings and memory on any rerun.
 
@@ -58,23 +58,52 @@ None.
 
 ## Results
 
-Pending.
+| Check | Result |
+| --- | --- |
+| 1. Same output | **Fails.** oMLX matched the stage on onboarding only. On English audit, English training and `script`, its reply first differs at character 217, 492 and 356. `control` matched the stage on all four calls |
+| 2. Pinned revision | Passes. The server listed only `qwen3.5-9b` from the linked snapshot folder, with downloads turned off |
+| 3. Memory | Passes. The server's peak footprint can be read per call from `/usr/bin/time -l`, and it was within 0.1 GB of the stage's on every call (6.9 to 7.6 GB) |
+| 4. Thinking switch | Passes. oMLX accepted `enable_thinking: false` per request, and no reply had thinking text |
 
-**Limits.** Synthetic calls of at most 5.1 minutes, all in one prompt. #60 asks for the longest available transcript; the long real calls stay in the private dataset and aren't part of this run, so the speed figures say little about two-hour calls.
+- **Where the difference comes from.** `control` runs the stage's code with oMLX's pins (MLX 0.32.5, mlx-lm at `0d4d3d04`) and reproduced the stage's replies exactly, so the version change alone doesn't explain the difference. oMLX's own serving path does: it generates through mlx-lm's batch generator with its paged cache and native kernels, which can change the low-order bits of the computation enough to flip a greedy choice. This run didn't isolate which of those does it.
+- **oMLX is repeatable with itself.** Each call's repeat run gave the same reply as its first run, byte for byte. Its replies are deterministic, just not the stage's.
+- **Same prompt.** oMLX counted the same prompt tokens as the stage on every call (832, 942, 1,275 and 2,307), so its chat template rendered the prompt the same way.
+- **The differing replies weren't graded.** The plan only asks whether the bytes match. Whether oMLX's recaps are better or worse is a separate question.
+
+| Call | Stage recap, s | oMLX first run, s | oMLX repeat, s | oMLX time to first token, first / repeat | Prompt tokens cached on repeat |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Onboarding | 19.5 | 22.4 | 14.4 | 4.5 / 0.18 s | 825 of 832 |
+| English audit | 43.4 | 51.7 | 42.6 | 5.1 / 0.17 s | 935 of 942 |
+| English training | 34.5 | 37.2 | 26.8 | 6.7 / 0.18 s | 1,268 of 1,275 |
+| `script` | 90.4 | 85.6 | 69.9 | 12.0 / 0.29 s | 2,300 of 2,307 |
+
+oMLX's first-run times include about 3.9 s of model loading on the first request; the stage's recap times don't include loading. Where oMLX's reply had a different length from the stage's, the times compare different amounts of generated text (on English audit oMLX wrote 3,108 characters against the stage's 2,794). The repeat run gained 8 to 16 s: the 3.9 s of loading that only the first request pays, plus 4 to 12 s of prefill that the prefix cache skipped. Generation, which takes most of the time, was no faster. On long calls the prefill is a bigger share, so a repeat would gain more there, but this run didn't measure that.
+
+**Limits.** Four synthetic calls of at most 5.1 minutes, all in one prompt, one run each. #60 asks for the longest available transcript; the long real calls stay in the private dataset and aren't part of this run, so the speed figures say little about two-hour calls.
 
 ## Runtime and memory
 
-Pending.
+| Call | Stage process: wall / peak footprint | Control process | oMLX server process, both requests |
+| --- | ---: | ---: | ---: |
+| Onboarding | 38 s / 6.94 GB | 23 s / 6.81 GB | 44 s / 6.90 GB |
+| English audit | 50 s / 6.96 GB | 48 s / 6.83 GB | 102 s / 6.94 GB |
+| English training | 41 s / 7.11 GB | 39 s / 6.98 GB | 72 s / 7.06 GB |
+| `script` | 97 s / 7.56 GB | 95 s / 7.42 GB | 163 s / 7.57 GB |
+
+All from `/usr/bin/time -l`, one process at a time on the M2 Pro with the desktop in normal use. The oMLX column covers a server's whole life for one call: start-up, two requests and shutdown. The stage and control MLX peaks were the same to the byte on every call (6.21 to 6.71 GB); oMLX doesn't report an MLX peak.
 
 ## Decision
 
-Pending.
+Keep running the recap stage, and the slow runs of the recap-stage plan, with `mlx-lm` in its own process, as now. oMLX fails the first check: its replies aren't the stage's, so it would break the plan's exact-repeat control and make its results incomparable with earlier ones. Its prefix cache does work, but it saves only the prefill, which is a small share of a recap's time on these calls. See decision 21.
 
 ## Open questions
 
+- Which part of oMLX's serving path changes the output: the batch generator, the paged cache or the native kernels? oMLX may have settings that turn some of them off; this run didn't try.
+- If the project ever runs many recaps of one long transcript (Stage A's variants share the transcript, not the prompt), would oMLX's cache save enough to accept non-identical output? That needs a long-call measurement and the project owner's decision.
+
 ## Where this ran
 
-- **Code:** pending.
+- **Code:** commit `8d9cdf3` on the branch for #60, which holds the plan and every script the run used.
 - **Models and weights:** the revisions in the plan.
-- **Machine:** one M2 Pro with 16 GB.
-- **Kept outside the repository:** the transcript lines and replies, under `OUT`. Public results hold digests, counts and times only.
+- **Machine:** one M2 Pro with 16 GB, macOS 26.6.2. Stage: MLX 0.32.4, mlx-lm 0.32.2. Control and oMLX: oMLX 0.8.4 (release wheel sha256 `0f1e350de597ce0d9948003d95cd3cec1f3bc38e85c6ec7b9991ca4b51b96ae6`), MLX 0.32.5, mlx-lm at `0d4d3d04`, transformers 5.22.2, all native kernels loaded.
+- **Kept outside the repository:** the transcript lines and replies, in the private review dataset under benchmark ID `omlx-check-20261128`. [The saved comparison](2026-11-28-omlx-check-results.json) holds digests, counts and times only.

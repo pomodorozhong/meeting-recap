@@ -28,6 +28,8 @@ SETTINGS = {
     "turbo-sortformer": ["--asr", "turbo-q4"],
     "whisper-who": ["--diarizer", "who"],
     "turbo-who": ["--asr", "turbo-q4", "--diarizer", "who"],
+    # Used by docs/experiments/2026-11-06-keep-segments-defaults.md; the other settings are shared.
+    "whisper-sortformer-segments": ["--keep-asr-segments"],
 }
 VERDICTS = ("full", "partial", "wrong_or_absent")
 STAMP = re.compile(r"\d\d:\d\d:\d\d")

@@ -1,0 +1,32 @@
+{
+  "description": "The 12 recap fact checks from docs/experiments/2026-11-02-synthetic-collection-recaps.md, in the order its judgments file lists them. Speakers are the script's A, B, C and D. Turn numbers refer to each call's script.",
+  "calls": {
+    "onboarding": {
+      "language": "zh",
+      "checks": [
+        "Account test owner and time (turns 9, 10)",
+        "Documentation owner and time (turns 12, 14)",
+        "Test access restored (turn 15)",
+        "Production access still separate and unapproved (turn 16)"
+      ]
+    },
+    "english-audit": {
+      "language": "en",
+      "checks": [
+        "Corrected adapter total (turn 2)",
+        "Usable cable count (turn 3)",
+        "Scale fault unresolved (turn 7)",
+        "Corrected booking (turns 8 and 11)",
+        "Delivery expected, not received (turn 10)"
+      ]
+    },
+    "english-training": {
+      "language": "en",
+      "checks": [
+        "Final count of 18 verified (turns 7, 8, 18)",
+        "A's checklist revision by Wednesday noon (turn 21)",
+        "B responsible for the practice check, due Thursday 10:00 (turn 22)"
+      ]
+    }
+  }
+}

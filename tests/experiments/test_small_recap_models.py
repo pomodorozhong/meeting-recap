@@ -146,6 +146,16 @@ class Recap(unittest.TestCase):
             with self.subTest(args=args), self.assertRaises(ValueError):
                 run.recap(args[0], transcript(2), model, thinking=args[1], variant=args[2])
 
+    def test_reply_capped_inside_its_thinking_is_unreadable(self):
+        draft = "<think>" + json.dumps(NOTES)  # a JSON draft inside thinking that never closed
+        model = FakeModel("minicpm5-2b", draft)
+        model.count = lambda text: run.THINKING_MAX_TOKENS if text == draft else len(text)
+        record, notes = run.recap("minicpm5-2b", transcript(2), model, thinking=True, variant="sampled")
+        self.assertEqual((record["status"], notes), ("failed", None))
+        self.assertIn("without closing its thinking", record["reason"])
+        self.assertFalse(run.capped_in_thinking("x</think>" + json.dumps(NOTES), 16384, 16384))
+        self.assertFalse(run.capped_in_thinking(draft, 100, 16384))
+
     def test_unreadable_reply_is_a_failed_result(self):
         record, notes = run.recap("lfm3-1.7b", transcript(2), FakeModel("lfm3-1.7b", "sorry"))
         self.assertEqual((record["status"], notes), ("failed", None))

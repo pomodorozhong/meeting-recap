@@ -155,6 +155,17 @@ def parse_notes(text):
     return {key: [item for item in notes.get(key) or [] if isinstance(item, dict)] for key in SECTIONS}
 
 
+THINK_CLOSES = ("</think>", "<channel|>")
+
+
+def capped_in_thinking(reply, reply_tokens, max_tokens):
+    """A thinking reply that reached the cap without closing its thinking: any JSON in it is a draft, not the answer.
+
+    The plan counts it as unreadable. A token is allowed for the count's rounding at the cap.
+    """
+    return reply_tokens >= max_tokens - 1 and not any(close in reply for close in THINK_CLOSES)
+
+
 def check_evidence(notes, lines):
     """Keep only evidence timestamps that start a transcript line; count what was dropped or left unsupported."""
     known = {line[1:9] for line in lines}
@@ -333,6 +344,8 @@ def recap(name, lines, model, thinking=False, variant="greedy"):
         reply = model.generate(text, max_tokens, budget=budget, sampling=sampling)
         replies.append({"kind": kind, "prompt_tokens": model.count(text), "reply_tokens": model.count(reply),
                         "seconds": time.time() - begun, "reply": reply})
+        if thinking and capped_in_thinking(reply, replies[-1]["reply_tokens"], max_tokens):
+            raise ValueError("summary model reached the token cap without closing its thinking")
         return reply
 
     try:

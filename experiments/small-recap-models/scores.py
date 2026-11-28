@@ -9,7 +9,8 @@ Reads OUT/<case>/<run>/run.json, OUT/<run>.time (from /usr/bin/time -l) and, if 
                             "reopens_settled_issue": bool, "unsupported_or_garbled_detail": bool,
                             "summary_sha256": "<sha256 of summary.md that was graded>", "notes": "..."}}}
 
-A run whose reply wasn't readable JSON scores zero without a judgment. "supported" says, per check, whether the lines the recap cites for that fact support it. A verdict counts only
+A run whose reply wasn't readable JSON scores zero without a judgment, and so does a thinking run whose reply reached
+the cap without closing its thinking, even if run.json, written before run.py checked this, says it was done. "supported" says, per check, whether the lines the recap cites for that fact support it. A verdict counts only
 while summary_sha256 matches the summary.md on disk, so changed text never inherits an earlier grade. The output
 holds no recap or transcript text, so it can be committed; the judgments' "notes" stay out of it.
 """
@@ -19,7 +20,7 @@ from pathlib import Path
 import re
 import sys
 
-from run import CASES, MODELS, VARIANTS, run_id
+from run import CASES, MODELS, VARIANTS, capped_in_thinking, run_id
 
 RUNS = [run_id(name, False) for name in MODELS] + [run_id(name, True, v) for v in VARIANTS for name in MODELS]
 
@@ -77,6 +78,10 @@ def main(out):
                 continue
             run = json.loads(run_path.read_text())
             summary = out / case / name / "summary.md"
+            # Runs made before run.py checked this are held to the same rule here.
+            if run["status"] == "done" and run.get("thinking") and any(
+                    capped_in_thinking(r["reply"], r["reply_tokens"], run["max_tokens"]) for r in run["replies"]):
+                run.update(status="failed", reason="summary model reached the token cap without closing its thinking")
             entry["runs"][name] = {
                 "status": run["status"], "reason": run.get("reason"), "seconds": round(run["seconds"], 2),
                 "thinking": run.get("thinking", False), "max_tokens": run.get("max_tokens"),

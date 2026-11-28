@@ -2,7 +2,7 @@
 
 **Status:** complete
 
-**Outcome:** Two settings matched Qwen3.5 9B on the two synthetic calls, with 6 of 9 facts fully correct with supporting citations and the same number of reopened questions. Spark X2.6-4B with thinking off had a 35% lower memory peak and took about the same time. Gemma4 E2B with thinking on had a 29% lower peak and took about 27 s per call. With thinking off, Gemma4 E2B, MiniCPM5 2B and LFM3-1.7B got 4 of 9 or fewer. With thinking on, every model except Gemma4 thought until the 16,384-token cap on both calls and returned no usable recap, Qwen included. The default doesn't change yet: Spark (thinking off) and Gemma4 E2B (thinking on) go on to the long real calls of #28 as candidate recap models (decision 20).
+**Outcome:** Two settings matched Qwen3.5 9B on the two synthetic calls, with 6 of 9 facts fully correct with supporting citations and the same number of reopened questions. Spark X2.6-4B with thinking off had a 35% lower memory peak and took about the same time. Gemma4 E2B with thinking on had a 29% lower peak and took about 27 s per call. With thinking off, Gemma4 E2B, MiniCPM5 2B and LFM3-1.7B got 4 of 9 or fewer. With thinking on, every model except Gemma4 thought until the 16,384-token cap on both calls and returned no usable recap, Qwen included. A thinking budget fixed that: closing the thinking after 2,048 tokens, as oMLX's `thinking_budget` does, gave a readable recap on all 8 calls. Spark X2.6-4B with the budget got 7 of 9, the best of any run, and LFM3-1.7B with the budget got 6 of 9 at a third of Qwen's memory, but Qwen itself fell to 4 of 9. Each model card's recommended sampling, without a budget, still left 4 of 8 replies thinking until the cap; only Qwen finished both calls, matching its 6 of 9 at about 5 minutes per call. The default doesn't change yet: Spark with the budget, Gemma4 E2B with thinking and LFM3 with the budget go on to the long real calls of #28 as candidate recap models (decision 20).
 
 ![Flow of the experiment: the same exact-turn lines go to five models, each run with thinking off and on; unreadable replies score zero, readable ones are graded by hand, and a rule fixed before the runs sorts each run](2026-11-28-small-recap-models-flow.svg)
 
@@ -62,7 +62,7 @@ The thinking-on runs are judged by the same rule, against the thinking-off Qwen3
 
 **2026-11-28, after the thinking-on results: two ways to stop the runaway thinking.** Qwen, Spark, MiniCPM5 and LFM3 thought until the 16,384-token cap on both calls. Two causes are plausible, and each gets one more thinking-on run of those four models, with the same lines, prompt, nine checks, citation grading, grader and decision rule (against the thinking-off Qwen baseline):
 
-- **`<model>-thinking-budget`: a thinking budget, with greedy decoding.** After 2,048 reply tokens without `</think>`, the runner forces a newline, `</think>` and a blank line, one token at a time, then lets the model write its JSON, with a 6,144-token cap (the budget plus the thinking-off cap). This is how oMLX's `thinking_budget` works (its `ThinkingBudgetProcessor`), added to the mlx-lm and mlx-vlm runner as a logits processor instead of running oMLX, which didn't reproduce the stage's output (decision 21). 2,048 is just above the about 1,700 tokens Gemma4 E2B thought per reply when it finished on its own. A model that closes its thinking before the budget is left alone.
+- **`<model>-thinking-budget`: a thinking budget, with greedy decoding.** After 2,048 reply tokens without `</think>`, the runner forces a newline, `</think>` and a blank line, one token at a time, then lets the model write its JSON, with a 6,144-token cap (the budget plus the thinking-off cap). This is how oMLX's `thinking_budget` works (its `ThinkingBudgetProcessor`), added to the mlx-lm and mlx-vlm runner as a logits processor instead of running oMLX, whose output differs from the stage's ([#60](https://github.com/pomodorozhong/meeting-recap/issues/60)). 2,048 is just above the about 1,700 tokens Gemma4 E2B thought per reply when it finished on its own. A model that closes its thinking before the budget is left alone.
 - **`<model>-thinking-sampled`: each model card's recommended sampling, with no budget.** Greedy decoding is known to make thinking repeat itself; Qwen's model card says not to use it with thinking. The cap stays 16,384, seed 0, one run per call. The settings are taken from each model's card or `generation_config.json` at its pinned or named revision: Qwen3.5 9B, temperature 1.0, top-p 0.95, top-k 20, min-p 0, presence penalty 1.5 ("thinking mode for general tasks", from `Qwen/Qwen3.5-9B` at `c2022362`); MiniCPM5 2B, temperature 1.0, top-p 0.95, min-p 0; LFM3-1.7B, temperature 0.1, top-k 50, repetition penalty 1.1 (its card's thinking example); Spark X2.6-4B, temperature 1.0, top-p 0.95. Penalties cover the whole reply. Sampled text doesn't repeat across machines or package versions, and one seed is one draw, so a sampled run that passes says the fix can work, not that it always does.
 
 Gemma4 E2B already finished with greedy thinking, so it isn't rerun. A smoke test with a one-line prompt and a 60-token budget, before any run on the experiment's input, checked that the forced close works through both mlx-lm (Qwen) and mlx-vlm (LFM3). This change is committed before any run of either variant, but after every earlier result was known.
@@ -108,9 +108,33 @@ Only Gemma4 E2B returned recaps. The other eight replies reached the 16,384-toke
 
 Under the rule fixed before the runs, Gemma4 E2B with thinking on also meets the bar to **replace** Qwen: as many facts fully correct with supporting citations (6), no more reopened questions, and no unreadable reply. No thinking-on run qualifies as a **lighter option**.
 
+### Thinking budget and recommended sampling
+
+These runs follow the second plan change. In the budget runs, none of the four models closed its thinking before the budget, so the runner closed it in all 8 replies, at 2,037 to 2,049 tokens. Every one then wrote readable JSON. With recommended sampling and no budget, Qwen thought for about 9,000 to 10,000 tokens per call and finished both, MiniCPM5 and LFM3 finished onboarding only, and Spark finished neither. The four sampled replies that failed reached the 16,384-token cap without closing their thinking. MiniCPM5's audit reply ended in one character repeated for thousands of tokens. The parser had read a JSON draft from inside its thinking, which the plan counts as unreadable, so `run.py` and `scores.py` now fail such a reply (commit `6719d8a`).
+
+| Run | Onboarding (4 checks) | English audit (5 checks) | Fully correct | **Fully correct, supporting citations** | Calls with a reopened settled question | Unreadable replies |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Qwen3.5 9B, thinking off (baseline) | 3 full | 3 full, 2 partial | 6/9 | **6/9** | 1 | 0 |
+| Spark X2.6-4B, budget | 3 full, 1 partial | 4 full, 1 partial | 7/9 | **7/9** | 1 | 0 |
+| LFM3-1.7B, budget | 3 full, 1 partial | 3 full, 2 partial | 6/9 | **6/9** | 2 | 0 |
+| MiniCPM5 2B, budget | 2 full, 1 partial | 3 full, 2 partial | 5/9 | **5/9** | 2 | 0 |
+| Qwen3.5 9B, budget | 3 full, 1 partial | 4 full, 1 partial | 7/9 | **4/9** | 2 | 0 |
+| Qwen3.5 9B, sampled | 2 full, 2 partial | 4 full, 1 partial | 6/9 | **6/9** | 1 | 0 |
+| MiniCPM5 2B, sampled | 2 full, 1 partial | capped, scored 0 | 2/9 | **2/9** | 1 | 1 |
+| LFM3-1.7B, sampled | 1 full, 3 partial | capped, scored 0 | 1/9 | **1/9** | 1 | 1 |
+| Spark X2.6-4B, sampled | capped, scored 0 | capped, scored 0 | 0/9 | **0/9** | 0 | 2 |
+
+- **Spark with the budget** stated both assignments with owners, times and supporting lines, and was the only run in this experiment to state that test access was restored while citing the line that confirms it. On the audit it stated all four corrected values with citations, including the Thursday booking replacing Wednesday at four, but again asked whether the cables had arrived. It left one audit item uncited, against 19 with thinking off. It wrote the audit recap mostly in Simplified Chinese, and its replies were the longest (6,106 tokens on the audit, close to the 6,144 cap).
+- **LFM3 with the budget** gained two facts over thinking off and had no unreadable reply. It gave the audit's booking as Thursday half past nine, wrote 750 kg for 750 g, garbled due fields into timestamps, and on onboarding listed the test environment as still awaiting confirmation.
+- **MiniCPM5 with the budget** kept the test-account assignment, which it lost with thinking off, but gave the documentation task no owner and the booking as Thursday nine o'clock.
+- **Qwen with the budget** stated more facts than with thinking off (7 against 6) but cited fewer: on the audit it gave the corrected counts only in uncited decisions (12 items uncited, 18 citations dropped). It also listed C's answered question as still open.
+- **Qwen with sampling** matched its thinking-off result, 6 of 9, but took about 5 minutes per call against 20 to 43 s, and gave "tomorrow" as Sunday.
+
+Under the rule fixed before the runs, Spark X2.6-4B with the budget meets the bar to **replace** Qwen, with one more fact fully correct with supporting citations (7 against 6), no more reopened questions and no unreadable reply. Qwen with sampling meets it too, though it is the baseline model itself, at about nine times the time. LFM3-1.7B and MiniCPM5 2B with the budget qualify as **lighter options**: at most one fact behind, no unreadable reply, and under half of Qwen's memory peak (2.2 and 2.7 GB against 6.7 GB). LFM3 reopened a settled question on both calls, which keeps it from the replace bar despite matching Qwen's count. Qwen with the budget and every other sampled run are ruled out.
+
 ### Limits
 
-Nine checks on two short synthetic calls, graded once by a grader who knew which model wrote each recap. Both calls fit in one prompt, so this says nothing about the merge step, where most long real calls fail (#28). The prompt was written and tuned for Qwen with thinking off, which may favor it. The thinking-on arm tried one cap and each model's default thinking settings; a larger cap or a thinking budget might change which models finish.
+Nine checks on two short synthetic calls, graded once by a grader who knew which model wrote each recap. Both calls fit in one prompt, so this says nothing about the merge step, where most long real calls fail (#28). The prompt was written and tuned for Qwen with thinking off, which may favor it. The budget runs tried one budget, 2,048 tokens, and it cut every model's thinking off, so a model that needed more thinking than that wasn't tested at its best. The sampled runs are one draw each with seed 0, and sampled text doesn't repeat across machines or package versions. The thinking variants were planned after every earlier result was known.
 
 ## Runtime and memory
 
@@ -138,21 +162,37 @@ Thinking on:
 
 Gemma4's thinking-on replies were about 1,700 tokens each, so thinking cost it about 15 s per call over thinking off. Every other model spent the full 16,384 tokens.
 
+Thinking budget and recommended sampling:
+
+| Run | Recap seconds, onboarding / audit | MLX peak | Process peak footprint | Process wall time, both calls with loading |
+| --- | ---: | ---: | ---: | ---: |
+| Spark X2.6-4B, budget | 83.4 / 140.3 | 4.0 GB | 4.6 GB | 227 s |
+| LFM3-1.7B, budget | 29.3 / 36.7 | 1.8 GB | 2.2 GB | 69 s |
+| MiniCPM5 2B, budget | 33.1 / 35.9 | 2.3 GB | 2.7 GB | 72 s |
+| Qwen3.5 9B, budget | 99.4 / 118.4 | 6.2 GB | 6.7 GB | 223 s |
+| Qwen3.5 9B, sampled | 296.9 / 328.5 | 6.2 GB | 7.0 GB | 630 s |
+| MiniCPM5 2B, sampled | 76.1 / 239.0, capped | 2.4 GB | 3.2 GB | 318 s |
+| LFM3-1.7B, sampled | 89.2 / 134.7, capped | 1.8 GB | 2.3 GB | 226 s |
+| Spark X2.6-4B, sampled | 349.5 / 350.1, both capped | 4.0 GB | 5.6 GB | 702 s |
+
+The budget kept the memory peak at the thinking-off level and bounded the time: Spark with the budget took about 3.8 times its thinking-off time, and LFM3 about 5 times, but both stayed within about 2 minutes per short call.
+
 ## Decision
 
-Keep Qwen3.5 9B with thinking off as the recap model for now. Take two candidates to the long real calls of #28 as pinned A4 recap models, as the plan required before decision 7 changes: Spark X2.6-4B with thinking off, and Gemma4 E2B with thinking on. Rule out MiniCPM5 2B and LFM3-1.7B with this prompt, and Gemma4 E2B with thinking off. Thinking on doesn't work for Qwen, Spark, MiniCPM or LFM3 within a 16,384-token cap. See decision 20.
+Keep Qwen3.5 9B with thinking off as the recap model for now. Take three candidates to the long real calls of #28 as pinned A4 recap models, as the plan required before decision 7 changes: Spark X2.6-4B with a 2,048-token thinking budget (the best result here, replacing Spark with thinking off, which got one fact fewer), Gemma4 E2B with thinking on, and LFM3-1.7B with the budget as the lighter option. Rule out Gemma4 E2B with thinking off, and MiniCPM5 2B and LFM3-1.7B with thinking off or with greedy thinking and no budget. Unbounded thinking doesn't work for Qwen, Spark, MiniCPM or LFM3 within a 16,384-token cap, and recommended sampling only rescued Qwen. See decision 20.
 
 ## Open questions
 
 - Do Spark and Gemma4 with thinking keep their facts on calls of 37 minutes or more, where the merge step runs and most of Qwen's recaps fail at the output cap (#28)? Spark's longer replies may hit that cap sooner. Gemma4's thinking stayed short here, but nothing shows it will on a long call.
-- Why did Gemma4 stop thinking after about 1,700 tokens while the other four never stopped? A thinking budget, such as Spark's `thinking_effort` setting, or a prompt that asks for brief reasoning, might rescue the others; neither was tried.
-- Variant A2 of the real-call plan (Qwen with thinking) failed here on two short calls, so it probably needs a different cap or a thinking budget before it's worth running on the long ones.
+- Why did Gemma4 stop thinking after about 1,700 tokens while the other four never stopped, even with their recommended sampling? Spark's own `reasoning_effort: low` setting and a prompt that asks for brief reasoning weren't tried.
+- Is 2,048 the right budget? It cut every model off, so a larger budget might do better, and on a long call the merge step may need more room for its JSON than the 4,096 tokens left after the budget.
+- Variant A2 of the real-call plan (Qwen with thinking): with the budget it cited fewer facts (4 of 9), and with sampling it matched thinking off at about nine times the time. Neither looks worth running on the long calls.
 - Would a prompt written for smaller models (shorter rules, an example) close MiniCPM's and LFM3's gap? Every model here used the prompt tuned for Qwen.
 - LFM3 through mlx-lm, once [ml-explore/mlx-lm#2016](https://github.com/ml-explore/mlx-lm/pull/2016) lands: the same weights should give the same text, but this run didn't check.
 
 ## Where this ran
 
-- **Code:** the thinking-off recaps came from the `run.py` at commit `c69e43c` and the thinking-on recaps from `74d8e8b`, both on the branch for #96. `74d8e8b` adds the thinking option and the Gemma4 channel rule, and re-reading the thinking-off replies with it gave the same notes.
+- **Code:** the thinking-off recaps came from the `run.py` at commit `c69e43c`, the thinking-on recaps from `74d8e8b`, and the budget and sampled recaps from `965f96b`, all on the branch for #96. `74d8e8b` adds the thinking option and the Gemma4 channel rule, and re-reading the thinking-off replies with it gave the same notes. `6719d8a` adds the rule that a reply capped inside its thinking is unreadable; it changes only MiniCPM5's sampled audit run.
 - **Models and weights:** the revisions in the plan.
 - **Machine:** one M2 Pro with 16 GB, macOS 26.6.2; MLX 0.32.4, mlx-lm 0.32.2, mlx-vlm 0.8.1, transformers 5.24.1.
 - **Kept outside the repository:** the transcript lines, recaps and judgments with notes, in the private review dataset under benchmark ID `small-recap-models-20261128`. Public results hold counts and digests only.

@@ -1,0 +1,13 @@
+[project]
+name = "omlx-check"
+version = "0.1.0"
+description = "Check whether oMLX reproduces the recap stage's mlx-lm output, memory and speed"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "omlx @ https://github.com/jundot/omlx/releases/download/v0.8.4/omlx-0.8.4-cp312-cp312-macosx_15_0_universal2.whl",
+    "huggingface-hub",
+    "opencc-python-reimplemented==0.1.7",
+]
+
+[tool.uv]
+package = false

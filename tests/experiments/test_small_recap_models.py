@@ -48,8 +48,9 @@ class FakeModel:
     def count(self, text):
         return len(text)
 
-    def generate(self, text, max_tokens=None):
+    def generate(self, text, max_tokens=None, budget=None, sampling=None):
         self.prompts.append((text, max_tokens))
+        self.options = {"budget": budget, "sampling": sampling}
         return self.reply
 
     def reset_peak(self):
@@ -130,10 +131,53 @@ class Recap(unittest.TestCase):
         self.assertEqual((record["run"], record["max_tokens"]), ("spark-x2.6-4b", run.MAX_TOKENS))
         self.assertEqual(model.prompts[1][0][:2], "N|")
 
+    def test_budget_and_sampled_variants(self):
+        model = FakeModel("qwen3.5-9b")
+        record, _ = run.recap("qwen3.5-9b", transcript(2), model, thinking=True, variant="budget")
+        self.assertEqual((record["run"], record["decoding"], record["max_tokens"], record["thinking_budget"]),
+                         ("qwen3.5-9b-thinking-budget", "greedy", run.THINKING_BUDGET + run.MAX_TOKENS,
+                          run.THINKING_BUDGET))
+        self.assertEqual(model.options, {"budget": run.THINKING_BUDGET, "sampling": None})
+        record, _ = run.recap("lfm3-1.7b", transcript(2), model, thinking=True, variant="sampled")
+        self.assertEqual((record["run"], record["decoding"], record["max_tokens"], record["seed"]),
+                         ("lfm3-1.7b-thinking-sampled", "sampled", run.THINKING_MAX_TOKENS, run.SEED))
+        self.assertEqual(model.options, {"budget": None, "sampling": run.SAMPLING["lfm3-1.7b"]})
+        for args in (("qwen3.5-9b", False, "budget"), ("gemma4-e2b", True, "sampled"), ("qwen3.5-9b", True, "x")):
+            with self.subTest(args=args), self.assertRaises(ValueError):
+                run.recap(args[0], transcript(2), model, thinking=args[1], variant=args[2])
+
     def test_unreadable_reply_is_a_failed_result(self):
         record, notes = run.recap("lfm3-1.7b", transcript(2), FakeModel("lfm3-1.7b", "sorry"))
         self.assertEqual((record["status"], notes), ("failed", None))
         self.assertEqual(record["loader"], "mlx-vlm")
+
+
+class Budget(unittest.TestCase):
+    """The thinking budget on real MLX arrays: a vocabulary of 10 tokens, close tag [7, 8], forced [5, 7, 8, 6]."""
+
+    def step(self, processor, tokens):
+        import mlx.core as mx
+
+        logits = processor(mx.array(tokens), mx.zeros((1, 10)))
+        allowed = [i for i in range(10) if logits[0, i].item() > -float("inf")]
+        return allowed[0] if len(allowed) == 1 else None
+
+    def test_forces_the_close_after_the_budget(self):
+        processor = run.ThinkingBudget([7, 8], [5, 7, 8, 6], budget=3)
+        tokens, forced = [1, 2], []  # the prompt
+        for _ in range(8):
+            token = self.step(processor, tokens)
+            forced.append(token)
+            tokens.append(token if token is not None else 3)
+        self.assertEqual(forced, [None, None, None, 5, 7, 8, 6, None])
+
+    def test_never_acts_once_the_model_closes_its_thinking(self):
+        processor = run.ThinkingBudget([7, 8], [5, 7, 8, 6], budget=4)
+        tokens = [1, 2]
+        for token in (3, 7, 8, 3, 3, 3, 3):
+            self.assertIsNone(self.step(processor, tokens))
+            tokens.append(token)
+        self.assertTrue(processor.done)
 
 
 class EntryPoint(unittest.TestCase):
@@ -176,6 +220,20 @@ class EntryPoint(unittest.TestCase):
         runs = json.loads(out.getvalue())["cases"]["onboarding"]["runs"]
         self.assertEqual(sorted(runs), ["minicpm5-2b", "minicpm5-2b-thinking"])
         self.assertTrue(runs["minicpm5-2b-thinking"]["thinking"])
+
+    def test_later_thinking_variants_write_their_own_runs(self):
+        self.run_main("--model", "lfm3-1.7b", "--thinking-budget")
+        self.run_main("--model", "lfm3-1.7b", "--thinking-sampled")
+        with self.assertRaises(SystemExit), contextlib.redirect_stderr(io.StringIO()):
+            self.run_main("--model", "gemma4-e2b", "--thinking-sampled")
+        with self.assertRaises(SystemExit), contextlib.redirect_stderr(io.StringIO()):
+            self.run_main("--model", "lfm3-1.7b", "--thinking", "--thinking-budget")
+        with contextlib.redirect_stdout(io.StringIO()) as out:
+            scores.main(self.root / "out")
+        runs = json.loads(out.getvalue())["cases"]["onboarding"]["runs"]
+        self.assertEqual(sorted(runs), ["lfm3-1.7b-thinking-budget", "lfm3-1.7b-thinking-sampled"])
+        self.assertEqual(runs["lfm3-1.7b-thinking-budget"]["thinking_budget"], run.THINKING_BUDGET)
+        self.assertEqual(runs["lfm3-1.7b-thinking-sampled"]["sampling"], run.SAMPLING["lfm3-1.7b"])
 
     def test_refuses_changed_lines_in_the_same_folder(self):
         self.run_main("--model", "minicpm5-2b")

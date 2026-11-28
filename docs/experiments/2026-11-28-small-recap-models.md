@@ -11,14 +11,14 @@
 | Step | Command |
 | --- | --- |
 | Set up once (needs the network) | `experiments/small-recap-models/setup.sh` |
-| Run everything | `experiments/small-recap-models/run.sh "$FIXTURES" "$OUT"`, then `experiments/small-recap-models/run.sh "$FIXTURES" "$OUT" --thinking` |
+| Run everything | `experiments/small-recap-models/run.sh "$FIXTURES" "$OUT"`, then the same with `--thinking`, `--thinking-budget` and `--thinking-sampled` in turn |
 | Check saved results without models | `uv run --project experiments/small-recap-models experiments/small-recap-models/scores.py "$OUT"` rebuilds the measurements from saved runs; [the saved measurements](2026-11-28-small-recap-models-results.json) are the committed copy |
 
 - **It needs:** `FIXTURES`, the verified 17-recording collection built by [`collection.py`](../../experiments/synthetic-call/README.md#seventeen-recording-collection), and `OUT`, a new absolute path outside Git. The script refuses a folder inside Git.
-- **It writes:** for each call, `OUT/<call>/lines.json` (the transcript lines every model reads) and `OUT/<call>/<run>/{notes.json,summary.md,run.json}`, where `<run>` is the model name, with `-thinking` for the thinking-on arm; `OUT/<run>.time` from `/usr/bin/time -l`; and the measurements in `OUT/scores.json`.
+- **It writes:** for each call, `OUT/<call>/lines.json` (the transcript lines every model reads) and `OUT/<call>/<run>/{notes.json,summary.md,run.json}`, where `<run>` is the model name, with `-thinking` for the thinking-on arm and `-thinking-budget` or `-thinking-sampled` for the later thinking variants; `OUT/<run>.time` from `/usr/bin/time -l`; and the measurements in `OUT/scores.json`.
 - **Takes about:** 3 minutes for the thinking-off arm and 41 minutes for the thinking-on arm, including model loading (2026-11-28, models already downloaded). Most of the thinking-on time is models thinking until the cap. Grading by hand took longer.
 - **By hand:** grading each recap against the fixed checks below, saved as `OUT/judgments.json` in the format `scores.py` describes, then rerunning `scores.py`.
-- **Expect to differ:** timings and memory on any rerun. Model text should repeat on the same machine and package versions, since decoding is greedy.
+- **Expect to differ:** timings and memory on any rerun. Model text should repeat on the same machine and package versions, since decoding is greedy, except in the `-thinking-sampled` runs, which sample with seed 0 and may differ elsewhere.
 
 ## Question
 
@@ -59,6 +59,13 @@ For each check, the grader also records whether the lines the recap cites for th
 **2026-11-28, after the thinking-off results: a thinking-on arm.** Every run above has thinking off, which matches the pipeline but may undersell small models, which often gain the most from thinking. All five models' chat templates take `enable_thinking`, so each model runs a second time with thinking on, under run ID `<model>-thinking`, with a 16,384-token output cap, as in the recap-stage plan's variant A2. Nothing else changes: the same lines, prompt, greedy decoding, nine checks, citation grading and grader. The parser also drops Gemma4's thinking channel, which ends with `<channel|>` instead of `</think>`; re-reading every thinking-off reply with it gave the same notes, and LFM3's onboarding reply still fails. A thinking-on reply that hits the cap before its JSON counts as unreadable.
 
 The thinking-on runs are judged by the same rule, against the thinking-off Qwen3.5 9B baseline above, since that is the current default; each run's own memory peak is used. This change is committed before any thinking-on run. It was decided after the thinking-off results were known, so the choice to test thinking at all was not blind to them.
+
+**2026-11-28, after the thinking-on results: two ways to stop the runaway thinking.** Qwen, Spark, MiniCPM5 and LFM3 thought until the 16,384-token cap on both calls. Two causes are plausible, and each gets one more thinking-on run of those four models, with the same lines, prompt, nine checks, citation grading, grader and decision rule (against the thinking-off Qwen baseline):
+
+- **`<model>-thinking-budget`: a thinking budget, with greedy decoding.** After 2,048 reply tokens without `</think>`, the runner forces a newline, `</think>` and a blank line, one token at a time, then lets the model write its JSON, with a 6,144-token cap (the budget plus the thinking-off cap). This is how oMLX's `thinking_budget` works (its `ThinkingBudgetProcessor`), added to the mlx-lm and mlx-vlm runner as a logits processor instead of running oMLX, which didn't reproduce the stage's output (decision 21). 2,048 is just above the about 1,700 tokens Gemma4 E2B thought per reply when it finished on its own. A model that closes its thinking before the budget is left alone.
+- **`<model>-thinking-sampled`: each model card's recommended sampling, with no budget.** Greedy decoding is known to make thinking repeat itself; Qwen's model card says not to use it with thinking. The cap stays 16,384, seed 0, one run per call. The settings are taken from each model's card or `generation_config.json` at its pinned or named revision: Qwen3.5 9B, temperature 1.0, top-p 0.95, top-k 20, min-p 0, presence penalty 1.5 ("thinking mode for general tasks", from `Qwen/Qwen3.5-9B` at `c2022362`); MiniCPM5 2B, temperature 1.0, top-p 0.95, min-p 0; LFM3-1.7B, temperature 0.1, top-k 50, repetition penalty 1.1 (its card's thinking example); Spark X2.6-4B, temperature 1.0, top-p 0.95. Penalties cover the whole reply. Sampled text doesn't repeat across machines or package versions, and one seed is one draw, so a sampled run that passes says the fix can work, not that it always does.
+
+Gemma4 E2B already finished with greedy thinking, so it isn't rerun. A smoke test with a one-line prompt and a 60-token budget, before any run on the experiment's input, checked that the forced close works through both mlx-lm (Qwen) and mlx-vlm (LFM3). This change is committed before any run of either variant, but after every earlier result was known.
 
 ## Results
 

@@ -19,9 +19,9 @@ from pathlib import Path
 import re
 import sys
 
-from run import CASES, MODELS, run_id
+from run import CASES, MODELS, VARIANTS, run_id
 
-RUNS = [run_id(name, thinking) for thinking in (False, True) for name in MODELS]
+RUNS = [run_id(name, False) for name in MODELS] + [run_id(name, True, v) for v in VARIANTS for name in MODELS]
 
 CHECKS = {"onboarding": 4, "english-audit": 5}
 
@@ -80,6 +80,8 @@ def main(out):
             entry["runs"][name] = {
                 "status": run["status"], "reason": run.get("reason"), "seconds": round(run["seconds"], 2),
                 "thinking": run.get("thinking", False), "max_tokens": run.get("max_tokens"),
+                "thinking_budget": run.get("thinking_budget"), "sampling": run.get("sampling"),
+                "seed": run.get("seed"),
                 "mlx_peak_bytes": run["mlx_peak_bytes"], "chunks": run["chunks"],
                 "prompt_tokens": [r["prompt_tokens"] for r in run["replies"]],
                 "reply_tokens": [r["reply_tokens"] for r in run["replies"]],

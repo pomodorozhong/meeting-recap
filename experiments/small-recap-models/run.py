@@ -8,7 +8,8 @@ prompt as the pipeline's recap with Qwen3.5 9B, so any difference between recaps
 FIXTURES is the verified 17-recording collection. For each case, the script turns the script's exact turns into
 transcript lines the way the pipeline's `summarize` does for the `exact` arm of the collection run, and writes
 OUT/<case>/lines.json. Each model then writes OUT/<case>/<run>/{notes.json,summary.md,run.json}, where <run> is
-the model name, or the name plus "-thinking" with --thinking. A run whose run.json already exists for a case is
+the model name, or the name plus "-thinking" with --thinking, "-thinking-budget" with --thinking-budget or
+"-thinking-sampled" with --thinking-sampled. A run whose run.json already exists for a case is
 skipped; --force reruns it. run.sh runs each model in its own process, so
 only one model is in memory at a time.
 """
@@ -37,6 +38,24 @@ MODELS = {
 CHUNK_CHARACTERS = 6000
 MAX_TOKENS = 4096
 THINKING_MAX_TOKENS = 16384  # thinking spends tokens before the JSON, as in the recap-stage plan's A2
+THINKING_BUDGET = 2048  # the budget arm closes the thinking after this many reply tokens, as oMLX's thinking_budget does
+BUDGET_MAX_TOKENS = THINKING_BUDGET + MAX_TOKENS  # the same room for the JSON as with thinking off
+SEED = 0  # the sampled arm's one seed, set before each reply
+
+# Thinking-on variants: greedy (the first thinking-on arm), a thinking budget with greedy decoding, or each model
+# card's recommended sampling for thinking. Gemma4 E2B finished with greedy thinking, so it has no sampling entry.
+VARIANTS = ("greedy", "budget", "sampled")
+SAMPLING = {
+    # Qwen/Qwen3.5-9B model card at c2022362, "thinking mode for general tasks"
+    "qwen3.5-9b": {"temperature": 1.0, "top_p": 0.95, "top_k": 20, "min_p": 0.0, "presence_penalty": 1.5},
+    # MiniCPM5-2B-MLX model card and generation_config.json at c8c072db
+    "minicpm5-2b": {"temperature": 1.0, "top_p": 0.95, "min_p": 0.0},
+    # LFM3-1.7B-MLX-4bit model card's thinking example and generation_config.json at 91f34088
+    "lfm3-1.7b": {"temperature": 0.1, "top_k": 50, "repetition_penalty": 1.1},
+    # Spark-X2.6-4B-OptiQ-4bit generation_config.json at 6d83e911
+    "spark-x2.6-4b": {"temperature": 1.0, "top_p": 0.95},
+}
+THINK_END = "</think>"  # all four models in SAMPLING close their thinking with it
 MAX_GAP_SECONDS = 1.0
 SECTIONS = ("topics", "decisions", "action_items", "proposals", "open_questions")
 
@@ -174,8 +193,43 @@ def summary_markdown(notes, title="Meeting recap"):
     return "\n".join(lines) + "\n"
 
 
+class ThinkingBudget:
+    """A logits processor that closes the thinking after `budget` reply tokens, as oMLX's ThinkingBudgetProcessor does.
+
+    Both mlx-lm and mlx-vlm call a processor once per reply token with every token so far, the prompt first. Once
+    the reply reaches the budget without the close tag, it forces `force` (a newline, the tag and a blank line)
+    one token at a time, then does nothing. If the model closes its thinking itself, it never acts.
+    """
+
+    def __init__(self, close_ids, force, budget):
+        self.close_ids, self.force, self.budget = list(close_ids), list(force), budget
+        self.prompt_length, self.reply, self.forced, self.done = None, [], 0, False
+
+    def __call__(self, tokens, logits):
+        if self.prompt_length is None:
+            self.prompt_length = len(tokens)
+        else:
+            self.reply.append(int(tokens[-1].item()))
+        if self.done:
+            return logits
+        if self.forced == 0 and self.reply[-len(self.close_ids):] == self.close_ids:
+            self.done = True
+            return logits
+        if self.forced == 0 and len(self.reply) < self.budget:
+            return logits
+        if self.forced == len(self.force):
+            self.done = True
+            return logits
+        import mlx.core as mx
+
+        token = self.force[self.forced]
+        self.forced += 1
+        keep = mx.arange(logits.shape[-1]) == token
+        return mx.where(keep, logits, mx.array(-float("inf"), dtype=logits.dtype))
+
+
 class Model:
-    """One pinned model through mlx-lm or mlx-vlm, greedy decoding, thinking off. Tests replace it with a fake."""
+    """One pinned model through mlx-lm or mlx-vlm, greedy unless sampled, thinking off unless asked. Tests replace it."""
 
     def __init__(self, name):
         from huggingface_hub import snapshot_download
@@ -202,14 +256,37 @@ class Model:
     def count(self, text):
         return len(self.tokenizer.encode(text, add_special_tokens=False))
 
-    def generate(self, text, max_tokens=MAX_TOKENS):
+    def budget(self, budget):
+        encode = lambda text: self.tokenizer.encode(text, add_special_tokens=False)
+        return ThinkingBudget(encode(THINK_END), encode("\n" + THINK_END + "\n\n"), budget)
+
+    def generate(self, text, max_tokens=MAX_TOKENS, budget=None, sampling=None):
+        import mlx.core as mx
+
+        processors = [self.budget(budget)] if budget else []
+        sampling = sampling or {}
+        mx.random.seed(SEED)
+        # Penalties cover the whole reply, as in the model cards' Transformers and vLLM settings.
+        penalties = {key: sampling[key] for key in ("repetition_penalty", "presence_penalty") if key in sampling}
         if self.loader == "mlx-lm":
             from mlx_lm import generate
+            from mlx_lm.sample_utils import make_logits_processors, make_sampler
 
-            return generate(self.model, self.tokenizer, prompt=text, max_tokens=max_tokens)
+            sampler = make_sampler(temp=sampling.get("temperature", 0.0), top_p=sampling.get("top_p", 0.0),
+                                   min_p=sampling.get("min_p", 0.0), top_k=sampling.get("top_k", 0))
+            processors += make_logits_processors(**penalties, repetition_context_size=max_tokens,
+                                                 presence_context_size=max_tokens) if penalties else []
+            return generate(self.model, self.tokenizer, prompt=text, max_tokens=max_tokens, sampler=sampler,
+                            logits_processors=processors or None)
         from mlx_vlm import generate
 
-        return generate(self.model, self.processor, text, max_tokens=max_tokens, temperature=0.0, verbose=False).text
+        options = {"temperature": sampling.get("temperature", 0.0)}
+        options.update({key: sampling[key] for key in ("top_p", "top_k", "min_p") if key in sampling})
+        if penalties:
+            options.update(penalties, repetition_context_size=max_tokens, presence_context_size=max_tokens)
+        if processors:
+            options["logits_processors"] = processors
+        return generate(self.model, self.processor, text, max_tokens=max_tokens, verbose=False, **options).text
 
     def reset_peak(self):
         import mlx.core as mx
@@ -222,17 +299,29 @@ class Model:
         return int(mx.get_peak_memory())
 
 
-def run_id(name, thinking):
-    return name + "-thinking" if thinking else name
+def run_id(name, thinking, variant="greedy"):
+    if not thinking:
+        return name
+    return name + "-thinking" + ("" if variant == "greedy" else "-" + variant)
 
 
-def recap(name, lines, model, thinking=False):
+def recap(name, lines, model, thinking=False, variant="greedy"):
     """Recap one transcript. Returns (run record, notes or None); notes is None when the reply can't be read."""
     repo, revision, loader = MODELS[name]
-    max_tokens = THINKING_MAX_TOKENS if thinking else MAX_TOKENS
-    record = {"run": run_id(name, thinking), "model": name, "repo": repo, "revision": revision, "loader": loader,
-              "decoding": "greedy", "thinking": thinking, "max_tokens": max_tokens,
-              "chunk_characters": CHUNK_CHARACTERS}
+    if variant not in VARIANTS or (variant != "greedy" and not thinking):
+        raise ValueError(f"variant {variant!r} needs thinking on")
+    if variant == "sampled" and name not in SAMPLING:
+        raise ValueError(f"no recommended thinking sampling for {name}")
+    budget = THINKING_BUDGET if variant == "budget" else None
+    sampling = SAMPLING[name] if variant == "sampled" else None
+    max_tokens = MAX_TOKENS if not thinking else BUDGET_MAX_TOKENS if budget else THINKING_MAX_TOKENS
+    record = {"run": run_id(name, thinking, variant), "model": name, "repo": repo, "revision": revision,
+              "loader": loader, "decoding": "sampled" if sampling else "greedy", "thinking": thinking,
+              "max_tokens": max_tokens, "chunk_characters": CHUNK_CHARACTERS}
+    if budget:
+        record["thinking_budget"] = budget
+    if sampling:
+        record.update(sampling=sampling, seed=SEED)
     parts = chunks(lines)
     record["chunks"] = len(parts)
     model.reset_peak()
@@ -241,7 +330,7 @@ def recap(name, lines, model, thinking=False):
     def ask(kind, prompt):
         text = model.render(prompt, thinking)
         begun = time.time()
-        reply = model.generate(text, max_tokens)
+        reply = model.generate(text, max_tokens, budget=budget, sampling=sampling)
         replies.append({"kind": kind, "prompt_tokens": model.count(text), "reply_tokens": model.count(reply),
                         "seconds": time.time() - begun, "reply": reply})
         return reply
@@ -288,8 +377,13 @@ def main(argv=None, model_class=Model, convert=None):
     parser.add_argument("out", type=Path, help="a new folder outside Git")
     parser.add_argument("--model", required=True, choices=MODELS)
     parser.add_argument("--cases", default=",".join(CASES))
-    parser.add_argument("--thinking", action="store_true",
-                        help=f"turn the model's thinking on, with a {THINKING_MAX_TOKENS}-token output cap")
+    arm = parser.add_mutually_exclusive_group()
+    arm.add_argument("--thinking", action="store_true",
+                     help=f"turn the model's thinking on, with a {THINKING_MAX_TOKENS}-token output cap")
+    arm.add_argument("--thinking-budget", action="store_true",
+                     help=f"thinking on, closed after {THINKING_BUDGET} reply tokens, {BUDGET_MAX_TOKENS}-token cap")
+    arm.add_argument("--thinking-sampled", action="store_true",
+                     help=f"thinking on with the model card's sampling, seed {SEED}, {THINKING_MAX_TOKENS}-token cap")
     parser.add_argument("--force", action="store_true", help="rerun cases that already have a run.json")
     args = parser.parse_args(argv)
     cases = [c for c in args.cases.split(",") if c]
@@ -307,14 +401,18 @@ def main(argv=None, model_class=Model, convert=None):
     except ValueError as error:
         parser.error(str(error))
 
-    run_name = run_id(args.model, args.thinking)
+    thinking = args.thinking or args.thinking_budget or args.thinking_sampled
+    variant = "budget" if args.thinking_budget else "sampled" if args.thinking_sampled else "greedy"
+    if variant == "sampled" and args.model not in SAMPLING:
+        parser.error(f"--thinking-sampled has no recommended sampling for {args.model}")
+    run_name = run_id(args.model, thinking, variant)
     todo = [c for c in cases if args.force or not (args.out / c / run_name / "run.json").exists()]
     model = model_class(args.model) if todo else None
     for case in cases:
         if case not in todo:
             print(f"{case} {run_name}: already done, skipping (--force reruns it)")
             continue
-        record, notes = recap(args.model, prepared[case], model, args.thinking)
+        record, notes = recap(args.model, prepared[case], model, thinking, variant)
         folder = args.out / case / run_name
         folder.mkdir(exist_ok=True)
         if notes is not None:

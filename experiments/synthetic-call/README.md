@@ -283,6 +283,12 @@ uv run --locked --project "$S" python "$S/generate_audio8.py" "$S/out/audio8" ha
 
 Audio8 has one default voice and clones any other voice from a reference clip and its exact transcript. So each old voice is cloned from a fixed sentence spoken by that voice's own engine (Qwen or EmotiVoice), once per voice and language, kept in `OUT/references/`; the F5 voice is cloned from its pinned reference clip. Same-gender speakers keep distinct voices because their references differ. `--simplified` converts Mandarin turns to Simplified characters with OpenCC t2s before speaking, as the F5 voice's frontend does; without it, Audio8 read the Traditional script poorly. Each call folder also gets `audio8-report.json` with each turn's voice, length, frame count, whether it hit the token limit, and the peak memory. The model runs in this project's locked `mlx-audio`; [`reference/audio8-voice.json`](reference/audio8-voice.json) records its revision, the reference sentences and the sampling settings. A repeat run of `handoff` gave the same WAV bytes.
 
+[`check_voice_turns.py`](check_voice_turns.py) scores any folder of generated calls voice by voice: it decodes every scripted turn on its own with the gate's Whisper settings and reports, per voice, the English terms heard in Mandarin turns and the Mandarin and English error rates, in `voice-turns.json`. Run it on the collection and on a re-voiced copy to compare them.
+
+```bash
+uv run --locked --project "$S" python "$S/check_voice_turns.py" "$S/out/audio8"
+```
+
 **Not adopted on 2026-11-28, but promising.** The project owner judged it the most natural voice tried, but its copy of the F5 voice failed the English-word gate on the handoff call with three seeds, while a copied male voice said the same word cleanly; see [the summary](../../docs/experiments/2026-11-28-audio8-tts-synthetic.md). [#99](https://github.com/pomodorozhong/meeting-recap/issues/99) tests voices Audio8 makes from seeds instead of copies.
 
 ## Listen to voices side by side

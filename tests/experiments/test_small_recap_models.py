@@ -40,6 +40,7 @@ class FakeModel:
     def __init__(self, name, reply=None):
         self.name, self.prompts, self.peak_resets = name, [], 0
         self.reply = reply or "```json\n" + json.dumps(NOTES) + "\n```"
+        self.generated = None  # the generator's token count; the text's length unless a test sets it
         FakeModel.instances.append(self)
 
     def render(self, prompt, thinking=False):
@@ -51,7 +52,7 @@ class FakeModel:
     def generate(self, text, max_tokens=None, budget=None, sampling=None):
         self.prompts.append((text, max_tokens))
         self.options = {"budget": budget, "sampling": sampling}
-        return self.reply
+        return self.reply, len(self.reply) if self.generated is None else self.generated
 
     def reset_peak(self):
         self.peak_resets += 1
@@ -149,7 +150,8 @@ class Recap(unittest.TestCase):
     def test_reply_capped_inside_its_thinking_is_unreadable(self):
         draft = "<think>" + json.dumps(NOTES)  # a JSON draft inside thinking that never closed
         model = FakeModel("minicpm5-2b", draft)
-        model.count = lambda text: run.THINKING_MAX_TOKENS if text == draft else len(text)
+        model.generated = run.THINKING_MAX_TOKENS  # at the cap, though encoding the text again gives fewer tokens
+        model.count = lambda text: 10 if text == draft else len(text)
         record, notes = run.recap("minicpm5-2b", transcript(2), model, thinking=True, variant="sampled")
         self.assertEqual((record["status"], notes), ("failed", None))
         self.assertIn("without closing its thinking", record["reason"])
@@ -180,6 +182,31 @@ class Budget(unittest.TestCase):
             forced.append(token)
             tokens.append(token if token is not None else 3)
         self.assertEqual(forced, [None, None, None, 5, 7, 8, 6, None])
+
+    def test_waits_for_the_reply_to_open_its_thinking(self):
+        processor = run.ThinkingBudget([7, 8], [5, 7, 8, 6], budget=3, open_ids=[4], opened=False)
+        tokens = [1, 2]
+        for _ in range(6):  # an answer with no thinking, well past the budget
+            self.assertIsNone(self.step(processor, tokens))
+            tokens.append(3)
+        tokens.append(4)  # the reply opens its thinking: the budget counts from the reply's start
+        self.assertEqual(self.step(processor, tokens), 5)
+
+    def test_thinking_open_reads_the_prompt_tail(self):
+        self.assertTrue(run.thinking_open("<|im_start|>assistant\n<think>\n"))
+        self.assertFalse(run.thinking_open("<|im_start|>assistant\n<think>\n\n</think>\n\n"))
+        self.assertFalse(run.thinking_open("<|Bot|></think>"))
+        self.assertFalse(run.thinking_open("<|im_start|>assistant\n"))
+
+    def test_presence_penalty_counts_only_the_reply(self):
+        import mlx.core as mx
+        from mlx_lm.sample_utils import make_presence_penalty
+
+        processor = run.ReplyOnly(make_presence_penalty(1.5, 100))
+        first = processor(mx.array([1, 2]), mx.zeros((1, 10)))  # the prompt only
+        self.assertEqual(first[0].tolist(), [0.0] * 10)
+        later = processor(mx.array([1, 2, 3]), mx.zeros((1, 10)))  # the prompt and one reply token
+        self.assertEqual([i for i in range(10) if later[0, i].item() < 0], [3])
 
     def test_never_acts_once_the_model_closes_its_thinking(self):
         processor = run.ThinkingBudget([7, 8], [5, 7, 8, 6], budget=4)
@@ -217,6 +244,25 @@ class EntryPoint(unittest.TestCase):
         self.assertEqual(len(FakeModel.instances), 1)
         self.run_main("--model", "minicpm5-2b", "--force")
         self.assertEqual(len(FakeModel.instances), 2)
+
+    def test_todo_lists_only_unfinished_cases(self):
+        self.assertEqual(self.run_main("--model", "minicpm5-2b", "--todo").split(), list(run.CASES))
+        self.assertEqual(FakeModel.instances, [])
+        self.run_main("--model", "minicpm5-2b", "--cases", "onboarding")
+        self.assertEqual(self.run_main("--model", "minicpm5-2b", "--todo").split(), ["english-audit"])
+
+    def test_failed_rerun_leaves_no_earlier_recap(self):
+        self.run_main("--model", "minicpm5-2b", "--cases", "onboarding")
+        folder = self.root / "out/onboarding/minicpm5-2b"
+        self.assertTrue((folder / "summary.md").exists())
+        original = FakeModel.__init__
+        FakeModel.__init__ = lambda self, name: original(self, name, "sorry")
+        try:
+            self.run_main("--model", "minicpm5-2b", "--cases", "onboarding", "--force")
+        finally:
+            FakeModel.__init__ = original
+        self.assertEqual(json.loads((folder / "run.json").read_text())["status"], "failed")
+        self.assertFalse((folder / "summary.md").exists() or (folder / "notes.json").exists())
 
     def test_thinking_arm_writes_beside_the_thinking_off_run(self):
         self.run_main("--model", "minicpm5-2b")

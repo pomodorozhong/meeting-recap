@@ -10,7 +10,7 @@ transcript lines the way the pipeline's `summarize` does for the `exact` arm of 
 OUT/<case>/lines.json. Each model then writes OUT/<case>/<run>/{notes.json,summary.md,run.json}, where <run> is
 the model name, or the name plus "-thinking" with --thinking, "-thinking-budget" with --thinking-budget or
 "-thinking-sampled" with --thinking-sampled. A run whose run.json already exists for a case is
-skipped; --force reruns it. run.sh runs each model in its own process, so
+skipped; --force reruns it, and --todo prints the cases that would run. run.sh runs each model in its own process, so
 only one model is in memory at a time.
 """
 import argparse
@@ -55,7 +55,7 @@ SAMPLING = {
     # Spark-X2.6-4B-OptiQ-4bit generation_config.json at 6d83e911
     "spark-x2.6-4b": {"temperature": 1.0, "top_p": 0.95},
 }
-THINK_END = "</think>"  # all four models in SAMPLING close their thinking with it
+THINK_START, THINK_END = "<think>", "</think>"  # all four models in SAMPLING open and close their thinking with them
 MAX_GAP_SECONDS = 1.0
 SECTIONS = ("topics", "decisions", "action_items", "proposals", "open_questions")
 
@@ -161,7 +161,8 @@ THINK_CLOSES = ("</think>", "<channel|>")
 def capped_in_thinking(reply, reply_tokens, max_tokens):
     """A thinking reply that reached the cap without closing its thinking: any JSON in it is a draft, not the answer.
 
-    The plan counts it as unreadable. A token is allowed for the count's rounding at the cap.
+    The plan counts it as unreadable. run.py now records the generator's own token count; runs made before that
+    counted by encoding the reply again, so a token is allowed for that count's rounding at the cap.
     """
     return reply_tokens >= max_tokens - 1 and not any(close in reply for close in THINK_CLOSES)
 
@@ -210,10 +211,15 @@ class ThinkingBudget:
     Both mlx-lm and mlx-vlm call a processor once per reply token with every token so far, the prompt first. Once
     the reply reaches the budget without the close tag, it forces `force` (a newline, the tag and a blank line)
     one token at a time, then does nothing. If the model closes its thinking itself, it never acts.
+
+    It only acts while the thinking is open: from the start when the prompt ends inside an open thinking block
+    (`opened`), or else from when the reply writes `open_ids`. A reply that never opens its thinking is left alone,
+    so the close tag is never forced into an answer.
     """
 
-    def __init__(self, close_ids, force, budget):
+    def __init__(self, close_ids, force, budget, open_ids=(), opened=True):
         self.close_ids, self.force, self.budget = list(close_ids), list(force), budget
+        self.open_ids, self.opened = list(open_ids), opened
         self.prompt_length, self.reply, self.forced, self.done = None, [], 0, False
 
     def __call__(self, tokens, logits):
@@ -223,6 +229,10 @@ class ThinkingBudget:
             self.reply.append(int(tokens[-1].item()))
         if self.done:
             return logits
+        if not self.opened:
+            self.opened = bool(self.open_ids) and self.reply[-len(self.open_ids):] == self.open_ids
+            if not self.opened:
+                return logits
         if self.forced == 0 and self.reply[-len(self.close_ids):] == self.close_ids:
             self.done = True
             return logits
@@ -237,6 +247,23 @@ class ThinkingBudget:
         self.forced += 1
         keep = mx.arange(logits.shape[-1]) == token
         return mx.where(keep, logits, mx.array(-float("inf"), dtype=logits.dtype))
+
+
+def thinking_open(text):
+    """Whether a rendered prompt ends inside an open thinking block, as the thinking-on templates leave it."""
+    return text.rfind(THINK_START) > text.rfind(THINK_END)
+
+
+class ReplyOnly:
+    """Runs a penalty processor on the reply tokens only, leaving out the prompt that comes first."""
+
+    def __init__(self, processor):
+        self.processor, self.prompt_length = processor, None
+
+    def __call__(self, tokens, logits):
+        if self.prompt_length is None:
+            self.prompt_length = len(tokens)
+        return self.processor(tokens[self.prompt_length:], logits)
 
 
 class Model:
@@ -267,37 +294,47 @@ class Model:
     def count(self, text):
         return len(self.tokenizer.encode(text, add_special_tokens=False))
 
-    def budget(self, budget):
-        encode = lambda text: self.tokenizer.encode(text, add_special_tokens=False)
-        return ThinkingBudget(encode(THINK_END), encode("\n" + THINK_END + "\n\n"), budget)
+    def budget(self, budget, text):
+        encode = lambda piece: self.tokenizer.encode(piece, add_special_tokens=False)
+        return ThinkingBudget(encode(THINK_END), encode("\n" + THINK_END + "\n\n"), budget,
+                              open_ids=encode(THINK_START), opened=thinking_open(text))
 
     def generate(self, text, max_tokens=MAX_TOKENS, budget=None, sampling=None):
+        """Returns (reply text, number of tokens generated)."""
         import mlx.core as mx
+        from mlx_lm.sample_utils import make_presence_penalty
 
-        processors = [self.budget(budget)] if budget else []
+        processors = [self.budget(budget, text)] if budget else []
         sampling = sampling or {}
         mx.random.seed(SEED)
-        # Penalties cover the whole reply, as in the model cards' Transformers and vLLM settings.
-        penalties = {key: sampling[key] for key in ("repetition_penalty", "presence_penalty") if key in sampling}
+        # The repetition penalty counts the prompt and the reply, as in Transformers, whose settings the cards that
+        # use it give. The presence penalty counts only the reply, as in vLLM and the OpenAI API, whose option it is.
+        if "presence_penalty" in sampling:
+            processors.append(ReplyOnly(make_presence_penalty(sampling["presence_penalty"], max_tokens)))
+        repetition = {"repetition_penalty": sampling["repetition_penalty"],
+                      "repetition_context_size": max_tokens} if "repetition_penalty" in sampling else {}
         if self.loader == "mlx-lm":
-            from mlx_lm import generate
+            from mlx_lm import stream_generate
             from mlx_lm.sample_utils import make_logits_processors, make_sampler
 
             sampler = make_sampler(temp=sampling.get("temperature", 0.0), top_p=sampling.get("top_p", 0.0),
                                    min_p=sampling.get("min_p", 0.0), top_k=sampling.get("top_k", 0))
-            processors += make_logits_processors(**penalties, repetition_context_size=max_tokens,
-                                                 presence_context_size=max_tokens) if penalties else []
-            return generate(self.model, self.tokenizer, prompt=text, max_tokens=max_tokens, sampler=sampler,
-                            logits_processors=processors or None)
+            processors += make_logits_processors(**repetition) if repetition else []
+            reply, generated = "", 0
+            for response in stream_generate(self.model, self.tokenizer, prompt=text, max_tokens=max_tokens,
+                                            sampler=sampler, logits_processors=processors or None):
+                reply += response.text
+                generated = response.generation_tokens
+            return reply, generated
         from mlx_vlm import generate
 
         options = {"temperature": sampling.get("temperature", 0.0)}
         options.update({key: sampling[key] for key in ("top_p", "top_k", "min_p") if key in sampling})
-        if penalties:
-            options.update(penalties, repetition_context_size=max_tokens, presence_context_size=max_tokens)
+        options.update(repetition)
         if processors:
             options["logits_processors"] = processors
-        return generate(self.model, self.processor, text, max_tokens=max_tokens, verbose=False, **options).text
+        result = generate(self.model, self.processor, text, max_tokens=max_tokens, verbose=False, **options)
+        return result.text, result.generation_tokens
 
     def reset_peak(self):
         import mlx.core as mx
@@ -341,8 +378,9 @@ def recap(name, lines, model, thinking=False, variant="greedy"):
     def ask(kind, prompt):
         text = model.render(prompt, thinking)
         begun = time.time()
-        reply = model.generate(text, max_tokens, budget=budget, sampling=sampling)
-        replies.append({"kind": kind, "prompt_tokens": model.count(text), "reply_tokens": model.count(reply),
+        reply, generated = model.generate(text, max_tokens, budget=budget, sampling=sampling)
+        # reply_tokens is the generator's own count: encoding the text again can give fewer tokens than were made.
+        replies.append({"kind": kind, "prompt_tokens": model.count(text), "reply_tokens": generated,
                         "seconds": time.time() - begun, "reply": reply})
         if thinking and capped_in_thinking(reply, replies[-1]["reply_tokens"], max_tokens):
             raise ValueError("summary model reached the token cap without closing its thinking")
@@ -398,6 +436,7 @@ def main(argv=None, model_class=Model, convert=None):
     arm.add_argument("--thinking-sampled", action="store_true",
                      help=f"thinking on with the model card's sampling, seed {SEED}, {THINKING_MAX_TOKENS}-token cap")
     parser.add_argument("--force", action="store_true", help="rerun cases that already have a run.json")
+    parser.add_argument("--todo", action="store_true", help="print the cases this run would recap, then stop")
     args = parser.parse_args(argv)
     cases = [c for c in args.cases.split(",") if c]
     missing = [c for c in cases if not (args.fixtures / c / "transcript.json").is_file()]
@@ -420,6 +459,9 @@ def main(argv=None, model_class=Model, convert=None):
         parser.error(f"--thinking-sampled has no recommended sampling for {args.model}")
     run_name = run_id(args.model, thinking, variant)
     todo = [c for c in cases if args.force or not (args.out / c / run_name / "run.json").exists()]
+    if args.todo:
+        print("\n".join(todo))
+        return
     model = model_class(args.model) if todo else None
     for case in cases:
         if case not in todo:
@@ -428,6 +470,8 @@ def main(argv=None, model_class=Model, convert=None):
         record, notes = recap(args.model, prepared[case], model, thinking, variant)
         folder = args.out / case / run_name
         folder.mkdir(exist_ok=True)
+        for stale in ("notes.json", "summary.md", "run.json"):  # an earlier run's files must not outlive it
+            (folder / stale).unlink(missing_ok=True)
         if notes is not None:
             (folder / "notes.json").write_text(json.dumps(notes, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
             (folder / "summary.md").write_text(summary_markdown(notes), encoding="utf-8")

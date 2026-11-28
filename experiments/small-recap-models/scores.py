@@ -101,4 +101,6 @@ def main(out):
 
 
 if __name__ == "__main__":
-    main(*sys.argv[1:2])
+    if len(sys.argv) != 2:
+        sys.exit("usage: scores.py OUT")
+    main(sys.argv[1])

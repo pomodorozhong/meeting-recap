@@ -271,6 +271,26 @@ LFM3 has no named voices: its TTS prompt is `Perform TTS in <language> using a <
 
 **Rejected as a collection voice on 2026-11-27.** It failed the English-word gate on the handoff call and sounded poor in an informal listen; see [the summary](../../docs/experiments/2026-11-27-lfm3-tts-synthetic.md). The generator stays so a later LFM release can be compared on the same scripts with one command.
 
+## Audio8 voices for comparison
+
+[`generate_audio8.py`](generate_audio8.py) speaks the fourteen collection scripts again with [Audio8-TTS-Realistic-0.6B](https://huggingface.co/mlx-community/Audio8-TTS-Realistic-0.6b-bf16), the same way `generate_lfm3.py` does: only the voices change, and the scripts, turn order, gaps, levelling and mixing are the same as in `generate.py`. It is a comparison aid, not a new voice for the collection.
+
+```bash
+S=experiments/synthetic-call
+uv run --locked --project "$S" python "$S/generate_audio8.py" "$S/out/audio8" --simplified
+uv run --locked --project "$S" python "$S/generate_audio8.py" "$S/out/audio8" handoff --simplified
+```
+
+Audio8 has one default voice and clones any other voice from a reference clip and its exact transcript. So each old voice is cloned from a fixed sentence spoken by that voice's own engine (Qwen or EmotiVoice), once per voice and language, kept in `OUT/references/`; the F5 voice is cloned from its pinned reference clip. Same-gender speakers keep distinct voices because their references differ. `--simplified` converts Mandarin turns to Simplified characters with OpenCC t2s before speaking, as the F5 voice's frontend does; without it, Audio8 read the Traditional script poorly. Each call folder also gets `audio8-report.json` with each turn's voice, length, frame count, whether it hit the token limit, and the peak memory. The model runs in this project's locked `mlx-audio`; [`reference/audio8-voice.json`](reference/audio8-voice.json) records its revision, the reference sentences and the sampling settings. A repeat run of `handoff` gave the same WAV bytes.
+
+[`check_voice_turns.py`](check_voice_turns.py) scores any folder of generated calls voice by voice: it decodes every scripted turn on its own with the gate's Whisper settings and reports, per voice, the English terms heard in Mandarin turns and the Mandarin and English error rates, in `voice-turns.json`. Run it on the collection and on a re-voiced copy to compare them.
+
+```bash
+uv run --locked --project "$S" python "$S/check_voice_turns.py" "$S/out/audio8"
+```
+
+**Not adopted on 2026-11-28, but promising.** The project owner judged it the most natural voice tried, but its copy of the F5 voice failed the English-word gate on the handoff call with three seeds, while a copied male voice said the same word cleanly; see [the summary](../../docs/experiments/2026-11-28-audio8-tts-synthetic.md). [#99](https://github.com/pomodorozhong/meeting-recap/issues/99) tests voices Audio8 makes from seeds instead of copies.
+
 ## Listen to voices side by side
 
 [`compare_voices.py`](compare_voices.py) builds a local web page for listening to two or more voice versions of the collection calls, such as the current collection against a re-voiced copy from `generate_lfm3.py`. Give the current collection first:
@@ -314,6 +334,7 @@ The pinned reference WAV, EmotiVoice source and NLTK frontend resources add roug
 | NLTK phoneme frontend resources | Immutable NLTK data revision and ZIP/extracted-file SHA-256 in `emotivoice/pins.json` | Resource metadata retained in pinned archives |
 | Published female reference in [ZipVoice demo archive](https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/sherpa-onnx-zipvoice-distill-int8-zh-en-emilia.tar.bz2) | Archive and exact reference WAV SHA-256 in `f5-voice.json` | Reference-specific redistribution terms are unstated in that archive |
 | [LiquidAI/LFM3-Audio-2B-MLX-bf16](https://huggingface.co/LiquidAI/LFM3-Audio-2B-MLX-bf16), MLX port of [LiquidAI/LFM3-Audio-2B](https://huggingface.co/LiquidAI/LFM3-Audio-2B), used by `generate_lfm3.py` and the [LFM3 transcription runner](../lfm3-audio/run.py) | `452469a1afe66dd4932d0e9237603229fa606c0d` | `lfm1.0` (see the model's LICENSE file) |
+| [mlx-community/Audio8-TTS-Realistic-0.6b-bf16](https://huggingface.co/mlx-community/Audio8-TTS-Realistic-0.6b-bf16), MLX port of [Edge0/Audio8-TTS-Realistic-Air](https://huggingface.co/Edge0/Audio8-TTS-Realistic-Air) (first published as Audio8-TTS-Realistic-0.6b), used by `generate_audio8.py` | `f2addfde1a6196399bf23330dfd66c47b2fe10ea` | Apache-2.0 |
 
 Dependencies are declared in [`pyproject.toml`](pyproject.toml) and every package is pinned in [`uv.lock`](uv.lock); `uv run` uses both when it runs in this folder or with `--project`. The root environment and isolated EmotiVoice environment each have a committed lock. Check both with `uv lock --check --project experiments/synthetic-call` and `uv lock --check --project experiments/synthetic-call/emotivoice`. The LFM3 comparison uses the lock in `experiments/lfm3-audio`, checked with `uv lock --check --project experiments/lfm3-audio`. The generator prepares the locked child environment automatically when an EmotiVoice speaker is present.
 

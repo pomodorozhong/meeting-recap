@@ -1,0 +1,23 @@
+{
+ "engine": "Audio8-TTS-Realistic-0.6B through mlx-audio",
+ "model": {
+  "repository": "mlx-community/Audio8-TTS-Realistic-0.6b-bf16",
+  "revision": "f2addfde1a6196399bf23330dfd66c47b2fe10ea",
+  "base_model": "Edge0/Audio8-TTS-Realistic-Air (published as Audio8-TTS-Realistic-0.6b, revision 925bbd4)",
+  "license": "apache-2.0"
+ },
+ "voices": "Audio8 has one default voice and zero-shot cloning from a reference clip and its transcript, so each collection voice is cloned from a reference spoken by that voice's own engine, one per voice and language. The F5 voice is cloned from its pinned reference clip.",
+ "reference_text": {
+  "zh": "我们今天先把上周的进度过一遍，然后再看看下个月的安排。",
+  "en": "Let's go over last week's progress first, and then look at the plan for next month."
+ },
+ "reference_seed": 7,
+ "settings": {
+  "temperature": 0.7,
+  "top_p": 0.9,
+  "top_k": 50,
+  "max_tokens": 1024,
+  "sample_rate": 44100,
+  "turn_seed": "seed + turn index, as the Qwen turns"
+ }
+}

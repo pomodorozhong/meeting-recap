@@ -56,35 +56,29 @@ struct DraftSetup: View {
     }
 }
 
-/// While recording: the timer, the two live tracks, and Stop.
+/// While recording: the same timeline as afterwards, growing as the recording does, then your notes, with the box
+/// for the next note at the bottom.
 struct RecorderPanel: View {
     @Environment(AppModel.self) private var model
+    @State private var draft = ""
+    @FocusState private var typing: Bool
+    /// How much of the recording the timeline shows at once while recording.
+    static let window: Double = 120
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack(alignment: .center) {
-                Text(clock(model.meter.elapsedSeconds))
-                    .font(.system(size: 52, weight: .medium)).monospacedDigit()
-                Spacer()
-                Button { Task { await model.stop() } } label: {
-                    Label(model.phase == .stopping ? "Saving…" : "Stop and save", systemImage: "stop.circle.fill")
-                        .padding(.horizontal, 8)
-                }
-                .buttonStyle(.glassProminent).tint(.red).controlSize(.large)
-                .keyboardShortcut("r", modifiers: .command)
-                .disabled(model.phase == .stopping)
-            }
-            .glassCard()
-
-            VStack(spacing: 10) {
-                LaneRow(label: "Call") {
-                    WaveformView(bars: Waveforms.liveBars(model.liveCall, color: Palette.call), alignRight: true, height: 56)
-                }
-                LaneRow(label: "You") {
-                    WaveformView(bars: Waveforms.liveBars(model.liveMic, color: Palette.you), alignRight: true, height: 56)
-                }
-            }
-            .glassCard()
+        let elapsed = model.meter.elapsedSeconds
+        // A fixed window, so a turn keeps its size however long the meeting runs. The turns themselves are settled
+        // as the recording goes (see `AppModel.liveTurns`), so the window only slides them along.
+        let start = max(0, elapsed - Self.window)
+        let turns = model.liveTurns.filter { $0.end > start }
+        let finished = model.liveNotes.filter { $0.end != nil }
+        VStack(alignment: .leading, spacing: 12) {
+            PlayerCard(
+                state: PlayerState(position: elapsed, duration: elapsed, isPlaying: false, toggle: {}),
+                live: LiveControls(elapsed: elapsed, stopping: model.phase == .stopping, stopLabel: model.isDemo ? "Stop demo" : "Stop and save",
+                                   windowStart: start, windowLength: Self.window, allTurns: model.liveTurns, stop: { Task { await model.stop() } }),
+                turns: turns, notes: model.liveNotes, seek: { _ in }
+            )
 
             if model.callSilentSeconds >= 30 {
                 Label("The call track has been silent for \(Int(model.callSilentSeconds)) seconds. Check that the call is playing through this Mac.",
@@ -92,10 +86,39 @@ struct RecorderPanel: View {
                     .foregroundStyle(.orange)
                     .glassCard(radius: 16, padding: 12)
             }
-            Text("Saving to this Mac. The transcript and recap are made after you stop.")
-                .font(.callout).foregroundStyle(.secondary)
-            Spacer()
+
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 6) {
+                        NotesFeed(notes: finished, onEdit: { model.editNote($0.id, to: $1) }) { _ in }
+                        if finished.isEmpty {
+                            Text((model.isDemo ? "Demo: nothing is recorded or saved." : "Saving to this Mac.") + " Type notes below as the meeting goes; each line gets its time on the recording. The transcript and recap are made after you stop.")
+                                .font(.callout).foregroundStyle(.secondary)
+                        }
+                        Color.clear.frame(height: 1).id("end")
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .scrollIndicators(.hidden)
+                .onChange(of: finished.count) { withAnimation { proxy.scrollTo("end", anchor: .bottom) } }
+            }
+
+            HStack(spacing: 10) {
+                Image(systemName: "pencil").foregroundStyle(Palette.note)
+                TextField("Type a note, then press Return", text: $draft)
+                    .textFieldStyle(.plain)
+                    .focused($typing)
+                    .onChange(of: draft) { model.typeNote(draft) }
+                    .onSubmit {
+                        model.finishNote()
+                        draft = ""
+                        typing = true
+                    }
+            }
+            .padding(.horizontal, 14).padding(.vertical, 10)
+            .glassEffect(.regular, in: .capsule)
         }
+        .onAppear { typing = true }
     }
 }
 
@@ -105,97 +128,8 @@ struct LaneRow<Content: View>: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            Text(label).font(.callout).foregroundStyle(.secondary).frame(width: 40, alignment: .leading)
+            Text(label).font(.callout).foregroundStyle(.secondary).lineLimit(1).fixedSize().frame(width: 64, alignment: .leading)
             content
-        }
-    }
-}
-
-struct SamplePlayback: View {
-    @Environment(AppModel.self) private var model
-    let sample: Sample
-
-    var body: some View {
-        let speakerOf = { (line: TranscriptLine) in model.speaker(of: line, in: sample) }
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                VStack(spacing: 12) {
-                    HStack(spacing: 12) {
-                        Button {} label: { Image(systemName: "play.fill").frame(width: 18, height: 18) }
-                            .buttonStyle(.glass).buttonBorderShape(.circle).controlSize(.large)
-                            .disabled(true).help("Sample meetings have no audio.")
-                        Text("0:00 / \(clock(sample.durationSeconds))").font(.callout.monospacedDigit()).foregroundStyle(.secondary)
-                        Spacer()
-                        Text("Sample: no audio").font(.callout).foregroundStyle(.secondary)
-                    }
-                    LaneRow(label: "Call") { WaveformView(bars: Waveforms.bars(for: sample, lane: .call, speakerOf: speakerOf)) }
-                    LaneRow(label: "You") { WaveformView(bars: Waveforms.bars(for: sample, lane: .you, speakerOf: speakerOf)) }
-                }
-                .glassCard()
-
-                HStack(alignment: .top, spacing: 16) {
-                    TalkTime(sample: sample)
-                    FilesCard(rows: [("Length", clock(sample.durationSeconds)), ("Gaps filled", "none"), ("Dropped", "none")], folder: nil)
-                }
-            }
-        }
-        .scrollIndicators(.hidden)
-    }
-}
-
-struct RecordingPlayback: View {
-    @Environment(AppModel.self) private var model
-    let info: RecordingInfo
-    @State private var call: [WaveBar] = []
-    @State private var mic: [WaveBar] = []
-
-    var body: some View {
-        let player = model.player
-        let fraction = player.duration > 0 ? player.position / player.duration : 0
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                VStack(spacing: 12) {
-                    HStack(spacing: 12) {
-                        Button { player.toggle() } label: {
-                            Image(systemName: player.isPlaying ? "pause.fill" : "play.fill").frame(width: 18, height: 18)
-                        }
-                        .buttonStyle(.glass).buttonBorderShape(.circle).controlSize(.large)
-                        .keyboardShortcut(.space, modifiers: [])
-                        Text("\(clock(player.position)) / \(clock(player.duration))").font(.callout.monospacedDigit()).foregroundStyle(.secondary)
-                        Spacer()
-                        Text("Plays both tracks. Click a track to jump.").font(.callout).foregroundStyle(.secondary)
-                    }
-                    LaneRow(label: "Call") { WaveformView(bars: call, playhead: fraction, onSeek: { player.seek(to: $0) }) }
-                    LaneRow(label: "You") { WaveformView(bars: mic, playhead: fraction, onSeek: { player.seek(to: $0) }) }
-                }
-                .glassCard()
-
-                HStack(alignment: .top, spacing: 16) {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Talk time").font(.headline)
-                        Text("Speakers and how long each talked appear after transcription.")
-                            .font(.callout).foregroundStyle(.secondary)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading).glassCard()
-                    FilesCard(rows: [
-                        ("Length", clock(info.durationSeconds)),
-                        ("Gaps filled", info.silenceFilledSeconds > 0.5 ? String(format: "%.1f s", info.silenceFilledSeconds) : "none"),
-                        ("Dropped", info.droppedSeconds > 0.01 ? String(format: "%.1f s", info.droppedSeconds) : "none"),
-                    ], folder: info.folder, problems: info.problems)
-                }
-            }
-        }
-        .scrollIndicators(.hidden)
-        .task(id: info.id) {
-            model.player.load(folder: info.folder)
-            call = []; mic = []
-            let folder = info.folder
-            let (system, mine) = await Task.detached {
-                (Waveforms.levels(of: folder.appendingPathComponent("system.m4a")),
-                 Waveforms.levels(of: folder.appendingPathComponent("mic.m4a")))
-            }.value
-            call = system.map { WaveBar(level: max($0, 0.04), color: $0 > 0 ? Palette.call : .secondary.opacity(0.4)) }
-            mic = mine.map { WaveBar(level: max($0, 0.04), color: $0 > 0 ? Palette.you : .secondary.opacity(0.4)) }
         }
     }
 }

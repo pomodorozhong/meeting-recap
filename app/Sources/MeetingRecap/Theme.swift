@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// Colors that carry meaning: one per speaker, plus the two recorded tracks. Speaker A is always you, because the
-/// microphone track is yours, so the "You" lane and Speaker A share a color.
+/// Colors that carry meaning: one per speaker, grey for a speaker not known yet, and your notes. Speaker A is always
+/// you, because the microphone track is yours, so it is the one speaker known while recording.
 enum Palette {
     static let coral = Color(red: 0.85, green: 0.35, blue: 0.19)
     static let teal = Color(red: 0.11, green: 0.62, blue: 0.46)
@@ -14,7 +14,10 @@ enum Palette {
     static func speakerName(_ index: Int) -> String { speakerNames[index % speakerNames.count] }
 
     static let you = coral
-    static let call = teal
+    /// Your typed notes, kept apart from the speaker colors.
+    /// Someone on the call whose speaker isn't known yet.
+    static let unknownSpeaker = Color.secondary.opacity(0.45)
+    static let note = Color(red: 0.78, green: 0.58, blue: 0.08)
 }
 
 func clock(_ seconds: Double) -> String {

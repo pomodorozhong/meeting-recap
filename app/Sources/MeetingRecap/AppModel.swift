@@ -39,7 +39,7 @@ struct AppChoice: Identifiable, Hashable {
 }
 
 enum DetailTab: String, CaseIterable, Identifiable {
-    case audio = "Audio", timeline = "Timeline", recap = "Recap"
+    case meeting = "Meeting", recap = "Recap"
     var id: String { rawValue }
 }
 
@@ -53,16 +53,26 @@ enum DetailTab: String, CaseIterable, Identifiable {
 
     private(set) var phase: Phase = .idle
     private(set) var meter = Meter.zero
-    /// Recent levels (0...1) of the two tracks, newest last, for the live waveforms.
+    /// Levels (0...1) of the two tracks every 0.1 s since the recording started, for the live timeline.
     private(set) var liveCall: [Float] = []
     private(set) var liveMic: [Float] = []
     /// How long the call track has been silent, in seconds.
     private(set) var callSilentSeconds: Double = 0
+    /// Notes typed during the recording in progress; the last one has no end while it is being typed.
+    private(set) var liveNotes: [Note] = []
+    /// Who talked while recording, settled half a second at a time: each half second is decided once, when it ends,
+    /// and never changes, so the live timeline only grows.
+    private(set) var liveTurns: [TurnSpan] = []
+    /// True while a demo recording runs: invented levels, no capture, nothing saved.
+    private(set) var isDemo = false
     private(set) var recordings: [RecordingInfo] = []
     private(set) var microphones: [String] = []
+    private(set) var samplePosition: Double = 0
+    private(set) var samplePlaying = false
+    private var sampleTask: Task<Void, Never>?
 
     var selection: Selection? = .sample(Samples.weeklyPlanning.id)
-    var tab: DetailTab = .audio
+    var tab: DetailTab = .meeting
     var draftOpen = false
     var errorMessage: String?
     /// The bundle ID of the one app whose sound goes in the Call track, or nil for all sound on this Mac.
@@ -108,8 +118,39 @@ enum DetailTab: String, CaseIterable, Identifiable {
         if case .recording = selection {} else { player.stop() }
         highlighted = []
         scrollTarget = nil
-        if selection == .draft || selection == .live { tab = .audio }
+        stopSample()
+        samplePosition = 0
+        if selection == .draft || selection == .live { tab = .meeting }
     }
+
+    // MARK: Sample playback
+    // A sample has no audio, so its playhead is simulated: it runs in real time and can be moved, so the design
+    // can be judged with something playing.
+
+    func toggleSample(duration: Double) {
+        if samplePlaying { stopSample(); return }
+        if samplePosition >= duration - 0.1 { samplePosition = 0 }
+        samplePlaying = true
+        sampleTask = Task { [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .milliseconds(100))
+                guard let self, self.samplePlaying else { return }
+                self.samplePosition += 0.1
+                if self.samplePosition >= duration {
+                    self.samplePosition = duration
+                    self.stopSample()
+                }
+            }
+        }
+    }
+
+    func stopSample() {
+        samplePlaying = false
+        sampleTask?.cancel()
+        sampleTask = nil
+    }
+
+    func seekSample(to seconds: Double) { samplePosition = max(0, seconds) }
 
     func newMeeting() {
         if phase == .idle {
@@ -118,7 +159,7 @@ enum DetailTab: String, CaseIterable, Identifiable {
         } else {
             selection = .live
         }
-        tab = .audio
+        tab = .meeting
     }
 
     func rename(_ info: RecordingInfo, to title: String) {
@@ -143,7 +184,7 @@ enum DetailTab: String, CaseIterable, Identifiable {
     func jump(to lines: [Int]) {
         highlighted = Set(lines)
         scrollTarget = lines.min()
-        tab = .timeline
+        tab = .meeting
     }
 
     // MARK: Recording
@@ -175,6 +216,8 @@ enum DetailTab: String, CaseIterable, Identifiable {
             liveCall = []
             liveMic = []
             callSilentSeconds = 0
+            liveNotes = []
+            liveTurns = []
             phase = .recording
             draftOpen = false
             selection = .live
@@ -190,15 +233,108 @@ enum DetailTab: String, CaseIterable, Identifiable {
         }
     }
 
-    func stop() async { await finish(failure: nil) }
+    func stop() async {
+        if isDemo { return stopDemo() }
+        await finish(failure: nil)
+    }
+
+    // MARK: Demo recording
+    // The live screen without capture, so its design can be seen without the recording permissions. Levels are
+    // invented (you and the call taking turns) and notes are kept only in memory.
+
+    func startDemo() {
+        guard phase == .idle else { return }
+        errorMessage = nil
+        meter = .zero
+        liveCall = []
+        liveMic = []
+        liveNotes = []
+        liveTurns = []
+        callSilentSeconds = 0
+        isDemo = true
+        phase = .recording
+        draftOpen = false
+        selection = .live
+        tab = .meeting
+        meterTask = Task { [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .milliseconds(100))
+                guard let self, self.isDemo else { return }
+                self.tick(Self.demoReading(at: self.meter.elapsedSeconds + 0.1))
+            }
+        }
+    }
+
+    private func stopDemo() {
+        meterTask?.cancel()
+        isDemo = false
+        phase = .idle
+        draftOpen = true
+        selection = .draft
+    }
+
+    /// Invented peaks for second `time` of a demo: in each 30 s you talk, the call answers, you reply, the call goes on.
+    static func demoReading(at time: Double) -> Meter {
+        let second = time.truncatingRemainder(dividingBy: 30)
+        let you = (0.5..<6).contains(second) || (19..<22).contains(second)
+        let call = (7..<17.5).contains(second) || (23..<29).contains(second)
+        func peak(_ talking: Bool, _ seed: Double) -> Float {
+            let noise = Float(abs(sin(time * 12.9898 + seed) * 43758.5453).truncatingRemainder(dividingBy: 1))
+            // About -26 to -4 dB while talking; room noise near -55 dB otherwise.
+            return talking ? pow(10, (-26 + 22 * noise) / 20) : pow(10, (-58 + 6 * noise) / 20)
+        }
+        return Meter(elapsedSeconds: time, systemPeak: peak(call, 1.7), micPeak: peak(you, 5.3))
+    }
+
+    // MARK: Notes while recording
+    // A line starts at its first character and ends on Return, both on the recording's timeline (the timer shown on
+    // screen). Editing a finished line keeps its times. Every change is written to notes.txt at once.
+
+    /// The line being typed: its text changed to `text`.
+    func typeNote(_ text: String) {
+        guard phase == .recording else { return }
+        if let last = liveNotes.indices.last, liveNotes[last].end == nil {
+            if text.isEmpty { liveNotes.removeLast() } else { liveNotes[last].text = text }
+        } else if !text.isEmpty {
+            liveNotes.append(Note(id: (liveNotes.map(\.id).max() ?? -1) + 1, start: meter.elapsedSeconds, end: nil, text: text))
+        }
+        saveNotes()
+    }
+
+    /// Return: ends the line being typed.
+    func finishNote() {
+        guard let last = liveNotes.indices.last, liveNotes[last].end == nil else { return }
+        if liveNotes[last].text.trimmingCharacters(in: .whitespaces).isEmpty {
+            liveNotes.removeLast()
+        } else {
+            liveNotes[last].end = max(meter.elapsedSeconds, liveNotes[last].start)
+        }
+        saveNotes()
+    }
+
+    /// Changes a finished line's text and keeps its times. An emptied line is removed.
+    func editNote(_ id: Int, to text: String) {
+        guard let index = liveNotes.firstIndex(where: { $0.id == id }) else { return }
+        if text.trimmingCharacters(in: .whitespaces).isEmpty { liveNotes.remove(at: index) } else { liveNotes[index].text = text }
+        saveNotes()
+    }
+
+    private func saveNotes() {
+        guard let folder = session?.folder else { return }
+        do { try NotesFile.write(liveNotes, to: folder) } catch { errorMessage = "Could not save notes: \(error.localizedDescription)" }
+    }
 
     private func tick(_ reading: Meter) {
         meter = reading
         func level(_ peak: Float) -> Float { peak > 0 ? max(0, min(1, (20 * log10(peak) + 60) / 60)) : 0 }
         liveCall.append(level(reading.systemPeak))
         liveMic.append(level(reading.micPeak))
-        if liveCall.count > 400 { liveCall.removeFirst(liveCall.count - 400) }
-        if liveMic.count > 400 { liveMic.removeFirst(liveMic.count - 400) }
+        // Levels come every 0.1 s; each full half second becomes part of the turns once.
+        if liveCall.count % 5 == 0 {
+            let half = liveCall.count / 5 - 1
+            Waveforms.extend(&liveTurns, who: Waveforms.who(call: liveCall.suffix(5).max() ?? 0, mic: liveMic.suffix(5).max() ?? 0),
+                             from: Double(half) * 0.5, length: 0.5)
+        }
         callSilentSeconds = reading.systemPeak < 0.0005 ? callSilentSeconds + 0.1 : 0
     }
 
@@ -208,12 +344,17 @@ enum DetailTab: String, CaseIterable, Identifiable {
         finishing = true
         phase = .stopping
         meterTask?.cancel()
+        // A line still being typed ends when the recording does.
+        if let last = liveNotes.indices.last, liveNotes[last].end == nil {
+            liveNotes[last].end = max(meter.elapsedSeconds, liveNotes[last].start)
+            saveNotes()
+        }
         let problems = await session.finish(failure: failure)
         self.session = nil
         phase = .idle
         refresh()
         selection = .recording(session.folder.lastPathComponent)
-        tab = .audio
+        tab = .meeting
         if !problems.isEmpty {
             errorMessage = "The recording may be incomplete:\n" + problems.joined(separator: "\n")
         }

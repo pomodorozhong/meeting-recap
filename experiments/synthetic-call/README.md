@@ -271,6 +271,18 @@ LFM3 has no named voices: its TTS prompt is `Perform TTS in <language> using a <
 
 **Rejected as a collection voice on 2026-11-27.** It failed the English-word gate on the handoff call and sounded poor in an informal listen; see [the summary](../../docs/experiments/2026-11-27-lfm3-tts-synthetic.md). The generator stays so a later LFM release can be compared on the same scripts with one command.
 
+## Listen to voices side by side
+
+[`compare_voices.py`](compare_voices.py) builds a local web page for listening to two or more voice versions of the collection calls, such as the current collection against a re-voiced copy from `generate_lfm3.py`. Give the current collection first:
+
+```bash
+S=experiments/synthetic-call
+uv run --locked --project "$S" python "$S/compare_voices.py" "$S/out/compare" current="$COLLECTION" lfm3="$S/out/lfm3"
+python3 -m http.server 5207 --bind 127.0.0.1 --directory "$S/out/compare"
+```
+
+Then open `http://127.0.0.1:5207`. The page plays each whole call in every version, and each scripted turn with one button per version, so the same sentence can be heard in each voice straight after another. On `handoff` it highlights the turns the English-word gate checks. A blind mode hides the version names and shuffles them per call, and a notes box per call is kept in the browser, with a button that copies all notes. The audio is linked from the version folders, not copied, and building again replaces the earlier page. The [`comparing-voices`](../../.claude/skills/comparing-voices/SKILL.md) skill runs this for an agent, including where to find the current collection and what to do with the notes.
+
 ## Model count and disk space
 
 Generating the complete collection uses **three TTS systems**: Qwen3-TTS, F5-TTS and EmotiVoice. Including the separately downloaded Vocos and SimBERT supporting models, this is **five model packages using about 6.58 GB on disk**. The seven voice profiles share these weights; selecting another preset does not require another model download.

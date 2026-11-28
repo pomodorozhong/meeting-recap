@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Voice comparison</title>
+<!-- Template for compare_voices.py, which writes data.js and the version links beside it. -->
+<style>
+  :root { --bg:#f7f7f5; --panel:#fff; --ink:#1d1d1b; --muted:#6b6b66; --line:#e3e3de; --hi:#fff4c2;
+          --v0:#2f6fb0; --v1:#b0582f; --v2:#2f8a5b; --v3:#8a3fa8; --v4:#a8862f; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#161615; --panel:#1f1f1d; --ink:#ececea;
+          --muted:#9a9a94; --line:#33332f; --hi:#3d3720;
+          --v0:#6aa6e0; --v1:#e08a5f; --v2:#5fc48f; --v3:#c18ae0; --v4:#e0c25f; } }
+  * { box-sizing:border-box; }
+  body { margin:0; font:15px/1.5 -apple-system, system-ui, sans-serif; background:var(--bg); color:var(--ink);
+         display:grid; grid-template-columns:220px 1fr; min-height:100vh; }
+  nav { border-right:1px solid var(--line); padding:12px; position:sticky; top:0; height:100vh; overflow:auto; }
+  nav h1 { font-size:15px; margin:4px 4px 12px; }
+  nav button { display:flex; justify-content:space-between; width:100%; text-align:left; background:none; border:0;
+               color:inherit; padding:6px 8px; border-radius:6px; cursor:pointer; font:inherit; }
+  nav button:hover { background:var(--line); }
+  nav button.on { background:var(--ink); color:var(--bg); }
+  nav .tag { color:var(--muted); font-size:12px; }
+  nav button.on .tag { color:inherit; opacity:.7; }
+  nav .done::after { content:" ✓"; }
+  main { padding:20px 28px 60px; max-width:1200px; min-width:0; }
+  .top { display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+  .top h2 { margin:0; font-size:22px; }
+  .top label { color:var(--muted); font-size:13px; display:flex; gap:6px; align-items:center; }
+  .meta { color:var(--muted); font-size:13px; margin:4px 0 16px; }
+  .pair { display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:14px; margin-bottom:18px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:12px 14px; }
+  .card h3 { margin:0 0 8px; font-size:14px; }
+  .card h3 span { color:var(--muted); font-weight:400; }
+  .card audio { width:100%; }
+  .card .none { color:var(--muted); font-size:13px; }
+  .table { overflow-x:auto; }
+  table { width:100%; border-collapse:collapse; background:var(--panel); border:1px solid var(--line); border-radius:10px; }
+  td, th { padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top; text-align:left; }
+  th { font-size:12px; color:var(--muted); font-weight:600; }
+  tr.hi td { background:var(--hi); }
+  tr.playing td { outline:2px solid var(--muted); outline-offset:-2px; }
+  td.n { color:var(--muted); width:2.5em; }
+  td.who { width:9em; font-size:13px; } td.who small { color:var(--muted); display:block; }
+  td.btns { white-space:nowrap; }
+  td.btns button { font:inherit; font-size:13px; border:1px solid currentColor; background:none; border-radius:6px;
+                   padding:3px 9px; cursor:pointer; margin:0 4px 4px 0; }
+  td.btns button:disabled { opacity:.35; cursor:default; }
+  textarea { width:100%; min-height:70px; font:inherit; background:var(--panel); color:inherit; border:1px solid var(--line);
+             border-radius:8px; padding:8px; }
+  .notes { margin-top:18px; } .notes h3 { font-size:14px; margin:0 0 6px; }
+  .row { display:flex; gap:8px; margin-top:8px; flex-wrap:wrap; align-items:center; }
+  .row button { font:inherit; font-size:13px; padding:5px 12px; border-radius:6px; border:1px solid var(--line);
+                background:var(--panel); color:inherit; cursor:pointer; }
+  .help { color:var(--muted); font-size:12px; margin-top:24px; }
+  @media (max-width:760px) { body { grid-template-columns:1fr; } nav { position:static; height:auto; border-right:0;
+    border-bottom:1px solid var(--line); } main { padding:16px; } }
+</style>
+</head>
+<body>
+<nav><h1>Voice comparison</h1><div id="list"></div></nav>
+<main id="main"></main>
+<script src="data.js"></script>
+<script>
+const { versions: VERSIONS, calls: CALLS } = window.COMPARISON;
+const KEY = 'compare-voices:' + VERSIONS.join('+') + ':';
+const store = { get(k, d) { try { return JSON.parse(localStorage.getItem(KEY + k)) ?? d; } catch { return d; } },
+                set(k, v) { try { localStorage.setItem(KEY + k, JSON.stringify(v)); } catch {} } };
+let blind = store.get('blind', false);
+let current = CALLS.some(c => c.name === store.get('call')) ? store.get('call') : CALLS[0].name;
+const player = new Audio();
+let playingRow = null;
+player.onended = () => { playingRow?.classList.remove('playing'); playingRow = null; };
+const color = label => `var(--v${VERSIONS.indexOf(label) % 5})`;
+const esc = s => String(s).replace(/[&<>"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
+const fmt = s => s == null ? '' : `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}`;
+
+function order(name) {   // blind mode: a fixed shuffle per call, kept across reloads
+  if (!blind) return VERSIONS;
+  const shuffles = store.get('shuffles', {});
+  if (!shuffles[name] || shuffles[name].length !== VERSIONS.length) {
+    const s = [...VERSIONS];
+    for (let i = s.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [s[i], s[j]] = [s[j], s[i]]; }
+    shuffles[name] = s; store.set('shuffles', shuffles);
+  }
+  return shuffles[name];
+}
+const name = (label, i) => blind ? 'Version ' + 'ABCDEFGH'[i] : label;
+const tint = label => blind ? 'var(--ink)' : color(label);
+
+function renderList() {
+  const notes = store.get('notes', {});
+  document.getElementById('list').innerHTML = CALLS.map(c =>
+    `<button class="${c.name === current ? 'on' : ''}" data-call="${esc(c.name)}">
+       <span class="${notes[c.name] ? 'done' : ''}">${esc(c.name)}</span><span class="tag">${esc(c.language)}</span></button>`).join('');
+}
+
+function render() {
+  const c = CALLS.find(x => x.name === current);
+  const sides = order(c.name);
+  const notes = store.get('notes', {});
+  const voices = Object.entries(c.speakers).map(([s, v]) => `${esc(s)}: ${esc(v)}`).join(' · ');
+  document.getElementById('main').innerHTML = `
+    <div class="top"><h2>${esc(c.name)}</h2>
+      <label><input type="checkbox" id="blind" ${blind ? 'checked' : ''}> Blind (hide and shuffle the versions)</label></div>
+    <div class="meta">${c.language === 'zh' ? 'Mandarin with English terms' : 'English'} · ${c.turns.length} turns${blind ? '' : ' · current voices ' + voices}</div>
+    <div class="pair">${sides.map((v, i) => `
+      <div class="card"><h3 style="color:${tint(v)}">${esc(name(v, i))} <span>${fmt(c.seconds[v])}</span></h3>
+        ${c.versions.includes(v) ? `<audio controls preload="none" src="${esc(v)}/${esc(c.name)}/call.wav"></audio>`
+                                 : '<div class="none">Not generated for this call.</div>'}</div>`).join('')}</div>
+    <div class="table"><table><thead><tr><th>#</th><th>Speaker</th><th>Line</th><th>Play this turn</th></tr></thead><tbody>
+    ${c.turns.map(t => `<tr class="${t.mark ? 'hi' : ''}">
+        <td class="n">${t.n}</td><td class="who">${esc(t.speaker)}<small>${blind ? '' : esc(c.speakers[t.speaker] || '')}</small></td>
+        <td>${esc(t.text)}${t.mark ? ` <small style="color:var(--muted)">(${esc(t.mark)})</small>` : ''}</td>
+        <td class="btns">${sides.map((v, i) => `<button style="color:${tint(v)}" ${t.have.includes(v) ? '' : 'disabled'}
+            data-src="${esc(v)}/${esc(c.name)}/${esc(t.file)}">${esc(blind ? 'ABCDEFGH'[i] : v)}</button>`).join('')}</td></tr>`).join('')}
+    </tbody></table></div>
+    <div class="notes"><h3>Your notes on ${esc(c.name)}</h3>
+      <textarea id="note" placeholder="Which sounds more natural? Mispronounced words, odd pauses, voices that sound alike?">${esc(notes[c.name] || '')}</textarea>
+      <div class="row"><button id="copy">Copy all notes</button>${blind ? '<button id="reveal">Reveal versions for this call</button>' : ''}</div></div>
+    <p class="help">Keys: ← / → previous or next call · Space stops a turn. Notes are kept in this browser; in blind mode they still name the letters, so reveal before copying.</p>`;
+  renderList();
+}
+
+function go(name) { current = name; store.set('call', current); player.pause(); render(); window.scrollTo(0, 0); }
+
+document.addEventListener('click', e => {
+  const call = e.target.closest('[data-call]');
+  if (call) return go(call.dataset.call);
+  const src = e.target.closest('[data-src]');
+  if (src && !src.disabled) {
+    document.querySelectorAll('audio').forEach(a => a.pause());
+    playingRow?.classList.remove('playing');
+    playingRow = src.closest('tr'); playingRow.classList.add('playing');
+    player.src = src.dataset.src; player.play(); return;
+  }
+  if (e.target.id === 'copy') {
+    const notes = store.get('notes', {});
+    const text = CALLS.filter(c => notes[c.name]).map(c => `${c.name}: ${notes[c.name]}`).join('\n\n') || '(no notes yet)';
+    const done = () => { e.target.textContent = 'Copied'; setTimeout(() => e.target.textContent = 'Copy all notes', 1200); };
+    navigator.clipboard.writeText('Versions: ' + VERSIONS.join(', ') + '\n\n' + text).then(done, () => alert(text));
+  }
+  if (e.target.id === 'reveal') {
+    e.target.textContent = order(current).map((v, i) => `${'ABCDEFGH'[i]} = ${v}`).join(', ');
+  }
+});
+document.addEventListener('change', e => {
+  if (e.target.id === 'blind') { blind = e.target.checked; store.set('blind', blind); player.pause(); render(); }
+});
+document.addEventListener('input', e => {
+  if (e.target.id !== 'note') return;
+  const notes = store.get('notes', {});
+  if (e.target.value.trim()) notes[current] = e.target.value; else delete notes[current];
+  store.set('notes', notes); renderList();
+});
+document.addEventListener('play', e => {   // one whole-call player at a time
+  document.querySelectorAll('audio').forEach(a => { if (a !== e.target) a.pause(); }); player.pause();
+}, true);
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'TEXTAREA') return;
+  const i = CALLS.findIndex(c => c.name === current);
+  if (e.key === 'ArrowRight') go(CALLS[(i + 1) % CALLS.length].name);
+  if (e.key === 'ArrowLeft') go(CALLS[(i + CALLS.length - 1) % CALLS.length].name);
+  if (e.key === ' ' && !player.paused) { e.preventDefault(); player.pause(); }
+});
+render();
+</script>
+</body>
+</html>
